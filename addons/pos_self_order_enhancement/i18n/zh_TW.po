@@ -61,3 +61,78 @@ msgstr "餐點"
 #: model:ir.model.fields.selection,name:pos_self_order_enhancement.selection__pos_config__self_ordering_pay_after__each
 msgid "整單"
 msgstr "整單"
+
+#. module: pos_self_order_enhancement
+#: model:ir.ui.view,arch_db:pos_self_order_enhancement.payment_page
+msgid "付款"
+msgstr "付款"
+
+#. module: pos_self_order_enhancement
+#: model:ir.ui.view,arch_db:pos_self_order_enhancement.payment_page
+msgid "處理中，請稍候..."
+msgstr "處理中，請稍候..."
+
+#. module: pos_self_order_enhancement
+#: model:ir.ui.view,arch_db:pos_self_order_enhancement.payment_page
+msgid "訂單摘要"
+msgstr "訂單摘要"
+
+#. module: pos_self_order_enhancement
+#: model:ir.ui.view,arch_db:pos_self_order_enhancement.payment_page
+msgid "選擇付款方式"
+msgstr "選擇付款方式"
+
+#. module: pos_self_order_enhancement
+#: model:ir.ui.view,arch_db:pos_self_order_enhancement.payment_page
+msgid "請至櫃台付款"
+msgstr "請至櫃台付款"
+
+#. module: pos_self_order_enhancement
+#: model:ir.ui.view,arch_db:pos_self_order_enhancement.payment_page
+msgid "訂單編號:"
+msgstr "訂單編號:"
+
+#. module: pos_self_order_enhancement
+#: model:ir.ui.view,arch_db:pos_self_order_enhancement.payment_page
+msgid "請出示此畫面給服務人員"
+msgstr "請出示此畫面給服務人員"
+
+#. module: pos_self_order_enhancement
+#: model:ir.ui.view,arch_db:pos_self_order_enhancement.payment_page
+msgid "我已完成付款"
+msgstr "我已完成付款"
+
+#. module: pos_self_order_enhancement
+#: model:ir.ui.view,arch_db:pos_self_order_enhancement.payment_success_page
+msgid "付款成功！"
+msgstr "付款成功！"
+
+#. module: pos_self_order_enhancement
+#: model:ir.ui.view,arch_db:pos_self_order_enhancement.payment_success_page
+msgid "付款金額:"
+msgstr "付款金額:"
+
+#. module: pos_self_order_enhancement
+#: model:ir.ui.view,arch_db:pos_self_order_enhancement.payment_success_page
+msgid "感謝您的惠顧"
+msgstr "感謝您的惠顧"
+
+#. module: pos_self_order_enhancement
+#: model:ir.ui.view,arch_db:pos_self_order_enhancement.payment_success_page
+msgid "餐點準備中，請稍候"
+msgstr "餐點準備中，請稍候"
+
+#. module: pos_self_order_enhancement
+#: model:ir.ui.view,arch_db:pos_self_order_enhancement.payment_success_page
+msgid "再點一份"
+msgstr "再點一份"
+
+#. module: pos_self_order_enhancement
+#: model:ir.ui.view,arch_db:pos_self_order_enhancement.confirmation_page
+msgid "請前往付款頁面完成結帳"
+msgstr "請前往付款頁面完成結帳"
+
+#. module: pos_self_order_enhancement
+#: model:ir.ui.view,arch_db:pos_self_order_enhancement.confirmation_page
+msgid "前往付款"
+msgstr "前往付款"

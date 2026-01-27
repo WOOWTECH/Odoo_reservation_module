@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="pos_self_order_enhancement.PaymentSuccessPage">
+        <div class="o_self_order_payment_success_page d-flex flex-column justify-content-center align-items-center h-100 bg-light p-4">
+            <div class="success-content bg-white rounded-4 shadow-sm p-5 text-center" style="max-width: 400px; width: 100%;">
+                <!-- Success Icon -->
+                <div class="success-icon mb-4">
+                    <div class="d-inline-flex justify-content-center align-items-center rounded-circle bg-success bg-opacity-10"
+                         style="width: 100px; height: 100px;">
+                        <i class="fa fa-check fa-3x text-success"></i>
+                    </div>
+                </div>
+
+                <!-- Success Message -->
+                <h2 class="fw-bold mb-3 text-success">付款成功！</h2>
+
+                <!-- Order Details -->
+                <div class="order-details bg-light rounded-3 p-3 mb-4">
+                    <div class="mb-2">
+                        <span class="text-muted">訂單編號:</span>
+                        <span class="fw-bold ms-2" t-esc="orderReference"/>
+                    </div>
+                    <div>
+                        <span class="text-muted">付款金額:</span>
+                        <span class="fw-bold fs-5 text-primary ms-2">
+                            <t t-esc="formatCurrency(paymentAmount)"/>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Thank You Message -->
+                <div class="thank-you-message mb-4">
+                    <p class="mb-1 fs-5">感謝您的惠顧</p>
+                    <p class="text-muted mb-0">餐點準備中，請稍候</p>
+                </div>
+
+                <!-- Order Again Button -->
+                <button class="btn btn-primary btn-lg w-100 py-3" t-on-click="orderAgain">
+                    <i class="fa fa-plus-circle me-2"></i>
+                    再點一份
+                </button>
+            </div>
+        </div>
+    </t>
+
+</templates>

@@ -9,7 +9,20 @@
             with "Back to Home" and "My Orders" buttons.
         -->
         <xpath expr="//button[hasclass('btn-primary') and contains(@t-on-click, 'backToHome')]" position="replace">
-            <t t-if="showPayPerOrderUI">
+            <t t-if="showPayPerMealUI">
+                <!-- Pay per Meal mode: show payment button -->
+                <div class="d-flex flex-column gap-3 w-100">
+                    <p class="text-center text-muted mb-3">
+                        餐點已送至廚房準備中<br/>
+                        請前往付款頁面完成結帳
+                    </p>
+                    <button class="btn btn-lg btn-primary w-100" t-on-click="goToPayment">
+                        <i class="fa fa-credit-card me-2"></i>
+                        前往付款
+                    </button>
+                </div>
+            </t>
+            <t t-elif="showPayPerOrderUI">
                 <!-- Pay per Order mode: show navigation buttons -->
                 <div class="d-flex flex-column gap-3 w-100">
                     <p class="text-center text-muted mb-3">
@@ -40,7 +53,7 @@
             since customer will pay later.
         -->
         <xpath expr="//p[contains(@class, 'text-center') and contains(text(), 'amount')]" position="attributes">
-            <attribute name="t-if">!showPayPerOrderUI and confirmedOrder.amount_total > 0 and confirmedOrder.state != 'paid'</attribute>
+            <attribute name="t-if">!showPayPerOrderUI and !showPayPerMealUI and confirmedOrder.amount_total > 0 and confirmedOrder.state != 'paid'</attribute>
         </xpath>
 
     </t>

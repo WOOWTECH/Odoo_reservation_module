@@ -30,6 +30,9 @@
         "pos_self_order.assets": [
             "pos_self_order_enhancement/static/src/app/**/*",
         ],
+        "web.assets_backend": [
+            "pos_self_order_enhancement/static/src/fields/**/*",
+        ],
     },
     "installable": True,
     "auto_install": False,

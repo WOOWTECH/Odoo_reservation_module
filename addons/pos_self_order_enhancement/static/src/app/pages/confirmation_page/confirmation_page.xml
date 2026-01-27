@@ -8,7 +8,7 @@
             In "Pay per Order" mode, replace the default action button
             with "Back to Home" and "My Orders" buttons.
         -->
-        <xpath expr="//button[hasclass('btn-primary') and contains(@t-on-click, 'backToHome')]" position="replace">
+        <xpath expr="//div[hasclass('px-3') and hasclass('py-4')]/button[hasclass('btn-primary')]" position="replace">
             <t t-if="showPayPerMealUI">
                 <!-- Pay per Meal mode: show payment button -->
                 <div class="d-flex flex-column gap-3 w-100">
@@ -49,11 +49,11 @@
         </xpath>
 
         <!--
-            In "Pay per Order" mode, hide the payment instruction
-            since customer will pay later.
+            In "Pay per Order" mode, conditionally show the "Pay at cashier" message.
+            Only show it when not in pay-per-order or pay-per-meal mode.
         -->
-        <xpath expr="//p[contains(@class, 'text-center') and contains(text(), 'amount')]" position="attributes">
-            <attribute name="t-if">!showPayPerOrderUI and !showPayPerMealUI and confirmedOrder.amount_total > 0 and confirmedOrder.state != 'paid'</attribute>
+        <xpath expr="//h3[contains(@t-if, 'state.payment') and contains(@t-if, 'paid')]" position="attributes">
+            <attribute name="t-if">!showPayPerOrderUI and !showPayPerMealUI and state.payment and confirmedOrder.state !== 'paid'</attribute>
         </xpath>
 
     </t>

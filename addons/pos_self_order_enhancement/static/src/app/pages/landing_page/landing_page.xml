@@ -12,7 +12,7 @@
         <xpath expr="//div[hasclass('o_pos_landing_footer')]//a[hasclass('btn-secondary')]" position="after">
             <a t-if="showContinueOrderingBtn" type="button" t-on-click="continueOrdering"
                class="btn btn-lg btn-secondary" style="border-color: #714B67">
-                Continue Ordering
+                繼續點餐
             </a>
         </xpath>
 

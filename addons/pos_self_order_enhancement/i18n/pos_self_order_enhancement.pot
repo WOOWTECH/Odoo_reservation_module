@@ -16,5 +16,6 @@ msgstr ""
 
 #. module: pos_self_order_enhancement
 #: model:ir.ui.view,arch_db:pos_self_order_enhancement.landing_page
-msgid "Continue Ordering"
+#: Note: Button text is hardcoded in Chinese in the template for zh_TW locale
+msgid "繼續點餐"
 msgstr ""

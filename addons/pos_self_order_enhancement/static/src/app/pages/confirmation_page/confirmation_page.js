@@ -97,16 +97,16 @@ patch(ConfirmationPage.prototype, {
     },
 
     /**
-     * Navigate back to landing page.
+     * Navigate back to landing page (default route).
      */
     goToLanding() {
-        this.router.navigate("landing");
+        this.router.navigate("default");
     },
 
     /**
      * Navigate to order history page for checkout.
      */
     goToMyOrders() {
-        this.router.navigate("order_history");
+        this.router.navigate("orderHistory");
     },
 });

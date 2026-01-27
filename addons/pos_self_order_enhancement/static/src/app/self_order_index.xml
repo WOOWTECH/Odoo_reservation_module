@@ -8,11 +8,11 @@
         Note: The existing "payment" route will use our custom PaymentPage
         component automatically because we patched selfOrderIndex.components.
     -->
-    <t t-inherit="pos_self_order.SelfOrderIndex" t-inherit-mode="extension">
+    <t t-inherit="pos_self_order.selfOrderIndex" t-inherit-mode="extension">
 
         <!-- Add payment success route -->
         <xpath expr="//Router" position="inside">
-            <t t-set-slot="payment_success" route="/pos-self/{pos_config_id}/payment-success">
+            <t t-set-slot="payment_success" route="`/pos-self/${selfOrder.config.id}/payment-success`">
                 <PaymentSuccessPage/>
             </t>
         </xpath>

@@ -1,0 +1,216 @@
+/* Appointment Frontend Styles */
+
+/* General Styles */
+.appointment-page {
+    min-height: 60vh;
+}
+
+/* Card Styles */
+.appointment-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.appointment-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.appointment-card .card-img-top {
+    height: 150px;
+    object-fit: cover;
+}
+
+/* Reservation Styles */
+#appointment-reservation {
+    min-height: 300px;
+}
+
+#appointment-reservation .reservation-day {
+    cursor: pointer;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+#appointment-reservation .reservation-day:hover {
+    background-color: #e9ecef;
+}
+
+#appointment-reservation .reservation-day.selected {
+    background-color: #007bff;
+    color: white;
+}
+
+#appointment-reservation .reservation-day.disabled {
+    color: #adb5bd;
+    cursor: not-allowed;
+}
+
+#appointment-reservation .reservation-day.has-slots {
+    font-weight: bold;
+}
+
+#appointment-reservation .reservation-day.no-slots {
+    color: #adb5bd;
+}
+
+/* Time Slots */
+.time-slot {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.time-slot:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.time-slot.selected {
+    background-color: #007bff;
+    color: white;
+}
+
+.time-slot.unavailable {
+    border-color: #dee2e6;
+    color: #adb5bd;
+    cursor: not-allowed;
+}
+
+.time-slot .slot-time {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.time-slot .slot-availability {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.time-slot:hover .slot-availability {
+    color: rgba(255,255,255,0.8);
+}
+
+/* Resource Selection */
+.resource-list .list-group-item {
+    transition: background-color 0.2s;
+}
+
+.resource-list .list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+.resource-list .list-group-item.active {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+/* Booking Form */
+.booking-form .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+/* Confirmation Page */
+.confirmation-icon {
+    font-size: 5rem;
+    color: #28a745;
+}
+
+.booking-reference {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #007bff;
+    letter-spacing: 2px;
+}
+
+/* Loading Spinner */
+.appointment-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.appointment-loading .fa-spinner {
+    font-size: 2rem;
+    color: #007bff;
+}
+
+/* Breadcrumb */
+.appointment-breadcrumb {
+    background: none;
+    padding: 0;
+    margin-bottom: 1.5rem;
+}
+
+/* Alert Styles */
+.appointment-alert {
+    border-left: 4px solid;
+}
+
+.appointment-alert.alert-info {
+    border-left-color: #17a2b8;
+}
+
+.appointment-alert.alert-warning {
+    border-left-color: #ffc107;
+}
+
+.appointment-alert.alert-success {
+    border-left-color: #28a745;
+}
+
+.appointment-alert.alert-danger {
+    border-left-color: #dc3545;
+}
+
+/* Payment Page */
+.payment-amount {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.payment-method-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 30px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.payment-method-btn:hover {
+    border-color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.payment-method-btn img {
+    max-height: 30px;
+    margin-right: 10px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .time-slot {
+        display: block;
+        margin: 5px 0;
+    }
+
+    .appointment-card .card-img-top {
+        height: 120px;
+    }
+
+    .payment-amount {
+        font-size: 2rem;
+    }
+}

@@ -1,0 +1,1201 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * odoo_calendar_enhance
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-29 00:00+0000\n"
+"PO-Revision-Date: 2026-01-29 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. module: odoo_calendar_enhance
+#: model:ir.module.category,name:odoo_calendar_enhance.module_category_appointment
+msgid "Appointments"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:res.groups,name:odoo_calendar_enhance.group_appointment_user
+msgid "User"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:res.groups,name:odoo_calendar_enhance.group_appointment_manager
+msgid "Manager"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model,name:odoo_calendar_enhance.model_appointment_type
+msgid "Appointment Type"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model,name:odoo_calendar_enhance.model_appointment_booking
+msgid "Appointment Booking"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model,name:odoo_calendar_enhance.model_appointment_slot
+msgid "Appointment Slot"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model,name:odoo_calendar_enhance.model_appointment_availability
+msgid "Appointment Availability"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model,name:odoo_calendar_enhance.model_appointment_question
+msgid "Appointment Question"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model,name:odoo_calendar_enhance.model_appointment_answer
+msgid "Appointment Answer"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.menu,name:odoo_calendar_enhance.menu_calendar_root
+msgid "Calendar"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.menu,name:odoo_calendar_enhance.menu_appointment_types
+msgid "Appointments"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.menu,name:odoo_calendar_enhance.menu_appointment_bookings
+msgid "All Bookings"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.menu,name:odoo_calendar_enhance.menu_appointment_resource_bookings
+msgid "Resource Bookings"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.menu,name:odoo_calendar_enhance.menu_appointment_staff_bookings
+msgid "Staff Bookings"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.menu,name:odoo_calendar_enhance.menu_appointment_reports
+msgid "Reports"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.menu,name:odoo_calendar_enhance.menu_appointment_configuration
+msgid "Configuration"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.menu,name:odoo_calendar_enhance.menu_appointment_settings
+msgid "Settings"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__name
+msgid "Name"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__description
+msgid "Description"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__category
+msgid "Category"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__category__meeting
+msgid "Meeting"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__category__video
+msgid "Video Call"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__category__restaurant
+msgid "Table Booking"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__category__resource
+msgid "Book a Resource"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__category__consultation
+msgid "Paid Consultation"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__location_type
+msgid "Location Type"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__location_type__online
+msgid "Online"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__location_type__in_person
+msgid "In Person"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__location_type__phone
+msgid "Phone"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__location_address
+msgid "Location"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__location_address
+msgid "Physical location for the appointment"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__video_conference_link
+msgid "Video Conference Link"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__video_conference_link
+msgid "Link to video conference"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__slot_duration
+msgid "Slot Duration (hours)"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__slot_duration
+msgid "Duration of each appointment slot in hours"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__slot_interval
+msgid "Slot Interval"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__slot_interval
+msgid "Time interval between available slots"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__max_booking_days
+msgid "Max Booking Days"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__max_booking_days
+msgid "How many days in advance can appointments be booked"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__min_booking_hours
+msgid "Min Booking Hours"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__min_booking_hours
+msgid "Minimum hours before the appointment start time that booking is allowed"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__min_cancel_hours
+msgid "Min Cancel Hours"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__min_cancel_hours
+msgid "Hours before appointment start time until when cancellation is allowed"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__auto_confirm
+msgid "Auto Confirm"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__auto_confirm
+msgid "Automatically confirm bookings"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__require_payment
+msgid "Require Payment"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__require_payment
+msgid "Require payment before confirming the appointment"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__payment_amount
+msgid "Payment Amount"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__payment_amount
+msgid "Amount to charge for the appointment"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__resource_ids
+msgid "Resources"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__resource_ids
+msgid "Resources available for this appointment type"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__staff_user_ids
+msgid "Staff"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__staff_user_ids
+msgid "Staff members available for this appointment type"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__is_published
+msgid "Published"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__availability_ids
+msgid "Availability"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__question_ids
+msgid "Questions"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__booking_ids
+msgid "Bookings"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__name
+msgid "Booking Reference"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__guest_name
+msgid "Guest Name"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__guest_email
+msgid "Guest Email"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__guest_phone
+msgid "Guest Phone"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__guest_count
+msgid "Number of Guests"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__start_datetime
+msgid "Start Time"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__end_datetime
+msgid "End Time"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__duration
+msgid "Duration (hours)"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__notes
+msgid "Notes"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__state
+msgid "Status"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_booking__state__draft
+msgid "Draft"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_booking__state__confirmed
+msgid "Confirmed"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_booking__state__done
+msgid "Done"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_booking__state__cancelled
+msgid "Cancelled"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__payment_status
+msgid "Payment Status"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_booking__payment_status__not_required
+msgid "Not Required"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_booking__payment_status__pending
+msgid "Pending"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_booking__payment_status__paid
+msgid "Paid"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_availability__day_of_week
+msgid "Day of Week"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_availability__day_of_week__0
+msgid "Monday"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_availability__day_of_week__1
+msgid "Tuesday"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_availability__day_of_week__2
+msgid "Wednesday"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_availability__day_of_week__3
+msgid "Thursday"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_availability__day_of_week__4
+msgid "Friday"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_availability__day_of_week__5
+msgid "Saturday"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_availability__day_of_week__6
+msgid "Sunday"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_availability__start_hour
+msgid "Start Hour"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_availability__end_hour
+msgid "End Hour"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__name
+msgid "Question"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__question_type
+msgid "Question Type"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_question__question_type__text
+msgid "Text"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_question__question_type__textarea
+msgid "Text Area"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_question__question_type__select
+msgid "Selection"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_question__question_type__checkbox
+msgid "Checkbox"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_question__question_type__radio
+msgid "Radio"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__required
+msgid "Required"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__placeholder
+msgid "Placeholder"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__option_ids
+msgid "Options"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__value_text
+msgid "Text Answer"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__value_checkbox
+msgid "Checkbox Answer"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__value_selection_ids
+msgid "Selected Options"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/controllers/main.py:0
+#, python-format
+msgid "Please fill in all required fields."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/models/appointment_availability.py:0
+#, python-format
+msgid "Start time must be between 0 and 24."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/models/appointment_availability.py:0
+#, python-format
+msgid "End time must be between 0 and 24."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/models/appointment_availability.py:0
+#, python-format
+msgid "Start time must be before end time."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/models/appointment_booking.py:0
+#, python-format
+msgid "End time must be after start time."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/models/appointment_booking.py:0
+#, python-format
+msgid "Number of guests must be at least 1."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/models/appointment_booking.py:0
+#, python-format
+msgid "Payment is required before confirming this booking."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/models/appointment_slot.py:0
+#, python-format
+msgid "Capacity must be at least 1."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#, python-format
+msgid "Slot duration must be greater than 0."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#, python-format
+msgid "Maximum booking days must be at least 1."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#, python-format
+msgid "Auto confirm capacity must be between 0 and 100."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#, python-format
+msgid "Allow others to book meetings in your calendar"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#, python-format
+msgid "Schedule video meetings with one or more participants"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#, python-format
+msgid "Let customers book tables at your restaurant or bar"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#, python-format
+msgid "Allow customers to book resources like rooms, tennis courts, etc."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#, python-format
+msgid "Let customers book a paid slot in your calendar"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_list
+msgid "Book Now"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_page
+msgid "Book Appointment"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_schedule_page
+msgid "Select Date & Time"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_schedule_page
+msgid "Select Staff"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_schedule_page
+msgid "Select Resource"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_schedule_page
+msgid "Available Times"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_schedule_page
+msgid "Loading available slots..."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_book_page
+msgid "Complete Your Booking"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_book_page
+msgid "Name *"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_book_page
+msgid "Email *"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_book_page
+msgid "Phone"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_book_page
+msgid "Number of Guests"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_book_page
+msgid "Confirm Booking"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_confirm_page
+msgid "Booking Confirmed!"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_confirm_page
+msgid "Your booking reference is:"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_confirm_page
+msgid "A confirmation email has been sent to"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_confirm_page
+msgid "Book Another Appointment"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_cancel_page
+msgid "Cancel Booking"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_cancel_page
+msgid "Are you sure you want to cancel this booking?"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_cancel_page
+msgid "Yes, Cancel Booking"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_cancelled_page
+msgid "Booking Cancelled"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_cancelled_page
+msgid "Your booking has been cancelled successfully."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:mail.template,subject:odoo_calendar_enhance.mail_template_appointment_confirmed
+msgid "Your appointment has been confirmed"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:mail.template,subject:odoo_calendar_enhance.mail_template_appointment_cancelled
+msgid "Your appointment has been cancelled"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:mail.template,subject:odoo_calendar_enhance.mail_template_appointment_reminder
+msgid "Reminder: Your appointment is coming up"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "General"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Communication"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Introduction Message"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Confirmation Message"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Payment"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Advanced"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_kanban
+msgid "Published"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_kanban
+msgid "Unpublished"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.actions.act_window,name:odoo_calendar_enhance.action_appointment_type
+msgid "Appointment Types"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.actions.act_window,name:odoo_calendar_enhance.action_appointment_booking
+msgid "All Bookings"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+msgid "Booking Information"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+msgid "Guest Information"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+msgid "Confirm"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+msgid "Cancel"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+msgid "Mark as Done"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+msgid "Set to Draft"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_calendar
+msgid "Appointment Calendar"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+msgid "hour(s)"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+msgid "seats"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+msgid "available"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_list
+msgid "Book an Appointment"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_list
+msgid "No appointment types available at the moment."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_page
+msgid "per person"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_book_page
+msgid "Book"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_book_page
+msgid "-- Select --"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_book_page
+msgid "Any additional information..."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_book_page
+msgid "will be required to confirm your booking."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_book_page
+msgid "Continue to Payment"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_confirm_page
+msgid "Staff:"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_confirm_page
+msgid "Appointment:"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_confirm_page
+msgid "Date & Time:"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_confirm_page
+msgid "Resource:"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_confirm_page
+msgid "Guests:"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_page
+msgid "Appointment Details"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_page
+msgid "Type:"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_page
+msgid "Name:"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_page
+msgid "Email:"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_page
+msgid "Phone:"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_page
+msgid "Number of Guests:"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_cancel_page
+msgid "Cancel Booking?"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_cancel_page
+msgid "Are you sure you want to cancel your booking?"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_cancel_page
+msgid "Booking Reference:"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_cancel_page
+msgid "No, Keep Booking"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_cancelled_page
+msgid "has been cancelled."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_cancelled_page
+msgid "Book a New Appointment"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_payment_page
+msgid "Booking Summary"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_payment_page
+msgid "Amount Due"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_payment_page
+msgid "Select a payment method to complete your booking."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_payment_page
+msgid "Pay with"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_payment_page
+msgid "No payment methods available. Please contact us to complete your booking."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#, javascript-format
+msgid "Loading available times..."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#, javascript-format
+msgid "Error loading available times. Please try again."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#, javascript-format
+msgid "No available times for this date."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
+msgid "Today"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
+msgid "This Week"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
+msgid "Upcoming"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
+msgid "Group By"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
+msgid "Date"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.actions.act_window,help:odoo_calendar_enhance.action_appointment_booking
+msgid "No bookings yet"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.actions.act_window,help:odoo_calendar_enhance.action_appointment_booking
+msgid "Bookings will appear here when customers make appointments."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.actions.act_window,name:odoo_calendar_enhance.action_appointment_booking_calendar
+msgid "Bookings Calendar"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Share"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Resource Gantt"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Staff Gantt"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Archived"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Schedule Configuration"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Capacity"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Staff Members"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Weekly Schedule"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Add Closing Days"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Introduction Page"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Confirmation Page"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Email Notifications"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Email notifications are automatically sent when bookings are confirmed, rescheduled, or cancelled."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Booking Settings"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Scheduling"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "before start time"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Cancellation"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+msgid "Display"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_kanban
+msgid "duration"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_kanban
+msgid "Total"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_kanban
+msgid "resources"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_kanban
+msgid "capacity:"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_kanban
+msgid "staff members"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_search
+msgid "Table"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_search
+msgid "Paid Seat"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.actions.act_window,help:odoo_calendar_enhance.action_appointment_type
+msgid "Create your first appointment type"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.actions.act_window,help:odoo_calendar_enhance.action_appointment_type
+msgid "Allow your customers to book appointments online."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+msgid "Answers"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+msgid "Notes from the guest..."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+msgid "Internal Notes"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+msgid "Internal notes (not visible to guests)..."
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+msgid "Technical"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_list
+msgid "Search Bookings"
+msgstr ""
+
+#. module: odoo_calendar_enhance
+#: model:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_search
+msgid "Search Appointment Types"
+msgstr ""

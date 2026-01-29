@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Demo Resources -->
+        <record id="resource_meeting_room_a" model="resource.resource">
+            <field name="name">Meeting Room A</field>
+            <field name="resource_type">material</field>
+            <field name="capacity">10</field>
+            <field name="icon">fa-building</field>
+        </record>
+
+        <record id="resource_meeting_room_b" model="resource.resource">
+            <field name="name">Meeting Room B</field>
+            <field name="resource_type">material</field>
+            <field name="capacity">6</field>
+            <field name="icon">fa-building</field>
+        </record>
+
+        <record id="resource_table_1" model="resource.resource">
+            <field name="name">Table 1 - Window</field>
+            <field name="resource_type">material</field>
+            <field name="capacity">4</field>
+            <field name="icon">fa-cutlery</field>
+        </record>
+
+        <record id="resource_table_2" model="resource.resource">
+            <field name="name">Table 2 - Garden View</field>
+            <field name="resource_type">material</field>
+            <field name="capacity">6</field>
+            <field name="icon">fa-cutlery</field>
+        </record>
+
+        <record id="resource_table_3" model="resource.resource">
+            <field name="name">Table 3 - Private</field>
+            <field name="resource_type">material</field>
+            <field name="capacity">8</field>
+            <field name="icon">fa-cutlery</field>
+        </record>
+
+        <record id="resource_tennis_court" model="resource.resource">
+            <field name="name">Tennis Court</field>
+            <field name="resource_type">material</field>
+            <field name="capacity">4</field>
+            <field name="icon">fa-futbol-o</field>
+        </record>
+
+        <!-- Appointment Type: Meeting -->
+        <record id="appointment_type_meeting" model="appointment.type">
+            <field name="name">Business Meeting</field>
+            <field name="category">meeting</field>
+            <field name="description"><![CDATA[
+                <p>Schedule a business meeting with our team. Perfect for:</p>
+                <ul>
+                    <li>Project discussions</li>
+                    <li>Client consultations</li>
+                    <li>Strategic planning</li>
+                </ul>
+            ]]></field>
+            <field name="slot_duration">1.0</field>
+            <field name="slot_interval">1.0</field>
+            <field name="max_booking_days">30</field>
+            <field name="min_booking_hours">2.0</field>
+            <field name="cancel_before_hours">24.0</field>
+            <field name="location_type">physical</field>
+            <field name="booking_type">user</field>
+            <field name="assignment_method">customer</field>
+            <field name="auto_confirm" eval="True"/>
+            <field name="allow_invitations" eval="True"/>
+            <field name="is_published" eval="True"/>
+            <field name="icon">fa-handshake-o</field>
+            <field name="staff_user_ids" eval="[(4, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- Availability for Meeting -->
+        <record id="availability_meeting_mon" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_meeting"/>
+            <field name="dayofweek">0</field>
+            <field name="hour_from">9.0</field>
+            <field name="hour_to">17.0</field>
+        </record>
+        <record id="availability_meeting_tue" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_meeting"/>
+            <field name="dayofweek">1</field>
+            <field name="hour_from">9.0</field>
+            <field name="hour_to">17.0</field>
+        </record>
+        <record id="availability_meeting_wed" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_meeting"/>
+            <field name="dayofweek">2</field>
+            <field name="hour_from">9.0</field>
+            <field name="hour_to">17.0</field>
+        </record>
+        <record id="availability_meeting_thu" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_meeting"/>
+            <field name="dayofweek">3</field>
+            <field name="hour_from">9.0</field>
+            <field name="hour_to">17.0</field>
+        </record>
+        <record id="availability_meeting_fri" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_meeting"/>
+            <field name="dayofweek">4</field>
+            <field name="hour_from">9.0</field>
+            <field name="hour_to">17.0</field>
+        </record>
+
+        <!-- Appointment Type: Video Call -->
+        <record id="appointment_type_video_call" model="appointment.type">
+            <field name="name">Video Consultation</field>
+            <field name="category">video_call</field>
+            <field name="description"><![CDATA[
+                <p>Schedule a video consultation from anywhere in the world.</p>
+                <p>Our team will send you a meeting link after booking.</p>
+            ]]></field>
+            <field name="slot_duration">0.5</field>
+            <field name="slot_interval">0.5</field>
+            <field name="max_booking_days">14</field>
+            <field name="min_booking_hours">1.0</field>
+            <field name="cancel_before_hours">2.0</field>
+            <field name="location_type">online</field>
+            <field name="video_link">https://meet.google.com/example</field>
+            <field name="booking_type">user</field>
+            <field name="assignment_method">automatic</field>
+            <field name="auto_confirm" eval="True"/>
+            <field name="is_published" eval="True"/>
+            <field name="icon">fa-video-camera</field>
+            <field name="staff_user_ids" eval="[(4, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- Availability for Video Call -->
+        <record id="availability_video_mon" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_video_call"/>
+            <field name="dayofweek">0</field>
+            <field name="hour_from">10.0</field>
+            <field name="hour_to">18.0</field>
+        </record>
+        <record id="availability_video_wed" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_video_call"/>
+            <field name="dayofweek">2</field>
+            <field name="hour_from">10.0</field>
+            <field name="hour_to">18.0</field>
+        </record>
+        <record id="availability_video_fri" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_video_call"/>
+            <field name="dayofweek">4</field>
+            <field name="hour_from">10.0</field>
+            <field name="hour_to">18.0</field>
+        </record>
+
+        <!-- Appointment Type: Table Booking -->
+        <record id="appointment_type_table" model="appointment.type">
+            <field name="name">Restaurant Table</field>
+            <field name="category">table</field>
+            <field name="description"><![CDATA[
+                <p>Reserve a table at our restaurant.</p>
+                <ul>
+                    <li>Indoor and outdoor seating available</li>
+                    <li>Private dining options</li>
+                    <li>Special occasion accommodations</li>
+                </ul>
+            ]]></field>
+            <field name="slot_duration">2.0</field>
+            <field name="slot_interval">0.5</field>
+            <field name="max_booking_days">60</field>
+            <field name="min_booking_hours">4.0</field>
+            <field name="cancel_before_hours">4.0</field>
+            <field name="location_type">physical</field>
+            <field name="booking_type">resource</field>
+            <field name="assignment_method">customer</field>
+            <field name="manage_capacity" eval="True"/>
+            <field name="auto_confirm" eval="True"/>
+            <field name="is_published" eval="True"/>
+            <field name="icon">fa-cutlery</field>
+            <field name="resource_ids" eval="[(4, ref('resource_table_1')), (4, ref('resource_table_2')), (4, ref('resource_table_3'))]"/>
+        </record>
+
+        <!-- Availability for Table (dinner hours) -->
+        <record id="availability_table_mon" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_table"/>
+            <field name="dayofweek">0</field>
+            <field name="hour_from">18.0</field>
+            <field name="hour_to">22.0</field>
+        </record>
+        <record id="availability_table_tue" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_table"/>
+            <field name="dayofweek">1</field>
+            <field name="hour_from">18.0</field>
+            <field name="hour_to">22.0</field>
+        </record>
+        <record id="availability_table_wed" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_table"/>
+            <field name="dayofweek">2</field>
+            <field name="hour_from">18.0</field>
+            <field name="hour_to">22.0</field>
+        </record>
+        <record id="availability_table_thu" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_table"/>
+            <field name="dayofweek">3</field>
+            <field name="hour_from">18.0</field>
+            <field name="hour_to">22.0</field>
+        </record>
+        <record id="availability_table_fri" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_table"/>
+            <field name="dayofweek">4</field>
+            <field name="hour_from">18.0</field>
+            <field name="hour_to">23.0</field>
+        </record>
+        <record id="availability_table_sat" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_table"/>
+            <field name="dayofweek">5</field>
+            <field name="hour_from">12.0</field>
+            <field name="hour_to">23.0</field>
+        </record>
+        <record id="availability_table_sun" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_table"/>
+            <field name="dayofweek">6</field>
+            <field name="hour_from">12.0</field>
+            <field name="hour_to">21.0</field>
+        </record>
+
+        <!-- Appointment Type: Resource Booking (Tennis Court) -->
+        <record id="appointment_type_tennis" model="appointment.type">
+            <field name="name">Tennis Court</field>
+            <field name="category">resource</field>
+            <field name="description"><![CDATA[
+                <p>Book our professional tennis court.</p>
+                <ul>
+                    <li>Clay surface</li>
+                    <li>Lighting available for evening play</li>
+                    <li>Equipment rental available</li>
+                </ul>
+            ]]></field>
+            <field name="slot_duration">1.0</field>
+            <field name="slot_interval">1.0</field>
+            <field name="max_booking_days">7</field>
+            <field name="min_booking_hours">2.0</field>
+            <field name="cancel_before_hours">4.0</field>
+            <field name="location_type">physical</field>
+            <field name="booking_type">resource</field>
+            <field name="assignment_method">automatic</field>
+            <field name="auto_confirm" eval="True"/>
+            <field name="is_published" eval="True"/>
+            <field name="icon">fa-futbol-o</field>
+            <field name="resource_ids" eval="[(4, ref('resource_tennis_court'))]"/>
+        </record>
+
+        <!-- Availability for Tennis Court -->
+        <record id="availability_tennis_mon" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_tennis"/>
+            <field name="dayofweek">0</field>
+            <field name="hour_from">7.0</field>
+            <field name="hour_to">21.0</field>
+        </record>
+        <record id="availability_tennis_tue" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_tennis"/>
+            <field name="dayofweek">1</field>
+            <field name="hour_from">7.0</field>
+            <field name="hour_to">21.0</field>
+        </record>
+        <record id="availability_tennis_wed" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_tennis"/>
+            <field name="dayofweek">2</field>
+            <field name="hour_from">7.0</field>
+            <field name="hour_to">21.0</field>
+        </record>
+        <record id="availability_tennis_thu" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_tennis"/>
+            <field name="dayofweek">3</field>
+            <field name="hour_from">7.0</field>
+            <field name="hour_to">21.0</field>
+        </record>
+        <record id="availability_tennis_fri" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_tennis"/>
+            <field name="dayofweek">4</field>
+            <field name="hour_from">7.0</field>
+            <field name="hour_to">21.0</field>
+        </record>
+        <record id="availability_tennis_sat" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_tennis"/>
+            <field name="dayofweek">5</field>
+            <field name="hour_from">8.0</field>
+            <field name="hour_to">20.0</field>
+        </record>
+        <record id="availability_tennis_sun" model="appointment.availability">
+            <field name="appointment_type_id" ref="appointment_type_tennis"/>
+            <field name="dayofweek">6</field>
+            <field name="hour_from">8.0</field>
+            <field name="hour_to">18.0</field>
+        </record>
+
+        <!-- Appointment Type: Paid Consultation -->
+        <record id="appointment_type_consultation" model="appointment.type">
+            <field name="name">Expert Consultation</field>
+            <field name="category">paid_consultation</field>
+            <field name="description"><![CDATA[
+                <p>Book a one-on-one consultation with our expert.</p>
+                <p>Payment is required to confirm your booking.</p>
+            ]]></field>
+            <field name="slot_duration">1.0</field>
+            <field name="slot_interval">1.0</field>
+            <field name="max_booking_days">30</field>
+            <field name="min_booking_hours">24.0</field>
+            <field name="cancel_before_hours">48.0</field>
+            <field name="location_type">online</field>
+            <field name="booking_type">user</field>
+            <field name="assignment_method">customer</field>
+            <field name="require_payment" eval="True"/>
+            <field name="payment_amount">100.00</field>
+            <field name="auto_confirm" eval="True"/>
+            <field name="is_published" eval="True"/>
+            <field name="icon">fa-user-md</field>
+            <field name="staff_user_ids" eval="[(4, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- Questions for Consultation -->
+        <record id="question_consultation_topic" model="appointment.question">
+            <field name="appointment_type_id" ref="appointment_type_consultation"/>
+            <field name="name">What topic would you like to discuss?</field>
+            <field name="question_type">textarea</field>
+            <field name="required" eval="True"/>
+            <field name="sequence">1</field>
+            <field name="placeholder">Please describe your question or topic in detail...</field>
+        </record>
+
+        <record id="question_consultation_experience" model="appointment.question">
+            <field name="appointment_type_id" ref="appointment_type_consultation"/>
+            <field name="name">Your experience level</field>
+            <field name="question_type">select</field>
+            <field name="required" eval="True"/>
+            <field name="sequence">2</field>
+        </record>
+
+        <record id="question_option_beginner" model="appointment.question.option">
+            <field name="question_id" ref="question_consultation_experience"/>
+            <field name="name">Beginner</field>
+            <field name="sequence">1</field>
+        </record>
+
+        <record id="question_option_intermediate" model="appointment.question.option">
+            <field name="question_id" ref="question_consultation_experience"/>
+            <field name="name">Intermediate</field>
+            <field name="sequence">2</field>
+        </record>
+
+        <record id="question_option_advanced" model="appointment.question.option">
+            <field name="question_id" ref="question_consultation_experience"/>
+            <field name="name">Advanced</field>
+            <field name="sequence">3</field>
+        </record>
+
+        <!-- Questions for Table Booking -->
+        <record id="question_table_occasion" model="appointment.question">
+            <field name="appointment_type_id" ref="appointment_type_table"/>
+            <field name="name">Special occasion?</field>
+            <field name="question_type">radio</field>
+            <field name="required" eval="False"/>
+            <field name="sequence">1</field>
+        </record>
+
+        <record id="question_option_none" model="appointment.question.option">
+            <field name="question_id" ref="question_table_occasion"/>
+            <field name="name">No special occasion</field>
+            <field name="sequence">1</field>
+        </record>
+
+        <record id="question_option_birthday" model="appointment.question.option">
+            <field name="question_id" ref="question_table_occasion"/>
+            <field name="name">Birthday</field>
+            <field name="sequence">2</field>
+        </record>
+
+        <record id="question_option_anniversary" model="appointment.question.option">
+            <field name="question_id" ref="question_table_occasion"/>
+            <field name="name">Anniversary</field>
+            <field name="sequence">3</field>
+        </record>
+
+        <record id="question_option_business" model="appointment.question.option">
+            <field name="question_id" ref="question_table_occasion"/>
+            <field name="name">Business Dinner</field>
+            <field name="sequence">4</field>
+        </record>
+
+        <record id="question_table_dietary" model="appointment.question">
+            <field name="appointment_type_id" ref="appointment_type_table"/>
+            <field name="name">Dietary requirements</field>
+            <field name="question_type">checkbox</field>
+            <field name="required" eval="False"/>
+            <field name="sequence">2</field>
+        </record>
+
+        <record id="question_option_vegetarian" model="appointment.question.option">
+            <field name="question_id" ref="question_table_dietary"/>
+            <field name="name">Vegetarian</field>
+            <field name="sequence">1</field>
+        </record>
+
+        <record id="question_option_vegan" model="appointment.question.option">
+            <field name="question_id" ref="question_table_dietary"/>
+            <field name="name">Vegan</field>
+            <field name="sequence">2</field>
+        </record>
+
+        <record id="question_option_gluten_free" model="appointment.question.option">
+            <field name="question_id" ref="question_table_dietary"/>
+            <field name="name">Gluten-free</field>
+            <field name="sequence">3</field>
+        </record>
+
+        <record id="question_option_halal" model="appointment.question.option">
+            <field name="question_id" ref="question_table_dietary"/>
+            <field name="name">Halal</field>
+            <field name="sequence">4</field>
+        </record>
+    </data>
+</odoo>

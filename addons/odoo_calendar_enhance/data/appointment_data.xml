@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Sequences -->
+        <record id="sequence_appointment_booking" model="ir.sequence">
+            <field name="name">Appointment Booking</field>
+            <field name="code">appointment.booking</field>
+            <field name="prefix">APT</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="sequence_appointment_booking_token" model="ir.sequence">
+            <field name="name">Appointment Booking Token</field>
+            <field name="code">appointment.booking.token</field>
+            <field name="implementation">no_gap</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Email Templates -->
+        <record id="email_template_booking_confirmed" model="mail.template">
+            <field name="name">Appointment: Booking Confirmed</field>
+            <field name="model_id" ref="model_appointment_booking"/>
+            <field name="email_from">{{ (object.company_id.email or user.email_formatted) }}</field>
+            <field name="email_to">{{ object.guest_email }}</field>
+            <field name="subject">Your appointment has been confirmed - {{ object.name }}</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+        Dear <t t-out="object.guest_name"/>,
+        <br/><br/>
+        Your appointment has been confirmed. Here are the details:
+        <br/><br/>
+        <strong>Appointment Type:</strong> <t t-out="object.appointment_type_id.name"/><br/>
+        <strong>Date &amp; Time:</strong> <t t-out="object.start_datetime" t-options='{"widget": "datetime"}'/> - <t t-out="object.end_datetime" t-options='{"widget": "datetime"}'/><br/>
+        <t t-if="object.resource_id">
+            <strong>Resource:</strong> <t t-out="object.resource_id.name"/><br/>
+        </t>
+        <t t-if="object.staff_user_id">
+            <strong>Staff:</strong> <t t-out="object.staff_user_id.name"/><br/>
+        </t>
+        <strong>Number of Guests:</strong> <t t-out="object.guest_count"/><br/>
+        <br/>
+        <strong>Booking Reference:</strong> <t t-out="object.name"/><br/>
+        <br/>
+        You can view or manage your booking here:<br/>
+        <a t-att-href="object.get_portal_url()">View Booking</a>
+        <br/><br/>
+        Thank you for your booking!
+        <br/><br/>
+        Best regards,<br/>
+        <t t-out="object.company_id.name"/>
+    </p>
+</div>
+            </field>
+        </record>
+
+        <record id="email_template_booking_cancelled" model="mail.template">
+            <field name="name">Appointment: Booking Cancelled</field>
+            <field name="model_id" ref="model_appointment_booking"/>
+            <field name="email_from">{{ (object.company_id.email or user.email_formatted) }}</field>
+            <field name="email_to">{{ object.guest_email }}</field>
+            <field name="subject">Your appointment has been cancelled - {{ object.name }}</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+        Dear <t t-out="object.guest_name"/>,
+        <br/><br/>
+        Your appointment has been cancelled. Here were the details:
+        <br/><br/>
+        <strong>Appointment Type:</strong> <t t-out="object.appointment_type_id.name"/><br/>
+        <strong>Date &amp; Time:</strong> <t t-out="object.start_datetime" t-options='{"widget": "datetime"}'/> - <t t-out="object.end_datetime" t-options='{"widget": "datetime"}'/><br/>
+        <strong>Booking Reference:</strong> <t t-out="object.name"/><br/>
+        <br/>
+        If you wish to make a new appointment, please visit:<br/>
+        <a t-att-href="'/appointment/' + str(object.appointment_type_id.id)">Book Again</a>
+        <br/><br/>
+        Best regards,<br/>
+        <t t-out="object.company_id.name"/>
+    </p>
+</div>
+            </field>
+        </record>
+
+        <record id="email_template_booking_reminder" model="mail.template">
+            <field name="name">Appointment: Booking Reminder</field>
+            <field name="model_id" ref="model_appointment_booking"/>
+            <field name="email_from">{{ (object.company_id.email or user.email_formatted) }}</field>
+            <field name="email_to">{{ object.guest_email }}</field>
+            <field name="subject">Reminder: Your appointment is coming up - {{ object.name }}</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+        Dear <t t-out="object.guest_name"/>,
+        <br/><br/>
+        This is a friendly reminder about your upcoming appointment:
+        <br/><br/>
+        <strong>Appointment Type:</strong> <t t-out="object.appointment_type_id.name"/><br/>
+        <strong>Date &amp; Time:</strong> <t t-out="object.start_datetime" t-options='{"widget": "datetime"}'/> - <t t-out="object.end_datetime" t-options='{"widget": "datetime"}'/><br/>
+        <t t-if="object.resource_id">
+            <strong>Resource:</strong> <t t-out="object.resource_id.name"/><br/>
+        </t>
+        <t t-if="object.staff_user_id">
+            <strong>Staff:</strong> <t t-out="object.staff_user_id.name"/><br/>
+        </t>
+        <br/>
+        <strong>Booking Reference:</strong> <t t-out="object.name"/><br/>
+        <br/>
+        You can view your booking here:<br/>
+        <a t-att-href="object.get_portal_url()">View Booking</a>
+        <br/><br/>
+        We look forward to seeing you!
+        <br/><br/>
+        Best regards,<br/>
+        <t t-out="object.company_id.name"/>
+    </p>
+</div>
+            </field>
+        </record>
+    </data>
+</odoo>

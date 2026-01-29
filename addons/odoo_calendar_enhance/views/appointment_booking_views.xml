@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Appointment Booking Form View -->
+    <record id="appointment_booking_view_form" model="ir.ui.view">
+        <field name="name">appointment.booking.view.form</field>
+        <field name="model">appointment.booking</field>
+        <field name="arch" type="xml">
+            <form string="Booking">
+                <header>
+                    <button name="action_confirm" type="object" string="Confirm"
+                            invisible="state != 'draft'" class="btn-primary"/>
+                    <button name="action_done" type="object" string="Mark as Done"
+                            invisible="state != 'confirmed'" class="btn-primary"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state not in ['draft', 'confirmed']"/>
+                    <button name="action_draft" type="object" string="Set to Draft"
+                            invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Appointment Details">
+                            <field name="appointment_type_id"/>
+                            <field name="start_datetime"/>
+                            <field name="end_datetime"/>
+                            <field name="duration" widget="float_time"/>
+                            <field name="resource_id" invisible="not resource_id"/>
+                            <field name="staff_user_id" invisible="not staff_user_id"/>
+                        </group>
+                        <group string="Guest Information">
+                            <field name="partner_id"/>
+                            <field name="guest_name"/>
+                            <field name="guest_email"/>
+                            <field name="guest_phone"/>
+                            <field name="guest_count"/>
+                        </group>
+                    </group>
+                    <group invisible="payment_status == 'not_required'">
+                        <group string="Payment">
+                            <field name="payment_status"/>
+                            <field name="payment_amount"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Answers" name="answers" invisible="not answer_ids">
+                            <field name="answer_ids">
+                                <list create="0" delete="0">
+                                    <field name="question_id"/>
+                                    <field name="display_value"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Notes from the guest..."/>
+                            <separator string="Internal Notes"/>
+                            <field name="internal_notes" placeholder="Internal notes (not visible to guests)..."/>
+                        </page>
+                        <page string="Technical" name="technical" groups="base.group_no_one">
+                            <group>
+                                <field name="access_token"/>
+                                <field name="calendar_event_id"/>
+                                <field name="slot_id"/>
+                                <field name="company_id"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Appointment Booking List View -->
+    <record id="appointment_booking_view_list" model="ir.ui.view">
+        <field name="name">appointment.booking.view.list</field>
+        <field name="model">appointment.booking</field>
+        <field name="arch" type="xml">
+            <list string="Bookings" decoration-muted="state == 'cancelled'" decoration-success="state == 'confirmed'">
+                <field name="name"/>
+                <field name="appointment_type_id"/>
+                <field name="guest_name"/>
+                <field name="guest_email"/>
+                <field name="start_datetime"/>
+                <field name="duration" widget="float_time"/>
+                <field name="guest_count"/>
+                <field name="resource_id" optional="show"/>
+                <field name="staff_user_id" optional="show"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'"
+                       decoration-success="state == 'confirmed'" decoration-muted="state == 'cancelled'"
+                       decoration-primary="state == 'done'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Appointment Booking Calendar View -->
+    <record id="appointment_booking_view_calendar" model="ir.ui.view">
+        <field name="name">appointment.booking.view.calendar</field>
+        <field name="model">appointment.booking</field>
+        <field name="arch" type="xml">
+            <calendar string="Bookings" date_start="start_datetime" date_stop="end_datetime"
+                      color="appointment_type_id" mode="week" quick_create="0">
+                <field name="guest_name"/>
+                <field name="appointment_type_id"/>
+                <field name="guest_count"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Calendar View for Resources -->
+    <record id="appointment_booking_view_calendar_resource" model="ir.ui.view">
+        <field name="name">appointment.booking.view.calendar.resource</field>
+        <field name="model">appointment.booking</field>
+        <field name="arch" type="xml">
+            <calendar string="Resource Bookings" date_start="start_datetime" date_stop="end_datetime"
+                      color="resource_id" mode="week" quick_create="0">
+                <field name="guest_name"/>
+                <field name="resource_id"/>
+                <field name="guest_count"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Calendar View for Staff -->
+    <record id="appointment_booking_view_calendar_staff" model="ir.ui.view">
+        <field name="name">appointment.booking.view.calendar.staff</field>
+        <field name="model">appointment.booking</field>
+        <field name="arch" type="xml">
+            <calendar string="Staff Bookings" date_start="start_datetime" date_stop="end_datetime"
+                      color="staff_user_id" mode="week" quick_create="0">
+                <field name="guest_name"/>
+                <field name="staff_user_id"/>
+                <field name="guest_count"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Appointment Booking Search View -->
+    <record id="appointment_booking_view_search" model="ir.ui.view">
+        <field name="name">appointment.booking.view.search</field>
+        <field name="model">appointment.booking</field>
+        <field name="arch" type="xml">
+            <search string="Search Bookings">
+                <field name="name"/>
+                <field name="guest_name"/>
+                <field name="guest_email"/>
+                <field name="appointment_type_id"/>
+                <field name="resource_id"/>
+                <field name="staff_user_id"/>
+                <separator/>
+                <filter string="Today" name="today"
+                        domain="[('start_datetime', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))),
+                                 ('start_datetime', '&lt;', datetime.datetime.combine(context_today() + relativedelta(days=1), datetime.time(0,0,0)))]"/>
+                <filter string="This Week" name="this_week"
+                        domain="[('start_datetime', '&gt;=', datetime.datetime.combine(context_today() - relativedelta(days=context_today().weekday()), datetime.time(0,0,0))),
+                                 ('start_datetime', '&lt;', datetime.datetime.combine(context_today() + relativedelta(days=7-context_today().weekday()), datetime.time(0,0,0)))]"/>
+                <filter string="Upcoming" name="upcoming"
+                        domain="[('start_datetime', '&gt;=', context_today())]"/>
+                <separator/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Confirmed" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
+                <filter string="Cancelled" name="cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Appointment Type" name="groupby_type" context="{'group_by': 'appointment_type_id'}"/>
+                    <filter string="Status" name="groupby_state" context="{'group_by': 'state'}"/>
+                    <filter string="Date" name="groupby_date" context="{'group_by': 'start_datetime:day'}"/>
+                    <filter string="Resource" name="groupby_resource" context="{'group_by': 'resource_id'}"/>
+                    <filter string="Staff" name="groupby_staff" context="{'group_by': 'staff_user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Actions -->
+    <record id="appointment_booking_action" model="ir.actions.act_window">
+        <field name="name">All Bookings</field>
+        <field name="res_model">appointment.booking</field>
+        <field name="view_mode">list,calendar,form</field>
+        <field name="context">{'search_default_upcoming': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No bookings yet
+            </p>
+            <p>
+                Bookings will appear here when customers make appointments.
+            </p>
+        </field>
+    </record>
+
+    <record id="appointment_booking_action_calendar" model="ir.actions.act_window">
+        <field name="name">Bookings</field>
+        <field name="res_model">appointment.booking</field>
+        <field name="view_mode">calendar,list,form</field>
+        <field name="context">{'search_default_confirmed': 1}</field>
+    </record>
+
+    <record id="appointment_booking_action_resource" model="ir.actions.act_window">
+        <field name="name">Resource Bookings</field>
+        <field name="res_model">appointment.booking</field>
+        <field name="view_mode">calendar,list,form</field>
+        <field name="domain">[('resource_id', '!=', False)]</field>
+        <field name="context">{'search_default_upcoming': 1}</field>
+    </record>
+
+    <!-- Resource Calendar View Reference -->
+    <record id="appointment_booking_action_resource_view_calendar" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">calendar</field>
+        <field name="view_id" ref="appointment_booking_view_calendar_resource"/>
+        <field name="act_window_id" ref="appointment_booking_action_resource"/>
+    </record>
+
+    <record id="appointment_booking_action_staff" model="ir.actions.act_window">
+        <field name="name">Staff Bookings</field>
+        <field name="res_model">appointment.booking</field>
+        <field name="view_mode">calendar,list,form</field>
+        <field name="domain">[('staff_user_id', '!=', False)]</field>
+        <field name="context">{'search_default_upcoming': 1}</field>
+    </record>
+
+    <!-- Staff Calendar View Reference -->
+    <record id="appointment_booking_action_staff_view_calendar" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">calendar</field>
+        <field name="view_id" ref="appointment_booking_view_calendar_staff"/>
+        <field name="act_window_id" ref="appointment_booking_action_staff"/>
+    </record>
+</odoo>

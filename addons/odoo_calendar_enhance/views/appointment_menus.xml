@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root Menu -->
+    <menuitem id="appointment_menu_root"
+              name="Reservation"
+              web_icon="odoo_calendar_enhance,static/description/icon.png"
+              sequence="25"/>
+
+    <!-- Calendar submenu (link to calendar module) -->
+    <menuitem id="appointment_menu_calendar"
+              name="Calendar"
+              parent="appointment_menu_root"
+              action="calendar.action_calendar_event"
+              sequence="1"/>
+
+    <!-- Appointments submenu -->
+    <menuitem id="appointment_menu_appointments"
+              name="Appointments"
+              parent="appointment_menu_root"
+              action="appointment_type_action"
+              sequence="10"/>
+
+    <!-- All Bookings -->
+    <menuitem id="appointment_menu_bookings"
+              name="All Bookings"
+              parent="appointment_menu_root"
+              action="appointment_booking_action"
+              sequence="20"/>
+
+    <!-- Resource Bookings -->
+    <menuitem id="appointment_menu_resource_bookings"
+              name="Resource Bookings"
+              parent="appointment_menu_root"
+              action="appointment_booking_action_resource"
+              sequence="30"/>
+
+    <!-- Staff Bookings -->
+    <menuitem id="appointment_menu_staff_bookings"
+              name="Staff Bookings"
+              parent="appointment_menu_root"
+              action="appointment_booking_action_staff"
+              sequence="40"/>
+
+    <!-- Reports menu -->
+    <menuitem id="appointment_menu_reports"
+              name="Reports"
+              parent="appointment_menu_root"
+              sequence="90"
+              groups="group_appointment_manager"/>
+
+    <!-- Configuration menu -->
+    <menuitem id="appointment_menu_configuration"
+              name="Configuration"
+              parent="appointment_menu_root"
+              sequence="100"
+              groups="group_appointment_manager"/>
+
+    <!-- Settings -->
+    <menuitem id="appointment_menu_settings"
+              name="Settings"
+              parent="appointment_menu_configuration"
+              action="appointment_type_action"
+              sequence="10"/>
+</odoo>

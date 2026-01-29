@@ -1,0 +1,621 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Appointment List Page -->
+    <template id="appointment_list" name="Appointment Types">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container py-5">
+                    <h1 class="text-center mb-5" t-esc="t['book_an_appointment']"/>
+
+                    <div class="row">
+                        <t t-foreach="appointment_types" t-as="appointment_type">
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 shadow-sm">
+                                    <t t-if="appointment_type.image">
+                                        <img t-attf-src="data:image/png;base64,#{appointment_type.image}"
+                                             class="card-img-top" style="height: 150px; object-fit: cover;"/>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                                             style="height: 150px;">
+                                            <i t-att-class="'fa %s fa-3x text-muted' % (appointment_type.icon or 'fa-calendar')"/>
+                                        </div>
+                                    </t>
+                                    <div class="card-body">
+                                        <h5 class="card-title" t-esc="appointment_type.name"/>
+                                        <p class="card-text text-muted small">
+                                            <i class="fa fa-clock-o"/> <t t-esc="appointment_type.slot_duration"/> <t t-esc="t['hours']"/>
+                                        </p>
+                                        <t t-if="appointment_type.description">
+                                            <p class="card-text" t-raw="appointment_type.description"/>
+                                        </t>
+                                    </div>
+                                    <div class="card-footer bg-transparent">
+                                        <a t-attf-href="/appointment/#{appointment_type.id}"
+                                           class="btn btn-primary w-100">
+                                            <t t-esc="t['book_now']"/>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+
+                    <t t-if="not appointment_types">
+                        <div class="text-center text-muted py-5">
+                            <i class="fa fa-calendar fa-3x mb-3"/>
+                            <p t-esc="t['no_appointment_types']"/>
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Appointment Type Page -->
+    <template id="appointment_type_page" name="Appointment Type">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container py-5">
+                    <div class="row">
+                        <div class="col-lg-8 mx-auto">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/appointment" t-esc="t['appointments']"/></li>
+                                    <li class="breadcrumb-item active" t-esc="appointment_type.name"/>
+                                </ol>
+                            </nav>
+
+                            <div class="card shadow">
+                                <t t-if="appointment_type.image">
+                                    <img t-attf-src="data:image/png;base64,#{appointment_type.image}"
+                                         class="card-img-top" style="height: 200px; object-fit: cover;"/>
+                                </t>
+                                <div class="card-body">
+                                    <h2 class="card-title" t-esc="appointment_type.name"/>
+
+                                    <div class="mb-3">
+                                        <span class="badge bg-secondary me-2">
+                                            <i class="fa fa-clock-o"/> <t t-esc="appointment_type.slot_duration"/> <t t-esc="t['hours']"/>
+                                        </span>
+                                        <t t-if="appointment_type.require_payment">
+                                            <span class="badge bg-info">
+                                                <i class="fa fa-credit-card"/>
+                                                <t t-esc="appointment_type.payment_amount"/>
+                                                <t t-esc="appointment_type.currency_id.symbol"/>
+                                                <t t-if="appointment_type.payment_per_person"> <t t-esc="t['per_person']"/></t>
+                                            </span>
+                                        </t>
+                                    </div>
+
+                                    <t t-if="appointment_type.description">
+                                        <div class="mb-4" t-raw="appointment_type.description"/>
+                                    </t>
+
+                                    <a t-attf-href="/appointment/#{appointment_type.id}/schedule"
+                                       class="btn btn-primary btn-lg">
+                                        <i class="fa fa-calendar"/> <t t-esc="t['select_date_time']"/>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Schedule Selection Page -->
+    <template id="appointment_schedule_page" name="Select Schedule">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container py-5">
+                    <div class="row">
+                        <div class="col-lg-10 mx-auto">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/appointment" t-esc="t['appointments']"/></li>
+                                    <li class="breadcrumb-item">
+                                        <a t-attf-href="/appointment/#{appointment_type.id}"
+                                           t-esc="appointment_type.name"/>
+                                    </li>
+                                    <li class="breadcrumb-item active" t-esc="t['select_date_time']"/>
+                                </ol>
+                            </nav>
+
+                            <h2 class="mb-4" t-esc="t['select_date_time']"/>
+
+                            <div class="row">
+                                <!-- Resource/Staff Selection -->
+                                <t t-if="resources or staff">
+                                    <div class="col-md-4 mb-4">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <t t-if="resources" t-esc="t['select_resource']"/>
+                                                <t t-elif="staff" t-esc="t['select_staff']"/>
+                                            </div>
+                                            <div class="list-group list-group-flush">
+                                                <t t-foreach="resources" t-as="resource">
+                                                    <a t-attf-href="/appointment/#{appointment_type.id}/schedule?resource_id=#{resource.id}"
+                                                       t-attf-class="list-group-item list-group-item-action #{'active' if selected_resource_id == resource.id else ''}">
+                                                        <i t-att-class="'fa %s me-2' % (resource.icon or 'fa-cube')"/>
+                                                        <t t-esc="resource.name"/>
+                                                        <span class="badge bg-secondary float-end">
+                                                            <t t-esc="resource.capacity"/> <t t-esc="t['seats']"/>
+                                                        </span>
+                                                    </a>
+                                                </t>
+                                                <t t-foreach="staff" t-as="user">
+                                                    <a t-attf-href="/appointment/#{appointment_type.id}/schedule?staff_id=#{user.id}"
+                                                       t-attf-class="list-group-item list-group-item-action #{'active' if selected_staff_id == user.id else ''}">
+                                                        <i class="fa fa-user me-2"/>
+                                                        <t t-esc="user.name"/>
+                                                    </a>
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+
+                                <!-- Calendar and Slots -->
+                                <div t-attf-class="col-md-#{8 if (resources or staff) else 12}">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div id="appointment-reservation"
+                                                 t-att-data-appointment-type-id="appointment_type.id"
+                                                 t-att-data-resource-id="selected_resource_id or ''"
+                                                 t-att-data-staff-id="selected_staff_id or ''"
+                                                 t-att-data-start-date="start_date"
+                                                 t-att-data-end-date="end_date">
+                                                <!-- Reservation will be rendered by JavaScript -->
+                                                <div class="text-center py-5">
+                                                    <i class="fa fa-spinner fa-spin fa-2x"/>
+                                                    <p class="mt-2" t-esc="t['loading_slots']"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div id="available-slots" class="mt-4" style="display: none;">
+                                        <h5 t-esc="t['available_times']"/>
+                                        <div id="slots-container" class="row">
+                                            <!-- Slots will be populated by JavaScript -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Booking Form Page -->
+    <template id="appointment_book_page" name="Book Appointment">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container py-5">
+                    <div class="row">
+                        <div class="col-lg-8 mx-auto">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/appointment" t-esc="t['appointments']"/></li>
+                                    <li class="breadcrumb-item">
+                                        <a t-attf-href="/appointment/#{appointment_type.id}"
+                                           t-esc="appointment_type.name"/>
+                                    </li>
+                                    <li class="breadcrumb-item active" t-esc="t['book']"/>
+                                </ol>
+                            </nav>
+
+                            <t t-if="error">
+                                <div class="alert alert-danger" t-esc="error"/>
+                            </t>
+
+                            <div class="card shadow">
+                                <div class="card-header">
+                                    <h4 class="mb-0" t-esc="t['complete_booking']"/>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Booking Summary -->
+                                    <div class="alert alert-info">
+                                        <strong><t t-esc="appointment_type.name"/></strong><br/>
+                                        <i class="fa fa-calendar"/> <t t-esc="start_datetime" t-options='{"widget": "datetime"}'/> -
+                                        <t t-esc="end_datetime" t-options='{"widget": "datetime"}'/>
+                                        <t t-if="resource">
+                                            <br/><i class="fa fa-cube"/> <t t-esc="resource.name"/>
+                                        </t>
+                                        <t t-if="staff">
+                                            <br/><i class="fa fa-user"/> <t t-esc="staff.name"/>
+                                        </t>
+                                    </div>
+
+                                    <form method="POST" class="needs-validation" novalidate="novalidate">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <input type="hidden" name="start_datetime"
+                                               t-att-value="start_datetime.strftime('%Y-%m-%d %H:%M:%S') if start_datetime else ''"/>
+                                        <t t-if="resource">
+                                            <input type="hidden" name="resource_id" t-att-value="resource.id"/>
+                                        </t>
+                                        <t t-if="staff">
+                                            <input type="hidden" name="staff_id" t-att-value="staff.id"/>
+                                        </t>
+
+                                        <div class="mb-3">
+                                            <label for="guest_name" class="form-label"><t t-esc="t['name']"/> *</label>
+                                            <input type="text" class="form-control" id="guest_name"
+                                                   name="guest_name" required="required"/>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="guest_email" class="form-label"><t t-esc="t['email']"/> *</label>
+                                            <input type="email" class="form-control" id="guest_email"
+                                                   name="guest_email" required="required"/>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="guest_phone" class="form-label" t-esc="t['phone']"/>
+                                            <input type="tel" class="form-control" id="guest_phone"
+                                                   name="guest_phone"/>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="guest_count" class="form-label" t-esc="t['number_of_guests']"/>
+                                            <input type="number" class="form-control" id="guest_count"
+                                                   name="guest_count" min="1" value="1"/>
+                                        </div>
+
+                                        <!-- Custom Questions -->
+                                        <t t-foreach="questions" t-as="question">
+                                            <div class="mb-3">
+                                                <label t-attf-for="question_#{question.id}" class="form-label">
+                                                    <t t-esc="question.name"/>
+                                                    <t t-if="question.required">*</t>
+                                                </label>
+
+                                                <t t-if="question.question_type == 'text'">
+                                                    <input type="text" class="form-control"
+                                                           t-attf-id="question_#{question.id}"
+                                                           t-attf-name="question_#{question.id}"
+                                                           t-att-required="question.required"
+                                                           t-att-placeholder="question.placeholder"/>
+                                                </t>
+                                                <t t-elif="question.question_type == 'textarea'">
+                                                    <textarea class="form-control"
+                                                              t-attf-id="question_#{question.id}"
+                                                              t-attf-name="question_#{question.id}"
+                                                              t-att-required="question.required"
+                                                              t-att-placeholder="question.placeholder"
+                                                              rows="3"/>
+                                                </t>
+                                                <t t-elif="question.question_type == 'select'">
+                                                    <select class="form-select"
+                                                            t-attf-id="question_#{question.id}"
+                                                            t-attf-name="question_#{question.id}"
+                                                            t-att-required="question.required">
+                                                        <option value=""><t t-esc="t['select_option']"/></option>
+                                                        <t t-foreach="question.option_ids" t-as="option">
+                                                            <option t-att-value="option.id" t-esc="option.name"/>
+                                                        </t>
+                                                    </select>
+                                                </t>
+                                                <t t-elif="question.question_type == 'radio'">
+                                                    <t t-foreach="question.option_ids" t-as="option">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio"
+                                                                   t-attf-name="question_#{question.id}"
+                                                                   t-attf-id="option_#{option.id}"
+                                                                   t-att-value="option.id"
+                                                                   t-att-required="question.required"/>
+                                                            <label class="form-check-label"
+                                                                   t-attf-for="option_#{option.id}"
+                                                                   t-esc="option.name"/>
+                                                        </div>
+                                                    </t>
+                                                </t>
+                                                <t t-elif="question.question_type == 'checkbox'">
+                                                    <t t-foreach="question.option_ids" t-as="option">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                   t-attf-name="question_#{question.id}"
+                                                                   t-attf-id="option_#{option.id}"
+                                                                   t-att-value="option.id"/>
+                                                            <label class="form-check-label"
+                                                                   t-attf-for="option_#{option.id}"
+                                                                   t-esc="option.name"/>
+                                                        </div>
+                                                    </t>
+                                                </t>
+                                                <t t-elif="question.question_type in ['email', 'phone', 'number', 'date', 'datetime']">
+                                                    <input t-att-type="question.question_type"
+                                                           class="form-control"
+                                                           t-attf-id="question_#{question.id}"
+                                                           t-attf-name="question_#{question.id}"
+                                                           t-att-required="question.required"
+                                                           t-att-placeholder="question.placeholder"/>
+                                                </t>
+
+                                                <t t-if="question.help_text">
+                                                    <small class="form-text text-muted"
+                                                           t-esc="question.help_text"/>
+                                                </t>
+                                            </div>
+                                        </t>
+
+                                        <div class="mb-3">
+                                            <label for="notes" class="form-label" t-esc="t['notes']"/>
+                                            <textarea class="form-control" id="notes" name="notes" rows="3"
+                                                      t-att-placeholder="'Any additional information...'"/>
+                                        </div>
+
+                                        <t t-if="appointment_type.require_payment">
+                                            <div class="alert alert-warning">
+                                                <i class="fa fa-credit-card"/>
+                                                <t t-esc="t['payment_of']"/> <strong><t t-esc="appointment_type.payment_amount"/>
+                                                <t t-esc="appointment_type.currency_id.symbol"/></strong>
+                                                <t t-if="appointment_type.payment_per_person"> <t t-esc="t['per_person']"/></t>
+                                                <t t-esc="t['payment_required']"/>
+                                            </div>
+                                        </t>
+
+                                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                                            <t t-if="appointment_type.require_payment">
+                                                <t t-esc="t['continue_to_payment']"/>
+                                            </t>
+                                            <t t-else="">
+                                                <t t-esc="t['confirm_booking']"/>
+                                            </t>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Booking Confirmation Page -->
+    <template id="appointment_confirm_page" name="Booking Confirmed">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container py-5">
+                    <div class="row">
+                        <div class="col-lg-6 mx-auto text-center">
+                            <div class="card shadow">
+                                <div class="card-body py-5">
+                                    <i class="fa fa-check-circle text-success fa-5x mb-4"/>
+                                    <h2 t-esc="t['booking_confirmed']"/>
+                                    <p class="text-muted" t-esc="t['booking_reference']"/>
+                                    <h3 class="text-primary" t-esc="booking.name"/>
+
+                                    <hr class="my-4"/>
+
+                                    <div class="text-start">
+                                        <p><strong><t t-esc="t['appointment_label']"/></strong> <t t-esc="booking.appointment_type_id.name"/></p>
+                                        <p><strong><t t-esc="t['date_time']"/></strong>
+                                           <t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/> -
+                                           <t t-esc="booking.end_datetime" t-options='{"widget": "datetime"}'/>
+                                        </p>
+                                        <t t-if="booking.resource_id">
+                                            <p><strong><t t-esc="t['resource_label']"/></strong> <t t-esc="booking.resource_id.name"/></p>
+                                        </t>
+                                        <t t-if="booking.staff_user_id">
+                                            <p><strong><t t-esc="t['staff_label']"/></strong> <t t-esc="booking.staff_user_id.name"/></p>
+                                        </t>
+                                        <p><strong><t t-esc="t['guests_label']"/></strong> <t t-esc="booking.guest_count"/></p>
+                                    </div>
+
+                                    <hr class="my-4"/>
+
+                                    <p class="text-muted small">
+                                        <t t-esc="t['confirmation_email_sent']"/> <strong t-esc="booking.guest_email"/>
+                                    </p>
+
+                                    <div class="mt-4">
+                                        <a href="/appointment" class="btn btn-outline-primary">
+                                            <t t-esc="t['book_another']"/>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Booking Details Page -->
+    <template id="appointment_booking_page" name="Booking Details">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container py-5">
+                    <div class="row">
+                        <div class="col-lg-8 mx-auto">
+                            <t t-if="error">
+                                <div class="alert alert-danger" t-esc="error"/>
+                            </t>
+
+                            <div class="card shadow">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4 class="mb-0"><t t-esc="t['booking']"/> <t t-esc="booking.name"/></h4>
+                                    <span t-attf-class="badge #{'bg-success' if booking.state == 'confirmed' else 'bg-secondary' if booking.state == 'draft' else 'bg-danger' if booking.state == 'cancelled' else 'bg-info'}"
+                                          t-esc="booking.state"/>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h5 t-esc="t['appointment_details']"/>
+                                            <p><strong><t t-esc="t['type_label']"/></strong> <t t-esc="booking.appointment_type_id.name"/></p>
+                                            <p><strong><t t-esc="t['date_time']"/></strong><br/>
+                                               <t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/> -
+                                               <t t-esc="booking.end_datetime" t-options='{"widget": "datetime"}'/>
+                                            </p>
+                                            <t t-if="booking.resource_id">
+                                                <p><strong><t t-esc="t['resource_label']"/></strong> <t t-esc="booking.resource_id.name"/></p>
+                                            </t>
+                                            <t t-if="booking.staff_user_id">
+                                                <p><strong><t t-esc="t['staff_label']"/></strong> <t t-esc="booking.staff_user_id.name"/></p>
+                                            </t>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h5 t-esc="t['guest_information']"/>
+                                            <p><strong><t t-esc="t['name_label']"/></strong> <t t-esc="booking.guest_name"/></p>
+                                            <p><strong><t t-esc="t['email_label']"/></strong> <t t-esc="booking.guest_email"/></p>
+                                            <t t-if="booking.guest_phone">
+                                                <p><strong><t t-esc="t['phone_label']"/></strong> <t t-esc="booking.guest_phone"/></p>
+                                            </t>
+                                            <p><strong><t t-esc="t['guests_count_label']"/></strong> <t t-esc="booking.guest_count"/></p>
+                                        </div>
+                                    </div>
+
+                                    <t t-if="booking.notes">
+                                        <hr/>
+                                        <h5 t-esc="t['notes']"/>
+                                        <p t-esc="booking.notes"/>
+                                    </t>
+
+                                    <t t-if="booking.state in ['draft', 'confirmed']">
+                                        <hr/>
+                                        <a t-attf-href="/appointment/booking/#{booking.id}/cancel?token=#{booking.access_token}"
+                                           class="btn btn-outline-danger">
+                                            <i class="fa fa-times"/> <t t-esc="t['cancel_booking']"/>
+                                        </a>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Cancel Confirmation Page -->
+    <template id="appointment_cancel_page" name="Cancel Booking">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container py-5">
+                    <div class="row">
+                        <div class="col-lg-6 mx-auto text-center">
+                            <div class="card shadow">
+                                <div class="card-body py-5">
+                                    <i class="fa fa-exclamation-triangle text-warning fa-5x mb-4"/>
+                                    <h2 t-esc="t['cancel_booking_question']"/>
+                                    <p class="text-muted">
+                                        <t t-esc="t['cancel_confirm_msg']"/>
+                                    </p>
+
+                                    <div class="alert alert-light text-start">
+                                        <p><strong><t t-esc="booking.appointment_type_id.name"/></strong></p>
+                                        <p><t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/></p>
+                                        <p><t t-esc="t['booking_reference_label']"/> <t t-esc="booking.name"/></p>
+                                    </div>
+
+                                    <form method="POST">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <button type="submit" class="btn btn-danger">
+                                            <t t-esc="t['yes_cancel']"/>
+                                        </button>
+                                        <a t-attf-href="/appointment/booking/#{booking.id}?token=#{booking.access_token}"
+                                           class="btn btn-outline-secondary">
+                                            <t t-esc="t['no_keep']"/>
+                                        </a>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Booking Cancelled Page -->
+    <template id="appointment_cancelled_page" name="Booking Cancelled">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container py-5">
+                    <div class="row">
+                        <div class="col-lg-6 mx-auto text-center">
+                            <div class="card shadow">
+                                <div class="card-body py-5">
+                                    <i class="fa fa-times-circle text-danger fa-5x mb-4"/>
+                                    <h2 t-esc="t['booking_cancelled']"/>
+                                    <p class="text-muted">
+                                        <t t-esc="t['your_booking']"/> <strong t-esc="booking.name"/> <t t-esc="t['has_been_cancelled']"/>
+                                    </p>
+
+                                    <div class="mt-4">
+                                        <a href="/appointment" class="btn btn-primary">
+                                            <t t-esc="t['book_new_appointment']"/>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Payment Page -->
+    <template id="appointment_payment_page" name="Appointment Payment">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container py-5">
+                    <div class="row">
+                        <div class="col-lg-6 mx-auto">
+                            <div class="card shadow">
+                                <div class="card-header">
+                                    <h4 class="mb-0" t-esc="t['payment']"/>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        <h5 t-esc="t['booking_summary']"/>
+                                        <p><strong><t t-esc="booking.appointment_type_id.name"/></strong></p>
+                                        <p><t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/></p>
+                                        <p><t t-esc="t['guests_label']"/> <t t-esc="booking.guest_count"/></p>
+                                    </div>
+
+                                    <div class="text-center py-4">
+                                        <h3 t-esc="t['amount_due']"/>
+                                        <h1 class="text-primary">
+                                            <t t-esc="booking.payment_amount"/>
+                                            <t t-esc="booking.currency_id.symbol"/>
+                                        </h1>
+                                    </div>
+
+                                    <hr/>
+
+                                    <p class="text-muted text-center">
+                                        <t t-esc="t['select_payment_method']"/>
+                                    </p>
+
+                                    <!-- Payment providers would be integrated here -->
+                                    <div class="d-grid gap-2">
+                                        <t t-foreach="payment_providers" t-as="provider">
+                                            <button type="button" class="btn btn-outline-primary btn-lg">
+                                                <t t-esc="t['pay_with']"/> <t t-esc="provider.name"/>
+                                            </button>
+                                        </t>
+                                    </div>
+
+                                    <t t-if="not payment_providers">
+                                        <div class="alert alert-warning text-center">
+                                            <t t-esc="t['no_payment_methods']"/>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

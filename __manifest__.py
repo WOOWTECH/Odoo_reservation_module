@@ -15,7 +15,7 @@
         - Custom questions and forms
         - Email notifications and reminders
     """,
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.2",
     "category": "Services/Appointment",
     "author": "WoowTech",
     "website": "https://woowtech.com",
@@ -25,6 +25,7 @@
         "resource",
         "website",
         "payment",
+        "product",
         "mail",
     ],
     "data": [

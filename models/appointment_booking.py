@@ -35,6 +35,7 @@ class AppointmentBooking(models.Model):
         'res.partner',
         string='Contact',
         tracking=True,
+        ondelete='set null',
     )
     guest_name = fields.Char('Guest Name', required=True, tracking=True)
     guest_email = fields.Char('Guest Email', required=True)
@@ -46,11 +47,13 @@ class AppointmentBooking(models.Model):
         'resource.resource',
         string='Resource',
         tracking=True,
+        ondelete='set null',
     )
     staff_user_id = fields.Many2one(
         'res.users',
         string='Staff',
         tracking=True,
+        ondelete='set null',
     )
 
     # Date/Time
@@ -81,6 +84,7 @@ class AppointmentBooking(models.Model):
     payment_transaction_id = fields.Many2one(
         'payment.transaction',
         string='Payment Transaction',
+        ondelete='set null',
     )
 
     # State

@@ -43,6 +43,7 @@ class AppointmentType(models.Model):
         'res.partner',
         string='Location',
         help='Physical location for the appointment',
+        ondelete='set null',
     )
     location_address = fields.Char(
         'Location Address',
@@ -163,6 +164,7 @@ class AppointmentType(models.Model):
         'product.product',
         string='Payment Product',
         help='Product used for payment',
+        ondelete='set null',
     )
     payment_amount = fields.Monetary(
         'Payment Amount',

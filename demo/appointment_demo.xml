@@ -3,42 +3,42 @@
     <data>
         <!-- Demo Resources -->
         <record id="resource_meeting_room_a" model="resource.resource">
-            <field name="name">Meeting Room A</field>
+            <field name="name">會議室 A</field>
             <field name="resource_type">material</field>
             <field name="capacity">10</field>
             <field name="icon">fa-building</field>
         </record>
 
         <record id="resource_meeting_room_b" model="resource.resource">
-            <field name="name">Meeting Room B</field>
+            <field name="name">會議室 B</field>
             <field name="resource_type">material</field>
             <field name="capacity">6</field>
             <field name="icon">fa-building</field>
         </record>
 
         <record id="resource_table_1" model="resource.resource">
-            <field name="name">Table 1 - Window</field>
+            <field name="name">1號桌 - 窗邊</field>
             <field name="resource_type">material</field>
             <field name="capacity">4</field>
             <field name="icon">fa-cutlery</field>
         </record>
 
         <record id="resource_table_2" model="resource.resource">
-            <field name="name">Table 2 - Garden View</field>
+            <field name="name">2號桌 - 花園景觀</field>
             <field name="resource_type">material</field>
             <field name="capacity">6</field>
             <field name="icon">fa-cutlery</field>
         </record>
 
         <record id="resource_table_3" model="resource.resource">
-            <field name="name">Table 3 - Private</field>
+            <field name="name">3號桌 - 包廂</field>
             <field name="resource_type">material</field>
             <field name="capacity">8</field>
             <field name="icon">fa-cutlery</field>
         </record>
 
         <record id="resource_tennis_court" model="resource.resource">
-            <field name="name">Tennis Court</field>
+            <field name="name">網球場</field>
             <field name="resource_type">material</field>
             <field name="capacity">4</field>
             <field name="icon">fa-futbol-o</field>
@@ -46,14 +46,14 @@
 
         <!-- Appointment Type: Meeting -->
         <record id="appointment_type_meeting" model="appointment.type">
-            <field name="name">Business Meeting</field>
+            <field name="name">商務會議</field>
             <field name="category">meeting</field>
             <field name="description"><![CDATA[
-                <p>Schedule a business meeting with our team. Perfect for:</p>
+                <p>與我們的團隊安排商務會議，適合：</p>
                 <ul>
-                    <li>Project discussions</li>
-                    <li>Client consultations</li>
-                    <li>Strategic planning</li>
+                    <li>專案討論</li>
+                    <li>客戶諮詢</li>
+                    <li>策略規劃</li>
                 </ul>
             ]]></field>
             <field name="slot_duration">1.0</field>
@@ -105,11 +105,11 @@
 
         <!-- Appointment Type: Video Call -->
         <record id="appointment_type_video_call" model="appointment.type">
-            <field name="name">Video Consultation</field>
+            <field name="name">視訊諮詢</field>
             <field name="category">video_call</field>
             <field name="description"><![CDATA[
-                <p>Schedule a video consultation from anywhere in the world.</p>
-                <p>Our team will send you a meeting link after booking.</p>
+                <p>在世界任何地方安排視訊諮詢。</p>
+                <p>預約後，我們的團隊會發送會議連結給您。</p>
             ]]></field>
             <field name="slot_duration">0.5</field>
             <field name="slot_interval">0.5</field>
@@ -148,14 +148,14 @@
 
         <!-- Appointment Type: Table Booking -->
         <record id="appointment_type_table" model="appointment.type">
-            <field name="name">Restaurant Table</field>
+            <field name="name">餐廳訂位</field>
             <field name="category">table</field>
             <field name="description"><![CDATA[
-                <p>Reserve a table at our restaurant.</p>
+                <p>預訂我們餐廳的座位。</p>
                 <ul>
-                    <li>Indoor and outdoor seating available</li>
-                    <li>Private dining options</li>
-                    <li>Special occasion accommodations</li>
+                    <li>室內外座位可選</li>
+                    <li>私人包廂選項</li>
+                    <li>特殊場合安排</li>
                 </ul>
             ]]></field>
             <field name="slot_duration">2.0</field>
@@ -219,14 +219,14 @@
 
         <!-- Appointment Type: Resource Booking (Tennis Court) -->
         <record id="appointment_type_tennis" model="appointment.type">
-            <field name="name">Tennis Court</field>
+            <field name="name">網球場預約</field>
             <field name="category">resource</field>
             <field name="description"><![CDATA[
-                <p>Book our professional tennis court.</p>
+                <p>預訂我們的專業網球場。</p>
                 <ul>
-                    <li>Clay surface</li>
-                    <li>Lighting available for evening play</li>
-                    <li>Equipment rental available</li>
+                    <li>紅土場地</li>
+                    <li>夜間照明設施</li>
+                    <li>可租借器材</li>
                 </ul>
             ]]></field>
             <field name="slot_duration">1.0</field>
@@ -289,11 +289,11 @@
 
         <!-- Appointment Type: Paid Consultation -->
         <record id="appointment_type_consultation" model="appointment.type">
-            <field name="name">Expert Consultation</field>
+            <field name="name">專家諮詢</field>
             <field name="category">paid_consultation</field>
             <field name="description"><![CDATA[
-                <p>Book a one-on-one consultation with our expert.</p>
-                <p>Payment is required to confirm your booking.</p>
+                <p>預約與專家一對一諮詢。</p>
+                <p>需要付款才能確認您的預約。</p>
             ]]></field>
             <field name="slot_duration">1.0</field>
             <field name="slot_interval">1.0</field>
@@ -314,16 +314,16 @@
         <!-- Questions for Consultation -->
         <record id="question_consultation_topic" model="appointment.question">
             <field name="appointment_type_id" ref="appointment_type_consultation"/>
-            <field name="name">What topic would you like to discuss?</field>
+            <field name="name">您想討論什麼主題？</field>
             <field name="question_type">textarea</field>
             <field name="required" eval="True"/>
             <field name="sequence">1</field>
-            <field name="placeholder">Please describe your question or topic in detail...</field>
+            <field name="placeholder">請詳細描述您的問題或主題...</field>
         </record>
 
         <record id="question_consultation_experience" model="appointment.question">
             <field name="appointment_type_id" ref="appointment_type_consultation"/>
-            <field name="name">Your experience level</field>
+            <field name="name">您的經驗程度</field>
             <field name="question_type">select</field>
             <field name="required" eval="True"/>
             <field name="sequence">2</field>
@@ -331,26 +331,26 @@
 
         <record id="question_option_beginner" model="appointment.question.option">
             <field name="question_id" ref="question_consultation_experience"/>
-            <field name="name">Beginner</field>
+            <field name="name">初學者</field>
             <field name="sequence">1</field>
         </record>
 
         <record id="question_option_intermediate" model="appointment.question.option">
             <field name="question_id" ref="question_consultation_experience"/>
-            <field name="name">Intermediate</field>
+            <field name="name">中級</field>
             <field name="sequence">2</field>
         </record>
 
         <record id="question_option_advanced" model="appointment.question.option">
             <field name="question_id" ref="question_consultation_experience"/>
-            <field name="name">Advanced</field>
+            <field name="name">進階</field>
             <field name="sequence">3</field>
         </record>
 
         <!-- Questions for Table Booking -->
         <record id="question_table_occasion" model="appointment.question">
             <field name="appointment_type_id" ref="appointment_type_table"/>
-            <field name="name">Special occasion?</field>
+            <field name="name">特殊場合？</field>
             <field name="question_type">radio</field>
             <field name="required" eval="False"/>
             <field name="sequence">1</field>
@@ -358,31 +358,31 @@
 
         <record id="question_option_none" model="appointment.question.option">
             <field name="question_id" ref="question_table_occasion"/>
-            <field name="name">No special occasion</field>
+            <field name="name">無特殊場合</field>
             <field name="sequence">1</field>
         </record>
 
         <record id="question_option_birthday" model="appointment.question.option">
             <field name="question_id" ref="question_table_occasion"/>
-            <field name="name">Birthday</field>
+            <field name="name">生日</field>
             <field name="sequence">2</field>
         </record>
 
         <record id="question_option_anniversary" model="appointment.question.option">
             <field name="question_id" ref="question_table_occasion"/>
-            <field name="name">Anniversary</field>
+            <field name="name">週年紀念</field>
             <field name="sequence">3</field>
         </record>
 
         <record id="question_option_business" model="appointment.question.option">
             <field name="question_id" ref="question_table_occasion"/>
-            <field name="name">Business Dinner</field>
+            <field name="name">商務晚宴</field>
             <field name="sequence">4</field>
         </record>
 
         <record id="question_table_dietary" model="appointment.question">
             <field name="appointment_type_id" ref="appointment_type_table"/>
-            <field name="name">Dietary requirements</field>
+            <field name="name">飲食需求</field>
             <field name="question_type">checkbox</field>
             <field name="required" eval="False"/>
             <field name="sequence">2</field>
@@ -390,25 +390,25 @@
 
         <record id="question_option_vegetarian" model="appointment.question.option">
             <field name="question_id" ref="question_table_dietary"/>
-            <field name="name">Vegetarian</field>
+            <field name="name">素食</field>
             <field name="sequence">1</field>
         </record>
 
         <record id="question_option_vegan" model="appointment.question.option">
             <field name="question_id" ref="question_table_dietary"/>
-            <field name="name">Vegan</field>
+            <field name="name">純素</field>
             <field name="sequence">2</field>
         </record>
 
         <record id="question_option_gluten_free" model="appointment.question.option">
             <field name="question_id" ref="question_table_dietary"/>
-            <field name="name">Gluten-free</field>
+            <field name="name">無麩質</field>
             <field name="sequence">3</field>
         </record>
 
         <record id="question_option_halal" model="appointment.question.option">
             <field name="question_id" ref="question_table_dietary"/>
-            <field name="name">Halal</field>
+            <field name="name">清真</field>
             <field name="sequence">4</field>
         </record>
     </data>

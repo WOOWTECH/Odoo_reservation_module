@@ -14,8 +14,38 @@ class AppointmentController(http.Controller):
         Uses a simple dictionary approach for reliable bilingual support.
         Checks current language and returns appropriate translations.
         """
-        # Get current language from request context
-        lang = request.env.context.get('lang', 'en_US')
+        # Get current language - try multiple sources for reliability
+        lang = None
+
+        # Method 1: Check request.env.lang (Odoo 18 standard)
+        if hasattr(request, 'env') and request.env:
+            lang = request.env.lang
+
+        # Method 2: Check request.env.context
+        if not lang and hasattr(request, 'env') and request.env:
+            lang = request.env.context.get('lang')
+
+        # Method 3: Check website's current language via frontend_lang cookie
+        if not lang:
+            try:
+                frontend_lang = request.httprequest.cookies.get('frontend_lang')
+                if frontend_lang:
+                    lang = frontend_lang
+            except Exception:
+                pass
+
+        # Method 4: Check website's default language
+        if not lang:
+            try:
+                website = request.env['website'].get_current_website()
+                if website and website.default_lang_id:
+                    lang = website.default_lang_id.code
+            except Exception:
+                pass
+
+        # Default fallback
+        if not lang:
+            lang = 'en_US'
 
         # Chinese translations (zh_TW)
         zh_tw = {
@@ -143,6 +173,27 @@ class AppointmentController(http.Controller):
         if lang and lang.startswith('zh'):
             return zh_tw
         return en_us
+
+    @http.route('/appointment/debug/lang', type='http', auth='public', website=True)
+    def debug_lang(self, **kwargs):
+        """Debug endpoint to check current language settings"""
+        import json
+
+        debug_info = {
+            'env_lang': getattr(request.env, 'lang', None),
+            'context_lang': request.env.context.get('lang') if hasattr(request, 'env') else None,
+            'frontend_lang_cookie': request.httprequest.cookies.get('frontend_lang'),
+            'user_lang': request.env.user.lang if hasattr(request.env, 'user') else None,
+            'translations_used': 'zh_TW' if self._get_translations().get('book_now') == '立即預約' else 'en_US',
+        }
+
+        try:
+            website = request.env['website'].get_current_website()
+            debug_info['website_default_lang'] = website.default_lang_id.code if website else None
+        except Exception as e:
+            debug_info['website_error'] = str(e)
+
+        return json.dumps(debug_info, indent=2, ensure_ascii=False)
 
     @http.route('/appointment', type='http', auth='public', website=True)
     def appointment_list(self, **kwargs):

@@ -2,62 +2,62 @@
 <odoo>
     <!-- Root Menu -->
     <menuitem id="appointment_menu_root"
-              name="Reservation"
+              name="預約管理"
               web_icon="odoo_calendar_enhance,static/description/icon.png"
               sequence="25"/>
 
     <!-- Calendar submenu (link to calendar module) -->
     <menuitem id="appointment_menu_calendar"
-              name="Calendar"
+              name="行事曆"
               parent="appointment_menu_root"
               action="calendar.action_calendar_event"
               sequence="1"/>
 
     <!-- Appointments submenu -->
     <menuitem id="appointment_menu_appointments"
-              name="Appointments"
+              name="預約類型"
               parent="appointment_menu_root"
               action="appointment_type_action"
               sequence="10"/>
 
     <!-- All Bookings -->
     <menuitem id="appointment_menu_bookings"
-              name="All Bookings"
+              name="所有預約"
               parent="appointment_menu_root"
               action="appointment_booking_action"
               sequence="20"/>
 
     <!-- Resource Bookings -->
     <menuitem id="appointment_menu_resource_bookings"
-              name="Resource Bookings"
+              name="資源預約"
               parent="appointment_menu_root"
               action="appointment_booking_action_resource"
               sequence="30"/>
 
     <!-- Staff Bookings -->
     <menuitem id="appointment_menu_staff_bookings"
-              name="Staff Bookings"
+              name="員工預約"
               parent="appointment_menu_root"
               action="appointment_booking_action_staff"
               sequence="40"/>
 
     <!-- Reports menu -->
     <menuitem id="appointment_menu_reports"
-              name="Reports"
+              name="報表"
               parent="appointment_menu_root"
               sequence="90"
               groups="group_appointment_manager"/>
 
     <!-- Configuration menu -->
     <menuitem id="appointment_menu_configuration"
-              name="Configuration"
+              name="設定"
               parent="appointment_menu_root"
               sequence="100"
               groups="group_appointment_manager"/>
 
     <!-- Settings -->
     <menuitem id="appointment_menu_settings"
-              name="Settings"
+              name="設定"
               parent="appointment_menu_configuration"
               action="appointment_type_action"
               sequence="10"/>

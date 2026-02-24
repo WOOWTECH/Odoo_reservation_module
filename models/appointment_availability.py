@@ -11,44 +11,44 @@ class AppointmentAvailability(models.Model):
 
     appointment_type_id = fields.Many2one(
         'appointment.type',
-        string='Appointment Type',
+        string='預約類型',
         required=True,
         ondelete='cascade',
     )
 
     dayofweek = fields.Selection([
-        ('0', 'Monday'),
-        ('1', 'Tuesday'),
-        ('2', 'Wednesday'),
-        ('3', 'Thursday'),
-        ('4', 'Friday'),
-        ('5', 'Saturday'),
-        ('6', 'Sunday'),
-    ], string='Day of Week', required=True, default='0')
+        ('0', '星期一'),
+        ('1', '星期二'),
+        ('2', '星期三'),
+        ('3', '星期四'),
+        ('4', '星期五'),
+        ('5', '星期六'),
+        ('6', '星期日'),
+    ], string='星期幾', required=True, default='0')
 
     hour_from = fields.Float(
-        'From',
+        '從',
         required=True,
         default=8.0,
-        help='Start time (24-hour format)',
+        help='開始時間（24小時制）',
     )
     hour_to = fields.Float(
-        'To',
+        '到',
         required=True,
         default=17.0,
-        help='End time (24-hour format)',
+        help='結束時間（24小時制）',
     )
 
     # Optional: Link to specific resource or user
     resource_id = fields.Many2one(
         'resource.resource',
-        string='Resource',
-        help='Leave empty to apply to all resources',
+        string='資源',
+        help='留空則適用於所有資源',
     )
     user_id = fields.Many2one(
         'res.users',
-        string='User',
-        help='Leave empty to apply to all users',
+        string='使用者',
+        help='留空則適用於所有使用者',
     )
 
     @api.constrains('hour_from', 'hour_to')

@@ -271,6 +271,7 @@
                                 </button>
                                 <button name="action_view_bookings" type="object" class="btn btn-sm btn-secondary">
                                     <i class="fa fa-calendar"/> 預約
+                                </button>
                                 <button name="action_open_settings" type="object" class="btn btn-sm btn-link">
                                     <i class="fa fa-cog"/>
                                 </button>

@@ -569,47 +569,77 @@
             <div id="wrap" class="oe_structure">
                 <div class="container py-5">
                     <div class="row">
-                        <div class="col-lg-6 mx-auto">
+                        <div class="col-lg-8 mx-auto">
                             <div class="card shadow">
-                                <div class="card-header">
+                                <div class="card-header bg-primary text-white">
                                     <h4 class="mb-0" t-esc="t['payment']"/>
                                 </div>
                                 <div class="card-body">
-                                    <div class="alert alert-info">
+                                    <!-- Error message if any -->
+                                    <t t-if="error">
+                                        <div class="alert alert-danger" role="alert">
+                                            <t t-esc="error"/>
+                                        </div>
+                                    </t>
+
+                                    <!-- Booking Summary -->
+                                    <div class="alert alert-info mb-4">
                                         <h5 t-esc="t['booking_summary']"/>
-                                        <p><strong><t t-esc="booking.appointment_type_id.name"/></strong></p>
-                                        <p><t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/></p>
-                                        <p><t t-esc="t['guests_label']"/> <t t-esc="booking.guest_count"/></p>
+                                        <p class="mb-1"><strong><t t-esc="booking.appointment_type_id.name"/></strong></p>
+                                        <p class="mb-1"><i class="fa fa-calendar me-2"/><t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/></p>
+                                        <p class="mb-0"><i class="fa fa-users me-2"/><t t-esc="t['guests_label']"/> <t t-esc="booking.guest_count"/></p>
                                     </div>
 
-                                    <div class="text-center py-4">
-                                        <h3 t-esc="t['amount_due']"/>
-                                        <h1 class="text-primary">
-                                            <t t-esc="booking.payment_amount"/>
-                                            <t t-esc="booking.currency_id.symbol"/>
+                                    <!-- Amount Due -->
+                                    <div class="text-center py-4 bg-light rounded mb-4">
+                                        <h5 class="text-muted mb-2" t-esc="t['amount_due']"/>
+                                        <h1 class="text-primary mb-0">
+                                            <t t-esc="'%.2f' % booking.payment_amount"/>
+                                            <small><t t-esc="booking.currency_id.symbol"/></small>
                                         </h1>
                                     </div>
 
                                     <hr/>
 
-                                    <p class="text-muted text-center">
+                                    <p class="text-muted text-center mb-4">
                                         <t t-esc="t['select_payment_method']"/>
                                     </p>
 
-                                    <!-- Payment providers would be integrated here -->
-                                    <div class="d-grid gap-2">
-                                        <t t-foreach="payment_providers" t-as="provider">
-                                            <button type="button" class="btn btn-outline-primary btn-lg">
-                                                <t t-esc="t['pay_with']"/> <t t-esc="provider.name"/>
-                                            </button>
+                                    <!-- Odoo Payment Form Integration -->
+                                    <t t-if="payment_methods_sudo or tokens_sudo">
+                                        <t t-call="payment.form">
+                                            <t t-set="reference_prefix" t-value="reference_prefix"/>
+                                            <t t-set="amount" t-value="amount"/>
+                                            <t t-set="currency" t-value="currency"/>
+                                            <t t-set="partner_id" t-value="partner_id"/>
+                                            <t t-set="providers_sudo" t-value="providers_sudo"/>
+                                            <t t-set="payment_methods_sudo" t-value="payment_methods_sudo"/>
+                                            <t t-set="tokens_sudo" t-value="tokens_sudo"/>
+                                            <t t-set="transaction_route" t-value="transaction_route"/>
+                                            <t t-set="landing_route" t-value="landing_route"/>
+                                            <t t-set="access_token" t-value="access_token"/>
+                                            <t t-set="mode" t-value="'payment'"/>
+                                            <t t-set="allow_token_selection" t-value="True"/>
+                                            <t t-set="allow_token_deletion" t-value="False"/>
+                                            <t t-set="display_submit_button" t-value="True"/>
+                                            <t t-set="submit_button_label">立即付款</t>
                                         </t>
-                                    </div>
+                                    </t>
 
-                                    <t t-if="not payment_providers">
+                                    <t t-if="not payment_methods_sudo and not tokens_sudo">
                                         <div class="alert alert-warning text-center">
+                                            <i class="fa fa-exclamation-triangle me-2"/>
                                             <t t-esc="t['no_payment_methods']"/>
                                         </div>
                                     </t>
+
+                                    <!-- Back button -->
+                                    <div class="mt-4 text-center">
+                                        <a t-attf-href="/appointment/booking/{{ booking.id }}/cancel?token={{ access_token }}"
+                                           class="btn btn-link text-muted">
+                                            <i class="fa fa-arrow-left me-2"/>取消預約
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>

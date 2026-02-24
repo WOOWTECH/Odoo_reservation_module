@@ -503,7 +503,7 @@ class AppointmentController(http.Controller):
 
     @http.route('/appointment/booking/<int:booking_id>/pay', type='http', auth='public', website=True)
     def appointment_payment(self, booking_id, token=None, **kwargs):
-        """Display payment page"""
+        """Display payment page with Odoo payment form integration"""
         booking = request.env['appointment.booking'].sudo().browse(booking_id)
         if not booking.exists() or (token and booking.access_token != token):
             return request.redirect('/appointment')
@@ -511,13 +511,109 @@ class AppointmentController(http.Controller):
         if booking.payment_status == 'paid':
             return request.redirect(f'/appointment/booking/{booking_id}/confirm?token={token}')
 
-        # Get available payment providers
-        payment_providers = request.env['payment.provider'].sudo().search([
-            ('state', '=', 'enabled'),
-        ])
+        # Get partner (create if needed)
+        partner = booking.partner_id
+        if not partner:
+            partner = request.env['res.partner'].sudo().create({
+                'name': booking.guest_name,
+                'email': booking.guest_email,
+                'phone': booking.guest_phone,
+            })
+            booking.partner_id = partner
+
+        # Get payment context
+        amount = booking.payment_amount
+        currency = booking.currency_id
+        company = request.env.company
+
+        # Get compatible payment providers and methods
+        availability_report = {}
+        providers_sudo = request.env['payment.provider'].sudo()._get_compatible_providers(
+            company.id,
+            partner.id,
+            amount,
+            currency_id=currency.id,
+            report=availability_report,
+        )
+        payment_methods_sudo = request.env['payment.method'].sudo()._get_compatible_payment_methods(
+            providers_sudo.ids,
+            partner.id,
+            currency_id=currency.id,
+            report=availability_report,
+        )
+        tokens_sudo = request.env['payment.token'].sudo()._get_available_tokens(
+            providers_sudo.ids, partner.id
+        )
+
+        # Generate access token for payment
+        access_token = booking.access_token or token
 
         return request.render('odoo_calendar_enhance.appointment_payment_page', {
             'booking': booking,
-            'payment_providers': payment_providers,
+            # Payment form context
+            'amount': amount,
+            'currency': currency,
+            'partner_id': partner.id,
+            'providers_sudo': providers_sudo,
+            'payment_methods_sudo': payment_methods_sudo,
+            'tokens_sudo': tokens_sudo,
+            'reference_prefix': f'APPT-{booking.id}',
+            'transaction_route': f'/appointment/payment/transaction/{booking.id}',
+            'landing_route': f'/appointment/payment/validate?booking_id={booking.id}&token={access_token}',
+            'access_token': access_token,
             't': self._get_translations(),
         })
+
+    @http.route('/appointment/payment/transaction/<int:booking_id>', type='json', auth='public')
+    def appointment_payment_transaction(self, booking_id, **kwargs):
+        """Create payment transaction for appointment booking"""
+        booking = request.env['appointment.booking'].sudo().browse(booking_id)
+        if not booking.exists():
+            return {'error': 'Booking not found'}
+
+        # Get partner
+        partner = booking.partner_id
+        if not partner:
+            return {'error': 'Partner not found'}
+
+        # Create transaction using Odoo payment flow
+        tx_sudo = request.env['payment.transaction'].sudo()._create_transaction(
+            amount=booking.payment_amount,
+            currency_id=booking.currency_id.id,
+            partner_id=partner.id,
+            reference_prefix=f'APPT-{booking.id}',
+            **kwargs,
+        )
+
+        # Link transaction to booking
+        tx_sudo.appointment_booking_id = booking.id
+        booking.payment_transaction_id = tx_sudo.id
+
+        # Render the payment processing template
+        return tx_sudo._get_processing_values()
+
+    @http.route('/appointment/payment/validate', type='http', auth='public', website=True)
+    def appointment_payment_validate(self, booking_id=None, token=None, **kwargs):
+        """Validate payment and redirect to confirmation page"""
+        if not booking_id:
+            return request.redirect('/appointment')
+
+        booking = request.env['appointment.booking'].sudo().browse(int(booking_id))
+        if not booking.exists():
+            return request.redirect('/appointment')
+
+        # Check transaction status
+        tx_sudo = booking.payment_transaction_id
+        if tx_sudo and tx_sudo.state == 'done':
+            # Payment successful
+            return request.redirect(f'/appointment/booking/{booking.id}/confirm?token={token}')
+        elif tx_sudo and tx_sudo.state in ('pending', 'authorized'):
+            # Payment pending (e.g., wire transfer)
+            return request.redirect(f'/appointment/booking/{booking.id}/confirm?token={token}&pending=1')
+        else:
+            # Payment failed or cancelled
+            return request.render('odoo_calendar_enhance.appointment_payment_page', {
+                'booking': booking,
+                'error': _('付款未完成，請重試。'),
+                't': self._get_translations(),
+            })

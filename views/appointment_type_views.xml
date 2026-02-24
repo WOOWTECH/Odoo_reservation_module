@@ -5,25 +5,25 @@
         <field name="name">appointment.type.view.form</field>
         <field name="model">appointment.type</field>
         <field name="arch" type="xml">
-            <form string="Appointment Type">
+            <form string="預約類型">
                 <header>
-                    <button name="action_share" type="object" string="Share" class="btn-primary" icon="fa-share-alt"/>
+                    <button name="action_share" type="object" string="分享" class="btn-primary" icon="fa-share-alt"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_bookings" type="object" class="oe_stat_button" icon="fa-calendar-check-o">
-                            <field name="booking_count" widget="statinfo" string="Bookings"/>
+                            <field name="booking_count" widget="statinfo" string="預約數"/>
                         </button>
                         <button name="action_view_resource_bookings" type="object" class="oe_stat_button" icon="fa-cube"
                                 invisible="booking_type != 'resource'">
-                            <span>Resource Gantt</span>
+                            <span>資源甘特圖</span>
                         </button>
                         <button name="action_view_staff_bookings" type="object" class="oe_stat_button" icon="fa-users"
                                 invisible="booking_type != 'user'">
-                            <span>Staff Gantt</span>
+                            <span>員工甘特圖</span>
                         </button>
                     </div>
-                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <widget name="web_ribbon" title="已封存" bg_color="text-bg-danger" invisible="active"/>
                     <field name="image" widget="image" class="oe_avatar" options="{'preview_image': 'image'}"/>
                     <div class="oe_title">
                         <label for="name"/>
@@ -44,7 +44,7 @@
                             <field name="assignment_method"/>
                         </group>
                     </group>
-                    <group string="Location">
+                    <group string="地點">
                         <group>
                             <field name="location_type"/>
                             <field name="video_link" invisible="location_type != 'online'" placeholder="https://meet.google.com/..."/>
@@ -56,29 +56,29 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Availability" name="availability">
+                        <page string="可用時段" name="availability">
                             <group>
-                                <group string="Schedule Configuration">
+                                <group string="排程設定">
                                     <field name="schedule_type"/>
                                     <field name="schedule_based_on"/>
                                 </group>
-                                <group string="Capacity" invisible="not manage_capacity">
+                                <group string="容量" invisible="not manage_capacity">
                                     <field name="manage_capacity"/>
                                     <field name="total_capacity" invisible="not manage_capacity"/>
                                     <field name="max_concurrent_bookings"/>
                                 </group>
-                                <group string="Capacity" invisible="manage_capacity">
+                                <group string="容量" invisible="manage_capacity">
                                     <field name="manage_capacity"/>
                                     <field name="max_concurrent_bookings"/>
                                 </group>
                             </group>
-                            <group string="Resources" invisible="booking_type != 'resource'">
+                            <group string="資源" invisible="booking_type != 'resource'">
                                 <field name="resource_ids" widget="many2many_tags" nolabel="1" colspan="2"/>
                             </group>
-                            <group string="Staff Members" invisible="booking_type != 'user'">
+                            <group string="服務人員" invisible="booking_type != 'user'">
                                 <field name="staff_user_ids" widget="many2many_tags" nolabel="1" colspan="2"/>
                             </group>
-                            <separator string="Weekly Schedule" invisible="schedule_type != 'recurring'"/>
+                            <separator string="每週排程" invisible="schedule_type != 'recurring'"/>
                             <field name="availability_ids" invisible="schedule_type != 'recurring'" nolabel="1">
                                 <list editable="bottom">
                                     <field name="dayofweek"/>
@@ -89,10 +89,10 @@
                                 </list>
                             </field>
                             <div class="mt-3" invisible="schedule_type != 'recurring'">
-                                <button name="action_add_closing_days" type="object" string="Add Closing Days" class="btn-secondary" icon="fa-calendar-times-o"/>
+                                <button name="action_add_closing_days" type="object" string="新增休息日" class="btn-secondary" icon="fa-calendar-times-o"/>
                             </div>
                         </page>
-                        <page string="Questions" name="questions">
+                        <page string="問題" name="questions">
                             <field name="question_ids">
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle"/>
@@ -102,27 +102,27 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Communication" name="communication">
-                            <group string="Introduction Page">
-                                <field name="introduction_page" nolabel="1" colspan="2" placeholder="Content shown to visitors before booking..."/>
+                        <page string="通訊" name="communication">
+                            <group string="簡介頁面">
+                                <field name="introduction_page" nolabel="1" colspan="2" placeholder="預約前顯示給訪客的內容..."/>
                             </group>
-                            <group string="Confirmation Page">
-                                <field name="confirmation_page" nolabel="1" colspan="2" placeholder="Content shown after booking is confirmed..."/>
+                            <group string="確認頁面">
+                                <field name="confirmation_page" nolabel="1" colspan="2" placeholder="預約確認後顯示的內容..."/>
                             </group>
-                            <separator string="Email Notifications"/>
+                            <separator string="郵件通知"/>
                             <div class="alert alert-info" role="alert">
-                                <i class="fa fa-info-circle"/> Email notifications are automatically sent when bookings are confirmed, rescheduled, or cancelled.
+                                <i class="fa fa-info-circle"/> 當預約確認、改期或取消時，系統會自動發送郵件通知。
                             </div>
                         </page>
-                        <page string="Options" name="options">
+                        <page string="選項" name="options">
                             <group>
-                                <group string="Booking Settings">
+                                <group string="預約設定">
                                     <field name="allow_invitations"/>
                                     <field name="auto_confirm"/>
                                     <field name="auto_confirm_capacity_percent" widget="percentage" invisible="not auto_confirm"/>
                                     <field name="show_image"/>
                                 </group>
-                                <group string="Payment" invisible="category not in ['paid_consultation', 'paid_seat']">
+                                <group string="付款" invisible="category not in ['paid_consultation', 'paid_seat']">
                                     <field name="require_payment"/>
                                     <field name="payment_product_id" invisible="not require_payment"/>
                                     <field name="payment_amount" invisible="not require_payment"/>
@@ -131,32 +131,32 @@
                                 </group>
                             </group>
                             <group>
-                                <group string="Scheduling">
+                                <group string="排程">
                                     <field name="max_booking_days"/>
                                     <label for="min_booking_hours"/>
                                     <div class="o_row">
                                         <field name="min_booking_hours" widget="float_time"/>
-                                        <span>before start time</span>
+                                        <span>開始前</span>
                                     </div>
                                     <field name="slot_interval" widget="float_time"/>
                                 </group>
-                                <group string="Cancellation">
+                                <group string="取消">
                                     <label for="cancel_before_hours"/>
                                     <div class="o_row">
                                         <field name="cancel_before_hours" widget="float_time"/>
-                                        <span>before start time</span>
+                                        <span>開始前</span>
                                     </div>
                                 </group>
                             </group>
                             <group>
-                                <group string="Display">
+                                <group string="顯示">
                                     <field name="icon"/>
                                     <field name="image_url"/>
                                 </group>
                             </group>
                         </page>
                     </notebook>
-                    <field name="description" placeholder="Description for your customers..."/>
+                    <field name="description" placeholder="為您的客戶提供說明..."/>
                 </sheet>
                 <chatter/>
             </form>
@@ -168,7 +168,7 @@
         <field name="name">appointment.type.view.list</field>
         <field name="model">appointment.type</field>
         <field name="arch" type="xml">
-            <list string="Appointment Types">
+            <list string="預約類型">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="category"/>
@@ -218,15 +218,15 @@
                                         <field name="name"/>
                                     </strong>
                                     <div class="text-muted small mt-1">
-                                        <i class="fa fa-clock-o me-1"/><field name="slot_duration" widget="float_time"/> duration
+                                        <i class="fa fa-clock-o me-1"/><field name="slot_duration" widget="float_time"/> 時長
                                     </div>
                                 </div>
                                 <div class="text-end">
                                     <t t-if="record.is_published.raw_value">
-                                        <span class="badge bg-success-light text-success">Published</span>
+                                        <span class="badge bg-success-light text-success">已發布</span>
                                     </t>
                                     <t t-else="">
-                                        <span class="badge bg-warning-light text-warning">Unpublished</span>
+                                        <span class="badge bg-warning-light text-warning">未發布</span>
                                     </t>
                                 </div>
                             </div>
@@ -236,7 +236,7 @@
                                         <div class="fs-4 fw-bold text-primary">
                                             <field name="upcoming_booking_count"/>
                                         </div>
-                                        <div class="small text-muted">Upcoming</div>
+                                        <div class="small text-muted">即將到來</div>
                                     </div>
                                 </div>
                                 <div class="col-6">
@@ -244,34 +244,33 @@
                                         <div class="fs-4 fw-bold">
                                             <field name="booking_count"/>
                                         </div>
-                                        <div class="small text-muted">Total</div>
+                                        <div class="small text-muted">總計</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="mt-2 small">
                                 <t t-if="record.booking_type.raw_value == 'resource' and record.resource_ids.raw_value.length">
                                     <span class="me-3">
-                                        <i class="fa fa-cube text-muted"/> <t t-out="record.resource_ids.raw_value.length"/> resources
+                                        <i class="fa fa-cube text-muted"/> <t t-out="record.resource_ids.raw_value.length"/> 個資源
                                     </span>
                                     <t t-if="record.manage_capacity.raw_value">
                                         <span>
-                                            <i class="fa fa-users text-muted"/> capacity: <field name="total_capacity"/>
+                                            <i class="fa fa-users text-muted"/> 容量: <field name="total_capacity"/>
                                         </span>
                                     </t>
                                 </t>
                                 <t t-if="record.booking_type.raw_value == 'user' and record.staff_user_ids.raw_value.length">
                                     <span>
-                                        <i class="fa fa-user text-muted"/> <t t-out="record.staff_user_ids.raw_value.length"/> staff members
+                                        <i class="fa fa-user text-muted"/> <t t-out="record.staff_user_ids.raw_value.length"/> 位服務人員
                                     </span>
                                 </t>
                             </div>
                             <div class="mt-3 d-flex gap-2">
                                 <button name="action_share" type="object" class="btn btn-sm btn-primary">
-                                    <i class="fa fa-share-alt"/> Share
+                                    <i class="fa fa-share-alt"/> 分享
                                 </button>
                                 <button name="action_view_bookings" type="object" class="btn btn-sm btn-secondary">
-                                    <i class="fa fa-calendar"/> Bookings
-                                </button>
+                                    <i class="fa fa-calendar"/> 預約
                                 <button name="action_open_settings" type="object" class="btn btn-sm btn-link">
                                     <i class="fa fa-cog"/>
                                 </button>
@@ -288,20 +287,20 @@
         <field name="name">appointment.type.view.search</field>
         <field name="model">appointment.type</field>
         <field name="arch" type="xml">
-            <search string="Search Appointment Types">
+            <search string="搜尋預約類型">
                 <field name="name"/>
                 <field name="category"/>
-                <filter string="Published" name="published" domain="[('is_published', '=', True)]"/>
-                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <filter string="已發布" name="published" domain="[('is_published', '=', True)]"/>
+                <filter string="已封存" name="archived" domain="[('active', '=', False)]"/>
                 <separator/>
-                <filter string="Meeting" name="meeting" domain="[('category', '=', 'meeting')]"/>
-                <filter string="Video Call" name="video_call" domain="[('category', '=', 'video_call')]"/>
-                <filter string="Table" name="table" domain="[('category', '=', 'table')]"/>
-                <filter string="Resource" name="resource" domain="[('category', '=', 'resource')]"/>
-                <filter string="Paid Consultation" name="paid_consultation" domain="[('category', '=', 'paid_consultation')]"/>
-                <filter string="Paid Seat" name="paid_seat" domain="[('category', '=', 'paid_seat')]"/>
-                <group expand="0" string="Group By">
-                    <filter string="Category" name="groupby_category" context="{'group_by': 'category'}"/>
+                <filter string="會議" name="meeting" domain="[('category', '=', 'meeting')]"/>
+                <filter string="視訊通話" name="video_call" domain="[('category', '=', 'video_call')]"/>
+                <filter string="桌位" name="table" domain="[('category', '=', 'table')]"/>
+                <filter string="資源" name="resource" domain="[('category', '=', 'resource')]"/>
+                <filter string="付費諮詢" name="paid_consultation" domain="[('category', '=', 'paid_consultation')]"/>
+                <filter string="付費座位" name="paid_seat" domain="[('category', '=', 'paid_seat')]"/>
+                <group expand="0" string="分組">
+                    <filter string="類別" name="groupby_category" context="{'group_by': 'category'}"/>
                 </group>
             </search>
         </field>
@@ -309,16 +308,16 @@
 
     <!-- Actions -->
     <record id="appointment_type_action" model="ir.actions.act_window">
-        <field name="name">Appointments</field>
+        <field name="name">預約</field>
         <field name="res_model">appointment.type</field>
         <field name="view_mode">kanban,list,form</field>
         <field name="context">{'search_default_published': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Create your first appointment type
+                建立您的第一個預約類型
             </p>
             <p>
-                Allow your customers to book appointments online.
+                讓您的客戶可以線上預約。
             </p>
         </field>
     </record>

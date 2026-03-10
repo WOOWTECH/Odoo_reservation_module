@@ -622,7 +622,7 @@
                                             <t t-set="allow_token_selection" t-value="True"/>
                                             <t t-set="allow_token_deletion" t-value="False"/>
                                             <t t-set="display_submit_button" t-value="True"/>
-                                            <t t-set="submit_button_label">立即付款</t>
+                                            <t t-set="submit_button_label" t-value="t.get('continue_to_payment', 'Continue to Payment')"/>
                                         </t>
                                     </t>
 
@@ -635,9 +635,9 @@
 
                                     <!-- Back button -->
                                     <div class="mt-4 text-center">
-                                        <a t-attf-href="/appointment/booking/{{ booking.id }}/cancel?token={{ access_token }}"
+                                        <a t-attf-href="/appointment/booking/#{booking.id}/cancel?token=#{access_token}"
                                            class="btn btn-link text-muted">
-                                            <i class="fa fa-arrow-left me-2"/>取消預約
+                                            <i class="fa fa-arrow-left me-2"/><t t-esc="t.get('cancel_booking', 'Cancel Booking')"/>
                                         </a>
                                     </div>
                                 </div>

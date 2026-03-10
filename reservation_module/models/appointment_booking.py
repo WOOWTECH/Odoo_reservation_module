@@ -206,7 +206,7 @@ class AppointmentBooking(models.Model):
     def action_draft(self):
         """Reset to draft"""
         for booking in self:
-            if booking.state == 'cancelled':
+            if booking.state in ('cancelled', 'done'):
                 booking.write({'state': 'draft'})
         return True
 
@@ -253,14 +253,14 @@ class AppointmentBooking(models.Model):
     def _send_confirmation_email(self):
         """Send confirmation email to the guest"""
         self.ensure_one()
-        template = self.env.ref('odoo_calendar_enhance.email_template_booking_confirmed', raise_if_not_found=False)
+        template = self.env.ref('reservation_module.email_template_booking_confirmed', raise_if_not_found=False)
         if template and self.guest_email:
             template.send_mail(self.id, force_send=True)
 
     def _send_cancellation_email(self):
         """Send cancellation email to the guest"""
         self.ensure_one()
-        template = self.env.ref('odoo_calendar_enhance.email_template_booking_cancelled', raise_if_not_found=False)
+        template = self.env.ref('reservation_module.email_template_booking_cancelled', raise_if_not_found=False)
         if template and self.guest_email:
             template.send_mail(self.id, force_send=True)
 

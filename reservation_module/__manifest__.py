@@ -15,7 +15,7 @@
         - Custom questions and forms
         - Email notifications and reminders
     """,
-    "version": "18.0.1.0.9",
+    "version": "18.0.1.1.0",
     "category": "Services/Appointment",
     "author": "WoowTech",
     "website": "https://woowtech.com",
@@ -43,12 +43,12 @@
     ],
     "assets": {
         "web.assets_backend": [
-            "odoo_calendar_enhance/static/src/css/appointment_backend.css",
-            "odoo_calendar_enhance/static/src/js/appointment_kanban.js",
+            "reservation_module/static/src/css/appointment_backend.css",
+            "reservation_module/static/src/js/appointment_kanban.js",
         ],
         "web.assets_frontend": [
-            "odoo_calendar_enhance/static/src/css/appointment_frontend.css",
-            "odoo_calendar_enhance/static/src/js/appointment_booking.js",
+            "reservation_module/static/src/css/appointment_frontend.css",
+            "reservation_module/static/src/js/appointment_booking.js",
         ],
     },
     "demo": [

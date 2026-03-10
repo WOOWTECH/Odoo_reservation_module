@@ -4,6 +4,7 @@ from odoo import http, fields, _
 from odoo.http import request
 from datetime import datetime, timedelta
 import json
+import re
 
 
 class AppointmentController(http.Controller):
@@ -202,7 +203,7 @@ class AppointmentController(http.Controller):
             ('is_published', '=', True),
             ('active', '=', True),
         ])
-        return request.render('odoo_calendar_enhance.appointment_list', {
+        return request.render('reservation_module.appointment_list', {
             'appointment_types': appointment_types,
             't': self._get_translations(),
         })
@@ -214,7 +215,7 @@ class AppointmentController(http.Controller):
         if not appointment_type.exists() or not appointment_type.is_published:
             return request.redirect('/appointment')
 
-        return request.render('odoo_calendar_enhance.appointment_type_page', {
+        return request.render('reservation_module.appointment_type_page', {
             'appointment_type': appointment_type,
             't': self._get_translations(),
         })
@@ -234,7 +235,7 @@ class AppointmentController(http.Controller):
         start_date = datetime.now().date()
         end_date = start_date + timedelta(days=appointment_type.max_booking_days)
 
-        return request.render('odoo_calendar_enhance.appointment_schedule_page', {
+        return request.render('reservation_module.appointment_schedule_page', {
             'appointment_type': appointment_type,
             'resources': resources,
             'staff': staff,
@@ -335,7 +336,7 @@ class AppointmentController(http.Controller):
         if staff_id:
             staff = request.env['res.users'].sudo().browse(int(staff_id))
 
-        return request.render('odoo_calendar_enhance.appointment_book_page', {
+        return request.render('reservation_module.appointment_book_page', {
             'appointment_type': appointment_type,
             'start_datetime': start_dt,
             'end_datetime': end_dt,
@@ -369,7 +370,7 @@ class AppointmentController(http.Controller):
                 if data.get('staff_id'):
                     staff = request.env['res.users'].sudo().browse(int(data['staff_id']))
 
-                return request.render('odoo_calendar_enhance.appointment_book_page', {
+                return request.render('reservation_module.appointment_book_page', {
                     'appointment_type': appointment_type,
                     'start_datetime': start_dt,
                     'end_datetime': end_dt,
@@ -384,6 +385,42 @@ class AppointmentController(http.Controller):
                     'notes': data.get('notes', ''),
                     't': self._get_translations(),
                 })
+
+        # Validate email format
+        email = data.get('guest_email', '')
+        if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+            start_dt = None
+            end_dt = None
+            if data.get('start_datetime'):
+                try:
+                    start_dt = datetime.strptime(data['start_datetime'], '%Y-%m-%d %H:%M:%S')
+                    end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
+                except ValueError:
+                    pass
+
+            resource = None
+            if data.get('resource_id'):
+                resource = request.env['resource.resource'].sudo().browse(int(data['resource_id']))
+
+            staff = None
+            if data.get('staff_id'):
+                staff = request.env['res.users'].sudo().browse(int(data['staff_id']))
+
+            return request.render('reservation_module.appointment_book_page', {
+                'appointment_type': appointment_type,
+                'start_datetime': start_dt,
+                'end_datetime': end_dt,
+                'resource': resource,
+                'staff': staff,
+                'questions': appointment_type.question_ids,
+                'error': _('Please enter a valid email address.'),
+                'guest_name': data.get('guest_name', ''),
+                'guest_email': data.get('guest_email', ''),
+                'guest_phone': data.get('guest_phone', ''),
+                'guest_count': data.get('guest_count', 1),
+                'notes': data.get('notes', ''),
+                't': self._get_translations(),
+            })
 
         try:
             start_dt = datetime.strptime(data['start_datetime'], '%Y-%m-%d %H:%M:%S')
@@ -455,10 +492,10 @@ class AppointmentController(http.Controller):
     def appointment_confirm(self, booking_id, token=None, **kwargs):
         """Display booking confirmation page"""
         booking = request.env['appointment.booking'].sudo().browse(booking_id)
-        if not booking.exists() or (token and booking.access_token != token):
+        if not booking.exists() or not token or booking.access_token != token:
             return request.redirect('/appointment')
 
-        return request.render('odoo_calendar_enhance.appointment_confirm_page', {
+        return request.render('reservation_module.appointment_confirm_page', {
             'booking': booking,
             't': self._get_translations(),
         })
@@ -467,10 +504,10 @@ class AppointmentController(http.Controller):
     def appointment_booking_details(self, booking_id, token=None, **kwargs):
         """Display booking details"""
         booking = request.env['appointment.booking'].sudo().browse(booking_id)
-        if not booking.exists() or (token and booking.access_token != token):
+        if not booking.exists() or not token or booking.access_token != token:
             return request.redirect('/appointment')
 
-        return request.render('odoo_calendar_enhance.appointment_booking_page', {
+        return request.render('reservation_module.appointment_booking_page', {
             'booking': booking,
             't': self._get_translations(),
         })
@@ -479,24 +516,24 @@ class AppointmentController(http.Controller):
     def appointment_cancel(self, booking_id, token=None, **kwargs):
         """Cancel a booking"""
         booking = request.env['appointment.booking'].sudo().browse(booking_id)
-        if not booking.exists() or (token and booking.access_token != token):
+        if not booking.exists() or not token or booking.access_token != token:
             return request.redirect('/appointment')
 
         if request.httprequest.method == 'POST':
             try:
                 booking.action_cancel()
-                return request.render('odoo_calendar_enhance.appointment_cancelled_page', {
+                return request.render('reservation_module.appointment_cancelled_page', {
                     'booking': booking,
                     't': self._get_translations(),
                 })
             except Exception as e:
-                return request.render('odoo_calendar_enhance.appointment_booking_page', {
+                return request.render('reservation_module.appointment_booking_page', {
                     'booking': booking,
                     'error': str(e),
                     't': self._get_translations(),
                 })
 
-        return request.render('odoo_calendar_enhance.appointment_cancel_page', {
+        return request.render('reservation_module.appointment_cancel_page', {
             'booking': booking,
             't': self._get_translations(),
         })
@@ -505,7 +542,7 @@ class AppointmentController(http.Controller):
     def appointment_payment(self, booking_id, token=None, **kwargs):
         """Display payment page with Odoo payment form integration"""
         booking = request.env['appointment.booking'].sudo().browse(booking_id)
-        if not booking.exists() or (token and booking.access_token != token):
+        if not booking.exists() or not token or booking.access_token != token:
             return request.redirect('/appointment')
 
         if booking.payment_status == 'paid':
@@ -548,7 +585,7 @@ class AppointmentController(http.Controller):
         # Generate access token for payment
         access_token = booking.access_token or token
 
-        return request.render('odoo_calendar_enhance.appointment_payment_page', {
+        return request.render('reservation_module.appointment_payment_page', {
             'booking': booking,
             # Payment form context
             'amount': amount,
@@ -612,7 +649,7 @@ class AppointmentController(http.Controller):
             return request.redirect(f'/appointment/booking/{booking.id}/confirm?token={token}&pending=1')
         else:
             # Payment failed or cancelled
-            return request.render('odoo_calendar_enhance.appointment_payment_page', {
+            return request.render('reservation_module.appointment_payment_page', {
                 'booking': booking,
                 'error': _('付款未完成，請重試。'),
                 't': self._get_translations(),

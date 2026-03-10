@@ -1,6 +1,6 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* odoo_calendar_enhance
+# 	* reservation_module
 #
 msgid ""
 msgstr ""
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
 
-#. module: odoo_calendar_enhance
-#: model:mail.template,body_html:odoo_calendar_enhance.email_template_booking_reminder
+#. module: reservation_module
+#: model:mail.template,body_html:reservation_module.email_template_booking_reminder
 msgid ""
 "<div style=\"margin: 0px; padding: 0px;\">\n"
 "    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
@@ -47,8 +47,8 @@ msgid ""
 "            "
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:mail.template,body_html:odoo_calendar_enhance.email_template_booking_cancelled
+#. module: reservation_module
+#: model:mail.template,body_html:reservation_module.email_template_booking_cancelled
 msgid ""
 "<div style=\"margin: 0px; padding: 0px;\">\n"
 "    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
@@ -70,8 +70,8 @@ msgid ""
 "            "
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:mail.template,body_html:odoo_calendar_enhance.email_template_booking_confirmed
+#. module: reservation_module
+#: model:mail.template,body_html:reservation_module.email_template_booking_confirmed
 msgid ""
 "<div style=\"margin: 0px; padding: 0px;\">\n"
 "    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
@@ -103,1699 +103,1699 @@ msgid ""
 "            "
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_kanban
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "<i class=\"fa fa-calendar\"/> Bookings"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid ""
 "<i class=\"fa fa-info-circle\"/> Email notifications are automatically sent "
 "when bookings are confirmed, rescheduled, or cancelled."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_kanban
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "<i class=\"fa fa-share-alt\"/> Share"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_kanban
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "<i class=\"fa fa-users text-muted\"/> capacity:"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_kanban
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "<span class=\"badge bg-success-light text-success\">Published</span>"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_kanban
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "<span class=\"badge bg-warning-light text-warning\">Unpublished</span>"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "<span>Resource Gantt</span>"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "<span>Staff Gantt</span>"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "<span>before start time</span>"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__access_token
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__access_token
 msgid "Access Token"
 msgstr "存取權杖"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__message_needaction
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__message_needaction
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_needaction
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_needaction
 msgid "Action Needed"
 msgstr "需要動作"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__active
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__active
 msgid "Active"
 msgstr "啟用"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__activity_ids
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__activity_ids
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_ids
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_ids
 msgid "Activities"
 msgstr "活動"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__activity_exception_decoration
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__activity_exception_decoration
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_exception_decoration
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "活動例外裝飾"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__activity_state
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__activity_state
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_state
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_state
 msgid "Activity State"
 msgstr "活動狀態"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__activity_type_icon
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__activity_type_icon
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_type_icon
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_type_icon
 msgid "Activity Type Icon"
 msgstr "活動類型圖示"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#: code:addons/reservation_module/models/appointment_type.py:0
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Add Closing Days"
 msgstr "新增休假日"
 
-#. module: odoo_calendar_enhance
-#: model:appointment.question.option,name:odoo_calendar_enhance.question_option_advanced
+#. module: reservation_module
+#: model:appointment.question.option,name:reservation_module.question_option_advanced
 msgid "Advanced"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.actions.act_window,name:odoo_calendar_enhance.appointment_booking_action
-#: model:ir.ui.menu,name:odoo_calendar_enhance.appointment_menu_bookings
+#. module: reservation_module
+#: model:ir.actions.act_window,name:reservation_module.appointment_booking_action
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_bookings
 msgid "All Bookings"
 msgstr "所有預約"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__allow_invitations
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__allow_invitations
 msgid "Allow Invitations"
 msgstr "允許邀請"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__allow_invitations
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__allow_invitations
 msgid "Allow bookers to invite other people"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#: code:addons/reservation_module/models/appointment_type.py:0
 msgid "Allow customers to book resources like rooms, tennis courts, etc."
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#: code:addons/reservation_module/models/appointment_type.py:0
 msgid "Allow others to book meetings in your reservation"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.actions.act_window,help:odoo_calendar_enhance.appointment_type_action
+#. module: reservation_module
+#: model_terms:ir.actions.act_window,help:reservation_module.appointment_type_action
 msgid "Allow your customers to book appointments online."
 msgstr "讓您的客戶可以線上預約。"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__payment_amount
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_amount
 msgid "Amount to charge for the appointment"
 msgstr "預約收費金額"
 
-#. module: odoo_calendar_enhance
-#: model:appointment.question.option,name:odoo_calendar_enhance.question_option_anniversary
+#. module: reservation_module
+#: model:appointment.question.option,name:reservation_module.question_option_anniversary
 msgid "Anniversary"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__answer_ids
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__answer_ids
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Answers"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model,name:odoo_calendar_enhance.model_appointment_answer
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_appointment_answer
 msgid "Appointment Answer"
 msgstr "預約答案"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model,name:odoo_calendar_enhance.model_appointment_availability
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_appointment_availability
 msgid "Appointment Availability"
 msgstr "預約可用時間"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model,name:odoo_calendar_enhance.model_appointment_booking
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_appointment_booking
 msgid "Appointment Booking"
 msgstr "預約訂單"
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Appointment Details"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model,name:odoo_calendar_enhance.model_appointment_question
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_appointment_question
 msgid "Appointment Question"
 msgstr "預約問題"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model,name:odoo_calendar_enhance.model_appointment_question_option
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_appointment_question_option
 msgid "Appointment Question Option"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model,name:odoo_calendar_enhance.model_appointment_slot
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_appointment_slot
 msgid "Appointment Slot"
 msgstr "預約時段"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model,name:odoo_calendar_enhance.model_appointment_type
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_availability__appointment_type_id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__appointment_type_id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__appointment_type_id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_slot__appointment_type_id
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_appointment_type
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__appointment_type_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__appointment_type_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__appointment_type_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__appointment_type_id
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Appointment Type"
 msgstr "預約類型"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_resource_resource__appointment_type_ids
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_list
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__appointment_type_ids
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_list
 msgid "Appointment Types"
 msgstr "預約類型"
 
-#. module: odoo_calendar_enhance
-#: model:mail.template,name:odoo_calendar_enhance.email_template_booking_cancelled
+#. module: reservation_module
+#: model:mail.template,name:reservation_module.email_template_booking_cancelled
 msgid "Appointment: Booking Cancelled"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:mail.template,name:odoo_calendar_enhance.email_template_booking_confirmed
+#. module: reservation_module
+#: model:mail.template,name:reservation_module.email_template_booking_confirmed
 msgid "Appointment: Booking Confirmed"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:mail.template,name:odoo_calendar_enhance.email_template_booking_reminder
+#. module: reservation_module
+#: model:mail.template,name:reservation_module.email_template_booking_reminder
 msgid "Appointment: Booking Reminder"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.actions.act_window,name:odoo_calendar_enhance.appointment_type_action
-#: model:ir.module.category,name:odoo_calendar_enhance.module_category_appointment
-#: model:ir.ui.menu,name:odoo_calendar_enhance.appointment_menu_appointments
+#. module: reservation_module
+#: model:ir.actions.act_window,name:reservation_module.appointment_type_action
+#: model:ir.module.category,name:reservation_module.module_category_appointment
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_appointments
 msgid "Appointments"
 msgstr "預約管理"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "April"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_search
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
 msgid "Archived"
 msgstr "已封存"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__assignment_method
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__assignment_method
 msgid "Assignment Method"
 msgstr "分配方式"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__message_attachment_count
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__message_attachment_count
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_attachment_count
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_attachment_count
 msgid "Attachment Count"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "August"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__auto_confirm
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__auto_confirm
 msgid "Auto Confirm"
 msgstr "自動確認"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__auto_confirm_capacity_percent
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__auto_confirm_capacity_percent
 msgid "Auto Confirm Capacity (%)"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#: code:addons/reservation_module/models/appointment_type.py:0
 msgid "Auto confirm capacity must be between 0 and 100."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__assignment_method__automatic
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__assignment_method__automatic
 msgid "Automatic"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__auto_confirm
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__auto_confirm
 msgid "Automatically confirm bookings"
 msgstr "自動確認預約"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__auto_confirm_capacity_percent
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__auto_confirm_capacity_percent
 msgid "Automatically confirm until this percentage of capacity is reached"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__availability_ids
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__availability_ids
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Availability"
 msgstr "可用時間"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_slot__state__available
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_slot__state__available
 msgid "Available"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_slot__available_count
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__available_count
 msgid "Available Count"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:appointment.question.option,name:odoo_calendar_enhance.question_option_beginner
+#. module: reservation_module
+#: model:appointment.question.option,name:reservation_module.question_option_beginner
 msgid "Beginner"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:appointment.question.option,name:odoo_calendar_enhance.question_option_birthday
+#. module: reservation_module
+#: model:appointment.question.option,name:reservation_module.question_option_birthday
 msgid "Birthday"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#: code:addons/reservation_module/models/appointment_type.py:0
 msgid "Book a Resource"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:appointment.type,description:odoo_calendar_enhance.appointment_type_consultation
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_consultation
 msgid "Book a one-on-one consultation with our expert."
 msgstr "預約與專家一對一諮詢。"
 
-#. module: odoo_calendar_enhance
-#: model_terms:appointment.type,description:odoo_calendar_enhance.appointment_type_tennis
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_tennis
 msgid "Book our professional tennis court."
 msgstr "預訂我們的專業網球場。"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_slot__booked_count
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__booked_count
 msgid "Booked Count"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__booking_id
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__booking_id
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Booking"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__booking_count
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_resource_resource__booking_count
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__booking_count
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__booking_count
 msgid "Booking Count"
 msgstr "預約數量"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__name
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__name
 msgid "Booking Reference"
 msgstr "預約編號"
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Booking Settings"
 msgstr "預約設定"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__booking_type
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__booking_type
 msgid "Booking Type"
 msgstr "預約類型"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
-#: code:addons/odoo_calendar_enhance/models/resource_resource.py:0
-#: model:ir.actions.act_window,name:odoo_calendar_enhance.appointment_booking_action_calendar
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_slot__booking_ids
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__booking_ids
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_calendar
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_list
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#: code:addons/reservation_module/models/appointment_type.py:0
+#: code:addons/reservation_module/models/resource_resource.py:0
+#: model:ir.actions.act_window,name:reservation_module.appointment_booking_action_calendar
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__booking_ids
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__booking_ids
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_calendar
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_list
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Bookings"
 msgstr "預約"
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.actions.act_window,help:odoo_calendar_enhance.appointment_booking_action
+#. module: reservation_module
+#: model_terms:ir.actions.act_window,help:reservation_module.appointment_booking_action
 msgid "Bookings will appear here when customers make appointments."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:appointment.question.option,name:odoo_calendar_enhance.question_option_business
+#. module: reservation_module
+#: model:appointment.question.option,name:reservation_module.question_option_business
 msgid "Business Dinner"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:appointment.type,name:odoo_calendar_enhance.appointment_type_meeting
+#. module: reservation_module
+#: model:appointment.type,name:reservation_module.appointment_type_meeting
 msgid "Business Meeting"
 msgstr "商務會議"
 
-#. module: odoo_calendar_enhance
-#: model:ir.ui.menu,name:odoo_calendar_enhance.appointment_menu_calendar
+#. module: reservation_module
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_calendar
 msgid "Calendar"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Cancel"
 msgstr "取消"
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Cancellation"
 msgstr "取消"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__cancel_before_hours
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__cancel_before_hours
 msgid "Cancellation Deadline (hours)"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_booking.py:0
+#: code:addons/reservation_module/models/appointment_booking.py:0
 msgid "Cancellation is only allowed until %s hours before the appointment."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_booking__state__cancelled
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__cancelled
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Cancelled"
 msgstr "已取消"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_slot__capacity
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_resource_resource__capacity
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__capacity
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__capacity
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Capacity"
 msgstr "容量"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_slot.py:0
+#: code:addons/reservation_module/models/appointment_slot.py:0
 msgid "Capacity must be at least 1."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__category
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_search
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__category
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
 msgid "Category"
 msgstr "類別"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__payment_per_person
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_per_person
 msgid "Charge per person instead of per booking"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_question__question_type__checkbox
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__checkbox
 msgid "Checkboxes"
 msgstr "核取方塊"
 
-#. module: odoo_calendar_enhance
-#: model_terms:appointment.type,description:odoo_calendar_enhance.appointment_type_tennis
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_tennis
 msgid "Clay surface"
 msgstr "紅土場地"
 
-#. module: odoo_calendar_enhance
-#: model_terms:appointment.type,description:odoo_calendar_enhance.appointment_type_meeting
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_meeting
 msgid "Client consultations"
 msgstr "客戶諮詢"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_slot__state__closed
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_slot__state__closed
 msgid "Closed"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Communication"
 msgstr "通訊"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__company_id
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__company_id
 msgid "Company"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.ui.menu,name:odoo_calendar_enhance.appointment_menu_configuration
+#. module: reservation_module
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_configuration
 msgid "Configuration"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Confirm"
 msgstr "確認"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__confirmation_page
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__confirmation_page
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Confirmation Page"
 msgstr "確認頁面"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_booking__state__confirmed
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__confirmed
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Confirmed"
 msgstr "已確認"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__partner_id
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__partner_id
 msgid "Contact"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__confirmation_page
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__confirmation_page
 msgid "Content shown after booking is confirmed"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Content shown after booking is confirmed..."
 msgstr "預約確認後顯示的內容..."
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__introduction_page
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__introduction_page
 msgid "Content shown on the appointment booking page"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Content shown to visitors before booking..."
 msgstr "預約前顯示給訪客的內容..."
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.actions.act_window,help:odoo_calendar_enhance.appointment_type_action
+#. module: reservation_module
+#: model_terms:ir.actions.act_window,help:reservation_module.appointment_type_action
 msgid "Create your first appointment type"
 msgstr "建立您的第一個預約類型"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__create_uid
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_availability__create_uid
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__create_uid
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__create_uid
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question_option__create_uid
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_slot__create_uid
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__create_uid
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__create_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__create_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__create_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__create_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question_option__create_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__create_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__create_uid
 msgid "Created by"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__create_date
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_availability__create_date
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__create_date
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__create_date
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question_option__create_date
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_slot__create_date
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__create_date
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__create_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__create_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__create_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__create_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question_option__create_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__create_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__create_date
 msgid "Created on"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__currency_id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__currency_id
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__currency_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__currency_id
 msgid "Currency"
 msgstr "貨幣"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__schedule_type__custom
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__schedule_type__custom
 msgid "Custom"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__assignment_method__customer
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__assignment_method__customer
 msgid "Customer Choice"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_question__question_type__date
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__schedule_based_on__date
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__date
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__schedule_based_on__date
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Date"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_question__question_type__datetime
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__datetime
 msgid "Date & Time"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__value_date
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__value_date
 msgid "Date Answer"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__value_datetime
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__value_datetime
 msgid "DateTime Answer"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_availability__dayofweek
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__dayofweek
 msgid "Day of Week"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "December"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__description
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__description
 msgid "Description"
 msgstr "描述"
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Description for your customers..."
 msgstr "給客戶的說明..."
 
-#. module: odoo_calendar_enhance
-#: model:appointment.question,name:odoo_calendar_enhance.question_table_dietary
+#. module: reservation_module
+#: model:appointment.question,name:reservation_module.question_table_dietary
 msgid "Dietary requirements"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Display"
 msgstr "顯示"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__display_name
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_availability__display_name
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__display_name
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__display_name
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question_option__display_name
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_slot__display_name
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__display_name
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__display_name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__display_name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__display_name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__display_name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question_option__display_name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__display_name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__display_name
 msgid "Display Name"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__display_value
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__display_value
 msgid "Display Value"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_booking__state__done
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__done
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Done"
 msgstr "已完成"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_booking__state__draft
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__draft
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Draft"
 msgstr "草稿"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__duration
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__duration
 msgid "Duration (hours)"
 msgstr "持續時間（小時）"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__slot_duration
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__slot_duration
 msgid "Duration of each appointment slot in hours"
 msgstr "每個預約時段的持續時間（小時）"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_question__question_type__email
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__email
 msgid "Email"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Email Notifications"
 msgstr "電子郵件通知"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__manage_capacity
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__manage_capacity
 msgid "Enable capacity management for resources"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__end_datetime
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_slot__end_datetime
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__end_datetime
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__end_datetime
 msgid "End Time"
 msgstr "結束時間"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_availability__hour_to
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_availability__hour_to
 msgid "End time (24-hour format)"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_booking.py:0
-#: code:addons/odoo_calendar_enhance/models/appointment_slot.py:0
+#: code:addons/reservation_module/models/appointment_booking.py:0
+#: code:addons/reservation_module/models/appointment_slot.py:0
 msgid "End time must be after start time."
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_availability.py:0
+#: code:addons/reservation_module/models/appointment_availability.py:0
 msgid "End time must be between 0 and 24."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:appointment.type,description:odoo_calendar_enhance.appointment_type_tennis
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_tennis
 msgid "Equipment rental available"
 msgstr "可租借器材"
 
-#. module: odoo_calendar_enhance
-#: model:appointment.type,name:odoo_calendar_enhance.appointment_type_consultation
+#. module: reservation_module
+#: model:appointment.type,name:reservation_module.appointment_type_consultation
 msgid "Expert Consultation"
 msgstr "專家諮詢"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "February"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__message_follower_ids
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__message_follower_ids
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_follower_ids
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_follower_ids
 msgid "Followers"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__message_partner_ids
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__message_partner_ids
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_partner_ids
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_partner_ids
 msgid "Followers (Partners)"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_booking__activity_type_icon
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__activity_type_icon
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__activity_type_icon
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "Fri"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_availability__dayofweek__4
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__4
 msgid "Friday"
 msgstr "週五"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_availability__hour_from
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__hour_from
 msgid "From"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_slot__state__full
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_slot__state__full
 msgid "Fully Booked"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:appointment.question.option,name:odoo_calendar_enhance.question_option_gluten_free
+#. module: reservation_module
+#: model:appointment.question.option,name:reservation_module.question_option_gluten_free
 msgid "Gluten-free"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_search
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
 msgid "Group By"
 msgstr "分組依據"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__guest_email
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__guest_email
 msgid "Guest Email"
 msgstr "訪客電子郵件"
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Guest Information"
 msgstr "訪客資訊"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__guest_name
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__guest_name
 msgid "Guest Name"
 msgstr "訪客姓名"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__guest_phone
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__guest_phone
 msgid "Guest Phone"
 msgstr "訪客電話"
 
-#. module: odoo_calendar_enhance
-#: model:appointment.question.option,name:odoo_calendar_enhance.question_option_halal
+#. module: reservation_module
+#: model:appointment.question.option,name:reservation_module.question_option_halal
 msgid "Halal"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__has_message
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__has_message
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__has_message
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__has_message
 msgid "Has Message"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__help_text
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__help_text
 msgid "Help Text"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__cancel_before_hours
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__cancel_before_hours
 msgid "Hours before appointment start time until when cancellation is allowed"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__max_booking_days
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__max_booking_days
 msgid "How many days in advance can appointments be booked"
 msgstr "可以提前多少天預約"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__assignment_method
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__assignment_method
 msgid "How resources/staff are assigned to bookings"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_availability__id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question_option__id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_slot__id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__id
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question_option__id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__id
 msgid "ID"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__activity_exception_icon
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__activity_exception_icon
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__icon
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_resource_resource__icon
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_exception_icon
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_exception_icon
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__icon
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__icon
 msgid "Icon"
 msgstr "圖示"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_booking__activity_exception_icon
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__activity_exception_icon
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__activity_exception_icon
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__activity_exception_icon
 msgid "Icon to indicate an exception activity."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_booking__message_needaction
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__message_needaction
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_needaction
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_booking__message_has_error
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_booking__message_has_sms_error
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__message_has_error
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__message_has_sms_error
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_has_error
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_has_sms_error
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__message_has_error
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__image
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_resource_resource__image
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__image
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__image
 msgid "Image"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__image_url
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__image_url
 msgid "Image URL"
 msgstr "圖片網址"
 
-#. module: odoo_calendar_enhance
-#: model_terms:appointment.type,description:odoo_calendar_enhance.appointment_type_table
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_table
 msgid "Indoor and outdoor seating available"
 msgstr "室內外座位可選"
 
-#. module: odoo_calendar_enhance
-#: model:appointment.question.option,name:odoo_calendar_enhance.question_option_intermediate
+#. module: reservation_module
+#: model:appointment.question.option,name:reservation_module.question_option_intermediate
 msgid "Intermediate"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__internal_notes
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__internal_notes
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Internal Notes"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Internal notes (not visible to guests)..."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__introduction_page
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__introduction_page
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Introduction Page"
 msgstr "介紹頁面"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__message_is_follower
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__message_is_follower
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_is_follower
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_is_follower
 msgid "Is Follower"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "January"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "July"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "June"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__write_uid
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_availability__write_uid
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__write_uid
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__write_uid
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question_option__write_uid
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_slot__write_uid
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__write_uid
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__write_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__write_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__write_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__write_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question_option__write_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__write_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__write_uid
 msgid "Last Updated by"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__write_date
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_availability__write_date
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__write_date
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__write_date
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question_option__write_date
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_slot__write_date
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__write_date
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__write_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__write_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__write_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__write_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question_option__write_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__write_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__write_date
 msgid "Last Updated on"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_availability__resource_id
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_availability__resource_id
 msgid "Leave empty to apply to all resources"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_availability__user_id
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_availability__user_id
 msgid "Leave empty to apply to all users"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#: code:addons/reservation_module/models/appointment_type.py:0
 msgid "Let customers book a fee per person for activities"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#: code:addons/reservation_module/models/appointment_type.py:0
 msgid "Let customers book a paid slot in your reservation"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#: code:addons/reservation_module/models/appointment_type.py:0
 msgid "Let customers book tables at your restaurant or bar"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:appointment.type,description:odoo_calendar_enhance.appointment_type_tennis
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_tennis
 msgid "Lighting available for evening play"
 msgstr "夜間照明設施"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__video_link
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__video_link
 msgid "Link to video conference"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__location_id
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__location_id
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Location"
 msgstr "地點"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__location_address
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__location_address
 msgid "Location Address"
 msgstr "地點"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__location_type
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__location_type
 msgid "Location Type"
 msgstr "地點類型"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__manage_capacity
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__manage_capacity
 msgid "Manage Capacity"
 msgstr "管理容量"
 
-#. module: odoo_calendar_enhance
-#: model:ir.module.category,description:odoo_calendar_enhance.module_category_appointment
+#. module: reservation_module
+#: model:ir.module.category,description:reservation_module.module_category_appointment
 msgid "Manage appointment types and bookings"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:res.groups,name:odoo_calendar_enhance.group_appointment_manager
+#. module: reservation_module
+#: model:res.groups,name:reservation_module.group_appointment_manager
 msgid "Manager"
 msgstr "管理員"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "March"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Mark as Done"
 msgstr "標記為完成"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__max_concurrent_bookings
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__max_concurrent_bookings
 msgid "Max Concurrent Bookings"
 msgstr "最大同時預約數"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__max_booking_days
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__max_booking_days
 msgid "Maximum Booking Days"
 msgstr "最大預約天數"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#: code:addons/reservation_module/models/appointment_type.py:0
 msgid "Maximum booking days must be at least 1."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_resource_resource__capacity
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__capacity
 msgid "Maximum number of concurrent bookings for this resource"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__max_concurrent_bookings
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__max_concurrent_bookings
 msgid "Maximum number of concurrent bookings per user"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "May"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__category__meeting
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_search
+#: code:addons/reservation_module/models/appointment_type.py:0
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__meeting
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
 msgid "Meeting"
 msgstr "會議"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__message_has_error
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__message_has_error
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_has_error
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_has_error
 msgid "Message Delivery error"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__message_ids
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__message_ids
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_ids
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_ids
 msgid "Messages"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__min_booking_hours
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__min_booking_hours
 msgid "Minimum Advance Booking (hours)"
 msgstr "最短預約時間"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__min_booking_hours
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__min_booking_hours
 msgid ""
 "Minimum hours before the appointment start time that booking is allowed"
 msgstr "允許預約的最短提前時間（小時）"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "Mon"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_availability__dayofweek__0
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__0
 msgid "Monday"
 msgstr "週一"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_question__question_type__textarea
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__textarea
 msgid "Multi-Line Text"
 msgstr "文字區域"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__my_activity_date_deadline
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__my_activity_date_deadline
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__my_activity_date_deadline
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__my_activity_date_deadline
 msgid "My Activity Deadline"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__name
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__name
 msgid "Name"
 msgstr "名稱"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__activity_calendar_event_id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__activity_calendar_event_id
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_calendar_event_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_calendar_event_id
 msgid "Next Activity Calendar Event"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__activity_date_deadline
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__activity_date_deadline
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_date_deadline
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_date_deadline
 msgid "Next Activity Deadline"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__activity_summary
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__activity_summary
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_summary
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_summary
 msgid "Next Activity Summary"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__activity_type_id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__activity_type_id
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_type_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_type_id
 msgid "Next Activity Type"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.actions.act_window,help:odoo_calendar_enhance.appointment_booking_action
+#. module: reservation_module
+#: model_terms:ir.actions.act_window,help:reservation_module.appointment_booking_action
 msgid "No bookings yet"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:appointment.question.option,name:odoo_calendar_enhance.question_option_none
+#. module: reservation_module
+#: model:appointment.question.option,name:reservation_module.question_option_none
 msgid "No special occasion"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_booking__payment_status__not_required
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__payment_status__not_required
 msgid "Not Required"
 msgstr "不需要"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__notes
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__notes
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Notes"
 msgstr "備註"
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Notes from the guest..."
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "November"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_question__question_type__number
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__number
 msgid "Number"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__value_number
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__value_number
 msgid "Number Answer"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__message_needaction_counter
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__message_needaction_counter
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_needaction_counter
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_needaction_counter
 msgid "Number of Actions"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__guest_count
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__guest_count
 msgid "Number of Guests"
 msgstr "訪客人數"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__message_has_error_counter
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__message_has_error_counter
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_has_error_counter
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_has_error_counter
 msgid "Number of errors"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_booking.py:0
+#: code:addons/reservation_module/models/appointment_booking.py:0
 msgid "Number of guests must be at least 1."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_booking__message_needaction_counter
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__message_needaction_counter
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_needaction_counter
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_booking__message_has_error_counter
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__message_has_error_counter
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_has_error_counter
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "October"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__location_type__online
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__location_type__online
 msgid "Online Meeting"
 msgstr "線上"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question_option__name
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question_option__name
 msgid "Option"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__option_ids
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__option_ids
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Options"
 msgstr "選項"
 
-#. module: odoo_calendar_enhance
-#: model_terms:appointment.type,description:odoo_calendar_enhance.appointment_type_video_call
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_video_call
 msgid "Our team will send you a meeting link after booking."
 msgstr "預約後，我們的團隊會發送會議連結給您。"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_booking__payment_status__paid
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__payment_status__paid
 msgid "Paid"
 msgstr "已付款"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__category__paid_consultation
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_search
+#: code:addons/reservation_module/models/appointment_type.py:0
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__paid_consultation
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
 msgid "Paid Consultation"
 msgstr "付費諮詢"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__category__paid_seat
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_search
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__paid_seat
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
 msgid "Paid Seat"
 msgstr "付費座位"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#: code:addons/reservation_module/models/appointment_type.py:0
 msgid "Paid Seats"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_slot__state__partial
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_slot__state__partial
 msgid "Partially Booked"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Payment"
 msgstr "付款"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__payment_amount
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__payment_amount
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_amount
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_amount
 msgid "Payment Amount"
 msgstr "付款金額"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__payment_per_person
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_per_person
 msgid "Payment Per Person"
 msgstr "每人付款"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__payment_product_id
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_product_id
 msgid "Payment Product"
 msgstr "付款產品"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__payment_status
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_status
 msgid "Payment Status"
 msgstr "付款狀態"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__payment_transaction_id
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_transaction_id
 msgid "Payment Transaction"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_booking.py:0
+#: code:addons/reservation_module/models/appointment_booking.py:0
 msgid "Payment is required before confirming this booking."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:appointment.type,description:odoo_calendar_enhance.appointment_type_consultation
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_consultation
 msgid "Payment is required to confirm your booking."
 msgstr "需要付款才能確認您的預約。"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_booking__payment_status__pending
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__payment_status__pending
 msgid "Pending"
 msgstr "待處理"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_question__question_type__phone
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__phone
 msgid "Phone"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__location_type__physical
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__location_type__physical
 msgid "Physical Location"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__location_id
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__location_id
 msgid "Physical location for the appointment"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__placeholder
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__placeholder
 msgid "Placeholder"
 msgstr "佔位符"
 
-#. module: odoo_calendar_enhance
-#: model:appointment.question,placeholder:odoo_calendar_enhance.question_consultation_topic
+#. module: reservation_module
+#: model:appointment.question,placeholder:reservation_module.question_consultation_topic
 msgid "Please describe your question or topic in detail..."
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/controllers/main.py:0
+#: code:addons/reservation_module/controllers/main.py:0
 msgid "Please fill in all required fields."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:appointment.type,description:odoo_calendar_enhance.appointment_type_table
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_table
 msgid "Private dining options"
 msgstr "私人包廂選項"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__payment_product_id
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_product_id
 msgid "Product used for payment"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:appointment.type,description:odoo_calendar_enhance.appointment_type_meeting
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_meeting
 msgid "Project discussions"
 msgstr "專案討論"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__is_published
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_search
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__is_published
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
 msgid "Published"
 msgstr "已發佈"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__question_id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__name
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question_option__question_id
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__question_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question_option__question_id
 msgid "Question"
 msgstr "問題"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__question_type
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__question_type
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__question_type
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__question_type
 msgid "Question Type"
 msgstr "問題類型"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__question_ids
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__question_ids
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Questions"
 msgstr "問題"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_question__question_type__radio
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__radio
 msgid "Radio Buttons"
 msgstr "單選按鈕"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__rating_ids
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__rating_ids
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__rating_ids
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__rating_ids
 msgid "Ratings"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__schedule_type__recurring
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__schedule_type__recurring
 msgid "Recurring Weekly"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_booking__payment_status__refunded
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__payment_status__refunded
 msgid "Refunded"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:mail.template,subject:odoo_calendar_enhance.email_template_booking_reminder
+#. module: reservation_module
+#: model:mail.template,subject:reservation_module.email_template_booking_reminder
 msgid "Reminder: Your appointment is coming up - {{ object.name }}"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.ui.menu,name:odoo_calendar_enhance.appointment_menu_reports
+#. module: reservation_module
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_reports
 msgid "Reports"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__require_payment
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__require_payment
 msgid "Require Payment"
 msgstr "需要付款"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__require_payment
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__require_payment
 msgid "Require payment before confirming the appointment"
 msgstr "確認預約前需要付款"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__required
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__required
 msgid "Required"
 msgstr "必填"
 
-#. module: odoo_calendar_enhance
-#: model:ir.ui.menu,name:odoo_calendar_enhance.appointment_menu_root
+#. module: reservation_module
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_root
 msgid "Reservation"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__calendar_event_id
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__calendar_event_id
 msgid "Reservation Event"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:appointment.type,description:odoo_calendar_enhance.appointment_type_table
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_table
 msgid "Reserve a table at our restaurant."
 msgstr "預訂我們餐廳的座位。"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_availability__resource_id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__resource_id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_slot__resource_id
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_search
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__resource_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__resource_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__resource_id
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
 msgid "Resource"
 msgstr "資源"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__category__resource
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__resource
 msgid "Resource Booking"
 msgstr "資源預訂"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
-#: model:ir.actions.act_window,name:odoo_calendar_enhance.appointment_booking_action_resource
-#: model:ir.ui.menu,name:odoo_calendar_enhance.appointment_menu_resource_bookings
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_calendar_resource
+#: code:addons/reservation_module/models/appointment_type.py:0
+#: model:ir.actions.act_window,name:reservation_module.appointment_booking_action_resource
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_resource_bookings
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_calendar_resource
 msgid "Resource Bookings"
 msgstr "資源預約"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model,name:odoo_calendar_enhance.model_resource_resource
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__resource_ids
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__booking_type__resource
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_resource_resource
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__resource_ids
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__booking_type__resource
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Resources"
 msgstr "資源"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__resource_ids
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__resource_ids
 msgid "Resources available for this appointment type"
 msgstr "此預約類型可用的資源"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__activity_user_id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__activity_user_id
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_user_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_user_id
 msgid "Responsible User"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:appointment.type,name:odoo_calendar_enhance.appointment_type_table
+#. module: reservation_module
+#: model:appointment.type,name:reservation_module.appointment_type_table
 msgid "Restaurant Table"
 msgstr "餐廳訂位"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__message_has_sms_error
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__message_has_sms_error
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_has_sms_error
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "Sat"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_availability__dayofweek__5
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__5
 msgid "Saturday"
 msgstr "週六"
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Schedule Configuration"
 msgstr "排程設定"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__schedule_type
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__schedule_type
 msgid "Schedule Type"
 msgstr "排程類型"
 
-#. module: odoo_calendar_enhance
-#: model_terms:appointment.type,description:odoo_calendar_enhance.appointment_type_meeting
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_meeting
 msgid "Schedule a business meeting with our team. Perfect for:"
 msgstr "與我們的團隊安排商務會議，適合："
 
-#. module: odoo_calendar_enhance
-#: model_terms:appointment.type,description:odoo_calendar_enhance.appointment_type_video_call
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_video_call
 msgid "Schedule a video consultation from anywhere in the world."
 msgstr "在世界任何地方安排視訊諮詢。"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#: code:addons/reservation_module/models/appointment_type.py:0
 msgid "Schedule video meetings with one or more participants"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Scheduling"
 msgstr "排程"
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_search
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
 msgid "Search Appointment Types"
 msgstr "搜尋預約類型"
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Search Bookings"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__value_option_ids
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__value_option_ids
 msgid "Selected Options"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_question__question_type__select
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__select
 msgid "Selection"
 msgstr "選擇"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "September"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question__sequence
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_question_option__sequence
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__sequence
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__sequence
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question_option__sequence
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__sequence
 msgid "Sequence"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Set to Draft"
 msgstr "設為草稿"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
-#: model:ir.ui.menu,name:odoo_calendar_enhance.appointment_menu_settings
+#: code:addons/reservation_module/models/appointment_type.py:0
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_settings
 msgid "Settings"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Share"
 msgstr "分享"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__show_image
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__show_image
 msgid "Show Image"
 msgstr "顯示圖片"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_question__question_type__text
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__text
 msgid "Single Line Text"
 msgstr "文字"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__slot_id
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__slot_id
 msgid "Slot"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__slot_duration
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__slot_duration
 msgid "Slot Duration (hours)"
 msgstr "時段長度（小時）"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__slot_interval
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__slot_interval
 msgid "Slot Interval (hours)"
 msgstr "時段間隔"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
+#: code:addons/reservation_module/models/appointment_type.py:0
 msgid "Slot duration must be greater than 0."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:appointment.type,description:odoo_calendar_enhance.appointment_type_table
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_table
 msgid "Special occasion accommodations"
 msgstr "特殊場合安排"
 
-#. module: odoo_calendar_enhance
-#: model:appointment.question,name:odoo_calendar_enhance.question_table_occasion
+#. module: reservation_module
+#: model:appointment.question,name:reservation_module.question_table_occasion
 msgid "Special occasion?"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__staff_user_id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_slot__staff_user_id
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__staff_user_ids
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__staff_user_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__staff_user_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__staff_user_ids
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Staff"
 msgstr "員工"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
-#: model:ir.actions.act_window,name:odoo_calendar_enhance.appointment_booking_action_staff
-#: model:ir.ui.menu,name:odoo_calendar_enhance.appointment_menu_staff_bookings
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_calendar_staff
+#: code:addons/reservation_module/models/appointment_type.py:0
+#: model:ir.actions.act_window,name:reservation_module.appointment_booking_action_staff
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_staff_bookings
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_calendar_staff
 msgid "Staff Bookings"
 msgstr "員工預約"
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Staff Members"
 msgstr "員工成員"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__staff_user_ids
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__staff_user_ids
 msgid "Staff members available for this appointment type"
 msgstr "此預約類型可用的員工"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__schedule_based_on
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__schedule_based_on
 msgid "Start Based On"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__start_datetime
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_slot__start_datetime
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__start_datetime
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__start_datetime
 msgid "Start Time"
 msgstr "開始時間"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_availability__hour_from
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_availability__hour_from
 msgid "Start time (24-hour format)"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_availability.py:0
+#: code:addons/reservation_module/models/appointment_availability.py:0
 msgid "Start time must be before end time."
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_availability.py:0
+#: code:addons/reservation_module/models/appointment_availability.py:0
 msgid "Start time must be between 0 and 24."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_slot__state
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__state
 msgid "State"
 msgstr "狀態"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__state
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__state
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Status"
 msgstr "狀態"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_booking__activity_state
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__activity_state
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__activity_state
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__activity_state
 msgid ""
 "Status based on activities\n"
 "Overdue: Due date is already passed\n"
@@ -1803,264 +1803,264 @@ msgid ""
 "Planned: Future activities."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:appointment.type,description:odoo_calendar_enhance.appointment_type_meeting
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_meeting
 msgid "Strategic planning"
 msgstr "策略規劃"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "Sun"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_availability__dayofweek__6
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__6
 msgid "Sunday"
 msgstr "週日"
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_search
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
 msgid "Table"
 msgstr "餐桌"
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__category__table
+#: code:addons/reservation_module/models/appointment_type.py:0
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__table
 msgid "Table Booking"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Technical"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:appointment.type,name:odoo_calendar_enhance.appointment_type_tennis
+#. module: reservation_module
+#: model:appointment.type,name:reservation_module.appointment_type_tennis
 msgid "Tennis Court"
 msgstr "網球場預約"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_answer__value_text
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__value_text
 msgid "Text Answer"
 msgstr "文字答案"
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "This Week"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "Thu"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_availability__dayofweek__3
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__3
 msgid "Thursday"
 msgstr "週四"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__slot_interval
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__slot_interval
 msgid "Time interval between available slots"
 msgstr "可用時段之間的時間間隔"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__timezone
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__timezone
 msgid "Timezone"
 msgstr "時區"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_availability__hour_to
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__hour_to
 msgid "To"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Today"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_kanban
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "Total"
 msgstr "總計"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__total_capacity
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__total_capacity
 msgid "Total Capacity"
 msgstr "總容量"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__total_capacity
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__total_capacity
 msgid "Total capacity across all resources"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "Tue"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_availability__dayofweek__1
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__1
 msgid "Tuesday"
 msgstr "週二"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_booking__activity_exception_decoration
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__activity_exception_decoration
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__activity_exception_decoration
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_booking_view_search
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_kanban
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "Upcoming"
 msgstr "即將到來"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__upcoming_booking_count
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_resource_resource__upcoming_booking_count
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__upcoming_booking_count
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__upcoming_booking_count
 msgid "Upcoming Bookings"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_availability__user_id
-#: model:res.groups,name:odoo_calendar_enhance.group_appointment_user
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__user_id
+#: model:res.groups,name:reservation_module.group_appointment_user
 msgid "User"
 msgstr "使用者"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__schedule_based_on__user_resource
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__schedule_based_on__user_resource
 msgid "User / Resource"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__booking_type__user
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__booking_type__user
 msgid "Users"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:appointment.question.option,name:odoo_calendar_enhance.question_option_vegan
+#. module: reservation_module
+#: model:appointment.question.option,name:reservation_module.question_option_vegan
 msgid "Vegan"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:appointment.question.option,name:odoo_calendar_enhance.question_option_vegetarian
+#. module: reservation_module
+#: model:appointment.question.option,name:reservation_module.question_option_vegetarian
 msgid "Vegetarian"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-python
-#: code:addons/odoo_calendar_enhance/models/appointment_type.py:0
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_type__category__video_call
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_search
+#: code:addons/reservation_module/models/appointment_type.py:0
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__video_call
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
 msgid "Video Call"
 msgstr "視訊通話"
 
-#. module: odoo_calendar_enhance
-#: model:appointment.type,name:odoo_calendar_enhance.appointment_type_video_call
+#. module: reservation_module
+#: model:appointment.type,name:reservation_module.appointment_type_video_call
 msgid "Video Consultation"
 msgstr "視訊諮詢"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__video_link
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__video_link
 msgid "Video Link"
 msgstr "視訊連結"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_booking__website_message_ids
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__website_message_ids
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__website_message_ids
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__website_message_ids
 msgid "Website Messages"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,field_description:odoo_calendar_enhance.field_appointment_type__website_url
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__website_url
 msgid "Website URL"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_booking__website_message_ids
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__website_message_ids
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__website_message_ids
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__website_message_ids
 msgid "Website communication history"
 msgstr ""
 
-#. module: odoo_calendar_enhance
+#. module: reservation_module
 #. odoo-javascript
-#: code:addons/odoo_calendar_enhance/static/src/js/appointment_booking.js:0
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "Wed"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields.selection,name:odoo_calendar_enhance.selection__appointment_availability__dayofweek__2
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__2
 msgid "Wednesday"
 msgstr "週三"
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Weekly Schedule"
 msgstr "每週排程"
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__schedule_based_on
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__schedule_based_on
 msgid "What the booking reservation should be based on"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:appointment.question,name:odoo_calendar_enhance.question_consultation_topic
+#. module: reservation_module
+#: model:appointment.question,name:reservation_module.question_consultation_topic
 msgid "What topic would you like to discuss?"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:ir.model.fields,help:odoo_calendar_enhance.field_appointment_type__booking_type
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__booking_type
 msgid "Whether appointments are booked with users or resources"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:mail.template,subject:odoo_calendar_enhance.email_template_booking_cancelled
+#. module: reservation_module
+#: model:mail.template,subject:reservation_module.email_template_booking_cancelled
 msgid "Your appointment has been cancelled - {{ object.name }}"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:mail.template,subject:odoo_calendar_enhance.email_template_booking_confirmed
+#. module: reservation_module
+#: model:mail.template,subject:reservation_module.email_template_booking_confirmed
 msgid "Your appointment has been confirmed - {{ object.name }}"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model:appointment.question,name:odoo_calendar_enhance.question_consultation_experience
+#. module: reservation_module
+#: model:appointment.question,name:reservation_module.question_consultation_experience
 msgid "Your experience level"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_book_page
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_schedule_page
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_page
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_book_page
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_page
 msgid "breadcrumb"
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_kanban
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "duration"
 msgstr "時長"
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "e.g. Meeting, Table Booking"
 msgstr "例如：會議、餐桌預約"
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_form
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "https://meet.google.com/..."
 msgstr ""
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_kanban
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "resources"
 msgstr "資源"
 
-#. module: odoo_calendar_enhance
-#: model_terms:ir.ui.view,arch_db:odoo_calendar_enhance.appointment_type_view_kanban
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "staff members"
 msgstr "員工成員"

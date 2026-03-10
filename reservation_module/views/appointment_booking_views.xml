@@ -14,7 +14,7 @@
                     <button name="action_cancel" type="object" string="取消"
                             invisible="state not in ['draft', 'confirmed']"/>
                     <button name="action_draft" type="object" string="設為草稿"
-                            invisible="state != 'cancelled'"/>
+                            invisible="state not in ['cancelled', 'done']"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done"/>
                 </header>
                 <sheet>

@@ -3,7 +3,7 @@
     <!-- Root Menu -->
     <menuitem id="appointment_menu_root"
               name="預約管理"
-              web_icon="odoo_calendar_enhance,static/description/icon.png"
+              web_icon="reservation_module,static/description/icon.png"
               sequence="25"/>
 
     <!-- Calendar submenu (link to calendar module) -->

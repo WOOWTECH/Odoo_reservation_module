@@ -149,9 +149,9 @@ class AppointmentType(models.Model):
         default=True,
         help='自動確認預約',
     )
-    auto_confirm_capacity_percent = fields.Integer(
+    auto_confirm_capacity_percent = fields.Float(
         '自動確認容量（%）',
-        default=100,
+        default=1.0,
         help='達到此容量百分比前自動確認',
     )
 
@@ -287,8 +287,8 @@ class AppointmentType(models.Model):
     @api.constrains('auto_confirm_capacity_percent')
     def _check_auto_confirm_capacity(self):
         for record in self:
-            if record.auto_confirm_capacity_percent < 0 or record.auto_confirm_capacity_percent > 100:
-                raise ValidationError(_('Auto confirm capacity must be between 0 and 100.'))
+            if record.auto_confirm_capacity_percent < 0 or record.auto_confirm_capacity_percent > 1.0:
+                raise ValidationError(_('Auto confirm capacity must be between 0 and 1.0 (0% to 100%).'))
 
     def action_view_bookings(self):
         """Open bookings for this appointment type"""

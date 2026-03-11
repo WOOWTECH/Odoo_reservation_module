@@ -15,84 +15,84 @@ class AppointmentType(models.Model):
         return self.env.user.tz or 'UTC'
 
     name = fields.Char(
-        '名稱',
+        'Name',
         required=True,
         translate=True,
         tracking=True,
     )
-    sequence = fields.Integer('順序', default=10)
-    active = fields.Boolean('啟用', default=True, tracking=True)
+    sequence = fields.Integer('Sequence', default=10)
+    active = fields.Boolean('Active', default=True, tracking=True)
 
     category = fields.Selection([
-        ('meeting', '會議'),
-        ('video_call', '視訊通話'),
-        ('table', '桌位預訂'),
-        ('resource', '資源預訂'),
-        ('paid_consultation', '付費諮詢'),
-        ('paid_seat', '付費座位'),
-    ], string='類別', required=True, default='meeting', tracking=True)
+        ('meeting', 'Meeting'),
+        ('video_call', 'Video Call'),
+        ('table', 'Table Booking'),
+        ('resource', 'Resource Booking'),
+        ('paid_consultation', 'Paid Consultation'),
+        ('paid_seat', 'Paid Seats'),
+    ], string='Category', required=True, default='meeting', tracking=True)
 
-    description = fields.Html('說明', translate=True)
+    description = fields.Html('Description', translate=True)
 
     # Location Configuration
     location_type = fields.Selection([
-        ('online', '線上會議'),
-        ('physical', '實體地點'),
-    ], string='地點類型', default='online')
+        ('online', 'Online Meeting'),
+        ('physical', 'Physical Location'),
+    ], string='Location Type', default='online')
     location_id = fields.Many2one(
         'res.partner',
-        string='地點',
-        help='預約的實體地點',
+        string='Location',
+        help='Physical location for the appointment',
         ondelete='set null',
     )
     location_address = fields.Char(
-        '地點地址',
+        'Location Address',
         related='location_id.contact_address',
         readonly=True,
     )
     video_link = fields.Char(
-        '視訊連結',
-        help='視訊會議連結',
+        'Video Link',
+        help='Video conference link',
     )
 
     # Schedule Configuration
     schedule_type = fields.Selection([
-        ('recurring', '每週循環'),
-        ('custom', '自訂'),
-    ], string='排程類型', default='recurring')
+        ('recurring', 'Weekly Recurring'),
+        ('custom', 'Custom'),
+    ], string='Schedule Type', default='recurring')
     schedule_based_on = fields.Selection([
-        ('date', '日期'),
-        ('user_resource', '使用者 / 資源'),
-    ], string='開始依據', default='date',
-        help='預約應基於什麼')
+        ('date', 'Date'),
+        ('user_resource', 'User / Resource'),
+    ], string='Based On', default='date',
+        help='What the appointment should be based on')
 
     # Assignment Configuration
     booking_type = fields.Selection([
-        ('user', '使用者'),
-        ('resource', '資源'),
-    ], string='預約類型', default='user',
-        help='預約是與使用者還是資源進行')
+        ('user', 'User'),
+        ('resource', 'Resource'),
+    ], string='Booking Type', default='user',
+        help='Whether the booking is with a user or resource')
     assignment_method = fields.Selection([
-        ('automatic', '自動'),
-        ('customer', '客戶選擇'),
-    ], string='分配方式', default='automatic',
-        help='資源/員工如何分配給預約')
+        ('automatic', 'Automatic'),
+        ('customer', 'Customer Choice'),
+    ], string='Assignment Method', default='automatic',
+        help='How resources/staff are assigned to bookings')
 
     # Capacity Configuration
     manage_capacity = fields.Boolean(
-        '管理容量',
-        help='啟用資源容量管理',
+        'Manage Capacity',
+        help='Enable resource capacity management',
     )
     total_capacity = fields.Integer(
-        '總容量',
+        'Total Capacity',
         compute='_compute_total_capacity',
         store=True,
-        help='所有資源的總容量',
+        help='Total capacity across all resources',
     )
     max_concurrent_bookings = fields.Integer(
-        '最大同時預約數',
+        'Max Concurrent Bookings',
         default=1,
-        help='每位使用者的最大同時預約數',
+        help='Maximum concurrent bookings per user',
     )
 
     # Resource/Staff Configuration
@@ -101,149 +101,149 @@ class AppointmentType(models.Model):
         'appointment_type_resource_rel',
         'appointment_type_id',
         'resource_id',
-        string='資源',
-        help='此預約類型可用的資源',
+        string='Resources',
+        help='Resources available for this appointment type',
     )
     staff_user_ids = fields.Many2many(
         'res.users',
         'appointment_type_user_rel',
         'appointment_type_id',
         'user_id',
-        string='服務人員',
-        help='此預約類型可用的服務人員',
+        string='Staff Members',
+        help='Staff members available for this appointment type',
     )
 
     # Time Configuration
     slot_duration = fields.Float(
-        '時段長度（小時）',
+        'Slot Duration (hours)',
         default=1.0,
         required=True,
-        help='每個預約時段的持續時間（小時）',
+        help='Duration of each appointment slot in hours',
     )
     slot_interval = fields.Float(
-        '時段間隔（小時）',
+        'Slot Interval (hours)',
         default=1.0,
-        help='可用時段之間的時間間隔',
+        help='Time interval between available slots',
     )
 
     # Booking Restrictions
     max_booking_days = fields.Integer(
-        '最大預約天數',
+        'Max Booking Days',
         default=30,
-        help='可以提前多少天預約',
+        help='How many days in advance bookings can be made',
     )
     min_booking_hours = fields.Float(
-        '最短提前預約時間（小時）',
+        'Min Advance Booking (hours)',
         default=1.0,
-        help='允許預約的最短提前時間（小時）',
+        help='Minimum advance time for bookings in hours',
     )
     cancel_before_hours = fields.Float(
-        '取消截止時間（小時）',
+        'Cancellation Deadline (hours)',
         default=1.0,
-        help='允許取消的截止時間（開始前幾小時）',
+        help='Cancellation deadline in hours before start',
     )
 
     # Auto Confirmation
     auto_confirm = fields.Boolean(
-        '自動確認',
+        'Auto Confirm',
         default=True,
-        help='自動確認預約',
+        help='Automatically confirm bookings',
     )
     auto_confirm_capacity_percent = fields.Float(
-        '自動確認容量（%）',
+        'Auto Confirm Capacity (%)',
         default=1.0,
-        help='達到此容量百分比前自動確認',
+        help='Auto confirm until this capacity percentage is reached',
     )
 
     # Payment Configuration
     require_payment = fields.Boolean(
-        '需要付款',
-        help='確認預約前需要付款',
+        'Require Payment',
+        help='Require payment before confirming booking',
     )
     payment_product_id = fields.Many2one(
         'product.product',
-        string='付款產品',
-        help='用於付款的產品',
+        string='Payment Product',
+        help='Product used for payment',
         ondelete='set null',
     )
     payment_amount = fields.Monetary(
-        '付款金額',
-        help='預約需支付的金額',
+        'Payment Amount',
+        help='Amount to be paid for the booking',
     )
     payment_per_person = fields.Boolean(
-        '按人數收費',
-        help='按人數收費而非按預約收費',
+        'Per Person Pricing',
+        help='Charge per person instead of per booking',
     )
     currency_id = fields.Many2one(
         'res.currency',
-        string='貨幣',
+        string='Currency',
         default=lambda self: self.env.company.currency_id,
     )
 
     # Display Settings
-    show_image = fields.Boolean('顯示圖片')
-    image = fields.Binary('圖片', attachment=True)
-    image_url = fields.Char('圖片網址')
-    icon = fields.Char('圖示', default='fa-calendar')
+    show_image = fields.Boolean('Show Image')
+    image = fields.Binary('Image', attachment=True)
+    image_url = fields.Char('Image URL')
+    icon = fields.Char('Icon', default='fa-calendar')
 
     # Timezone
     timezone = fields.Selection(
         '_tz_get',
-        string='時區',
+        string='Timezone',
         default=_default_timezone,
         required=True,
     )
 
     # Allow Invitations
     allow_invitations = fields.Boolean(
-        '允許邀請',
-        help='允許預約者邀請其他人',
+        'Allow Invitations',
+        help='Allow bookers to invite others',
     )
 
     # Communication Settings
     introduction_page = fields.Html(
-        '簡介頁面',
+        'Introduction Page',
         translate=True,
-        help='預約頁面上顯示的內容',
+        help='Content displayed on the booking page',
     )
     confirmation_page = fields.Html(
-        '確認頁面',
+        'Confirmation Page',
         translate=True,
-        help='預約確認後顯示的內容',
+        help='Content displayed after booking confirmation',
     )
 
     # Availability
     availability_ids = fields.One2many(
         'appointment.availability',
         'appointment_type_id',
-        string='可用時段',
+        string='Availability Slots',
     )
 
     # Questions
     question_ids = fields.One2many(
         'appointment.question',
         'appointment_type_id',
-        string='問題',
+        string='Questions',
     )
 
     # Bookings
     booking_ids = fields.One2many(
         'appointment.booking',
         'appointment_type_id',
-        string='預約',
+        string='Bookings',
     )
     booking_count = fields.Integer(
-        '預約數',
+        'Booking Count',
         compute='_compute_booking_count',
     )
     upcoming_booking_count = fields.Integer(
-        '即將到來的預約',
+        'Upcoming Bookings',
         compute='_compute_booking_count',
     )
 
     # Website
-    is_published = fields.Boolean('已發布', default=True)
-    website_url = fields.Char('網站網址', compute='_compute_website_url')
+    is_published = fields.Boolean('Published', default=True)
+    website_url = fields.Char('Website URL', compute='_compute_website_url')
 
     @api.model
     def _tz_get(self):

@@ -90,11 +90,15 @@ The module works both as a **backend management tool** (for staff/managers in th
 
 After installation, the module is ready to use. Here is what to configure first:
 
-### Check Your Company Timezone
+### Check Your User Timezone
 
-1. Go to **Settings > General Settings**
-2. Under your company information, verify the **Timezone** is correct
-3. This affects how time slots are displayed to customers
+1. Go to **Settings > Users & Companies > Users**
+2. Select your user (e.g., Administrator)
+3. Click the **Preferences** tab
+4. Verify the **Timezone** is correct (e.g., Asia/Taipei)
+5. This affects how time slots are displayed to customers
+
+> **Note:** In Odoo 18, timezone is a per-user setting found in User Preferences, not in General Settings or Company settings.
 
 ### Understand User Roles
 

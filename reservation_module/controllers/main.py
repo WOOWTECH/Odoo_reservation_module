@@ -651,6 +651,6 @@ class AppointmentController(http.Controller):
             # Payment failed or cancelled
             return request.render('reservation_module.appointment_payment_page', {
                 'booking': booking,
-                'error': _('付款未完成，請重試。'),
+                'error': _('Payment was not completed. Please try again.'),
                 't': self._get_translations(),
             })

@@ -8,9 +8,9 @@ class PaymentTransaction(models.Model):
 
     appointment_booking_id = fields.Many2one(
         'appointment.booking',
-        string='預約',
+        string='Booking',
         ondelete='set null',
-        help='關聯的預約記錄',
+        help='Related booking record',
     )
 
     def _post_process_after_done(self):

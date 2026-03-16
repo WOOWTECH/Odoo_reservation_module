@@ -47,7 +47,6 @@
         <!-- Appointment Type: Meeting -->
         <record id="appointment_type_meeting" model="appointment.type">
             <field name="name">Business Meeting</field>
-            <field name="category">meeting</field>
             <field name="description"><![CDATA[
                 <p>Schedule a business meeting with our team, suitable for:</p>
                 <ul>
@@ -106,7 +105,6 @@
         <!-- Appointment Type: Video Call -->
         <record id="appointment_type_video_call" model="appointment.type">
             <field name="name">Video Consultation</field>
-            <field name="category">video_call</field>
             <field name="description"><![CDATA[
                 <p>Schedule a video consultation from anywhere in the world.</p>
                 <p>After booking, our team will send you a meeting link.</p>
@@ -149,7 +147,6 @@
         <!-- Appointment Type: Table Booking -->
         <record id="appointment_type_table" model="appointment.type">
             <field name="name">Restaurant Reservation</field>
-            <field name="category">table</field>
             <field name="description"><![CDATA[
                 <p>Reserve a table at our restaurant.</p>
                 <ul>
@@ -220,7 +217,6 @@
         <!-- Appointment Type: Resource Booking (Tennis Court) -->
         <record id="appointment_type_tennis" model="appointment.type">
             <field name="name">Tennis Court Booking</field>
-            <field name="category">resource</field>
             <field name="description"><![CDATA[
                 <p>Book our professional tennis court.</p>
                 <ul>
@@ -290,7 +286,6 @@
         <!-- Appointment Type: Paid Consultation -->
         <record id="appointment_type_consultation" model="appointment.type">
             <field name="name">Expert Consultation</field>
-            <field name="category">paid_consultation</field>
             <field name="description"><![CDATA[
                 <p>Book a one-on-one consultation with an expert.</p>
                 <p>Payment is required to confirm your booking.</p>

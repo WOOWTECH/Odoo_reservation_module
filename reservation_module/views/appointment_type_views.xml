@@ -33,7 +33,6 @@
                     </div>
                     <group>
                         <group>
-                            <field name="category"/>
                             <field name="active" invisible="1"/>
                             <field name="is_published"/>
                             <field name="booking_type"/>
@@ -122,12 +121,12 @@
                                     <field name="auto_confirm_capacity_percent" widget="percentage" invisible="not auto_confirm"/>
                                     <field name="show_image"/>
                                 </group>
-                                <group string="Payment" invisible="category not in ['paid_consultation', 'paid_seat']">
+                                <group string="Payment">
                                     <field name="require_payment"/>
                                     <field name="payment_product_id" invisible="not require_payment"/>
                                     <field name="payment_amount" invisible="not require_payment"/>
                                     <field name="currency_id" invisible="not require_payment"/>
-                                    <field name="payment_per_person" invisible="not require_payment or category != 'paid_seat'"/>
+                                    <field name="payment_per_person" invisible="not require_payment"/>
                                 </group>
                             </group>
                             <group>
@@ -171,7 +170,6 @@
             <list string="Appointment Types">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
-                <field name="category"/>
                 <field name="slot_duration" widget="float_time"/>
                 <field name="booking_count"/>
                 <field name="is_published"/>
@@ -186,7 +184,6 @@
         <field name="arch" type="xml">
             <kanban class="o_kanban_dashboard o_appointment_kanban" sample="1">
                 <field name="name"/>
-                <field name="category"/>
                 <field name="slot_duration"/>
                 <field name="booking_count"/>
                 <field name="upcoming_booking_count"/>
@@ -290,19 +287,8 @@
         <field name="arch" type="xml">
             <search string="Search Appointment Types">
                 <field name="name"/>
-                <field name="category"/>
                 <filter string="Published" name="published" domain="[('is_published', '=', True)]"/>
                 <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
-                <separator/>
-                <filter string="Meeting" name="meeting" domain="[('category', '=', 'meeting')]"/>
-                <filter string="Video Call" name="video_call" domain="[('category', '=', 'video_call')]"/>
-                <filter string="Table" name="table" domain="[('category', '=', 'table')]"/>
-                <filter string="Resource" name="resource" domain="[('category', '=', 'resource')]"/>
-                <filter string="Paid Consultation" name="paid_consultation" domain="[('category', '=', 'paid_consultation')]"/>
-                <filter string="Paid Seats" name="paid_seat" domain="[('category', '=', 'paid_seat')]"/>
-                <group expand="0" string="Group By">
-                    <filter string="Category" name="groupby_category" context="{'group_by': 'category'}"/>
-                </group>
             </search>
         </field>
     </record>

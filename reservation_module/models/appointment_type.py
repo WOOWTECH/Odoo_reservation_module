@@ -23,15 +23,6 @@ class AppointmentType(models.Model):
     sequence = fields.Integer('Sequence', default=10)
     active = fields.Boolean('Active', default=True, tracking=True)
 
-    category = fields.Selection([
-        ('meeting', 'Meeting'),
-        ('video_call', 'Video Call'),
-        ('table', 'Table Booking'),
-        ('resource', 'Resource Booking'),
-        ('paid_consultation', 'Paid Consultation'),
-        ('paid_seat', 'Paid Seats'),
-    ], string='Category', required=True, default='meeting', tracking=True)
-
     description = fields.Html('Description', translate=True)
 
     # Location Configuration
@@ -368,44 +359,3 @@ class AppointmentType(models.Model):
             },
         }
 
-    @api.model
-    def get_appointment_type_presets(self):
-        """Return appointment type presets for selection dialog"""
-        return [
-            {
-                'category': 'meeting',
-                'name': _('Meeting'),
-                'description': _('Allow others to book meetings in your reservation'),
-                'icon': 'fa-user',
-            },
-            {
-                'category': 'video_call',
-                'name': _('Video Call'),
-                'description': _('Schedule video meetings with one or more participants'),
-                'icon': 'fa-video-camera',
-            },
-            {
-                'category': 'table',
-                'name': _('Table Booking'),
-                'description': _('Let customers book tables at your restaurant or bar'),
-                'icon': 'fa-cutlery',
-            },
-            {
-                'category': 'resource',
-                'name': _('Book a Resource'),
-                'description': _('Allow customers to book resources like rooms, tennis courts, etc.'),
-                'icon': 'fa-clock-o',
-            },
-            {
-                'category': 'paid_consultation',
-                'name': _('Paid Consultation'),
-                'description': _('Let customers book a paid slot in your reservation'),
-                'icon': 'fa-dollar',
-            },
-            {
-                'category': 'paid_seat',
-                'name': _('Paid Seats'),
-                'description': _('Let customers book a fee per person for activities'),
-                'icon': 'fa-chair',
-            },
-        ]

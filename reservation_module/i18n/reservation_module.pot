@@ -110,36 +110,6 @@ msgid "Description"
 msgstr ""
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__category
-msgid "Category"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__meeting
-msgid "Meeting"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__video
-msgid "Video Call"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__restaurant
-msgid "Table Booking"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__resource
-msgid "Book a Resource"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__consultation
-msgid "Paid Consultation"
-msgstr ""
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__location_type
 msgid "Location Type"
 msgstr ""
@@ -568,36 +538,6 @@ msgstr ""
 #: code:addons/reservation_module/models/appointment_type.py:0
 #, python-format
 msgid "Auto confirm capacity must be between 0 and 100."
-msgstr ""
-
-#. module: reservation_module
-#: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
-msgid "Allow others to book meetings in your calendar"
-msgstr ""
-
-#. module: reservation_module
-#: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
-msgid "Schedule video meetings with one or more participants"
-msgstr ""
-
-#. module: reservation_module
-#: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
-msgid "Let customers book tables at your restaurant or bar"
-msgstr ""
-
-#. module: reservation_module
-#: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
-msgid "Allow customers to book resources like rooms, tennis courts, etc."
-msgstr ""
-
-#. module: reservation_module
-#: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
-msgid "Let customers book a paid slot in your calendar"
 msgstr ""
 
 #. module: reservation_module
@@ -1143,16 +1083,6 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "staff members"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
-msgid "Table"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
-msgid "Paid Seat"
 msgstr ""
 
 #. module: reservation_module

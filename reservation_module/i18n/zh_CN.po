@@ -113,36 +113,6 @@ msgid "Description"
 msgstr "描述"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__category
-msgid "Category"
-msgstr "类别"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__meeting
-msgid "Meeting"
-msgstr "会议"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__video
-msgid "Video Call"
-msgstr "视频通话"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__restaurant
-msgid "Table Booking"
-msgstr "餐桌预订"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__resource
-msgid "Book a Resource"
-msgstr "资源预订"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__consultation
-msgid "Paid Consultation"
-msgstr "付费咨询"
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__location_type
 msgid "Location Type"
 msgstr "地点类型"
@@ -1063,21 +1033,6 @@ msgstr "员工成员"
 #: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
 msgid "Archived"
 msgstr "已归档"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
-msgid "Table"
-msgstr "餐桌"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
-msgid "Resource"
-msgstr "资源"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
-msgid "Paid Seat"
-msgstr "付费座位"
 
 #. module: reservation_module
 #: model:ir.actions.act_window,help:reservation_module.action_appointment_type

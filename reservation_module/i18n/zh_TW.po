@@ -212,46 +212,6 @@ msgid "Search Appointment Types"
 msgstr "搜尋預約類型"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
-msgid "Meeting"
-msgstr "會議"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
-msgid "Video Call"
-msgstr "視訊通話"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
-msgid "Table"
-msgstr "桌位"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
-msgid "Resource"
-msgstr "資源"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
-msgid "Paid Consultation"
-msgstr "付費諮詢"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
-msgid "Paid Seats"
-msgstr "付費座位"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
-msgid "Group By"
-msgstr "分組"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
-msgid "Category"
-msgstr "類別"
-
-#. module: reservation_module
 #: model:ir.actions.act_window,name:reservation_module.appointment_type_action
 msgid "Appointments"
 msgstr "預約"
@@ -480,41 +440,6 @@ msgstr "順序"
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__active
 msgid "Active"
 msgstr "啟用"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__category
-msgid "Category"
-msgstr "類別"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__meeting
-msgid "Meeting"
-msgstr "會議"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__video_call
-msgid "Video Call"
-msgstr "視訊通話"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__table
-msgid "Table Booking"
-msgstr "桌位預訂"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__resource
-msgid "Resource Booking"
-msgstr "資源預訂"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__paid_consultation
-msgid "Paid Consultation"
-msgstr "付費諮詢"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__category__paid_seat
-msgid "Paid Seats"
-msgstr "付費座位"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__description

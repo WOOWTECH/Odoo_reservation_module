@@ -67,7 +67,7 @@ LGPL-3
 
 ### Support
 
-For support, please contact us at support@woowtech.com or visit https://woowtech.com
+For support, please contact us at support@woowtech.com or visit https://aiot.woowtech.io/
 
 ---
 
@@ -138,7 +138,7 @@ LGPL-3
 
 ### 技術支援
 
-如需支援，請聯繫 support@woowtech.com 或訪問 https://woowtech.com
+如需支援，請聯繫 support@woowtech.com 或訪問 https://aiot.woowtech.io/
 
 ---
 

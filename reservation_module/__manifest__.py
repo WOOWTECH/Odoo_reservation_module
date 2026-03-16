@@ -18,7 +18,7 @@
     "version": "18.0.1.1.0",
     "category": "Services/Appointment",
     "author": "WoowTech",
-    "website": "https://woowtech.com",
+    "website": "https://aiot.woowtech.io/",
     "license": "LGPL-3",
     "depends": [
         "calendar",

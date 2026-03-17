@@ -12,10 +12,10 @@
         - Online booking portal
         - Payment integration
         - Automatic confirmation
-        - Custom questions and forms
+        - FAQ / Q&A for appointment types
         - Email notifications and reminders
     """,
-    "version": "18.0.1.2.0",
+    "version": "18.0.1.3.1",
     "category": "Services/Appointment",
     "author": "WoowTech",
     "website": "https://aiot.woowtech.io/",

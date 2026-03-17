@@ -55,11 +55,6 @@ msgid "Appointment Question"
 msgstr ""
 
 #. module: reservation_module
-#: model:ir.model,name:reservation_module.model_appointment_answer
-msgid "Appointment Answer"
-msgstr ""
-
-#. module: reservation_module
 #: model:ir.ui.menu,name:reservation_module.menu_calendar_root
 msgid "Calendar"
 msgstr ""
@@ -415,63 +410,8 @@ msgid "Question"
 msgstr ""
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__question_type
-msgid "Question Type"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__text
-msgid "Text"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__textarea
-msgid "Text Area"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__select
-msgid "Selection"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__checkbox
-msgid "Checkbox"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__radio
-msgid "Radio"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__required
-msgid "Required"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__placeholder
-msgid "Placeholder"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__option_ids
-msgid "Options"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__value_text
-msgid "Text Answer"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__value_checkbox
-msgid "Checkbox Answer"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_answer__value_selection_ids
-msgid "Selected Options"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__answer
+msgid "Answer"
 msgstr ""
 
 #. module: reservation_module
@@ -1093,11 +1033,6 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.actions.act_window,help:reservation_module.action_appointment_type
 msgid "Allow your customers to book appointments online."
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Answers"
 msgstr ""
 
 #. module: reservation_module

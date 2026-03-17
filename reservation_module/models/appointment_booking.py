@@ -95,13 +95,6 @@ class AppointmentBooking(models.Model):
         ('cancelled', 'Cancelled'),
     ], string='Status', default='draft', tracking=True)
 
-    # Question Answers
-    answer_ids = fields.One2many(
-        'appointment.answer',
-        'booking_id',
-        string='Answers',
-    )
-
     # Notes
     notes = fields.Text('Notes')
     internal_notes = fields.Text('Internal Notes')

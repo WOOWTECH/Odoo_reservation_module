@@ -263,11 +263,6 @@ msgstr "訪客資訊"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Answers"
-msgstr "回答"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Notes"
 msgstr "備註"
 
@@ -752,16 +747,6 @@ msgid "Timezone"
 msgstr "時區"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__allow_invitations
-msgid "Allow Invitations"
-msgstr "允許邀請"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__allow_invitations
-msgid "Allow bookers to invite others"
-msgstr "允許預約者邀請其他人"
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__introduction_page
 msgid "Introduction Page"
 msgstr "簡介頁面"
@@ -1022,11 +1007,6 @@ msgid "Company"
 msgstr "公司"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__answer_ids
-msgid "Answers"
-msgstr "回答"
-
-#. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__draft
 msgid "Draft"
 msgstr "草稿"
@@ -1077,97 +1057,12 @@ msgid "Appointment Type"
 msgstr "預約類型"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__question_type
-msgid "Question Type"
-msgstr "問題類型"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__required
-msgid "Required"
-msgstr "必填"
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__sequence
 msgid "Sequence"
 msgstr "順序"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__placeholder
-msgid "Placeholder"
-msgstr "佔位文字"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__help_text
-msgid "Help Text"
-msgstr "說明文字"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__option_ids
-msgid "Options"
-msgstr "選項"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__text
-msgid "Text"
-msgstr "文字"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__select
-msgid "Selection"
-msgstr "選擇"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__radio
-msgid "Radio"
-msgstr "單選"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__checkbox
-msgid "Checkbox"
-msgstr "核取方塊"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__textarea
-msgid "Text Area"
-msgstr "文字區域"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question_option__name
-msgid "Option"
-msgstr "選項"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question_option__question_id
-msgid "Question"
-msgstr "問題"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question_option__sequence
-msgid "Sequence"
-msgstr "順序"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking_answer__booking_id
-msgid "Booking"
-msgstr "預約"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking_answer__question_id
-msgid "Question"
-msgstr "問題"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking_answer__value_text
-msgid "Text Answer"
-msgstr "文字回答"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking_answer__value_option_id
-msgid "Selected Option"
-msgstr "已選選項"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking_answer__display_value
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__answer
 msgid "Answer"
 msgstr "回答"
 

@@ -48,14 +48,6 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Answers" name="answers" invisible="not answer_ids">
-                            <field name="answer_ids">
-                                <list create="0" delete="0">
-                                    <field name="question_id"/>
-                                    <field name="display_value"/>
-                                </list>
-                            </field>
-                        </page>
                         <page string="Notes" name="notes">
                             <field name="notes" placeholder="Guest notes..."/>
                             <separator string="Internal Notes"/>

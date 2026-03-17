@@ -92,6 +92,10 @@
                                         <div class="mb-4" t-raw="appointment_type.description"/>
                                     </t>
 
+                                    <t t-if="appointment_type.introduction_page">
+                                        <div class="mb-4" t-raw="appointment_type.introduction_page"/>
+                                    </t>
+
                                     <a t-attf-href="/appointment/#{appointment_type.id}/schedule"
                                        class="btn btn-primary btn-lg">
                                         <i class="fa fa-calendar"/> <t t-esc="t['select_date_time']"/>
@@ -196,6 +200,34 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- FAQ Accordion -->
+                            <t t-if="appointment_type.question_ids">
+                                <h4 class="mb-3 mt-4" t-esc="t['faq_title']"/>
+                                <div class="accordion mb-4" id="faqAccordion">
+                                    <t t-foreach="appointment_type.question_ids" t-as="faq">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" t-attf-id="faqHeading#{faq.id}">
+                                                <button class="accordion-button collapsed" type="button"
+                                                        data-bs-toggle="collapse"
+                                                        t-attf-data-bs-target="#faqCollapse#{faq.id}"
+                                                        aria-expanded="false"
+                                                        t-attf-aria-controls="faqCollapse#{faq.id}">
+                                                    <t t-esc="faq.name"/>
+                                                </button>
+                                            </h2>
+                                            <div t-attf-id="faqCollapse#{faq.id}"
+                                                 class="accordion-collapse collapse"
+                                                 t-attf-aria-labelledby="faqHeading#{faq.id}"
+                                                 data-bs-parent="#faqAccordion">
+                                                <div class="accordion-body">
+                                                    <t t-if="faq.answer" t-raw="faq.answer"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </t>
                         </div>
                     </div>
                 </div>
@@ -278,83 +310,6 @@
                                                    name="guest_count" min="1" value="1"/>
                                         </div>
 
-                                        <!-- Custom Questions -->
-                                        <t t-foreach="questions" t-as="question">
-                                            <div class="mb-3">
-                                                <label t-attf-for="question_#{question.id}" class="form-label">
-                                                    <t t-esc="question.name"/>
-                                                    <t t-if="question.required">*</t>
-                                                </label>
-
-                                                <t t-if="question.question_type == 'text'">
-                                                    <input type="text" class="form-control"
-                                                           t-attf-id="question_#{question.id}"
-                                                           t-attf-name="question_#{question.id}"
-                                                           t-att-required="question.required"
-                                                           t-att-placeholder="question.placeholder"/>
-                                                </t>
-                                                <t t-elif="question.question_type == 'textarea'">
-                                                    <textarea class="form-control"
-                                                              t-attf-id="question_#{question.id}"
-                                                              t-attf-name="question_#{question.id}"
-                                                              t-att-required="question.required"
-                                                              t-att-placeholder="question.placeholder"
-                                                              rows="3"/>
-                                                </t>
-                                                <t t-elif="question.question_type == 'select'">
-                                                    <select class="form-select"
-                                                            t-attf-id="question_#{question.id}"
-                                                            t-attf-name="question_#{question.id}"
-                                                            t-att-required="question.required">
-                                                        <option value=""><t t-esc="t['select_option']"/></option>
-                                                        <t t-foreach="question.option_ids" t-as="option">
-                                                            <option t-att-value="option.id" t-esc="option.name"/>
-                                                        </t>
-                                                    </select>
-                                                </t>
-                                                <t t-elif="question.question_type == 'radio'">
-                                                    <t t-foreach="question.option_ids" t-as="option">
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" type="radio"
-                                                                   t-attf-name="question_#{question.id}"
-                                                                   t-attf-id="option_#{option.id}"
-                                                                   t-att-value="option.id"
-                                                                   t-att-required="question.required"/>
-                                                            <label class="form-check-label"
-                                                                   t-attf-for="option_#{option.id}"
-                                                                   t-esc="option.name"/>
-                                                        </div>
-                                                    </t>
-                                                </t>
-                                                <t t-elif="question.question_type == 'checkbox'">
-                                                    <t t-foreach="question.option_ids" t-as="option">
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox"
-                                                                   t-attf-name="question_#{question.id}"
-                                                                   t-attf-id="option_#{option.id}"
-                                                                   t-att-value="option.id"/>
-                                                            <label class="form-check-label"
-                                                                   t-attf-for="option_#{option.id}"
-                                                                   t-esc="option.name"/>
-                                                        </div>
-                                                    </t>
-                                                </t>
-                                                <t t-elif="question.question_type in ['email', 'phone', 'number', 'date', 'datetime']">
-                                                    <input t-att-type="question.question_type"
-                                                           class="form-control"
-                                                           t-attf-id="question_#{question.id}"
-                                                           t-attf-name="question_#{question.id}"
-                                                           t-att-required="question.required"
-                                                           t-att-placeholder="question.placeholder"/>
-                                                </t>
-
-                                                <t t-if="question.help_text">
-                                                    <small class="form-text text-muted"
-                                                           t-esc="question.help_text"/>
-                                                </t>
-                                            </div>
-                                        </t>
-
                                         <div class="mb-3">
                                             <label for="notes" class="form-label" t-esc="t['notes']"/>
                                             <textarea class="form-control" id="notes" name="notes" rows="3"
@@ -419,6 +374,11 @@
                                         </t>
                                         <p><strong><t t-esc="t['guests_label']"/></strong> <t t-esc="booking.guest_count"/></p>
                                     </div>
+
+                                    <t t-if="booking.appointment_type_id.confirmation_page">
+                                        <hr class="my-4"/>
+                                        <div class="text-start" t-raw="booking.appointment_type_id.confirmation_page"/>
+                                    </t>
 
                                     <hr class="my-4"/>
 

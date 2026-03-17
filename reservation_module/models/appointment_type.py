@@ -195,12 +195,6 @@ class AppointmentType(models.Model):
         required=True,
     )
 
-    # Allow Invitations
-    allow_invitations = fields.Boolean(
-        'Allow Invitations',
-        help='Allow bookers to invite others',
-    )
-
     # Communication Settings
     introduction_page = fields.Html(
         'Introduction Page',

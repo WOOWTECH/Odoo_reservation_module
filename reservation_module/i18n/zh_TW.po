@@ -497,26 +497,6 @@ msgid "Custom"
 msgstr "自訂"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__schedule_based_on
-msgid "Based On"
-msgstr "開始依據"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__schedule_based_on__date
-msgid "Date"
-msgstr "日期"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__schedule_based_on__user_resource
-msgid "User / Resource"
-msgstr "使用者 / 資源"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__schedule_based_on
-msgid "What the appointment should be based on"
-msgstr "預約應基於什麼"
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__assign_staff
 msgid "Staff"
 msgstr "員工"

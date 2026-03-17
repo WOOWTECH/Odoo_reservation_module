@@ -51,12 +51,6 @@ class AppointmentType(models.Model):
         ('recurring', 'Weekly Recurring'),
         ('custom', 'Custom'),
     ], string='Schedule Type', default='recurring')
-    schedule_based_on = fields.Selection([
-        ('date', 'Date'),
-        ('user_resource', 'User / Resource'),
-    ], string='Based On', default='date',
-        help='What the appointment should be based on')
-
     # Assignment Configuration
     assign_staff = fields.Boolean(
         'Staff',

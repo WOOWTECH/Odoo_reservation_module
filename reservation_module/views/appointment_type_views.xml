@@ -63,7 +63,6 @@
                             <group>
                                 <group string="Schedule Settings">
                                     <field name="schedule_type"/>
-                                    <field name="schedule_based_on"/>
                                 </group>
                                 <group string="Capacity" invisible="not manage_capacity">
                                     <field name="manage_capacity"/>

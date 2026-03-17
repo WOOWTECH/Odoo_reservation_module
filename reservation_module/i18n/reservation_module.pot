@@ -76,7 +76,7 @@ msgstr ""
 
 #. module: reservation_module
 #: model:ir.ui.menu,name:reservation_module.menu_appointment_resource_bookings
-msgid "Resource Bookings"
+msgid "Location Bookings"
 msgstr ""
 
 #. module: reservation_module
@@ -977,7 +977,7 @@ msgstr ""
 
 #. module: reservation_module
 #: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Resource Gantt"
+msgid "Location Gantt"
 msgstr ""
 
 #. module: reservation_module

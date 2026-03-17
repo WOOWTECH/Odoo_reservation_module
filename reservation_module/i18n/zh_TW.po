@@ -33,8 +33,8 @@ msgstr "預約數"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Resource Gantt"
-msgstr "資源甘特圖"
+msgid "Location Gantt"
+msgstr "場地甘特圖"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
@@ -68,8 +68,8 @@ msgstr "容量"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Resources"
-msgstr "資源"
+msgid "Locations"
+msgstr "場地"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
@@ -198,8 +198,8 @@ msgstr "總計"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-msgid "resources"
-msgstr "個資源"
+msgid "locations"
+msgstr "個場地"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
@@ -363,8 +363,8 @@ msgstr "當客戶進行預約時，預約將會顯示在這裡。"
 
 #. module: reservation_module
 #: model:ir.actions.act_window,name:reservation_module.appointment_booking_action_resource
-msgid "Resource Bookings"
-msgstr "資源預約"
+msgid "Location Bookings"
+msgstr "場地預約"
 
 #. module: reservation_module
 #: model:ir.actions.act_window,name:reservation_module.appointment_booking_action_staff
@@ -373,8 +373,8 @@ msgstr "員工預約"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_calendar_resource
-msgid "Resource Bookings"
-msgstr "資源預約"
+msgid "Location Bookings"
+msgstr "場地預約"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_calendar_staff
@@ -403,8 +403,8 @@ msgstr "所有預約"
 
 #. module: reservation_module
 #: model:ir.ui.menu,name:reservation_module.appointment_menu_resource_bookings
-msgid "Resource Bookings"
-msgstr "資源預約"
+msgid "Location Bookings"
+msgstr "場地預約"
 
 #. module: reservation_module
 #: model:ir.ui.menu,name:reservation_module.appointment_menu_staff_bookings
@@ -522,24 +522,44 @@ msgid "What the appointment should be based on"
 msgstr "預約應基於什麼"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__booking_type
-msgid "Booking Type"
-msgstr "預約類型"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__assign_staff
+msgid "Staff"
+msgstr "員工"
 
 #. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__booking_type__user
-msgid "User"
-msgstr "使用者"
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__assign_staff
+msgid "Assign staff members to bookings"
+msgstr "為預約指派員工"
 
 #. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__booking_type__resource
-msgid "Resource"
-msgstr "資源"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__assign_location
+msgid "Location"
+msgstr "場地"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__booking_type
-msgid "Whether the booking is with a user or resource"
-msgstr "預約是與使用者還是資源進行"
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__assign_location
+msgid "Assign a location to bookings"
+msgstr "為預約指派場地"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__allow_customer_choose_staff
+msgid "Allow Customer to Choose Staff"
+msgstr "允許客戶選擇員工"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__allow_customer_choose_staff
+msgid "Let customers pick their preferred staff member"
+msgstr "讓客戶選擇偏好的員工"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__allow_customer_choose_location
+msgid "Allow Customer to Choose Location"
+msgstr "允許客戶選擇場地"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__allow_customer_choose_location
+msgid "Let customers pick their preferred location"
+msgstr "讓客戶選擇偏好的場地"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__manage_capacity
@@ -573,13 +593,13 @@ msgstr "每位使用者的最大同時預約數"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__resource_ids
-msgid "Resources"
-msgstr "資源"
+msgid "Locations"
+msgstr "場地"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__resource_ids
 msgid "Resources available for this appointment type"
-msgstr "此預約類型可用的資源"
+msgstr "此預約類型可用的場地"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__staff_user_ids
@@ -863,23 +883,23 @@ msgstr "結束時間（24小時制）"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__resource_id
-msgid "Resource"
-msgstr "資源"
+msgid "Location"
+msgstr "場地"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_availability__resource_id
-msgid "Leave empty to apply to all resources"
-msgstr "留空則適用於所有資源"
+msgid "Leave empty to apply to all locations"
+msgstr "留空則適用於所有場地"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__user_id
-msgid "User"
-msgstr "使用者"
+msgid "Staff"
+msgstr "員工"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_availability__user_id
-msgid "Leave empty to apply to all users"
-msgstr "留空則適用於所有使用者"
+msgid "Leave empty to apply to all staff"
+msgstr "留空則適用於所有員工"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_payment_transaction__appointment_booking_id
@@ -933,8 +953,8 @@ msgstr "訪客人數"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__resource_id
-msgid "Resource"
-msgstr "資源"
+msgid "Location"
+msgstr "場地"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__staff_user_id

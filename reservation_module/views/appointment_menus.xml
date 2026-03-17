@@ -27,9 +27,9 @@
               action="appointment_booking_action"
               sequence="20"/>
 
-    <!-- Resource Bookings -->
+    <!-- Location Bookings -->
     <menuitem id="appointment_menu_resource_bookings"
-              name="Resource Bookings"
+              name="Location Bookings"
               parent="appointment_menu_root"
               action="appointment_booking_action_resource"
               sequence="30"/>

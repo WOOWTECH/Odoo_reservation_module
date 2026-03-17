@@ -18,7 +18,7 @@ class AppointmentSlot(models.Model):
     )
     resource_id = fields.Many2one(
         'resource.resource',
-        string='Resource',
+        string='Location',
         ondelete='cascade',
     )
     staff_user_id = fields.Many2one(

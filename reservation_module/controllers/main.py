@@ -56,7 +56,7 @@ class AppointmentController(http.Controller):
             'no_appointment_types': '目前沒有可用的預約類型。',
             'appointments': '預約',
             'select_date_time': '選擇日期與時間',
-            'select_resource': '選擇資源',
+            'select_location': '選擇場地',
             'select_staff': '選擇員工',
             'seats': '座位',
             'loading_slots': '正在載入可用時段...',
@@ -78,7 +78,7 @@ class AppointmentController(http.Controller):
             'booking_reference': '您的預約編號是：',
             'appointment_label': '預約項目：',
             'date_time': '日期與時間：',
-            'resource_label': '資源：',
+            'location_label': '場地：',
             'staff_label': '員工：',
             'guests_label': '訪客人數：',
             'confirmation_email_sent': '確認郵件已發送至',
@@ -117,7 +117,7 @@ class AppointmentController(http.Controller):
             'no_appointment_types': 'No appointment types available at the moment.',
             'appointments': 'Appointments',
             'select_date_time': 'Select Date & Time',
-            'select_resource': 'Select Resource',
+            'select_location': 'Select Location',
             'select_staff': 'Select Staff',
             'seats': 'seats',
             'loading_slots': 'Loading available slots...',
@@ -139,7 +139,7 @@ class AppointmentController(http.Controller):
             'booking_reference': 'Your booking reference is:',
             'appointment_label': 'Appointment:',
             'date_time': 'Date & Time:',
-            'resource_label': 'Resource:',
+            'location_label': 'Location:',
             'staff_label': 'Staff:',
             'guests_label': 'Guests:',
             'confirmation_email_sent': 'A confirmation email has been sent to',
@@ -227,9 +227,21 @@ class AppointmentController(http.Controller):
         if not appointment_type.exists() or not appointment_type.is_published:
             return request.redirect('/appointment')
 
-        # Get available resources/staff
-        resources = appointment_type.resource_ids
-        staff = appointment_type.staff_user_ids
+        # Determine which panels to show
+        show_staff_panel = (
+            appointment_type.assign_staff
+            and appointment_type.allow_customer_choose_staff
+            and appointment_type.staff_user_ids
+        )
+        show_location_panel = (
+            appointment_type.assign_location
+            and appointment_type.allow_customer_choose_location
+            and appointment_type.resource_ids
+        )
+
+        # Get available resources/staff based on assignment flags
+        resources = appointment_type.resource_ids if show_location_panel else appointment_type.resource_ids.browse()
+        staff = appointment_type.staff_user_ids if show_staff_panel else appointment_type.staff_user_ids.browse()
 
         # Calculate date range
         start_date = datetime.now().date()
@@ -239,6 +251,8 @@ class AppointmentController(http.Controller):
             'appointment_type': appointment_type,
             'resources': resources,
             'staff': staff,
+            'show_staff_panel': show_staff_panel,
+            'show_location_panel': show_location_panel,
             'start_date': start_date,
             'end_date': end_date,
             'selected_resource_id': int(resource_id) if resource_id else None,
@@ -466,6 +480,12 @@ class AppointmentController(http.Controller):
         booking_vals['partner_id'] = partner.id
 
         booking = request.env['appointment.booking'].sudo().create(booking_vals)
+
+        # Auto-assign staff/location if not customer-chosen
+        if appointment_type.assign_staff and not booking.staff_user_id:
+            booking._auto_assign_staff()
+        if appointment_type.assign_location and not booking.resource_id:
+            booking._auto_assign_location()
 
         # Save question answers
         for question in appointment_type.question_ids:

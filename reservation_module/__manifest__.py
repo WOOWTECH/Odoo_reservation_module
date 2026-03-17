@@ -15,7 +15,7 @@
         - Custom questions and forms
         - Email notifications and reminders
     """,
-    "version": "18.0.1.1.0",
+    "version": "18.0.1.2.0",
     "category": "Services/Appointment",
     "author": "WoowTech",
     "website": "https://aiot.woowtech.io/",
@@ -55,6 +55,7 @@
     "demo": [
         "demo/appointment_demo.xml",
     ],
+    "post_init_hook": "_post_init_hook",
     "installable": True,
     "auto_install": False,
     "application": True,

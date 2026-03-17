@@ -42,13 +42,13 @@ class AppointmentAvailability(models.Model):
     # Optional: Link to specific resource or user
     resource_id = fields.Many2one(
         'resource.resource',
-        string='Resource',
-        help='Leave empty to apply to all resources',
+        string='Location',
+        help='Leave empty to apply to all locations',
     )
     user_id = fields.Many2one(
         'res.users',
-        string='User',
-        help='Leave empty to apply to all users',
+        string='Staff',
+        help='Leave empty to apply to all staff',
     )
 
     @api.constrains('hour_from', 'hour_to')

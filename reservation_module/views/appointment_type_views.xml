@@ -93,14 +93,21 @@
                                 <button name="action_add_closing_days" type="object" string="Add Closing Days" class="btn-secondary" icon="fa-calendar-times-o"/>
                             </div>
                         </page>
-                        <page string="Questions" name="questions">
+                        <page string="FAQ" name="questions">
                             <field name="question_ids">
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle"/>
                                     <field name="name"/>
-                                    <field name="question_type"/>
-                                    <field name="required"/>
+                                    <field name="answer" widget="html"/>
                                 </list>
+                                <form string="FAQ Entry">
+                                    <group>
+                                        <field name="sequence"/>
+                                        <field name="name"/>
+                                    </group>
+                                    <separator string="Answer"/>
+                                    <field name="answer"/>
+                                </form>
                             </field>
                         </page>
                         <page string="Communication" name="communication">
@@ -118,7 +125,6 @@
                         <page string="Options" name="options">
                             <group>
                                 <group string="Booking Settings">
-                                    <field name="allow_invitations"/>
                                     <field name="auto_confirm"/>
                                     <field name="auto_confirm_capacity_percent" widget="percentage" invisible="not auto_confirm"/>
                                     <field name="show_image"/>

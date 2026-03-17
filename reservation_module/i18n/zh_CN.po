@@ -58,11 +58,6 @@ msgid "Appointment Question"
 msgstr "预约问题"
 
 #. module: reservation_module
-#: model:ir.model,name:reservation_module.model_appointment_answer
-msgid "Appointment Answer"
-msgstr "预约答案"
-
-#. module: reservation_module
 #: model:ir.ui.menu,name:reservation_module.menu_calendar_root
 msgid "Reservation"
 msgstr "预约"
@@ -353,49 +348,9 @@ msgid "Question"
 msgstr "问题"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__question_type
-msgid "Question Type"
-msgstr "问题类型"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__text
-msgid "Text"
-msgstr "文本"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__textarea
-msgid "Text Area"
-msgstr "文本区域"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__select
-msgid "Selection"
-msgstr "选择"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__checkbox
-msgid "Checkbox"
-msgstr "复选框"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_question__question_type__radio
-msgid "Radio"
-msgstr "单选按钮"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__required
-msgid "Required"
-msgstr "必填"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__placeholder
-msgid "Placeholder"
-msgstr "占位符"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__option_ids
-msgid "Options"
-msgstr "选项"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__answer
+msgid "Answer"
+msgstr "回答"
 
 #. module: reservation_module
 #: code:addons/reservation_module/controllers/main.py:0

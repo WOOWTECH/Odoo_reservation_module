@@ -64,7 +64,6 @@
             <field name="assign_staff" eval="True"/>
             <field name="allow_customer_choose_staff" eval="True"/>
             <field name="auto_confirm" eval="True"/>
-            <field name="allow_invitations" eval="True"/>
             <field name="is_published" eval="True"/>
             <field name="icon">fa-handshake-o</field>
             <field name="staff_user_ids" eval="[(4, ref('base.user_admin'))]"/>
@@ -115,7 +114,6 @@
             <field name="min_booking_hours">1.0</field>
             <field name="cancel_before_hours">2.0</field>
             <field name="location_type">online</field>
-            <field name="video_link">https://meet.google.com/example</field>
             <field name="assign_staff" eval="True"/>
             <field name="allow_customer_choose_staff" eval="True"/>
             <field name="auto_confirm" eval="True"/>
@@ -306,105 +304,67 @@
             <field name="staff_user_ids" eval="[(4, ref('base.user_admin'))]"/>
         </record>
 
-        <!-- Questions for Consultation -->
+        <!-- FAQ for Consultation -->
         <record id="question_consultation_topic" model="appointment.question">
             <field name="appointment_type_id" ref="appointment_type_consultation"/>
-            <field name="name">What topic would you like to discuss?</field>
-            <field name="question_type">textarea</field>
-            <field name="required" eval="True"/>
+            <field name="name">What topics can I discuss during a consultation?</field>
+            <field name="answer"><![CDATA[
+                <p>Our expert consultations cover a wide range of topics including:</p>
+                <ul>
+                    <li>Business strategy and planning</li>
+                    <li>Technical architecture reviews</li>
+                    <li>Project management guidance</li>
+                    <li>Process optimization</li>
+                </ul>
+                <p>Please describe your specific needs when booking so we can match you with the right expert.</p>
+            ]]></field>
             <field name="sequence">1</field>
-            <field name="placeholder">Please describe your question or topic in detail...</field>
         </record>
 
         <record id="question_consultation_experience" model="appointment.question">
             <field name="appointment_type_id" ref="appointment_type_consultation"/>
-            <field name="name">Your experience level</field>
-            <field name="question_type">select</field>
-            <field name="required" eval="True"/>
+            <field name="name">How should I prepare for my consultation?</field>
+            <field name="answer"><![CDATA[
+                <p>To get the most out of your session:</p>
+                <ul>
+                    <li>Prepare a list of specific questions or topics</li>
+                    <li>Gather any relevant documents or data</li>
+                    <li>Be ready to share your screen if needed</li>
+                </ul>
+            ]]></field>
             <field name="sequence">2</field>
         </record>
 
-        <record id="question_option_beginner" model="appointment.question.option">
-            <field name="question_id" ref="question_consultation_experience"/>
-            <field name="name">Beginner</field>
-            <field name="sequence">1</field>
-        </record>
-
-        <record id="question_option_intermediate" model="appointment.question.option">
-            <field name="question_id" ref="question_consultation_experience"/>
-            <field name="name">Intermediate</field>
-            <field name="sequence">2</field>
-        </record>
-
-        <record id="question_option_advanced" model="appointment.question.option">
-            <field name="question_id" ref="question_consultation_experience"/>
-            <field name="name">Advanced</field>
-            <field name="sequence">3</field>
-        </record>
-
-        <!-- Questions for Table Booking -->
+        <!-- FAQ for Table Booking -->
         <record id="question_table_occasion" model="appointment.question">
             <field name="appointment_type_id" ref="appointment_type_table"/>
-            <field name="name">Special occasion?</field>
-            <field name="question_type">radio</field>
-            <field name="required" eval="False"/>
+            <field name="name">Can I request a special occasion setup?</field>
+            <field name="answer"><![CDATA[
+                <p>Yes! We offer special arrangements for:</p>
+                <ul>
+                    <li>Birthdays — complimentary dessert and decoration</li>
+                    <li>Anniversaries — romantic table setup with candles</li>
+                    <li>Business dinners — presentation-ready private room</li>
+                </ul>
+                <p>Please mention your occasion in the booking notes.</p>
+            ]]></field>
             <field name="sequence">1</field>
-        </record>
-
-        <record id="question_option_none" model="appointment.question.option">
-            <field name="question_id" ref="question_table_occasion"/>
-            <field name="name">No special occasion</field>
-            <field name="sequence">1</field>
-        </record>
-
-        <record id="question_option_birthday" model="appointment.question.option">
-            <field name="question_id" ref="question_table_occasion"/>
-            <field name="name">Birthday</field>
-            <field name="sequence">2</field>
-        </record>
-
-        <record id="question_option_anniversary" model="appointment.question.option">
-            <field name="question_id" ref="question_table_occasion"/>
-            <field name="name">Anniversary</field>
-            <field name="sequence">3</field>
-        </record>
-
-        <record id="question_option_business" model="appointment.question.option">
-            <field name="question_id" ref="question_table_occasion"/>
-            <field name="name">Business Dinner</field>
-            <field name="sequence">4</field>
         </record>
 
         <record id="question_table_dietary" model="appointment.question">
             <field name="appointment_type_id" ref="appointment_type_table"/>
-            <field name="name">Dietary requirements</field>
-            <field name="question_type">checkbox</field>
-            <field name="required" eval="False"/>
+            <field name="name">Do you accommodate dietary restrictions?</field>
+            <field name="answer"><![CDATA[
+                <p>Absolutely! Our kitchen can accommodate:</p>
+                <ul>
+                    <li>Vegetarian and vegan options</li>
+                    <li>Gluten-free dishes</li>
+                    <li>Halal preparations</li>
+                    <li>Allergy-specific menus</li>
+                </ul>
+                <p>Please note any dietary needs in the booking notes so we can prepare accordingly.</p>
+            ]]></field>
             <field name="sequence">2</field>
-        </record>
-
-        <record id="question_option_vegetarian" model="appointment.question.option">
-            <field name="question_id" ref="question_table_dietary"/>
-            <field name="name">Vegetarian</field>
-            <field name="sequence">1</field>
-        </record>
-
-        <record id="question_option_vegan" model="appointment.question.option">
-            <field name="question_id" ref="question_table_dietary"/>
-            <field name="name">Vegan</field>
-            <field name="sequence">2</field>
-        </record>
-
-        <record id="question_option_gluten_free" model="appointment.question.option">
-            <field name="question_id" ref="question_table_dietary"/>
-            <field name="name">Gluten Free</field>
-            <field name="sequence">3</field>
-        </record>
-
-        <record id="question_option_halal" model="appointment.question.option">
-            <field name="question_id" ref="question_table_dietary"/>
-            <field name="name">Halal</field>
-            <field name="sequence">4</field>
         </record>
     </data>
 </odoo>

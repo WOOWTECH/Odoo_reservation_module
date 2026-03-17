@@ -107,6 +107,7 @@ class AppointmentController(http.Controller):
             'select_payment_method': '選擇付款方式以完成預約。',
             'pay_with': '使用付款',
             'no_payment_methods': '沒有可用的付款方式。請聯繫我們完成您的預約。',
+            'faq_title': '常見問題',
         }
 
         # English translations (en_US) - default
@@ -168,6 +169,7 @@ class AppointmentController(http.Controller):
             'select_payment_method': 'Select a payment method to complete your booking.',
             'pay_with': 'Pay with',
             'no_payment_methods': 'No payment methods available. Please contact us to complete your booking.',
+            'faq_title': 'Frequently Asked Questions',
         }
 
         # Return appropriate translation based on language
@@ -356,7 +358,6 @@ class AppointmentController(http.Controller):
             'end_datetime': end_dt,
             'resource': resource,
             'staff': staff,
-            'questions': appointment_type.question_ids,
             't': self._get_translations(),
         })
 
@@ -390,7 +391,6 @@ class AppointmentController(http.Controller):
                     'end_datetime': end_dt,
                     'resource': resource,
                     'staff': staff,
-                    'questions': appointment_type.question_ids,
                     'error': _('Please fill in all required fields.'),
                     'guest_name': data.get('guest_name', ''),
                     'guest_email': data.get('guest_email', ''),
@@ -426,7 +426,6 @@ class AppointmentController(http.Controller):
                 'end_datetime': end_dt,
                 'resource': resource,
                 'staff': staff,
-                'questions': appointment_type.question_ids,
                 'error': _('Please enter a valid email address.'),
                 'guest_name': data.get('guest_name', ''),
                 'guest_email': data.get('guest_email', ''),
@@ -486,17 +485,6 @@ class AppointmentController(http.Controller):
             booking._auto_assign_staff()
         if appointment_type.assign_location and not booking.resource_id:
             booking._auto_assign_location()
-
-        # Save question answers
-        for question in appointment_type.question_ids:
-            answer_key = f'question_{question.id}'
-            if answer_key in data:
-                answer_vals = {
-                    'booking_id': booking.id,
-                    'question_id': question.id,
-                }
-                answer = request.env['appointment.answer'].sudo().create(answer_vals)
-                answer.set_value(data[answer_key])
 
         # Auto confirm if enabled and no payment required
         if appointment_type.auto_confirm and not appointment_type.require_payment:

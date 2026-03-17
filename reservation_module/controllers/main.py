@@ -108,6 +108,7 @@ class AppointmentController(http.Controller):
             'pay_with': '使用付款',
             'no_payment_methods': '沒有可用的付款方式。請聯繫我們完成您的預約。',
             'faq_title': '常見問題',
+            'auto_assign': '自動分配',
         }
 
         # English translations (en_US) - default
@@ -170,6 +171,7 @@ class AppointmentController(http.Controller):
             'pay_with': 'Pay with',
             'no_payment_methods': 'No payment methods available. Please contact us to complete your booking.',
             'faq_title': 'Frequently Asked Questions',
+            'auto_assign': 'Auto-Assign',
         }
 
         # Return appropriate translation based on language

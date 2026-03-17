@@ -284,39 +284,72 @@ class AppointmentController(http.Controller):
         slot_duration = timedelta(hours=appointment_type.slot_duration)
         slot_interval = timedelta(hours=appointment_type.slot_interval or appointment_type.slot_duration)
 
-        # Working hours (default 9:00 - 18:00)
-        current_time = start_datetime.replace(hour=9, minute=0)
-        end_time = start_datetime.replace(hour=18, minute=0)
+        # Query weekly schedule availability for this day of week
+        day_of_week = str(selected_date.weekday())  # 0=Monday, matches dayofweek selection field
+        availability_domain = [
+            ('appointment_type_id', '=', appointment_type_id),
+            ('dayofweek', '=', day_of_week),
+        ]
+        if resource_id:
+            availability_domain = availability_domain + [
+                '|',
+                ('resource_id', '=', int(resource_id)),
+                ('resource_id', '=', False),
+            ]
+        if staff_id:
+            availability_domain = availability_domain + [
+                '|',
+                ('user_id', '=', int(staff_id)),
+                ('user_id', '=', False),
+            ]
+        availabilities = request.env['appointment.availability'].sudo().search(availability_domain)
+
+        # If no availability configured for this day, return empty slots
+        if not availabilities:
+            return {'slots': []}
 
         # Minimum booking time check
         min_booking_time = datetime.now() + timedelta(hours=appointment_type.min_booking_hours)
 
-        while current_time + slot_duration <= end_time:
-            if current_time >= min_booking_time:
-                # Check existing bookings
-                existing = request.env['appointment.booking'].sudo().search_count([
-                    ('appointment_type_id', '=', appointment_type_id),
-                    ('start_datetime', '=', current_time),
-                    ('state', 'in', ['confirmed', 'done']),
-                    ('resource_id', '=', int(resource_id) if resource_id else False),
-                    ('staff_user_id', '=', int(staff_id) if staff_id else False),
-                ])
+        # Generate slots for each availability window
+        for avail in availabilities:
+            hour_from_int = int(avail.hour_from)
+            min_from = int(round((avail.hour_from % 1) * 60))
+            hour_to_int = int(avail.hour_to)
+            min_to = int(round((avail.hour_to % 1) * 60))
 
-                capacity = 1
-                if resource_id:
-                    resource = request.env['resource.resource'].sudo().browse(int(resource_id))
-                    capacity = resource.capacity or 1
+            current_time = start_datetime.replace(hour=hour_from_int, minute=min_from, second=0, microsecond=0)
+            end_time = start_datetime.replace(hour=hour_to_int, minute=min_to, second=0, microsecond=0)
 
-                if existing < capacity:
-                    slots.append({
-                        'start': current_time.strftime('%Y-%m-%d %H:%M:%S'),
-                        'end': (current_time + slot_duration).strftime('%Y-%m-%d %H:%M:%S'),
-                        'start_time': current_time.strftime('%H:%M'),
-                        'end_time': (current_time + slot_duration).strftime('%H:%M'),
-                        'available': capacity - existing,
-                    })
+            while current_time + slot_duration <= end_time:
+                if current_time >= min_booking_time:
+                    # Check existing bookings
+                    existing = request.env['appointment.booking'].sudo().search_count([
+                        ('appointment_type_id', '=', appointment_type_id),
+                        ('start_datetime', '=', current_time),
+                        ('state', 'in', ['confirmed', 'done']),
+                        ('resource_id', '=', int(resource_id) if resource_id else False),
+                        ('staff_user_id', '=', int(staff_id) if staff_id else False),
+                    ])
 
-            current_time += slot_interval
+                    capacity = 1
+                    if resource_id:
+                        resource = request.env['resource.resource'].sudo().browse(int(resource_id))
+                        capacity = resource.capacity or 1
+
+                    if existing < capacity:
+                        slots.append({
+                            'start': current_time.strftime('%Y-%m-%d %H:%M:%S'),
+                            'end': (current_time + slot_duration).strftime('%Y-%m-%d %H:%M:%S'),
+                            'start_time': current_time.strftime('%H:%M'),
+                            'end_time': (current_time + slot_duration).strftime('%H:%M'),
+                            'available': capacity - existing,
+                        })
+
+                current_time += slot_interval
+
+        # Sort slots by start time (in case multiple availability windows overlap)
+        slots.sort(key=lambda s: s['start'])
 
         return {'slots': slots}
 

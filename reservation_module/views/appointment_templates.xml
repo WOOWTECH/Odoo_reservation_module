@@ -130,44 +130,45 @@
                             <h2 class="mb-4" t-esc="t['select_date_time']"/>
 
                             <div class="row">
-                                <!-- Staff/Location Selection Panels -->
+                                <!-- Staff/Location Selection Dropdowns -->
                                 <t t-if="show_staff_panel or show_location_panel">
                                     <div class="col-md-4 mb-4">
-                                        <!-- Staff Panel -->
+                                        <!-- Staff Dropdown -->
                                         <t t-if="show_staff_panel">
-                                            <div class="card mb-3">
-                                                <div class="card-header">
+                                            <div class="mb-3">
+                                                <label for="staff-select" class="form-label fw-bold">
                                                     <t t-esc="t['select_staff']"/>
-                                                </div>
-                                                <div class="list-group list-group-flush">
+                                                </label>
+                                                <select id="staff-select" class="form-select">
+                                                    <option value="auto" t-att-selected="not selected_staff_id">
+                                                        <t t-esc="t['auto_assign']"/>
+                                                    </option>
                                                     <t t-foreach="staff" t-as="user">
-                                                        <a t-attf-href="/appointment/#{appointment_type.id}/schedule?staff_id=#{user.id}#{selected_resource_id and '&amp;resource_id=%s' % selected_resource_id or ''}"
-                                                           t-attf-class="list-group-item list-group-item-action #{'active' if selected_staff_id == user.id else ''}">
-                                                            <i class="fa fa-user me-2"/>
+                                                        <option t-att-value="user.id"
+                                                                t-att-selected="selected_staff_id == user.id">
                                                             <t t-esc="user.name"/>
-                                                        </a>
+                                                        </option>
                                                     </t>
-                                                </div>
+                                                </select>
                                             </div>
                                         </t>
-                                        <!-- Location Panel -->
+                                        <!-- Location Dropdown -->
                                         <t t-if="show_location_panel">
-                                            <div class="card">
-                                                <div class="card-header">
+                                            <div class="mb-3">
+                                                <label for="location-select" class="form-label fw-bold">
                                                     <t t-esc="t['select_location']"/>
-                                                </div>
-                                                <div class="list-group list-group-flush">
+                                                </label>
+                                                <select id="location-select" class="form-select">
+                                                    <option value="auto" t-att-selected="not selected_resource_id">
+                                                        <t t-esc="t['auto_assign']"/>
+                                                    </option>
                                                     <t t-foreach="resources" t-as="resource">
-                                                        <a t-attf-href="/appointment/#{appointment_type.id}/schedule?resource_id=#{resource.id}#{selected_staff_id and '&amp;staff_id=%s' % selected_staff_id or ''}"
-                                                           t-attf-class="list-group-item list-group-item-action #{'active' if selected_resource_id == resource.id else ''}">
-                                                            <i t-att-class="'fa %s me-2' % (resource.icon or 'fa-map-marker')"/>
-                                                            <t t-esc="resource.name"/>
-                                                            <span class="badge bg-secondary float-end">
-                                                                <t t-esc="resource.capacity"/> <t t-esc="t['seats']"/>
-                                                            </span>
-                                                        </a>
+                                                        <option t-att-value="resource.id"
+                                                                t-att-selected="selected_resource_id == resource.id">
+                                                            <t t-esc="resource.name"/> (<t t-esc="resource.capacity"/> <t t-esc="t['seats']"/>)
+                                                        </option>
                                                     </t>
-                                                </div>
+                                                </select>
                                             </div>
                                         </t>
                                     </div>

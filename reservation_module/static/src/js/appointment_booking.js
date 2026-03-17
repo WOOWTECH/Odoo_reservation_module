@@ -20,6 +20,23 @@ publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
         this.currentDate = new Date(this.startDate);
         this.selectedDate = null;
 
+        // Listen for staff/location dropdown changes
+        const staffSelect = document.getElementById('staff-select');
+        const locationSelect = document.getElementById('location-select');
+
+        if (staffSelect) {
+            staffSelect.addEventListener('change', (e) => {
+                this.staffId = e.target.value === 'auto' ? null : e.target.value;
+                if (this.selectedDate) this._loadSlots(this.selectedDate);
+            });
+        }
+        if (locationSelect) {
+            locationSelect.addEventListener('change', (e) => {
+                this.resourceId = e.target.value === 'auto' ? null : e.target.value;
+                if (this.selectedDate) this._loadSlots(this.selectedDate);
+            });
+        }
+
         this._renderReservation();
     },
 

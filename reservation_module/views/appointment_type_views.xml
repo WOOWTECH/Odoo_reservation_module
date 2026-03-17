@@ -37,8 +37,10 @@
                             <field name="is_published"/>
                             <field name="assign_staff"/>
                             <field name="allow_customer_choose_staff" invisible="not assign_staff"/>
+                            <field name="staff_user_ids" widget="many2many_tags" invisible="not assign_staff"/>
                             <field name="assign_location"/>
                             <field name="allow_customer_choose_location" invisible="not assign_location"/>
+                            <field name="resource_ids" widget="many2many_tags" invisible="not assign_location"/>
                         </group>
                         <group>
                             <field name="slot_duration" widget="float_time"/>
@@ -72,12 +74,6 @@
                                     <field name="manage_capacity"/>
                                     <field name="max_concurrent_bookings"/>
                                 </group>
-                            </group>
-                            <group string="Locations" invisible="not assign_location">
-                                <field name="resource_ids" widget="many2many_tags" nolabel="1" colspan="2"/>
-                            </group>
-                            <group string="Staff Members" invisible="not assign_staff">
-                                <field name="staff_user_ids" widget="many2many_tags" nolabel="1" colspan="2"/>
                             </group>
                             <separator string="Weekly Schedule" invisible="schedule_type != 'recurring'"/>
                             <field name="availability_ids" invisible="schedule_type != 'recurring'" nolabel="1">

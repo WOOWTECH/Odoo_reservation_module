@@ -61,7 +61,8 @@
             <field name="min_booking_hours">2.0</field>
             <field name="cancel_before_hours">24.0</field>
             <field name="location_type">physical</field>
-            <field name="booking_type">user</field>
+            <field name="assign_staff" eval="True"/>
+            <field name="allow_customer_choose_staff" eval="True"/>
             <field name="auto_confirm" eval="True"/>
             <field name="allow_invitations" eval="True"/>
             <field name="is_published" eval="True"/>
@@ -115,7 +116,8 @@
             <field name="cancel_before_hours">2.0</field>
             <field name="location_type">online</field>
             <field name="video_link">https://meet.google.com/example</field>
-            <field name="booking_type">user</field>
+            <field name="assign_staff" eval="True"/>
+            <field name="allow_customer_choose_staff" eval="True"/>
             <field name="auto_confirm" eval="True"/>
             <field name="is_published" eval="True"/>
             <field name="icon">fa-video-camera</field>
@@ -159,7 +161,8 @@
             <field name="min_booking_hours">4.0</field>
             <field name="cancel_before_hours">4.0</field>
             <field name="location_type">physical</field>
-            <field name="booking_type">resource</field>
+            <field name="assign_location" eval="True"/>
+            <field name="allow_customer_choose_location" eval="True"/>
             <field name="manage_capacity" eval="True"/>
             <field name="auto_confirm" eval="True"/>
             <field name="is_published" eval="True"/>
@@ -228,7 +231,8 @@
             <field name="min_booking_hours">2.0</field>
             <field name="cancel_before_hours">4.0</field>
             <field name="location_type">physical</field>
-            <field name="booking_type">resource</field>
+            <field name="assign_location" eval="True"/>
+            <field name="allow_customer_choose_location" eval="True"/>
             <field name="auto_confirm" eval="True"/>
             <field name="is_published" eval="True"/>
             <field name="icon">fa-futbol-o</field>
@@ -292,7 +296,8 @@
             <field name="min_booking_hours">24.0</field>
             <field name="cancel_before_hours">48.0</field>
             <field name="location_type">online</field>
-            <field name="booking_type">user</field>
+            <field name="assign_staff" eval="True"/>
+            <field name="allow_customer_choose_staff" eval="True"/>
             <field name="require_payment" eval="True"/>
             <field name="payment_amount">100.00</field>
             <field name="auto_confirm" eval="True"/>

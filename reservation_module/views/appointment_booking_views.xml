@@ -117,7 +117,7 @@
         <field name="name">appointment.booking.view.calendar.resource</field>
         <field name="model">appointment.booking</field>
         <field name="arch" type="xml">
-            <calendar string="Resource Bookings" date_start="start_datetime" date_stop="end_datetime"
+            <calendar string="Location Bookings" date_start="start_datetime" date_stop="end_datetime"
                       color="resource_id" mode="week" quick_create="0">
                 <field name="guest_name"/>
                 <field name="resource_id"/>
@@ -173,7 +173,7 @@
                     <filter string="Appointment Type" name="groupby_type" context="{'group_by': 'appointment_type_id'}"/>
                     <filter string="Status" name="groupby_state" context="{'group_by': 'state'}"/>
                     <filter string="Date" name="groupby_date" context="{'group_by': 'start_datetime:day'}"/>
-                    <filter string="Resource" name="groupby_resource" context="{'group_by': 'resource_id'}"/>
+                    <filter string="Location" name="groupby_resource" context="{'group_by': 'resource_id'}"/>
                     <filter string="Staff" name="groupby_staff" context="{'group_by': 'staff_user_id'}"/>
                 </group>
             </search>
@@ -204,7 +204,7 @@
     </record>
 
     <record id="appointment_booking_action_resource" model="ir.actions.act_window">
-        <field name="name">Resource Bookings</field>
+        <field name="name">Location Bookings</field>
         <field name="res_model">appointment.booking</field>
         <field name="view_mode">calendar,list,form</field>
         <field name="domain">[('resource_id', '!=', False)]</field>

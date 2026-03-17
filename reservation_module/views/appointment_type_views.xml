@@ -14,12 +14,12 @@
                         <button name="action_view_bookings" type="object" class="oe_stat_button" icon="fa-calendar-check-o">
                             <field name="booking_count" widget="statinfo" string="Bookings"/>
                         </button>
-                        <button name="action_view_resource_bookings" type="object" class="oe_stat_button" icon="fa-cube"
-                                invisible="booking_type != 'resource'">
-                            <span>Resource Gantt</span>
+                        <button name="action_view_location_bookings" type="object" class="oe_stat_button" icon="fa-map-marker"
+                                invisible="not assign_location">
+                            <span>Location Gantt</span>
                         </button>
                         <button name="action_view_staff_bookings" type="object" class="oe_stat_button" icon="fa-users"
-                                invisible="booking_type != 'user'">
+                                invisible="not assign_staff">
                             <span>Staff Gantt</span>
                         </button>
                     </div>
@@ -35,7 +35,10 @@
                         <group>
                             <field name="active" invisible="1"/>
                             <field name="is_published"/>
-                            <field name="booking_type"/>
+                            <field name="assign_staff"/>
+                            <field name="allow_customer_choose_staff" invisible="not assign_staff"/>
+                            <field name="assign_location"/>
+                            <field name="allow_customer_choose_location" invisible="not assign_location"/>
                         </group>
                         <group>
                             <field name="slot_duration" widget="float_time"/>
@@ -70,10 +73,10 @@
                                     <field name="max_concurrent_bookings"/>
                                 </group>
                             </group>
-                            <group string="Resources" invisible="booking_type != 'resource'">
+                            <group string="Locations" invisible="not assign_location">
                                 <field name="resource_ids" widget="many2many_tags" nolabel="1" colspan="2"/>
                             </group>
-                            <group string="Staff Members" invisible="booking_type != 'user'">
+                            <group string="Staff Members" invisible="not assign_staff">
                                 <field name="staff_user_ids" widget="many2many_tags" nolabel="1" colspan="2"/>
                             </group>
                             <separator string="Weekly Schedule" invisible="schedule_type != 'recurring'"/>
@@ -82,8 +85,8 @@
                                     <field name="dayofweek"/>
                                     <field name="hour_from" widget="float_time"/>
                                     <field name="hour_to" widget="float_time"/>
-                                    <field name="resource_id" optional="hide" invisible="parent.booking_type != 'resource'"/>
-                                    <field name="user_id" optional="hide" invisible="parent.booking_type != 'user'"/>
+                                    <field name="resource_id" optional="hide" invisible="not parent.assign_location"/>
+                                    <field name="user_id" optional="hide" invisible="not parent.assign_staff"/>
                                 </list>
                             </field>
                             <div class="mt-3" invisible="schedule_type != 'recurring'">
@@ -190,7 +193,8 @@
                 <field name="icon"/>
                 <field name="resource_ids"/>
                 <field name="staff_user_ids"/>
-                <field name="booking_type"/>
+                <field name="assign_staff"/>
+                <field name="assign_location"/>
                 <field name="is_published"/>
                 <field name="website_url"/>
                 <field name="total_capacity"/>
@@ -245,9 +249,9 @@
                                 </div>
                             </div>
                             <div class="mt-2 small">
-                                <t t-if="record.booking_type.raw_value == 'resource' and record.resource_ids.raw_value.length">
+                                <t t-if="record.assign_location.raw_value and record.resource_ids.raw_value.length">
                                     <span class="me-3">
-                                        <i class="fa fa-cube text-muted"/> <t t-out="record.resource_ids.raw_value.length"/> resources
+                                        <i class="fa fa-map-marker text-muted"/> <t t-out="record.resource_ids.raw_value.length"/> locations
                                     </span>
                                     <t t-if="record.manage_capacity.raw_value">
                                         <span>
@@ -255,7 +259,7 @@
                                         </span>
                                     </t>
                                 </t>
-                                <t t-if="record.booking_type.raw_value == 'user' and record.staff_user_ids.raw_value.length">
+                                <t t-if="record.assign_staff.raw_value and record.staff_user_ids.raw_value.length">
                                     <span>
                                         <i class="fa fa-user text-muted"/> <t t-out="record.staff_user_ids.raw_value.length"/> staff members
                                     </span>

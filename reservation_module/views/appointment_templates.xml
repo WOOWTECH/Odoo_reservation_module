@@ -126,39 +126,51 @@
                             <h2 class="mb-4" t-esc="t['select_date_time']"/>
 
                             <div class="row">
-                                <!-- Resource/Staff Selection -->
-                                <t t-if="resources or staff">
+                                <!-- Staff/Location Selection Panels -->
+                                <t t-if="show_staff_panel or show_location_panel">
                                     <div class="col-md-4 mb-4">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <t t-if="resources" t-esc="t['select_resource']"/>
-                                                <t t-elif="staff" t-esc="t['select_staff']"/>
+                                        <!-- Staff Panel -->
+                                        <t t-if="show_staff_panel">
+                                            <div class="card mb-3">
+                                                <div class="card-header">
+                                                    <t t-esc="t['select_staff']"/>
+                                                </div>
+                                                <div class="list-group list-group-flush">
+                                                    <t t-foreach="staff" t-as="user">
+                                                        <a t-attf-href="/appointment/#{appointment_type.id}/schedule?staff_id=#{user.id}#{selected_resource_id and '&amp;resource_id=%s' % selected_resource_id or ''}"
+                                                           t-attf-class="list-group-item list-group-item-action #{'active' if selected_staff_id == user.id else ''}">
+                                                            <i class="fa fa-user me-2"/>
+                                                            <t t-esc="user.name"/>
+                                                        </a>
+                                                    </t>
+                                                </div>
                                             </div>
-                                            <div class="list-group list-group-flush">
-                                                <t t-foreach="resources" t-as="resource">
-                                                    <a t-attf-href="/appointment/#{appointment_type.id}/schedule?resource_id=#{resource.id}"
-                                                       t-attf-class="list-group-item list-group-item-action #{'active' if selected_resource_id == resource.id else ''}">
-                                                        <i t-att-class="'fa %s me-2' % (resource.icon or 'fa-cube')"/>
-                                                        <t t-esc="resource.name"/>
-                                                        <span class="badge bg-secondary float-end">
-                                                            <t t-esc="resource.capacity"/> <t t-esc="t['seats']"/>
-                                                        </span>
-                                                    </a>
-                                                </t>
-                                                <t t-foreach="staff" t-as="user">
-                                                    <a t-attf-href="/appointment/#{appointment_type.id}/schedule?staff_id=#{user.id}"
-                                                       t-attf-class="list-group-item list-group-item-action #{'active' if selected_staff_id == user.id else ''}">
-                                                        <i class="fa fa-user me-2"/>
-                                                        <t t-esc="user.name"/>
-                                                    </a>
-                                                </t>
+                                        </t>
+                                        <!-- Location Panel -->
+                                        <t t-if="show_location_panel">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <t t-esc="t['select_location']"/>
+                                                </div>
+                                                <div class="list-group list-group-flush">
+                                                    <t t-foreach="resources" t-as="resource">
+                                                        <a t-attf-href="/appointment/#{appointment_type.id}/schedule?resource_id=#{resource.id}#{selected_staff_id and '&amp;staff_id=%s' % selected_staff_id or ''}"
+                                                           t-attf-class="list-group-item list-group-item-action #{'active' if selected_resource_id == resource.id else ''}">
+                                                            <i t-att-class="'fa %s me-2' % (resource.icon or 'fa-map-marker')"/>
+                                                            <t t-esc="resource.name"/>
+                                                            <span class="badge bg-secondary float-end">
+                                                                <t t-esc="resource.capacity"/> <t t-esc="t['seats']"/>
+                                                            </span>
+                                                        </a>
+                                                    </t>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </t>
                                     </div>
                                 </t>
 
                                 <!-- Calendar and Slots -->
-                                <div t-attf-class="col-md-#{8 if (resources or staff) else 12}">
+                                <div t-attf-class="col-md-#{8 if (show_staff_panel or show_location_panel) else 12}">
                                     <div class="card">
                                         <div class="card-body">
                                             <div id="appointment-reservation"
@@ -224,7 +236,7 @@
                                         <i class="fa fa-calendar"/> <t t-esc="start_datetime" t-options='{"widget": "datetime"}'/> -
                                         <t t-esc="end_datetime" t-options='{"widget": "datetime"}'/>
                                         <t t-if="resource">
-                                            <br/><i class="fa fa-cube"/> <t t-esc="resource.name"/>
+                                            <br/><i class="fa fa-map-marker"/> <t t-esc="resource.name"/>
                                         </t>
                                         <t t-if="staff">
                                             <br/><i class="fa fa-user"/> <t t-esc="staff.name"/>
@@ -400,7 +412,7 @@
                                            <t t-esc="booking.end_datetime" t-options='{"widget": "datetime"}'/>
                                         </p>
                                         <t t-if="booking.resource_id">
-                                            <p><strong><t t-esc="t['resource_label']"/></strong> <t t-esc="booking.resource_id.name"/></p>
+                                            <p><strong><t t-esc="t['location_label']"/></strong> <t t-esc="booking.resource_id.name"/></p>
                                         </t>
                                         <t t-if="booking.staff_user_id">
                                             <p><strong><t t-esc="t['staff_label']"/></strong> <t t-esc="booking.staff_user_id.name"/></p>
@@ -455,7 +467,7 @@
                                                <t t-esc="booking.end_datetime" t-options='{"widget": "datetime"}'/>
                                             </p>
                                             <t t-if="booking.resource_id">
-                                                <p><strong><t t-esc="t['resource_label']"/></strong> <t t-esc="booking.resource_id.name"/></p>
+                                                <p><strong><t t-esc="t['location_label']"/></strong> <t t-esc="booking.resource_id.name"/></p>
                                             </t>
                                             <t t-if="booking.staff_user_id">
                                                 <p><strong><t t-esc="t['staff_label']"/></strong> <t t-esc="booking.staff_user_id.name"/></p>

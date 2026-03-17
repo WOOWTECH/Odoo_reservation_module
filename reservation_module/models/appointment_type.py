@@ -58,11 +58,26 @@ class AppointmentType(models.Model):
         help='What the appointment should be based on')
 
     # Assignment Configuration
-    booking_type = fields.Selection([
-        ('user', 'User'),
-        ('resource', 'Resource'),
-    ], string='Booking Type', default='user',
-        help='Whether the booking is with a user or resource')
+    assign_staff = fields.Boolean(
+        'Staff',
+        default=True,
+        help='Assign staff members to bookings',
+    )
+    assign_location = fields.Boolean(
+        'Location',
+        default=False,
+        help='Assign a location to bookings',
+    )
+    allow_customer_choose_staff = fields.Boolean(
+        'Allow Customer to Choose Staff',
+        default=True,
+        help='Let customers pick their preferred staff member',
+    )
+    allow_customer_choose_location = fields.Boolean(
+        'Allow Customer to Choose Location',
+        default=True,
+        help='Let customers pick their preferred location',
+    )
 
     # Capacity Configuration
     manage_capacity = fields.Boolean(
@@ -87,7 +102,7 @@ class AppointmentType(models.Model):
         'appointment_type_resource_rel',
         'appointment_type_id',
         'resource_id',
-        string='Resources',
+        string='Locations',
         help='Resources available for this appointment type',
     )
     staff_user_ids = fields.Many2many(
@@ -310,11 +325,11 @@ class AppointmentType(models.Model):
             'target': 'current',
         }
 
-    def action_view_resource_bookings(self):
-        """Open resource bookings reservation view"""
+    def action_view_location_bookings(self):
+        """Open location bookings reservation view"""
         self.ensure_one()
         return {
-            'name': _('Resource Bookings'),
+            'name': _('Location Bookings'),
             'type': 'ir.actions.act_window',
             'res_model': 'appointment.booking',
             'view_mode': 'calendar,list,form',

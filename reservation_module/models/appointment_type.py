@@ -46,11 +46,6 @@ class AppointmentType(models.Model):
         help='Video conference link',
     )
 
-    # Schedule Configuration
-    schedule_type = fields.Selection([
-        ('recurring', 'Weekly Recurring'),
-        ('custom', 'Custom'),
-    ], string='Schedule Type', default='recurring')
     # Assignment Configuration
     assign_staff = fields.Boolean(
         'Staff',

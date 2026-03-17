@@ -542,26 +542,6 @@ msgid "Whether the booking is with a user or resource"
 msgstr "預約是與使用者還是資源進行"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__assignment_method
-msgid "Assignment Method"
-msgstr "分配方式"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__assignment_method__automatic
-msgid "Automatic"
-msgstr "自動"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__assignment_method__customer
-msgid "Customer Choice"
-msgstr "客戶選擇"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__assignment_method
-msgid "How resources/staff are assigned to bookings"
-msgstr "資源/員工如何分配給預約"
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__manage_capacity
 msgid "Manage Capacity"
 msgstr "管理容量"

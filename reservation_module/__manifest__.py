@@ -37,6 +37,7 @@
         # Views
         "views/appointment_type_views.xml",
         "views/appointment_booking_views.xml",
+        "views/resource_views.xml",
         "views/appointment_menus.xml",
         # Website
         "views/appointment_templates.xml",

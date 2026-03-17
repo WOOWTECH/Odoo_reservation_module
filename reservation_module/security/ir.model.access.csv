@@ -20,3 +20,5 @@ access_appointment_answer_manager,appointment.answer.manager,model_appointment_a
 access_appointment_availability_public,appointment.availability.public,model_appointment_availability,base.group_public,1,0,0,0
 access_appointment_availability_user,appointment.availability.user,model_appointment_availability,group_appointment_user,1,0,0,0
 access_appointment_availability_manager,appointment.availability.manager,model_appointment_availability,group_appointment_manager,1,1,1,1
+access_resource_resource_user,resource.resource.appointment.user,resource.model_resource_resource,group_appointment_user,1,0,0,0
+access_resource_resource_manager,resource.resource.appointment.manager,resource.model_resource_resource,group_appointment_manager,1,1,1,1

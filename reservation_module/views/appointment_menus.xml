@@ -61,4 +61,11 @@
               parent="appointment_menu_configuration"
               action="appointment_type_action"
               sequence="10"/>
+
+    <!-- Resources -->
+    <menuitem id="appointment_menu_resources"
+              name="Resources"
+              parent="appointment_menu_configuration"
+              action="resource_resource_action"
+              sequence="20"/>
 </odoo>

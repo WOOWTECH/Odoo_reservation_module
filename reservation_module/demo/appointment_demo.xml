@@ -62,7 +62,6 @@
             <field name="cancel_before_hours">24.0</field>
             <field name="location_type">physical</field>
             <field name="booking_type">user</field>
-            <field name="assignment_method">customer</field>
             <field name="auto_confirm" eval="True"/>
             <field name="allow_invitations" eval="True"/>
             <field name="is_published" eval="True"/>
@@ -117,7 +116,6 @@
             <field name="location_type">online</field>
             <field name="video_link">https://meet.google.com/example</field>
             <field name="booking_type">user</field>
-            <field name="assignment_method">automatic</field>
             <field name="auto_confirm" eval="True"/>
             <field name="is_published" eval="True"/>
             <field name="icon">fa-video-camera</field>
@@ -162,7 +160,6 @@
             <field name="cancel_before_hours">4.0</field>
             <field name="location_type">physical</field>
             <field name="booking_type">resource</field>
-            <field name="assignment_method">customer</field>
             <field name="manage_capacity" eval="True"/>
             <field name="auto_confirm" eval="True"/>
             <field name="is_published" eval="True"/>
@@ -232,7 +229,6 @@
             <field name="cancel_before_hours">4.0</field>
             <field name="location_type">physical</field>
             <field name="booking_type">resource</field>
-            <field name="assignment_method">automatic</field>
             <field name="auto_confirm" eval="True"/>
             <field name="is_published" eval="True"/>
             <field name="icon">fa-futbol-o</field>
@@ -297,7 +293,6 @@
             <field name="cancel_before_hours">48.0</field>
             <field name="location_type">online</field>
             <field name="booking_type">user</field>
-            <field name="assignment_method">customer</field>
             <field name="require_payment" eval="True"/>
             <field name="payment_amount">100.00</field>
             <field name="auto_confirm" eval="True"/>

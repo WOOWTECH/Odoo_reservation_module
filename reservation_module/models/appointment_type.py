@@ -63,11 +63,6 @@ class AppointmentType(models.Model):
         ('resource', 'Resource'),
     ], string='Booking Type', default='user',
         help='Whether the booking is with a user or resource')
-    assignment_method = fields.Selection([
-        ('automatic', 'Automatic'),
-        ('customer', 'Customer Choice'),
-    ], string='Assignment Method', default='automatic',
-        help='How resources/staff are assigned to bookings')
 
     # Capacity Configuration
     manage_capacity = fields.Boolean(

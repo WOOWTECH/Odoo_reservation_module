@@ -40,7 +40,6 @@
                         <group>
                             <field name="slot_duration" widget="float_time"/>
                             <field name="timezone"/>
-                            <field name="assignment_method"/>
                         </group>
                     </group>
                     <group string="Location">

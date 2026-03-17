@@ -58,11 +58,6 @@ msgstr "可用時段"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Schedule Settings"
-msgstr "排程設定"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Capacity"
 msgstr "容量"
 
@@ -480,21 +475,6 @@ msgstr "視訊連結"
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__video_link
 msgid "Video conference link"
 msgstr "視訊會議連結"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__schedule_type
-msgid "Schedule Type"
-msgstr "排程類型"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__schedule_type__recurring
-msgid "Weekly Recurring"
-msgstr "每週循環"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__schedule_type__custom
-msgid "Custom"
-msgstr "自訂"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__assign_staff

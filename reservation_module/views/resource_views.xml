@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Resource List View -->
+    <record id="resource_resource_list_view" model="ir.ui.view">
+        <field name="name">resource.resource.list.appointment</field>
+        <field name="model">resource.resource</field>
+        <field name="arch" type="xml">
+            <list string="Resources">
+                <field name="name"/>
+                <field name="icon"/>
+                <field name="capacity"/>
+                <field name="appointment_type_ids" widget="many2many_tags"/>
+                <field name="booking_count" string="Bookings"/>
+                <field name="upcoming_booking_count" string="Upcoming"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Resource Form View -->
+    <record id="resource_resource_form_view" model="ir.ui.view">
+        <field name="name">resource.resource.form.appointment</field>
+        <field name="model">resource.resource</field>
+        <field name="arch" type="xml">
+            <form string="Resource">
+                <header/>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_bookings"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-calendar">
+                            <field name="booking_count" widget="statinfo" string="Bookings"/>
+                        </button>
+                    </div>
+                    <field name="image" widget="image" class="oe_avatar" options="{'preview_image': 'image'}"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Resource Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="resource_type" invisible="1"/>
+                            <field name="capacity"/>
+                            <field name="icon"/>
+                        </group>
+                        <group>
+                            <field name="appointment_type_ids" widget="many2many_tags"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Resource Search View -->
+    <record id="resource_resource_search_view" model="ir.ui.view">
+        <field name="name">resource.resource.search.appointment</field>
+        <field name="model">resource.resource</field>
+        <field name="arch" type="xml">
+            <search string="Resources">
+                <field name="name"/>
+                <field name="appointment_type_ids"/>
+                <filter string="Appointment Type" name="group_appointment_type" context="{'group_by': 'appointment_type_ids'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Resource Action -->
+    <record id="resource_resource_action" model="ir.actions.act_window">
+        <field name="name">Resources</field>
+        <field name="res_model">resource.resource</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('resource_type', '=', 'material')]</field>
+        <field name="context">{'default_resource_type': 'material'}</field>
+        <field name="search_view_id" ref="resource_resource_search_view"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new resource
+            </p>
+            <p>
+                Resources are bookable items like rooms, tables, courts, or equipment.
+            </p>
+        </field>
+    </record>
+
+    <!-- Bind custom views to the action -->
+    <record id="resource_resource_action_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="resource_resource_list_view"/>
+        <field name="act_window_id" ref="resource_resource_action"/>
+    </record>
+    <record id="resource_resource_action_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="resource_resource_form_view"/>
+        <field name="act_window_id" ref="resource_resource_action"/>
+    </record>
+</odoo>

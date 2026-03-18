@@ -131,6 +131,35 @@ class AppointmentBooking(models.Model):
         import secrets
         return secrets.token_urlsafe(32)
 
+    @api.model
+    def _check_booking_conflict(self, start_dt, end_dt, staff_user_id=False, resource_id=False, exclude_booking_id=False):
+        """Check if staff or resource has conflicting bookings across ALL appointment types.
+
+        Returns dict: {'staff_conflict': bool, 'resource_conflict': bool, 'resource_remaining': int}
+        """
+        domain = [
+            ('state', 'in', ['confirmed', 'done']),
+            ('start_datetime', '<', end_dt),
+            ('end_datetime', '>', start_dt),
+        ]
+        if exclude_booking_id:
+            domain.append(('id', '!=', exclude_booking_id))
+
+        result = {'staff_conflict': False, 'resource_conflict': False, 'resource_remaining': 1}
+
+        if staff_user_id:
+            staff_count = self.search_count(domain + [('staff_user_id', '=', staff_user_id)])
+            result['staff_conflict'] = staff_count > 0
+
+        if resource_id:
+            resource = self.env['resource.resource'].browse(resource_id)
+            capacity = resource.capacity or 1
+            res_count = self.search_count(domain + [('resource_id', '=', resource_id)])
+            result['resource_conflict'] = res_count >= capacity
+            result['resource_remaining'] = max(0, capacity - res_count)
+
+        return result
+
     @api.constrains('start_datetime', 'end_datetime')
     def _check_dates(self):
         for booking in self:
@@ -153,6 +182,19 @@ class AppointmentBooking(models.Model):
             appointment_type = booking.appointment_type_id
             if appointment_type.require_payment and booking.payment_status != 'paid':
                 raise UserError(_('Payment is required before confirming this booking.'))
+
+            # Cross-type conflict check (safety net for race conditions)
+            conflict = self.env['appointment.booking']._check_booking_conflict(
+                start_dt=booking.start_datetime,
+                end_dt=booking.end_datetime,
+                staff_user_id=booking.staff_user_id.id if booking.staff_user_id else False,
+                resource_id=booking.resource_id.id if booking.resource_id else False,
+                exclude_booking_id=booking.id,
+            )
+            if conflict['staff_conflict']:
+                raise UserError(_('Staff member is already booked for this time slot.'))
+            if conflict['resource_conflict']:
+                raise UserError(_('Location is fully booked for this time slot.'))
 
             # Create calendar event
             booking._create_calendar_event()
@@ -258,29 +300,42 @@ class AppointmentBooking(models.Model):
             template.send_mail(self.id, force_send=True)
 
     def _auto_assign_staff(self):
-        """Auto-assign staff with least bookings this month for the time slot"""
+        """Auto-assign staff with least bookings this month, filtering out conflicting staff first"""
         self.ensure_one()
         appointment_type = self.appointment_type_id
         if not appointment_type.staff_user_ids:
             return
 
-        # Get first day of the month containing the booking
+        # Filter to staff who are NOT conflicting at this exact time slot (cross-type check)
+        available_staff_ids = []
+        for staff in appointment_type.staff_user_ids:
+            conflict = self.env['appointment.booking']._check_booking_conflict(
+                start_dt=self.start_datetime,
+                end_dt=self.end_datetime,
+                staff_user_id=staff.id,
+                exclude_booking_id=self.id,
+            )
+            if not conflict['staff_conflict']:
+                available_staff_ids.append(staff.id)
+
+        if not available_staff_ids:
+            return  # No available staff for this time slot
+
+        # Among available staff, pick the one with fewest bookings this month
         month_start = self.start_datetime.replace(day=1, hour=0, minute=0, second=0)
         if month_start.month == 12:
             month_end = month_start.replace(year=month_start.year + 1, month=1)
         else:
             month_end = month_start.replace(month=month_start.month + 1)
 
-        # Count bookings per staff this month
         bookings = self.env['appointment.booking'].search([
-            ('appointment_type_id', '=', appointment_type.id),
             ('start_datetime', '>=', month_start),
             ('start_datetime', '<', month_end),
             ('state', 'in', ['confirmed', 'done']),
-            ('staff_user_id', 'in', appointment_type.staff_user_ids.ids),
+            ('staff_user_id', 'in', available_staff_ids),
         ])
 
-        staff_counts = {uid: 0 for uid in appointment_type.staff_user_ids.ids}
+        staff_counts = {uid: 0 for uid in available_staff_ids}
         for booking in bookings:
             if booking.staff_user_id:
                 staff_counts[booking.staff_user_id.id] = staff_counts.get(booking.staff_user_id.id, 0) + 1
@@ -290,29 +345,42 @@ class AppointmentBooking(models.Model):
         self.staff_user_id = best_staff_id
 
     def _auto_assign_location(self):
-        """Auto-assign location with least bookings this month for the time slot"""
+        """Auto-assign location with least bookings this month, filtering out full locations first"""
         self.ensure_one()
         appointment_type = self.appointment_type_id
         if not appointment_type.resource_ids:
             return
 
-        # Get first day of the month containing the booking
+        # Filter to resources with remaining capacity at this time slot (cross-type check)
+        available_resource_ids = []
+        for resource in appointment_type.resource_ids:
+            conflict = self.env['appointment.booking']._check_booking_conflict(
+                start_dt=self.start_datetime,
+                end_dt=self.end_datetime,
+                resource_id=resource.id,
+                exclude_booking_id=self.id,
+            )
+            if not conflict['resource_conflict']:
+                available_resource_ids.append(resource.id)
+
+        if not available_resource_ids:
+            return  # No available locations for this time slot
+
+        # Among available resources, pick the one with fewest bookings this month
         month_start = self.start_datetime.replace(day=1, hour=0, minute=0, second=0)
         if month_start.month == 12:
             month_end = month_start.replace(year=month_start.year + 1, month=1)
         else:
             month_end = month_start.replace(month=month_start.month + 1)
 
-        # Count bookings per resource this month
         bookings = self.env['appointment.booking'].search([
-            ('appointment_type_id', '=', appointment_type.id),
             ('start_datetime', '>=', month_start),
             ('start_datetime', '<', month_end),
             ('state', 'in', ['confirmed', 'done']),
-            ('resource_id', 'in', appointment_type.resource_ids.ids),
+            ('resource_id', 'in', available_resource_ids),
         ])
 
-        resource_counts = {rid: 0 for rid in appointment_type.resource_ids.ids}
+        resource_counts = {rid: 0 for rid in available_resource_ids}
         for booking in bookings:
             if booking.resource_id:
                 resource_counts[booking.resource_id.id] = resource_counts.get(booking.resource_id.id, 0) + 1

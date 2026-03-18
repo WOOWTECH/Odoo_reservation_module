@@ -311,6 +311,22 @@ class AppointmentController(http.Controller):
         # Minimum booking time check
         min_booking_time = datetime.now() + timedelta(hours=appointment_type.min_booking_hours)
 
+        # BATCH: Fetch all confirmed bookings for this staff/resource on this day (1-2 queries total)
+        # This avoids per-slot queries and checks across ALL appointment types
+        Booking = request.env['appointment.booking'].sudo()
+        day_conflict_domain = [
+            ('state', 'in', ['confirmed', 'done']),
+            ('start_datetime', '<', end_datetime),
+            ('end_datetime', '>', start_datetime),
+        ]
+        staff_bookings = Booking.search(day_conflict_domain + [('staff_user_id', '=', int(staff_id))]) if staff_id else Booking
+        resource_bookings = Booking.search(day_conflict_domain + [('resource_id', '=', int(resource_id))]) if resource_id else Booking
+
+        capacity = 1
+        if resource_id:
+            resource = request.env['resource.resource'].sudo().browse(int(resource_id))
+            capacity = resource.capacity or 1
+
         # Generate slots for each availability window
         for avail in availabilities:
             hour_from_int = int(avail.hour_from)
@@ -323,27 +339,25 @@ class AppointmentController(http.Controller):
 
             while current_time + slot_duration <= end_time:
                 if current_time >= min_booking_time:
-                    # Check existing bookings
-                    existing = request.env['appointment.booking'].sudo().search_count([
-                        ('appointment_type_id', '=', appointment_type_id),
-                        ('start_datetime', '=', current_time),
-                        ('state', 'in', ['confirmed', 'done']),
-                        ('resource_id', '=', int(resource_id) if resource_id else False),
-                        ('staff_user_id', '=', int(staff_id) if staff_id else False),
-                    ])
+                    slot_end = current_time + slot_duration
 
-                    capacity = 1
-                    if resource_id:
-                        resource = request.env['resource.resource'].sudo().browse(int(resource_id))
-                        capacity = resource.capacity or 1
+                    # In-memory overlap check across ALL appointment types (no per-slot DB query)
+                    staff_conflict = staff_id and any(
+                        b.start_datetime < slot_end and b.end_datetime > current_time
+                        for b in staff_bookings
+                    )
+                    resource_overlap = sum(
+                        1 for b in resource_bookings
+                        if b.start_datetime < slot_end and b.end_datetime > current_time
+                    ) if resource_id else 0
 
-                    if existing < capacity:
+                    if not staff_conflict and resource_overlap < capacity:
                         slots.append({
                             'start': current_time.strftime('%Y-%m-%d %H:%M:%S'),
-                            'end': (current_time + slot_duration).strftime('%Y-%m-%d %H:%M:%S'),
+                            'end': slot_end.strftime('%Y-%m-%d %H:%M:%S'),
                             'start_time': current_time.strftime('%H:%M'),
-                            'end_time': (current_time + slot_duration).strftime('%H:%M'),
-                            'available': capacity - existing,
+                            'end_time': slot_end.strftime('%H:%M'),
+                            'available': capacity - resource_overlap if resource_id else 1,
                         })
 
                 current_time += slot_interval

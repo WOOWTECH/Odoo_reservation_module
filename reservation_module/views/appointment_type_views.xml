@@ -130,14 +130,15 @@
                             </group>
                             <group>
                                 <group string="Scheduling">
+                                    <field name="is_scheduled"/>
                                     <field name="max_booking_days"/>
                                     <label for="min_booking_hours"/>
                                     <div class="o_row">
                                         <field name="min_booking_hours" widget="float_time"/>
                                         <span>before start</span>
                                     </div>
-                                    <field name="slot_duration" widget="float_time"/>
-                                    <field name="slot_interval" widget="float_time"/>
+                                    <field name="slot_duration" widget="float_time" invisible="not is_scheduled"/>
+                                    <field name="slot_interval" widget="float_time" invisible="not is_scheduled"/>
                                 </group>
                                 <group string="Cancellation">
                                     <label for="cancel_before_hours"/>
@@ -185,6 +186,7 @@
             <kanban class="o_kanban_dashboard o_appointment_kanban" sample="1">
                 <field name="name"/>
                 <field name="slot_duration"/>
+                <field name="is_scheduled"/>
                 <field name="booking_count"/>
                 <field name="upcoming_booking_count"/>
                 <field name="image"/>
@@ -216,7 +218,12 @@
                                         <field name="name"/>
                                     </strong>
                                     <div class="text-muted small mt-1">
-                                        <i class="fa fa-clock-o me-1"/><field name="slot_duration" widget="float_time"/> duration
+                                        <t t-if="record.is_scheduled.raw_value">
+                                            <i class="fa fa-clock-o me-1"/><field name="slot_duration" widget="float_time"/> duration
+                                        </t>
+                                        <t t-else="">
+                                            <span class="badge bg-info-light text-info">Special Event</span>
+                                        </t>
                                     </div>
                                 </div>
                                 <div class="text-end">

@@ -52,6 +52,16 @@
     font-weight: bold;
 }
 
+#appointment-reservation .reservation-day.has-event {
+    font-weight: bold;
+    border-color: #17a2b8;
+    background-color: rgba(23, 162, 184, 0.1);
+}
+
+#appointment-reservation .reservation-day.has-event:hover {
+    background-color: rgba(23, 162, 184, 0.25);
+}
+
 #appointment-reservation .reservation-day.no-slots {
     color: #adb5bd;
 }

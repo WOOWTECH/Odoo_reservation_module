@@ -22,6 +22,12 @@ class AppointmentType(models.Model):
     )
     sequence = fields.Integer('Sequence', default=10)
     active = fields.Boolean('Active', default=True, tracking=True)
+    is_scheduled = fields.Boolean(
+        'Scheduled Appointment',
+        default=True,
+        help='If checked, availability windows are subdivided into time slots. '
+             'If unchecked, each availability window is a single bookable event.',
+    )
 
     description = fields.Html('Description', translate=True)
 
@@ -256,10 +262,10 @@ class AppointmentType(models.Model):
             else:
                 record.website_url = False
 
-    @api.constrains('slot_duration')
+    @api.constrains('slot_duration', 'is_scheduled')
     def _check_slot_duration(self):
         for record in self:
-            if record.slot_duration <= 0:
+            if record.is_scheduled and record.slot_duration <= 0:
                 raise ValidationError(_('Slot duration must be greater than 0.'))
 
     @api.constrains('max_booking_days')

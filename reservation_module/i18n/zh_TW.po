@@ -568,7 +568,7 @@ msgstr "此預約類型可用的服務人員"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__slot_duration
-msgid "Slot Duration (hours)"
+msgid "Time Slot Duration (hours)"
 msgstr "時段長度（小時）"
 
 #. module: reservation_module
@@ -578,7 +578,7 @@ msgstr "每個預約時段的持續時間（小時）"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__slot_interval
-msgid "Slot Interval (hours)"
+msgid "Time Slot Interval (hours)"
 msgstr "時段間隔（小時）"
 
 #. module: reservation_module

@@ -105,13 +105,13 @@ class AppointmentType(models.Model):
 
     # Time Configuration
     slot_duration = fields.Float(
-        'Slot Duration (hours)',
+        'Time Slot Duration (hours)',
         default=1.0,
         required=True,
         help='Duration of each appointment slot in hours',
     )
     slot_interval = fields.Float(
-        'Slot Interval (hours)',
+        'Time Slot Interval (hours)',
         default=1.0,
         help='Time interval between available slots',
     )

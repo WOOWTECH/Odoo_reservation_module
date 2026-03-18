@@ -43,7 +43,6 @@
                             <field name="resource_ids" widget="many2many_tags" invisible="not assign_location"/>
                         </group>
                         <group>
-                            <field name="slot_duration" widget="float_time"/>
                             <field name="timezone"/>
                         </group>
                     </group>
@@ -137,6 +136,7 @@
                                         <field name="min_booking_hours" widget="float_time"/>
                                         <span>before start</span>
                                     </div>
+                                    <field name="slot_duration" widget="float_time"/>
                                     <field name="slot_interval" widget="float_time"/>
                                 </group>
                                 <group string="Cancellation">

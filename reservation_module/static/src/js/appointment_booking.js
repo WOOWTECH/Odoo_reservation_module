@@ -19,6 +19,8 @@ publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
         this.endDate = new Date(this.el.dataset.endDate);
         this.currentDate = new Date(this.startDate);
         this.selectedDate = null;
+        this.isScheduled = this.el.dataset.isScheduled !== '0';
+        this.eventDates = null; // Will be loaded for event mode
 
         // Listen for staff/location dropdown changes
         const staffSelect = document.getElementById('staff-select');
@@ -37,7 +39,37 @@ publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
             });
         }
 
-        this._renderReservation();
+        if (!this.isScheduled) {
+            this._loadEventDates().then(() => this._renderReservation());
+        } else {
+            this._renderReservation();
+        }
+    },
+
+    _loadEventDates: function () {
+        const year = this.currentDate.getFullYear();
+        const month = this.currentDate.getMonth() + 1;
+
+        return fetch(`/appointment/${this.appointmentTypeId}/event_dates`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                method: 'call',
+                params: { year: year, month: month },
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.result && data.result.dates) {
+                this.eventDates = new Set(data.result.dates);
+            } else {
+                this.eventDates = new Set();
+            }
+        })
+        .catch(() => {
+            this.eventDates = new Set();
+        });
     },
 
     _renderReservation: function () {
@@ -51,14 +83,22 @@ publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
         if (prevBtn) {
             prevBtn.addEventListener('click', () => {
                 this.currentDate.setMonth(this.currentDate.getMonth() - 1);
-                this._renderReservation();
+                if (!this.isScheduled) {
+                    this._loadEventDates().then(() => this._renderReservation());
+                } else {
+                    this._renderReservation();
+                }
             });
         }
 
         if (nextBtn) {
             nextBtn.addEventListener('click', () => {
                 this.currentDate.setMonth(this.currentDate.getMonth() + 1);
-                this._renderReservation();
+                if (!this.isScheduled) {
+                    this._loadEventDates().then(() => this._renderReservation());
+                } else {
+                    this._renderReservation();
+                }
             });
         }
 
@@ -115,12 +155,16 @@ publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
             const dateStr = this._formatDate(cellDate);
             const isPast = cellDate < today;
             const isBeyondRange = cellDate > this.endDate;
-            const isDisabled = isPast || isBeyondRange;
+            // For event mode, also disable dates without events
+            const noEvent = !this.isScheduled && this.eventDates && !this.eventDates.has(dateStr);
+            const isDisabled = isPast || isBeyondRange || noEvent;
             const isSelected = this.selectedDate === dateStr;
+            const hasEvent = !this.isScheduled && this.eventDates && this.eventDates.has(dateStr) && !isPast && !isBeyondRange;
 
             let cellClass = 'reservation-day';
             if (isDisabled) cellClass += ' disabled';
             if (isSelected) cellClass += ' selected';
+            if (hasEvent) cellClass += ' has-event';
 
             html += `
                 <div class="col p-1">
@@ -224,7 +268,7 @@ publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
 
         let html = '';
         slots.forEach((slot) => {
-            const bookUrl = `/appointment/${this.appointmentTypeId}/book?start_datetime=${encodeURIComponent(slot.start)}`;
+            const bookUrl = `/appointment/${this.appointmentTypeId}/book?start_datetime=${encodeURIComponent(slot.start)}&end_datetime=${encodeURIComponent(slot.end)}`;
             const resourceParam = this.resourceId ? `&resource_id=${this.resourceId}` : '';
             const staffParam = this.staffId ? `&staff_id=${this.staffId}` : '';
 

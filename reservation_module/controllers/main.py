@@ -3,6 +3,7 @@
 from odoo import http, fields, _
 from odoo.http import request
 from datetime import datetime, timedelta
+import calendar
 import json
 import re
 
@@ -109,6 +110,8 @@ class AppointmentController(http.Controller):
             'no_payment_methods': '沒有可用的付款方式。請聯繫我們完成您的預約。',
             'faq_title': '常見問題',
             'auto_assign': '自動分配',
+            'special_event': '特殊活動',
+            'scheduled_appointment': '排程預約',
         }
 
         # English translations (en_US) - default
@@ -172,6 +175,8 @@ class AppointmentController(http.Controller):
             'no_payment_methods': 'No payment methods available. Please contact us to complete your booking.',
             'faq_title': 'Frequently Asked Questions',
             'auto_assign': 'Auto-Assign',
+            'special_event': 'Special Event',
+            'scheduled_appointment': 'Scheduled Appointment',
         }
 
         # Return appropriate translation based on language
@@ -276,43 +281,39 @@ class AppointmentController(http.Controller):
         except ValueError:
             return {'error': 'Invalid date format'}
 
-        # Get or generate slots for this date
+        if appointment_type.is_scheduled:
+            return self._get_scheduled_slots(appointment_type, selected_date, resource_id, staff_id)
+        else:
+            return self._get_event_slots(appointment_type, selected_date, resource_id, staff_id)
+
+    def _get_availability_and_bookings(self, appointment_type, selected_date, resource_id, staff_id):
+        """Common setup for both scheduled and event slot generation"""
         start_datetime = datetime.combine(selected_date, datetime.min.time())
         end_datetime = datetime.combine(selected_date, datetime.max.time())
 
-        slots = []
-        slot_duration = timedelta(hours=appointment_type.slot_duration)
-        slot_interval = timedelta(hours=appointment_type.slot_interval or appointment_type.slot_duration)
-
         # Query weekly schedule availability for this day of week
-        day_of_week = str(selected_date.weekday())  # 0=Monday, matches dayofweek selection field
+        day_of_week = str(selected_date.weekday())
         availability_domain = [
-            ('appointment_type_id', '=', appointment_type_id),
+            ('appointment_type_id', '=', appointment_type.id),
             ('dayofweek', '=', day_of_week),
         ]
         if resource_id:
-            availability_domain = availability_domain + [
+            availability_domain += [
                 '|',
                 ('resource_id', '=', int(resource_id)),
                 ('resource_id', '=', False),
             ]
         if staff_id:
-            availability_domain = availability_domain + [
+            availability_domain += [
                 '|',
                 ('user_id', '=', int(staff_id)),
                 ('user_id', '=', False),
             ]
         availabilities = request.env['appointment.availability'].sudo().search(availability_domain)
 
-        # If no availability configured for this day, return empty slots
-        if not availabilities:
-            return {'slots': []}
-
-        # Minimum booking time check
         min_booking_time = datetime.now() + timedelta(hours=appointment_type.min_booking_hours)
 
-        # BATCH: Fetch all confirmed bookings for this staff/resource on this day (1-2 queries total)
-        # This avoids per-slot queries and checks across ALL appointment types
+        # Batch fetch bookings for conflict detection
         Booking = request.env['appointment.booking'].sudo()
         day_conflict_domain = [
             ('state', 'in', ['confirmed', 'done']),
@@ -327,8 +328,28 @@ class AppointmentController(http.Controller):
             resource = request.env['resource.resource'].sudo().browse(int(resource_id))
             capacity = resource.capacity or 1
 
-        # Generate slots for each availability window
-        for avail in availabilities:
+        return {
+            'start_datetime': start_datetime,
+            'availabilities': availabilities,
+            'min_booking_time': min_booking_time,
+            'staff_bookings': staff_bookings,
+            'resource_bookings': resource_bookings,
+            'capacity': capacity,
+        }
+
+    def _get_scheduled_slots(self, appointment_type, selected_date, resource_id, staff_id):
+        """Generate subdivided time slots from availability windows"""
+        ctx = self._get_availability_and_bookings(appointment_type, selected_date, resource_id, staff_id)
+
+        if not ctx['availabilities']:
+            return {'slots': []}
+
+        slots = []
+        slot_duration = timedelta(hours=appointment_type.slot_duration)
+        slot_interval = timedelta(hours=appointment_type.slot_interval or appointment_type.slot_duration)
+        start_datetime = ctx['start_datetime']
+
+        for avail in ctx['availabilities']:
             hour_from_int = int(avail.hour_from)
             min_from = int(round((avail.hour_from % 1) * 60))
             hour_to_int = int(avail.hour_to)
@@ -338,37 +359,103 @@ class AppointmentController(http.Controller):
             end_time = start_datetime.replace(hour=hour_to_int, minute=min_to, second=0, microsecond=0)
 
             while current_time + slot_duration <= end_time:
-                if current_time >= min_booking_time:
+                if current_time >= ctx['min_booking_time']:
                     slot_end = current_time + slot_duration
 
-                    # In-memory overlap check across ALL appointment types (no per-slot DB query)
                     staff_conflict = staff_id and any(
                         b.start_datetime < slot_end and b.end_datetime > current_time
-                        for b in staff_bookings
+                        for b in ctx['staff_bookings']
                     )
                     resource_overlap = sum(
-                        1 for b in resource_bookings
+                        1 for b in ctx['resource_bookings']
                         if b.start_datetime < slot_end and b.end_datetime > current_time
                     ) if resource_id else 0
 
-                    if not staff_conflict and resource_overlap < capacity:
+                    if not staff_conflict and resource_overlap < ctx['capacity']:
                         slots.append({
                             'start': current_time.strftime('%Y-%m-%d %H:%M:%S'),
                             'end': slot_end.strftime('%Y-%m-%d %H:%M:%S'),
                             'start_time': current_time.strftime('%H:%M'),
                             'end_time': slot_end.strftime('%H:%M'),
-                            'available': capacity - resource_overlap if resource_id else 1,
+                            'available': ctx['capacity'] - resource_overlap if resource_id else 1,
                         })
 
                 current_time += slot_interval
 
-        # Sort slots by start time (in case multiple availability windows overlap)
         slots.sort(key=lambda s: s['start'])
-
         return {'slots': slots}
 
+    def _get_event_slots(self, appointment_type, selected_date, resource_id, staff_id):
+        """Generate one slot per availability window (special event mode)"""
+        ctx = self._get_availability_and_bookings(appointment_type, selected_date, resource_id, staff_id)
+
+        if not ctx['availabilities']:
+            return {'slots': []}
+
+        slots = []
+        start_datetime = ctx['start_datetime']
+
+        for avail in ctx['availabilities']:
+            hour_from_int = int(avail.hour_from)
+            min_from = int(round((avail.hour_from % 1) * 60))
+            hour_to_int = int(avail.hour_to)
+            min_to = int(round((avail.hour_to % 1) * 60))
+
+            slot_start = start_datetime.replace(hour=hour_from_int, minute=min_from, second=0, microsecond=0)
+            slot_end = start_datetime.replace(hour=hour_to_int, minute=min_to, second=0, microsecond=0)
+
+            if slot_start < ctx['min_booking_time']:
+                continue
+
+            staff_conflict = staff_id and any(
+                b.start_datetime < slot_end and b.end_datetime > slot_start
+                for b in ctx['staff_bookings']
+            )
+            resource_overlap = sum(
+                1 for b in ctx['resource_bookings']
+                if b.start_datetime < slot_end and b.end_datetime > slot_start
+            ) if resource_id else 0
+
+            if not staff_conflict and resource_overlap < ctx['capacity']:
+                slots.append({
+                    'start': slot_start.strftime('%Y-%m-%d %H:%M:%S'),
+                    'end': slot_end.strftime('%Y-%m-%d %H:%M:%S'),
+                    'start_time': slot_start.strftime('%H:%M'),
+                    'end_time': slot_end.strftime('%H:%M'),
+                    'available': ctx['capacity'] - resource_overlap if resource_id else 1,
+                })
+
+        slots.sort(key=lambda s: s['start'])
+        return {'slots': slots}
+
+    @http.route('/appointment/<int:appointment_type_id>/event_dates', type='json', auth='public')
+    def get_event_dates(self, appointment_type_id, year, month, **kwargs):
+        """Get dates with events for a given month (special event mode)"""
+        appointment_type = request.env['appointment.type'].sudo().browse(appointment_type_id)
+        if not appointment_type.exists():
+            return {'dates': []}
+
+        year = int(year)
+        month = int(month)
+        _, num_days = calendar.monthrange(year, month)
+
+        # Get all availability dayofweek values for this appointment type
+        availabilities = request.env['appointment.availability'].sudo().search([
+            ('appointment_type_id', '=', appointment_type_id),
+        ])
+        available_days = set(int(a.dayofweek) for a in availabilities)
+
+        dates = []
+        today = datetime.now().date()
+        for day in range(1, num_days + 1):
+            d = datetime(year, month, day).date()
+            if d >= today and d.weekday() in available_days:
+                dates.append(d.strftime('%Y-%m-%d'))
+
+        return {'dates': dates}
+
     @http.route('/appointment/<int:appointment_type_id>/book', type='http', auth='public', website=True, methods=['GET', 'POST'])
-    def appointment_book(self, appointment_type_id, start_datetime=None, resource_id=None, staff_id=None, **kwargs):
+    def appointment_book(self, appointment_type_id, start_datetime=None, end_datetime=None, resource_id=None, staff_id=None, **kwargs):
         """Display booking form and handle submission"""
         appointment_type = request.env['appointment.type'].sudo().browse(appointment_type_id)
         if not appointment_type.exists() or not appointment_type.is_published:
@@ -378,6 +465,7 @@ class AppointmentController(http.Controller):
             # Include explicitly captured params in data dict
             data = dict(kwargs)
             data['start_datetime'] = start_datetime
+            data['end_datetime'] = end_datetime
             data['resource_id'] = resource_id
             data['staff_id'] = staff_id
             return self._process_booking(appointment_type, data)
@@ -391,7 +479,14 @@ class AppointmentController(http.Controller):
         except ValueError:
             return request.redirect(f'/appointment/{appointment_type_id}/schedule')
 
-        end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
+        # For event mode, use explicit end_datetime; for scheduled, compute from slot_duration
+        if not appointment_type.is_scheduled and end_datetime:
+            try:
+                end_dt = datetime.strptime(end_datetime, '%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
+        else:
+            end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
 
         resource = None
         if resource_id:
@@ -489,7 +584,14 @@ class AppointmentController(http.Controller):
         except ValueError:
             return request.redirect(f'/appointment/{appointment_type.id}/schedule')
 
-        end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
+        # For event mode, use explicit end_datetime; for scheduled, compute from slot_duration
+        if not appointment_type.is_scheduled and data.get('end_datetime'):
+            try:
+                end_dt = datetime.strptime(data['end_datetime'], '%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
+        else:
+            end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
 
         # Create booking
         booking_vals = {

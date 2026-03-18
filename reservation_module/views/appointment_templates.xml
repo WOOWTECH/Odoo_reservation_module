@@ -24,7 +24,12 @@
                                     <div class="card-body">
                                         <h5 class="card-title" t-esc="appointment_type.name"/>
                                         <p class="card-text text-muted small">
-                                            <i class="fa fa-clock-o"/> <t t-esc="appointment_type.slot_duration"/> <t t-esc="t['hours']"/>
+                                            <t t-if="appointment_type.is_scheduled">
+                                                <i class="fa fa-clock-o"/> <t t-esc="appointment_type.slot_duration"/> <t t-esc="t['hours']"/>
+                                            </t>
+                                            <t t-else="">
+                                                <span class="badge bg-info"><t t-esc="t.get('special_event', 'Special Event')"/></span>
+                                            </t>
                                         </p>
                                         <t t-if="appointment_type.description">
                                             <p class="card-text" t-raw="appointment_type.description"/>
@@ -75,9 +80,16 @@
                                     <h2 class="card-title" t-esc="appointment_type.name"/>
 
                                     <div class="mb-3">
-                                        <span class="badge bg-secondary me-2">
-                                            <i class="fa fa-clock-o"/> <t t-esc="appointment_type.slot_duration"/> <t t-esc="t['hours']"/>
-                                        </span>
+                                        <t t-if="appointment_type.is_scheduled">
+                                            <span class="badge bg-secondary me-2">
+                                                <i class="fa fa-clock-o"/> <t t-esc="appointment_type.slot_duration"/> <t t-esc="t['hours']"/>
+                                            </span>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="badge bg-info me-2">
+                                                <i class="fa fa-star"/> <t t-esc="t.get('special_event', 'Special Event')"/>
+                                            </span>
+                                        </t>
                                         <t t-if="appointment_type.require_payment">
                                             <span class="badge bg-info">
                                                 <i class="fa fa-credit-card"/>
@@ -183,7 +195,8 @@
                                                  t-att-data-resource-id="selected_resource_id or ''"
                                                  t-att-data-staff-id="selected_staff_id or ''"
                                                  t-att-data-start-date="start_date"
-                                                 t-att-data-end-date="end_date">
+                                                 t-att-data-end-date="end_date"
+                                                 t-att-data-is-scheduled="'1' if appointment_type.is_scheduled else '0'">
                                                 <!-- Reservation will be rendered by JavaScript -->
                                                 <div class="text-center py-5">
                                                     <i class="fa fa-spinner fa-spin fa-2x"/>

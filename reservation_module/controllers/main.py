@@ -112,6 +112,12 @@ class AppointmentController(http.Controller):
             'auto_assign': '自動分配',
             'special_event': '特殊活動',
             'scheduled_appointment': '排程預約',
+            'join_meeting': '加入會議',
+            'online_meeting': '線上會議',
+            'meeting_link_available': '會議連結將在預約確認後提供。',
+            'pending_payment': '待付款',
+            'pending_payment_msg': '您的預約正在等待付款確認。',
+            'go_to_payment': '前往付款',
         }
 
         # English translations (en_US) - default
@@ -177,6 +183,12 @@ class AppointmentController(http.Controller):
             'auto_assign': 'Auto-Assign',
             'special_event': 'Special Event',
             'scheduled_appointment': 'Scheduled Appointment',
+            'join_meeting': 'Join Meeting',
+            'online_meeting': 'Online Meeting',
+            'meeting_link_available': 'Meeting link will be available after booking confirmation.',
+            'pending_payment': 'Pending Payment',
+            'pending_payment_msg': 'Your booking is waiting for payment confirmation.',
+            'go_to_payment': 'Go to Payment',
         }
 
         # Return appropriate translation based on language
@@ -643,6 +655,11 @@ class AppointmentController(http.Controller):
 
         # Redirect to appropriate page
         if appointment_type.require_payment:
+            # Create Sales Order and redirect to Odoo's native SO portal payment page
+            sale_order = booking._create_sale_order()
+            if sale_order:
+                return request.redirect(f'/my/orders/{sale_order.id}')
+            # Fallback: if SO creation failed, use legacy payment page
             return request.redirect(f'/appointment/booking/{booking.id}/pay?token={booking.access_token}')
 
         return request.redirect(f'/appointment/booking/{booking.id}/confirm?token={booking.access_token}')

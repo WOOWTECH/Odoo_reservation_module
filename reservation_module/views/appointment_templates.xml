@@ -389,6 +389,17 @@
                                         <p><strong><t t-esc="t['guests_label']"/></strong> <t t-esc="booking.guest_count"/></p>
                                     </div>
 
+                                    <!-- Online Meeting: Join Meeting button -->
+                                    <t t-if="booking.meeting_url">
+                                        <div class="my-4">
+                                            <a t-att-href="booking.meeting_url" target="_blank"
+                                               class="btn btn-success btn-lg w-100">
+                                                <i class="fa fa-video-camera me-2"/>
+                                                <t t-esc="t.get('join_meeting', 'Join Meeting')"/>
+                                            </a>
+                                        </div>
+                                    </t>
+
                                     <t t-if="booking.appointment_type_id.confirmation_page">
                                         <hr class="my-4"/>
                                         <div class="text-start" t-raw="booking.appointment_type_id.confirmation_page"/>
@@ -457,6 +468,30 @@
                                             <p><strong><t t-esc="t['guests_count_label']"/></strong> <t t-esc="booking.guest_count"/></p>
                                         </div>
                                     </div>
+
+                                    <!-- Online Meeting: Join Meeting button -->
+                                    <t t-if="booking.meeting_url and booking.state == 'confirmed'">
+                                        <hr/>
+                                        <a t-att-href="booking.meeting_url" target="_blank"
+                                           class="btn btn-success btn-lg">
+                                            <i class="fa fa-video-camera me-2"/>
+                                            <t t-esc="t.get('join_meeting', 'Join Meeting')"/>
+                                        </a>
+                                    </t>
+
+                                    <!-- Pending payment: link to SO portal -->
+                                    <t t-if="booking.payment_status == 'pending' and booking.sale_order_id">
+                                        <hr/>
+                                        <div class="alert alert-warning">
+                                            <i class="fa fa-clock-o me-2"/>
+                                            <t t-esc="t.get('pending_payment_msg', 'Your booking is waiting for payment confirmation.')"/>
+                                        </div>
+                                        <a t-attf-href="/my/orders/#{booking.sale_order_id.id}"
+                                           class="btn btn-primary">
+                                            <i class="fa fa-credit-card me-2"/>
+                                            <t t-esc="t.get('go_to_payment', 'Go to Payment')"/>
+                                        </a>
+                                    </t>
 
                                     <t t-if="booking.notes">
                                         <hr/>

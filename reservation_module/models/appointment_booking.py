@@ -3,6 +3,7 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import timedelta, datetime
+import uuid
 
 
 class AppointmentBooking(models.Model):
@@ -67,6 +68,18 @@ class AppointmentBooking(models.Model):
         string='Reservation Event',
         ondelete='set null',
     )
+    meeting_url = fields.Char(
+        'Meeting URL',
+        compute='_compute_meeting_url',
+    )
+
+    # Sales Order Integration
+    sale_order_id = fields.Many2one(
+        'sale.order',
+        string='Sales Order',
+        ondelete='set null',
+        copy=False,
+    )
 
     # Payment
     payment_status = fields.Selection([
@@ -117,6 +130,20 @@ class AppointmentBooking(models.Model):
                 booking.duration = delta.total_seconds() / 3600
             else:
                 booking.duration = 0
+
+    @api.depends('appointment_type_id.video_link', 'appointment_type_id.location_type', 'calendar_event_id.videocall_location')
+    def _compute_meeting_url(self):
+        for booking in self:
+            if booking.appointment_type_id.location_type != 'online':
+                booking.meeting_url = False
+            elif booking.appointment_type_id.video_link:
+                # Manual override from appointment type
+                booking.meeting_url = booking.appointment_type_id.video_link
+            elif booking.calendar_event_id and booking.calendar_event_id.videocall_location:
+                # Auto-generated Odoo videocall URL
+                booking.meeting_url = booking.calendar_event_id.videocall_location
+            else:
+                booking.meeting_url = False
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -231,6 +258,15 @@ class AppointmentBooking(models.Model):
                 if booking.calendar_event_id:
                     booking.calendar_event_id.unlink()
 
+                # Cancel linked sale order (if no paid invoice)
+                if booking.sale_order_id and booking.sale_order_id.state in ('draft', 'sent', 'sale'):
+                    has_paid_invoice = any(
+                        inv.payment_state in ('paid', 'in_payment')
+                        for inv in booking.sale_order_id.invoice_ids
+                    )
+                    if not has_paid_invoice:
+                        booking.sale_order_id.sudo()._action_cancel()
+
                 booking.write({'state': 'cancelled'})
 
                 # Send cancellation email
@@ -246,7 +282,12 @@ class AppointmentBooking(models.Model):
         return True
 
     def _create_calendar_event(self):
-        """Create a calendar event for this booking"""
+        """Create a calendar event for this booking.
+
+        For online appointments, integrates with Odoo's native calendar videocall:
+        - If video_link is set on the appointment type, uses it as a custom videocall URL.
+        - If video_link is empty, auto-generates an Odoo Discuss videocall URL.
+        """
         self.ensure_one()
         if self.calendar_event_id:
             return self.calendar_event_id
@@ -264,6 +305,19 @@ class AppointmentBooking(models.Model):
         if self.resource_id:
             event_vals['res_model'] = 'resource.resource'
             event_vals['res_id'] = self.resource_id.id
+
+        # Online meeting: set videocall location using Odoo native mechanism
+        appointment_type = self.appointment_type_id
+        if appointment_type.location_type == 'online':
+            if appointment_type.video_link:
+                # Manual override — custom videocall URL
+                event_vals['videocall_location'] = appointment_type.video_link
+            else:
+                # Auto-generate Odoo Discuss videocall URL
+                access_token = uuid.uuid4().hex
+                event_vals['access_token'] = access_token
+                base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+                event_vals['videocall_location'] = f"{base_url}/calendar/join_videocall/{access_token}"
 
         event = self.env['calendar.event'].create(event_vals)
         self.calendar_event_id = event
@@ -394,3 +448,42 @@ class AppointmentBooking(models.Model):
         self.ensure_one()
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         return f'{base_url}/appointment/booking/{self.id}?token={self.access_token}'
+
+    def _create_sale_order(self):
+        """Create a sale order for paid bookings using the native Odoo sales flow.
+
+        Uses the payment_product_id from the appointment type as the SO line product.
+        Handles per-person pricing by adjusting quantity.
+        """
+        self.ensure_one()
+        if self.sale_order_id:
+            return self.sale_order_id
+
+        appointment_type = self.appointment_type_id
+        if not appointment_type.require_payment or not appointment_type.payment_product_id:
+            return False
+
+        partner = self.partner_id
+        if not partner:
+            return False
+
+        qty = self.guest_count if appointment_type.payment_per_person else 1
+
+        sale_order = self.env['sale.order'].sudo().create({
+            'partner_id': partner.id,
+            'origin': self.name,
+            'note': f"Booking: {self.name} | {appointment_type.name} | "
+                    f"{self.start_datetime} - {self.end_datetime}",
+            'order_line': [(0, 0, {
+                'product_id': appointment_type.payment_product_id.id,
+                'name': f"{appointment_type.name} - {self.name}",
+                'product_uom_qty': qty,
+                'price_unit': appointment_type.payment_amount,
+            })],
+        })
+
+        # Confirm the SO so it becomes payable on portal
+        sale_order.action_confirm()
+
+        self.sale_order_id = sale_order
+        return sale_order

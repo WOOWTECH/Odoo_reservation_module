@@ -40,6 +40,10 @@
             <strong>Staff:</strong> <t t-out="object.staff_user_id.name"/><br/>
         </t>
         <strong>Number of Guests:</strong> <t t-out="object.guest_count"/><br/>
+        <t t-if="object.meeting_url">
+            <br/>
+            <strong>Meeting Link:</strong> <a t-att-href="object.meeting_url"><t t-out="object.meeting_url"/></a><br/>
+        </t>
         <br/>
         <strong>Booking Reference:</strong> <t t-out="object.name"/><br/>
         <br/>

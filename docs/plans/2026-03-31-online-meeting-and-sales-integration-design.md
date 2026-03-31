@@ -2,7 +2,8 @@
 
 **Date:** 2026-03-31
 **Module:** reservation_module (v18.0.1.4.0 → v18.0.1.5.0)
-**Status:** Draft
+**Status:** Approved
+**Principles:** Use native Odoo mechanisms exclusively — no custom implementations where Odoo already provides the feature.
 
 ---
 

@@ -3,6 +3,7 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import timedelta, datetime
+import secrets
 import uuid
 
 
@@ -151,12 +152,8 @@ class AppointmentBooking(models.Model):
             if vals.get('name', 'New') == 'New':
                 vals['name'] = self.env['ir.sequence'].next_by_code('appointment.booking') or 'New'
             if not vals.get('access_token'):
-                vals['access_token'] = self.env['ir.sequence'].next_by_code('appointment.booking.token') or self._generate_token()
+                vals['access_token'] = secrets.token_urlsafe(32)
         return super().create(vals_list)
-
-    def _generate_token(self):
-        import secrets
-        return secrets.token_urlsafe(32)
 
     @api.model
     def _check_booking_conflict(self, start_dt, end_dt, staff_user_id=False, resource_id=False, exclude_booking_id=False):
@@ -301,11 +298,7 @@ class AppointmentBooking(models.Model):
             'user_id': self.staff_user_id.id if self.staff_user_id else self.env.user.id,
         }
 
-        # Add resource if available
-        if self.resource_id:
-            event_vals['res_model'] = 'resource.resource'
-            event_vals['res_id'] = self.resource_id.id
-
+        # Add resource info to description (resource.resource is tracked via booking linkage)
         # Online meeting: set videocall location using Odoo native mechanism
         appointment_type = self.appointment_type_id
         if appointment_type.location_type == 'online':
@@ -484,6 +477,9 @@ class AppointmentBooking(models.Model):
 
         # Confirm the SO so it becomes payable on portal
         sale_order.action_confirm()
+
+        # Ensure portal access_token is generated (needed for public/anonymous access)
+        sale_order._portal_ensure_token()
 
         self.sale_order_id = sale_order
         return sale_order

@@ -293,6 +293,8 @@
                                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                         <input type="hidden" name="start_datetime"
                                                t-att-value="start_datetime.strftime('%Y-%m-%d %H:%M:%S') if start_datetime else ''"/>
+                                        <input type="hidden" name="end_datetime"
+                                               t-att-value="end_datetime.strftime('%Y-%m-%d %H:%M:%S') if end_datetime else ''"/>
                                         <t t-if="resource">
                                             <input type="hidden" name="resource_id" t-att-value="resource.id"/>
                                         </t>

@@ -517,79 +517,62 @@ class AppointmentController(http.Controller):
             't': self._get_translations(),
         })
 
+    def _render_booking_form_error(self, appointment_type, data, error_msg):
+        """Re-render booking form with validation error, preserving all user input"""
+        start_dt = None
+        end_dt = None
+        if data.get('start_datetime'):
+            try:
+                start_dt = datetime.strptime(data['start_datetime'], '%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                pass
+        # Preserve explicit end_datetime from form (important for event mode)
+        if data.get('end_datetime'):
+            try:
+                end_dt = datetime.strptime(data['end_datetime'], '%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                pass
+        # Fallback: compute from slot_duration if end_datetime not available
+        if not end_dt and start_dt:
+            end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
+
+        resource = None
+        if data.get('resource_id'):
+            resource = request.env['resource.resource'].sudo().browse(int(data['resource_id']))
+
+        staff = None
+        if data.get('staff_id'):
+            staff = request.env['res.users'].sudo().browse(int(data['staff_id']))
+
+        return request.render('reservation_module.appointment_book_page', {
+            'appointment_type': appointment_type,
+            'start_datetime': start_dt,
+            'end_datetime': end_dt,
+            'resource': resource,
+            'staff': staff,
+            'error': error_msg,
+            'guest_name': data.get('guest_name', ''),
+            'guest_email': data.get('guest_email', ''),
+            'guest_phone': data.get('guest_phone', ''),
+            'guest_count': data.get('guest_count', 1),
+            'notes': data.get('notes', ''),
+            't': self._get_translations(),
+        })
+
     def _process_booking(self, appointment_type, data):
         """Process the booking form submission"""
         # Validate required fields
         required_fields = ['guest_name', 'guest_email', 'start_datetime']
         for field in required_fields:
             if not data.get(field):
-                # Need to reconstruct template context properly
-                start_dt = None
-                end_dt = None
-                if data.get('start_datetime'):
-                    try:
-                        start_dt = datetime.strptime(data['start_datetime'], '%Y-%m-%d %H:%M:%S')
-                        end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
-                    except ValueError:
-                        pass
-
-                resource = None
-                if data.get('resource_id'):
-                    resource = request.env['resource.resource'].sudo().browse(int(data['resource_id']))
-
-                staff = None
-                if data.get('staff_id'):
-                    staff = request.env['res.users'].sudo().browse(int(data['staff_id']))
-
-                return request.render('reservation_module.appointment_book_page', {
-                    'appointment_type': appointment_type,
-                    'start_datetime': start_dt,
-                    'end_datetime': end_dt,
-                    'resource': resource,
-                    'staff': staff,
-                    'error': _('Please fill in all required fields.'),
-                    'guest_name': data.get('guest_name', ''),
-                    'guest_email': data.get('guest_email', ''),
-                    'guest_phone': data.get('guest_phone', ''),
-                    'guest_count': data.get('guest_count', 1),
-                    'notes': data.get('notes', ''),
-                    't': self._get_translations(),
-                })
+                return self._render_booking_form_error(
+                    appointment_type, data, _('Please fill in all required fields.'))
 
         # Validate email format
         email = data.get('guest_email', '')
         if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
-            start_dt = None
-            end_dt = None
-            if data.get('start_datetime'):
-                try:
-                    start_dt = datetime.strptime(data['start_datetime'], '%Y-%m-%d %H:%M:%S')
-                    end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
-                except ValueError:
-                    pass
-
-            resource = None
-            if data.get('resource_id'):
-                resource = request.env['resource.resource'].sudo().browse(int(data['resource_id']))
-
-            staff = None
-            if data.get('staff_id'):
-                staff = request.env['res.users'].sudo().browse(int(data['staff_id']))
-
-            return request.render('reservation_module.appointment_book_page', {
-                'appointment_type': appointment_type,
-                'start_datetime': start_dt,
-                'end_datetime': end_dt,
-                'resource': resource,
-                'staff': staff,
-                'error': _('Please enter a valid email address.'),
-                'guest_name': data.get('guest_name', ''),
-                'guest_email': data.get('guest_email', ''),
-                'guest_phone': data.get('guest_phone', ''),
-                'guest_count': data.get('guest_count', 1),
-                'notes': data.get('notes', ''),
-                't': self._get_translations(),
-            })
+            return self._render_booking_form_error(
+                appointment_type, data, _('Please enter a valid email address.'))
 
         try:
             start_dt = datetime.strptime(data['start_datetime'], '%Y-%m-%d %H:%M:%S')
@@ -658,7 +641,10 @@ class AppointmentController(http.Controller):
             # Create Sales Order and redirect to Odoo's native SO portal payment page
             sale_order = booking._create_sale_order()
             if sale_order:
-                return request.redirect(f'/my/orders/{sale_order.id}')
+                # Use access_token so public/anonymous users can view the SO portal page
+                return request.redirect(
+                    f'/my/orders/{sale_order.id}?access_token={sale_order.access_token}'
+                )
             # Fallback: if SO creation failed, use legacy payment page
             return request.redirect(f'/appointment/booking/{booking.id}/pay?token={booking.access_token}')
 
@@ -714,16 +700,8 @@ class AppointmentController(http.Controller):
             't': self._get_translations(),
         })
 
-    @http.route('/appointment/booking/<int:booking_id>/pay', type='http', auth='public', website=True)
-    def appointment_payment(self, booking_id, token=None, **kwargs):
-        """Display payment page with Odoo payment form integration"""
-        booking = request.env['appointment.booking'].sudo().browse(booking_id)
-        if not booking.exists() or not token or booking.access_token != token:
-            return request.redirect('/appointment')
-
-        if booking.payment_status == 'paid':
-            return request.redirect(f'/appointment/booking/{booking_id}/confirm?token={token}')
-
+    def _render_payment_page(self, booking, error=None):
+        """Render payment page with full payment context (reusable for error retries)"""
         # Get partner (create if needed)
         partner = booking.partner_id
         if not partner:
@@ -758,12 +736,10 @@ class AppointmentController(http.Controller):
             providers_sudo.ids, partner.id
         )
 
-        # Generate access token for payment
-        access_token = booking.access_token or token
+        access_token = booking.access_token
 
-        return request.render('reservation_module.appointment_payment_page', {
+        vals = {
             'booking': booking,
-            # Payment form context
             'amount': amount,
             'currency': currency,
             'partner_id': partner.id,
@@ -775,7 +751,22 @@ class AppointmentController(http.Controller):
             'landing_route': f'/appointment/payment/validate?booking_id={booking.id}&token={access_token}',
             'access_token': access_token,
             't': self._get_translations(),
-        })
+        }
+        if error:
+            vals['error'] = error
+        return request.render('reservation_module.appointment_payment_page', vals)
+
+    @http.route('/appointment/booking/<int:booking_id>/pay', type='http', auth='public', website=True)
+    def appointment_payment(self, booking_id, token=None, **kwargs):
+        """Display payment page with Odoo payment form integration"""
+        booking = request.env['appointment.booking'].sudo().browse(booking_id)
+        if not booking.exists() or not token or booking.access_token != token:
+            return request.redirect('/appointment')
+
+        if booking.payment_status == 'paid':
+            return request.redirect(f'/appointment/booking/{booking_id}/confirm?token={token}')
+
+        return self._render_payment_page(booking)
 
     @http.route('/appointment/payment/transaction/<int:booking_id>', type='json', auth='public')
     def appointment_payment_transaction(self, booking_id, **kwargs):
@@ -824,9 +815,5 @@ class AppointmentController(http.Controller):
             # Payment pending (e.g., wire transfer)
             return request.redirect(f'/appointment/booking/{booking.id}/confirm?token={token}&pending=1')
         else:
-            # Payment failed or cancelled
-            return request.render('reservation_module.appointment_payment_page', {
-                'booking': booking,
-                'error': _('Payment was not completed. Please try again.'),
-                't': self._get_translations(),
-            })
+            # Payment failed or cancelled — re-render full payment page with error
+            return self._render_payment_page(booking, error=_('Payment was not completed. Please try again.'))

@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from odoo import api, fields, models, _
+
+_logger = logging.getLogger(__name__)
 
 
 class PaymentTransaction(models.Model):
@@ -37,7 +41,10 @@ class PaymentTransaction(models.Model):
                     try:
                         booking.action_confirm()
                     except Exception:
-                        pass
+                        _logger.exception(
+                            "Failed to auto-confirm booking %s after payment tx %s",
+                            booking.name, tx.reference,
+                        )
 
             # Flow 2: Sales order linked booking
             if hasattr(tx, 'sale_order_ids'):
@@ -55,4 +62,7 @@ class PaymentTransaction(models.Model):
                             try:
                                 booking.action_confirm()
                             except Exception:
-                                pass
+                                _logger.exception(
+                                    "Failed to auto-confirm booking %s after SO %s payment tx %s",
+                                    booking.name, so.name, tx.reference,
+                                )

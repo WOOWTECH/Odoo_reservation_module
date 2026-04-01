@@ -446,6 +446,7 @@ class AppointmentBooking(models.Model):
         """Create a sale order for paid bookings using the native Odoo sales flow.
 
         Uses the payment_product_id from the appointment type as the SO line product.
+        Falls back to a generic service product if payment_product_id is not configured.
         Handles per-person pricing by adjusting quantity.
         """
         self.ensure_one()
@@ -453,11 +454,18 @@ class AppointmentBooking(models.Model):
             return self.sale_order_id
 
         appointment_type = self.appointment_type_id
-        if not appointment_type.require_payment or not appointment_type.payment_product_id:
+        if not appointment_type.require_payment:
             return False
 
         partner = self.partner_id
         if not partner:
+            return False
+
+        # Use configured product or fallback to generic service product
+        product = appointment_type.payment_product_id
+        if not product:
+            product = self._get_or_create_fallback_payment_product()
+        if not product:
             return False
 
         qty = self.guest_count if appointment_type.payment_per_person else 1
@@ -468,18 +476,46 @@ class AppointmentBooking(models.Model):
             'note': f"Booking: {self.name} | {appointment_type.name} | "
                     f"{self.start_datetime} - {self.end_datetime}",
             'order_line': [(0, 0, {
-                'product_id': appointment_type.payment_product_id.id,
+                'product_id': product.id,
                 'name': f"{appointment_type.name} - {self.name}",
                 'product_uom_qty': qty,
                 'price_unit': appointment_type.payment_amount,
             })],
         })
 
-        # Confirm the SO so it becomes payable on portal
-        sale_order.action_confirm()
+        # Mark as "sent" so the portal shows the "Pay Now" button.
+        # Odoo's _has_to_be_paid() requires state in ('draft', 'sent').
+        # The SO will be auto-confirmed by Odoo's payment post-processing.
+        sale_order.action_quotation_sent()
 
         # Ensure portal access_token is generated (needed for public/anonymous access)
         sale_order._portal_ensure_token()
 
         self.sale_order_id = sale_order
         return sale_order
+
+    def _get_or_create_fallback_payment_product(self):
+        """Get or create a generic 'Appointment Booking' service product as fallback."""
+        xmlid = 'reservation_module.product_appointment_generic'
+        product = self.env.ref(xmlid, raise_if_not_found=False)
+        if product and product.exists():
+            return product
+
+        # Create the generic product
+        product = self.env['product.product'].sudo().create({
+            'name': 'Appointment Booking',
+            'type': 'service',
+            'list_price': 0.0,
+            'sale_ok': True,
+            'purchase_ok': False,
+            'invoice_policy': 'order',
+        })
+        # Register as ir.model.data so env.ref() finds it next time
+        self.env['ir.model.data'].sudo().create({
+            'name': 'product_appointment_generic',
+            'module': 'reservation_module',
+            'model': 'product.product',
+            'res_id': product.id,
+            'noupdate': True,
+        })
+        return product

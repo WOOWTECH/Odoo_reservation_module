@@ -17,19 +17,22 @@ class PaymentTransaction(models.Model):
         help='Related booking record',
     )
 
-    def _post_process_after_done(self):
-        """Handle post-processing after payment is completed.
+    def _post_process(self):
+        """Override of `payment` to update booking status after payment.
 
         Supports two payment flows:
         1. Direct booking transaction (legacy): appointment_booking_id is set directly.
         2. Sales order flow: SO is linked to booking via sale_order_id.
-           Odoo's sale module handles invoice creation; we update the booking status.
+           Odoo's sale module handles SO confirmation and invoice creation
+           via its own _post_process override; we update the booking status
+           and create invoices if the sale module didn't (safety net).
         """
-        super()._post_process_after_done()
+        # Let parent (sale module, base payment) do their work first.
+        super()._post_process()
 
         Booking = self.env['appointment.booking'].sudo()
 
-        for tx in self:
+        for tx in self.filtered(lambda t: t.state == 'done'):
             # Flow 1: Direct booking transaction (backward compat)
             if tx.appointment_booking_id:
                 booking = tx.appointment_booking_id
@@ -53,6 +56,25 @@ class PaymentTransaction(models.Model):
                         ('sale_order_id', '=', so.id),
                         ('payment_status', '=', 'pending'),
                     ])
+                    if not bookings:
+                        continue
+
+                    # Ensure invoice is created (safety net — sale module
+                    # may already have done this if sale.automatic_invoice
+                    # is enabled)
+                    try:
+                        if not so.invoice_ids:
+                            so.sudo()._create_invoices()
+                            for invoice in so.invoice_ids.filtered(
+                                lambda inv: inv.state == 'draft'
+                            ):
+                                invoice.sudo().action_post()
+                    except Exception:
+                        _logger.exception(
+                            "Failed to create/post invoice for SO %s",
+                            so.name,
+                        )
+
                     for booking in bookings:
                         booking.write({
                             'payment_status': 'paid',
@@ -63,6 +85,7 @@ class PaymentTransaction(models.Model):
                                 booking.action_confirm()
                             except Exception:
                                 _logger.exception(
-                                    "Failed to auto-confirm booking %s after SO %s payment tx %s",
+                                    "Failed to auto-confirm booking %s "
+                                    "after SO %s payment tx %s",
                                     booking.name, so.name, tx.reference,
                                 )

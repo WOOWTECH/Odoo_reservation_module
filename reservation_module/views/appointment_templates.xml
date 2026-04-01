@@ -369,55 +369,96 @@
                         <div class="col-lg-6 mx-auto text-center">
                             <div class="card shadow">
                                 <div class="card-body py-5">
-                                    <i class="fa fa-check-circle text-success fa-5x mb-4"/>
-                                    <h2 t-esc="t['booking_confirmed']"/>
-                                    <p class="text-muted" t-esc="t['booking_reference']"/>
-                                    <h3 class="text-primary" t-esc="booking.name"/>
+                                    <!-- Pending Payment State -->
+                                    <t t-if="booking.payment_status == 'pending' and booking.sale_order_id">
+                                        <i class="fa fa-clock-o text-warning fa-5x mb-4"/>
+                                        <h2 t-esc="t.get('pending_payment', 'Pending Payment')"/>
+                                        <p class="text-muted" t-esc="t.get('pending_payment_msg', 'Your booking is waiting for payment confirmation.')"/>
+                                        <h3 class="text-primary" t-esc="booking.name"/>
 
-                                    <hr class="my-4"/>
+                                        <hr class="my-4"/>
 
-                                    <div class="text-start">
-                                        <p><strong><t t-esc="t['appointment_label']"/></strong> <t t-esc="booking.appointment_type_id.name"/></p>
-                                        <p><strong><t t-esc="t['date_time']"/></strong>
-                                           <t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/> -
-                                           <t t-esc="booking.end_datetime" t-options='{"widget": "datetime"}'/>
-                                        </p>
-                                        <t t-if="booking.resource_id">
-                                            <p><strong><t t-esc="t['location_label']"/></strong> <t t-esc="booking.resource_id.name"/></p>
-                                        </t>
-                                        <t t-if="booking.staff_user_id">
-                                            <p><strong><t t-esc="t['staff_label']"/></strong> <t t-esc="booking.staff_user_id.name"/></p>
-                                        </t>
-                                        <p><strong><t t-esc="t['guests_label']"/></strong> <t t-esc="booking.guest_count"/></p>
-                                    </div>
+                                        <div class="text-start">
+                                            <p><strong><t t-esc="t['appointment_label']"/></strong> <t t-esc="booking.appointment_type_id.name"/></p>
+                                            <p><strong><t t-esc="t['date_time']"/></strong>
+                                               <t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/> -
+                                               <t t-esc="booking.end_datetime" t-options='{"widget": "datetime"}'/>
+                                            </p>
+                                            <p><strong><t t-esc="t.get('amount_due', 'Amount Due:')"/></strong>
+                                               <t t-esc="'%.2f' % booking.payment_amount"/>
+                                               <t t-esc="booking.currency_id.symbol"/>
+                                            </p>
+                                        </div>
 
-                                    <!-- Online Meeting: Join Meeting button -->
-                                    <t t-if="booking.meeting_url">
                                         <div class="my-4">
-                                            <a t-att-href="booking.meeting_url" target="_blank"
-                                               class="btn btn-success btn-lg w-100">
-                                                <i class="fa fa-video-camera me-2"/>
-                                                <t t-esc="t.get('join_meeting', 'Join Meeting')"/>
+                                            <a t-attf-href="/my/orders/#{booking.sale_order_id.id}?access_token=#{booking.sale_order_id.access_token}"
+                                               class="btn btn-primary btn-lg w-100">
+                                                <i class="fa fa-credit-card me-2"/>
+                                                <t t-esc="t.get('go_to_payment', 'Go to Payment')"/>
+                                            </a>
+                                        </div>
+
+                                        <div class="mt-3">
+                                            <a t-attf-href="/appointment/booking/#{booking.id}/cancel?token=#{booking.access_token}"
+                                               class="btn btn-outline-danger btn-sm">
+                                                <i class="fa fa-times me-1"/>
+                                                <t t-esc="t.get('cancel_booking', 'Cancel Booking')"/>
                                             </a>
                                         </div>
                                     </t>
 
-                                    <t t-if="booking.appointment_type_id.confirmation_page">
+                                    <!-- Confirmed State -->
+                                    <t t-if="booking.payment_status != 'pending' or not booking.sale_order_id">
+                                        <i class="fa fa-check-circle text-success fa-5x mb-4"/>
+                                        <h2 t-esc="t['booking_confirmed']"/>
+                                        <p class="text-muted" t-esc="t['booking_reference']"/>
+                                        <h3 class="text-primary" t-esc="booking.name"/>
+
                                         <hr class="my-4"/>
-                                        <div class="text-start" t-raw="booking.appointment_type_id.confirmation_page"/>
+
+                                        <div class="text-start">
+                                            <p><strong><t t-esc="t['appointment_label']"/></strong> <t t-esc="booking.appointment_type_id.name"/></p>
+                                            <p><strong><t t-esc="t['date_time']"/></strong>
+                                               <t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/> -
+                                               <t t-esc="booking.end_datetime" t-options='{"widget": "datetime"}'/>
+                                            </p>
+                                            <t t-if="booking.resource_id">
+                                                <p><strong><t t-esc="t['location_label']"/></strong> <t t-esc="booking.resource_id.name"/></p>
+                                            </t>
+                                            <t t-if="booking.staff_user_id">
+                                                <p><strong><t t-esc="t['staff_label']"/></strong> <t t-esc="booking.staff_user_id.name"/></p>
+                                            </t>
+                                            <p><strong><t t-esc="t['guests_label']"/></strong> <t t-esc="booking.guest_count"/></p>
+                                        </div>
+
+                                        <!-- Online Meeting: Join Meeting button -->
+                                        <t t-if="booking.meeting_url">
+                                            <div class="my-4">
+                                                <a t-att-href="booking.meeting_url" target="_blank"
+                                                   class="btn btn-success btn-lg w-100">
+                                                    <i class="fa fa-video-camera me-2"/>
+                                                    <t t-esc="t.get('join_meeting', 'Join Meeting')"/>
+                                                </a>
+                                            </div>
+                                        </t>
+
+                                        <t t-if="booking.appointment_type_id.confirmation_page">
+                                            <hr class="my-4"/>
+                                            <div class="text-start" t-raw="booking.appointment_type_id.confirmation_page"/>
+                                        </t>
+
+                                        <hr class="my-4"/>
+
+                                        <p class="text-muted small">
+                                            <t t-esc="t['confirmation_email_sent']"/> <strong t-esc="booking.guest_email"/>
+                                        </p>
+
+                                        <div class="mt-4">
+                                            <a href="/appointment" class="btn btn-outline-primary">
+                                                <t t-esc="t['book_another']"/>
+                                            </a>
+                                        </div>
                                     </t>
-
-                                    <hr class="my-4"/>
-
-                                    <p class="text-muted small">
-                                        <t t-esc="t['confirmation_email_sent']"/> <strong t-esc="booking.guest_email"/>
-                                    </p>
-
-                                    <div class="mt-4">
-                                        <a href="/appointment" class="btn btn-outline-primary">
-                                            <t t-esc="t['book_another']"/>
-                                        </a>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -488,7 +529,7 @@
                                             <i class="fa fa-clock-o me-2"/>
                                             <t t-esc="t.get('pending_payment_msg', 'Your booking is waiting for payment confirmation.')"/>
                                         </div>
-                                        <a t-attf-href="/my/orders/#{booking.sale_order_id.id}"
+                                        <a t-attf-href="/my/orders/#{booking.sale_order_id.id}?access_token=#{booking.sale_order_id.access_token}"
                                            class="btn btn-primary">
                                             <i class="fa fa-credit-card me-2"/>
                                             <t t-esc="t.get('go_to_payment', 'Go to Payment')"/>
@@ -670,5 +711,31 @@
                 </div>
             </div>
         </t>
+    </template>
+
+    <!-- Extend SO portal page: show booking link for booking-linked SOs -->
+    <template id="sale_order_portal_booking_link"
+              inherit_id="sale.sale_order_portal_content"
+              name="Booking Link on SO Portal">
+        <xpath expr="//div[@id='introduction']" position="after">
+            <t t-set="linked_booking"
+               t-value="request.env['appointment.booking'].sudo().search(
+                   [('sale_order_id', '=', sale_order.id)], limit=1)"/>
+            <t t-if="linked_booking">
+                <div class="alert alert-info d-flex align-items-center mb-3">
+                    <i class="fa fa-calendar fa-lg me-3"/>
+                    <div>
+                        <strong>Booking:</strong>
+                        <t t-esc="linked_booking.name"/> —
+                        <t t-esc="linked_booking.appointment_type_id.name"/>
+                        <span class="ms-2">|</span>
+                        <a t-attf-href="/appointment/booking/#{linked_booking.id}?token=#{linked_booking.access_token}"
+                           class="ms-2 fw-bold">
+                            View Booking Details
+                        </a>
+                    </div>
+                </div>
+            </t>
+        </xpath>
     </template>
 </odoo>

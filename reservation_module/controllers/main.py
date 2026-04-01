@@ -645,8 +645,11 @@ class AppointmentController(http.Controller):
                 return request.redirect(
                     f'/my/orders/{sale_order.id}?access_token={sale_order.access_token}'
                 )
-            # Fallback: if SO creation failed, use legacy payment page
-            return request.redirect(f'/appointment/booking/{booking.id}/pay?token={booking.access_token}')
+            # SO creation failed — show error on booking form
+            return self._render_booking_form_error(
+                appointment_type, data,
+                _('Payment configuration error. Please contact support.')
+            )
 
         return request.redirect(f'/appointment/booking/{booking.id}/confirm?token={booking.access_token}')
 
@@ -758,7 +761,7 @@ class AppointmentController(http.Controller):
 
     @http.route('/appointment/booking/<int:booking_id>/pay', type='http', auth='public', website=True)
     def appointment_payment(self, booking_id, token=None, **kwargs):
-        """Display payment page with Odoo payment form integration"""
+        """Legacy payment page — redirects to SO portal if SO exists."""
         booking = request.env['appointment.booking'].sudo().browse(booking_id)
         if not booking.exists() or not token or booking.access_token != token:
             return request.redirect('/appointment')
@@ -766,7 +769,26 @@ class AppointmentController(http.Controller):
         if booking.payment_status == 'paid':
             return request.redirect(f'/appointment/booking/{booking_id}/confirm?token={token}')
 
-        return self._render_payment_page(booking)
+        # Redirect to SO portal payment page (Odoo standard e-commerce flow)
+        if booking.sale_order_id:
+            so = booking.sale_order_id
+            return request.redirect(
+                f'/my/orders/{so.id}?access_token={so.access_token}'
+            )
+
+        # No SO yet — try to create one now
+        sale_order = booking._create_sale_order()
+        if sale_order:
+            return request.redirect(
+                f'/my/orders/{sale_order.id}?access_token={sale_order.access_token}'
+            )
+
+        # Truly broken configuration — show error
+        return request.render('reservation_module.appointment_payment_page', {
+            'booking': booking,
+            'error': _('Payment configuration error. Please contact support.'),
+            't': self._get_translations(),
+        })
 
     @http.route('/appointment/payment/transaction/<int:booking_id>', type='json', auth='public')
     def appointment_payment_transaction(self, booking_id, **kwargs):

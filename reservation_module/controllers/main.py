@@ -115,6 +115,7 @@ class AppointmentController(http.Controller):
             'scheduled_appointment': '排程預約',
             'join_meeting': '加入會議',
             'online_meeting': '線上會議',
+            'online_meeting_label': '這是一場線上會議，請在預約時間使用以下連結加入：',
             'meeting_link_available': '會議連結將在預約確認後提供。',
             'pending_payment': '待付款',
             'pending_payment_msg': '您的預約正在等待付款確認。',
@@ -201,6 +202,7 @@ class AppointmentController(http.Controller):
             'scheduled_appointment': 'Scheduled Appointment',
             'join_meeting': 'Join Meeting',
             'online_meeting': 'Online Meeting',
+            'online_meeting_label': 'This is an online meeting. Use the link below to join at the scheduled time:',
             'meeting_link_available': 'Meeting link will be available after booking confirmation.',
             'pending_payment': 'Pending Payment',
             'pending_payment_msg': 'Your booking is waiting for payment confirmation.',
@@ -539,12 +541,18 @@ class AppointmentController(http.Controller):
         if staff_id:
             staff = request.env['res.users'].sudo().browse(int(staff_id))
 
+        # Pre-fill form for logged-in portal users
+        portal_partner = None
+        if not request.env.user._is_public():
+            portal_partner = request.env.user.partner_id
+
         return request.render('reservation_module.appointment_book_page', {
             'appointment_type': appointment_type,
             'start_datetime': start_dt,
             'end_datetime': end_dt,
             'resource': resource,
             'staff': staff,
+            'portal_partner': portal_partner,
             't': self._get_translations(),
         })
 
@@ -643,16 +651,20 @@ class AppointmentController(http.Controller):
             if appointment_type.payment_per_person:
                 booking_vals['payment_amount'] *= int(data.get('guest_count', 1))
 
-        # Create partner if email provided
-        partner = request.env['res.partner'].sudo().search([
-            ('email', '=', data.get('guest_email'))
-        ], limit=1)
-        if not partner:
-            partner = request.env['res.partner'].sudo().create({
-                'name': data.get('guest_name'),
-                'email': data.get('guest_email'),
-                'phone': data.get('guest_phone'),
-            })
+        # Link partner: use logged-in user's partner for portal users,
+        # otherwise search/create by email for public visitors
+        if not request.env.user._is_public():
+            partner = request.env.user.partner_id
+        else:
+            partner = request.env['res.partner'].sudo().search([
+                ('email', '=', data.get('guest_email'))
+            ], limit=1)
+            if not partner:
+                partner = request.env['res.partner'].sudo().create({
+                    'name': data.get('guest_name'),
+                    'email': data.get('guest_email'),
+                    'phone': data.get('guest_phone'),
+                })
         booking_vals['partner_id'] = partner.id
 
         booking = request.env['appointment.booking'].sudo().create(booking_vals)

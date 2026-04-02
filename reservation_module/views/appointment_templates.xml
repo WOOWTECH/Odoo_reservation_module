@@ -302,23 +302,45 @@
                                             <input type="hidden" name="staff_id" t-att-value="staff.id"/>
                                         </t>
 
-                                        <div class="mb-3">
-                                            <label for="guest_name" class="form-label"><t t-esc="t['name']"/> *</label>
-                                            <input type="text" class="form-control" id="guest_name"
-                                                   name="guest_name" required="required"/>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="guest_email" class="form-label"><t t-esc="t['email']"/> *</label>
-                                            <input type="email" class="form-control" id="guest_email"
-                                                   name="guest_email" required="required"/>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="guest_phone" class="form-label" t-esc="t['phone']"/>
-                                            <input type="tel" class="form-control" id="guest_phone"
-                                                   name="guest_phone"/>
-                                        </div>
+                                        <t t-if="portal_partner">
+                                            <!-- Portal user: hidden inputs carry values, disabled inputs show them -->
+                                            <input type="hidden" name="guest_name" t-att-value="portal_partner.name"/>
+                                            <input type="hidden" name="guest_email" t-att-value="portal_partner.email"/>
+                                            <div class="mb-3">
+                                                <label class="form-label"><t t-esc="t['name']"/> *</label>
+                                                <input type="text" class="form-control bg-light" disabled="disabled"
+                                                       t-att-value="portal_partner.name"/>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label"><t t-esc="t['email']"/> *</label>
+                                                <input type="email" class="form-control bg-light" disabled="disabled"
+                                                       t-att-value="portal_partner.email"/>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label" t-esc="t['phone']"/>
+                                                <input type="tel" class="form-control bg-light" disabled="disabled"
+                                                       name="guest_phone" t-att-value="portal_partner.phone"/>
+                                                <input type="hidden" name="guest_phone" t-att-value="portal_partner.phone"/>
+                                            </div>
+                                        </t>
+                                        <t t-else="">
+                                            <!-- Public visitor: editable inputs -->
+                                            <div class="mb-3">
+                                                <label for="guest_name" class="form-label"><t t-esc="t['name']"/> *</label>
+                                                <input type="text" class="form-control" id="guest_name"
+                                                       name="guest_name" required="required"/>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="guest_email" class="form-label"><t t-esc="t['email']"/> *</label>
+                                                <input type="email" class="form-control" id="guest_email"
+                                                       name="guest_email" required="required"/>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="guest_phone" class="form-label" t-esc="t['phone']"/>
+                                                <input type="tel" class="form-control" id="guest_phone"
+                                                       name="guest_phone"/>
+                                            </div>
+                                        </t>
 
                                         <div class="mb-3">
                                             <label for="guest_count" class="form-label" t-esc="t['number_of_guests']"/>

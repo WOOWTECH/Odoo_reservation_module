@@ -228,14 +228,23 @@
                                 </div>
 
                                 <!-- Meeting URL -->
-                                <t t-if="booking.meeting_url and booking.state == 'confirmed'">
+                                <t t-if="booking.meeting_url and booking.state in ('draft', 'confirmed')">
                                     <hr/>
-                                    <div class="text-center my-3">
-                                        <a t-att-href="booking.meeting_url" target="_blank"
-                                           class="btn btn-success btn-lg">
-                                            <i class="fa fa-video-camera me-2"/>
-                                            <t t-out="t.get('join_meeting', 'Join Meeting')"/>
-                                        </a>
+                                    <div class="card border-success my-3">
+                                        <div class="card-body text-center">
+                                            <p class="mb-2 text-muted">
+                                                <i class="fa fa-video-camera me-1"/>
+                                                <t t-out="t.get('online_meeting_label', 'This is an online meeting. Use the link below to join at the scheduled time:')"/>
+                                            </p>
+                                            <a t-att-href="booking.meeting_url" target="_blank"
+                                               class="btn btn-success btn-lg mb-2">
+                                                <i class="fa fa-video-camera me-2"/>
+                                                <t t-out="t.get('join_meeting', 'Join Meeting')"/>
+                                            </a>
+                                            <p class="mb-0 small text-muted">
+                                                <t t-out="booking.meeting_url"/>
+                                            </p>
+                                        </div>
                                     </div>
                                 </t>
 

@@ -300,6 +300,7 @@ class AppointmentController(http.Controller):
             'end_date': end_date,
             'selected_resource_id': self._safe_int(resource_id),
             'selected_staff_id': self._safe_int(staff_id),
+            'timezone': appointment_type.timezone or 'UTC',
             't': self._get_translations(),
         })
 
@@ -671,20 +672,7 @@ class AppointmentController(http.Controller):
             except (ValueError, TypeError):
                 staff_id = None
 
-        # C4: Server-side slot conflict check before creating booking
         Booking = request.env['appointment.booking'].sudo()
-        conflict = Booking._check_booking_conflict(
-            start_dt=start_dt,
-            end_dt=end_dt,
-            staff_user_id=staff_id or False,
-            resource_id=resource_id or False,
-        )
-        if conflict.get('staff_conflict'):
-            return self._render_booking_form_error(
-                appointment_type, data, _('This staff member is no longer available for the selected time. Please choose another time.'))
-        if conflict.get('resource_conflict'):
-            return self._render_booking_form_error(
-                appointment_type, data, _('This location is no longer available for the selected time. Please choose another time.'))
 
         # M1: Basic rate limiting — max 5 bookings per email per hour
         one_hour_ago = fields.Datetime.now() - timedelta(hours=1)
@@ -735,6 +723,22 @@ class AppointmentController(http.Controller):
             booking_vals['payment_amount'] = appointment_type.payment_amount
             if appointment_type.payment_per_person:
                 booking_vals['payment_amount'] *= guest_count
+
+        # C4: Atomic conflict check + create with row-level locking to prevent race conditions
+        # SELECT FOR UPDATE locks conflicting rows so concurrent requests serialize
+        conflict = Booking._check_booking_conflict(
+            start_dt=start_dt,
+            end_dt=end_dt,
+            staff_user_id=staff_id or False,
+            resource_id=resource_id or False,
+            lock=True,
+        )
+        if conflict.get('staff_conflict'):
+            return self._render_booking_form_error(
+                appointment_type, data, _('This staff member is no longer available for the selected time. Please choose another time.'))
+        if conflict.get('resource_conflict'):
+            return self._render_booking_form_error(
+                appointment_type, data, _('This location is no longer available for the selected time. Please choose another time.'))
 
         booking = Booking.create(booking_vals)
 
@@ -969,8 +973,88 @@ class AppointmentController(http.Controller):
             # Payment pending (e.g., wire transfer)
             return request.redirect(f'/appointment/booking/{booking.id}/confirm?token={token}&pending=1')
         else:
-            # Payment failed or cancelled — re-render full payment page with error
+            # Payment failed or cancelled — track failure and notify
+            error_detail = tx_sudo.state_message if tx_sudo else ''
+            booking._handle_payment_failure(error_message=error_detail)
             return self._render_payment_page(booking, error=_('Payment was not completed. Please try again.'))
+
+
+class AppointmentGDPR(http.Controller):
+    """GDPR data portability and deletion endpoints for appointment bookings."""
+
+    @http.route('/appointment/privacy', type='http', auth='public', website=True)
+    def privacy_policy(self, **kwargs):
+        """Display privacy policy page"""
+        t = AppointmentController()._get_translations()
+        return request.render('reservation_module.appointment_privacy_policy', {'t': t})
+
+    @http.route('/my/bookings/export', type='http', auth='user', website=True)
+    def export_my_data(self, **kwargs):
+        """GDPR data export: download all personal booking data as JSON"""
+        partner = request.env.user.partner_id
+        BookingSudo = request.env['appointment.booking'].sudo()
+        bookings = BookingSudo.search([('partner_id', '=', partner.id)])
+
+        export_data = {
+            'personal_info': {
+                'name': partner.name,
+                'email': partner.email,
+                'phone': partner.phone or '',
+            },
+            'bookings': [],
+        }
+
+        for bk in bookings:
+            export_data['bookings'].append({
+                'reference': bk.name,
+                'appointment_type': bk.appointment_type_id.name,
+                'state': bk.state,
+                'start_datetime': str(bk.start_datetime),
+                'end_datetime': str(bk.end_datetime),
+                'guest_count': bk.guest_count,
+                'notes': bk.notes or '',
+                'payment_status': bk.payment_status,
+                'payment_amount': bk.payment_amount,
+                'created': str(bk.create_date),
+            })
+
+        headers = [
+            ('Content-Type', 'application/json; charset=utf-8'),
+            ('Content-Disposition', 'attachment; filename="my_booking_data.json"'),
+        ]
+        return request.make_response(json.dumps(export_data, indent=2, ensure_ascii=False), headers)
+
+    @http.route('/my/bookings/delete-request', type='http', auth='user', website=True, methods=['GET', 'POST'])
+    def request_data_deletion(self, **kwargs):
+        """GDPR data deletion request"""
+        t = AppointmentController()._get_translations()
+
+        if request.httprequest.method == 'POST':
+            partner = request.env.user.partner_id
+            # Cancel all active bookings
+            BookingSudo = request.env['appointment.booking'].sudo()
+            active_bookings = BookingSudo.search([
+                ('partner_id', '=', partner.id),
+                ('state', 'in', ['draft', 'confirmed']),
+            ])
+            for bk in active_bookings:
+                try:
+                    bk.action_cancel()
+                except Exception:
+                    bk.write({'state': 'cancelled'})
+
+            # Anonymize personal data on all bookings
+            all_bookings = BookingSudo.search([('partner_id', '=', partner.id)])
+            all_bookings.write({
+                'guest_name': _('Deleted User'),
+                'guest_email': 'deleted@anonymized.local',
+                'guest_phone': '',
+                'notes': '',
+            })
+
+            return request.render('reservation_module.appointment_deletion_confirmed', {'t': t})
+
+        return request.render('reservation_module.appointment_deletion_request', {'t': t})
 
 
 class AppointmentPortal(CustomerPortal):

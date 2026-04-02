@@ -138,6 +138,11 @@ class AppointmentType(models.Model):
         default=1.0,
         help='Cancellation deadline in hours before start',
     )
+    reminder_hours = fields.Float(
+        'Reminder Before (hours)',
+        default=24.0,
+        help='Send reminder email this many hours before the appointment',
+    )
 
     # Auto Confirmation
     auto_confirm = fields.Boolean(

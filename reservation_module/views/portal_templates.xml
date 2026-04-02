@@ -57,6 +57,16 @@
                 <t t-set="title" t-value="t.get('my_bookings', 'My Bookings')"/>
             </t>
 
+            <!-- GDPR data management links -->
+            <div class="text-end mb-3">
+                <a href="/my/bookings/export" class="btn btn-outline-secondary btn-sm me-2">
+                    <i class="fa fa-download me-1"/> Export My Data
+                </a>
+                <a href="/my/bookings/delete-request" class="btn btn-outline-danger btn-sm">
+                    <i class="fa fa-trash me-1"/> Delete My Data
+                </a>
+            </div>
+
             <!-- Empty state -->
             <div t-if="not bookings" class="alert alert-warning text-center" role="alert">
                 <i class="fa fa-calendar-o fa-2x mb-2 d-block"/>

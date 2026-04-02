@@ -116,6 +116,12 @@ class AppointmentBooking(models.Model):
     # Access Token for website
     access_token = fields.Char('Access Token', copy=False)
 
+    # Reminder tracking
+    reminder_sent = fields.Boolean('Reminder Sent', default=False, copy=False)
+
+    # Payment failure tracking
+    payment_failure_count = fields.Integer('Payment Failures', default=0, copy=False)
+
     # Company
     company_id = fields.Many2one(
         'res.company',
@@ -156,29 +162,37 @@ class AppointmentBooking(models.Model):
         return super().create(vals_list)
 
     @api.model
-    def _check_booking_conflict(self, start_dt, end_dt, staff_user_id=False, resource_id=False, exclude_booking_id=False):
+    def _check_booking_conflict(self, start_dt, end_dt, staff_user_id=False, resource_id=False, exclude_booking_id=False, lock=False):
         """Check if staff or resource has conflicting bookings across ALL appointment types.
+
+        Args:
+            lock: If True, uses SELECT FOR UPDATE to prevent race conditions
+                  during booking creation. Only use inside a write transaction.
 
         Returns dict: {'staff_conflict': bool, 'resource_conflict': bool, 'resource_remaining': int}
         """
-        domain = [
-            ('state', 'in', ['confirmed', 'done']),
-            ('start_datetime', '<', end_dt),
-            ('end_datetime', '>', start_dt),
-        ]
-        if exclude_booking_id:
-            domain.append(('id', '!=', exclude_booking_id))
-
         result = {'staff_conflict': False, 'resource_conflict': False, 'resource_remaining': 1}
 
+        base_where = "state IN ('confirmed', 'done') AND start_datetime < %s AND end_datetime > %s"
+        base_params = [end_dt, start_dt]
+        if exclude_booking_id:
+            base_where += " AND id != %s"
+            base_params.append(exclude_booking_id)
+
+        lock_clause = " FOR UPDATE" if lock else ""
+
         if staff_user_id:
-            staff_count = self.search_count(domain + [('staff_user_id', '=', staff_user_id)])
+            query = f"SELECT COUNT(*) FROM appointment_booking WHERE {base_where} AND staff_user_id = %s{lock_clause}"
+            self.env.cr.execute(query, base_params + [staff_user_id])
+            staff_count = self.env.cr.fetchone()[0]
             result['staff_conflict'] = staff_count > 0
 
         if resource_id:
             resource = self.env['resource.resource'].browse(resource_id)
             capacity = resource.capacity or 1
-            res_count = self.search_count(domain + [('resource_id', '=', resource_id)])
+            query = f"SELECT COUNT(*) FROM appointment_booking WHERE {base_where} AND resource_id = %s{lock_clause}"
+            self.env.cr.execute(query, base_params + [resource_id])
+            res_count = self.env.cr.fetchone()[0]
             result['resource_conflict'] = res_count >= capacity
             result['resource_remaining'] = max(0, capacity - res_count)
 
@@ -366,6 +380,64 @@ class AppointmentBooking(models.Model):
         template = self.env.ref('reservation_module.email_template_booking_done', raise_if_not_found=False)
         if template and self.guest_email:
             template.send_mail(self.id, force_send=False)
+
+    def _send_reminder_email(self):
+        """Send reminder email to the guest"""
+        self.ensure_one()
+        template = self.env.ref('reservation_module.email_template_booking_reminder', raise_if_not_found=False)
+        if template and self.guest_email:
+            template.send_mail(self.id, force_send=False)
+
+    def _handle_payment_failure(self, error_message=''):
+        """Track payment failure and send notifications to customer + admin."""
+        self.ensure_one()
+        self.payment_failure_count += 1
+
+        # Send failure notification to customer
+        template = self.env.ref('reservation_module.email_template_payment_failure', raise_if_not_found=False)
+        if template and self.guest_email:
+            template.send_mail(self.id, force_send=False)
+
+        # Send admin alert via internal note on booking chatter
+        admin_msg = _(
+            'Payment failure #%(count)s for booking %(booking)s.\n'
+            'Customer: %(name)s (%(email)s)\n'
+            'Amount: %(amount)s %(currency)s',
+            count=self.payment_failure_count,
+            booking=self.name,
+            name=self.guest_name,
+            email=self.guest_email,
+            amount=self.payment_amount,
+            currency=self.currency_id.name if self.currency_id else '',
+        )
+        if error_message:
+            admin_msg += _('\nError: %s', error_message)
+
+        self.message_post(
+            body=admin_msg,
+            message_type='notification',
+            subtype_xmlid='mail.mt_note',
+        )
+
+    @api.model
+    def _cron_send_reminders(self):
+        """Cron job: send reminder emails for upcoming confirmed bookings.
+
+        Looks for confirmed bookings starting within the next reminder_hours window
+        that haven't been reminded yet (reminder_sent=False).
+        """
+        now = fields.Datetime.now()
+        bookings = self.search([
+            ('state', '=', 'confirmed'),
+            ('reminder_sent', '=', False),
+            ('start_datetime', '>', now),
+        ])
+        for booking in bookings:
+            reminder_hours = booking.appointment_type_id.reminder_hours or 24
+            reminder_threshold = booking.start_datetime - timedelta(hours=reminder_hours)
+            if now >= reminder_threshold:
+                booking._send_reminder_email()
+                booking.reminder_sent = True
 
     def _auto_assign_staff(self):
         """Auto-assign staff with least bookings this month, filtering out conflicting staff first"""

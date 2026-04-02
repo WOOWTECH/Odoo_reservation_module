@@ -32,6 +32,22 @@ class PaymentTransaction(models.Model):
 
         Booking = self.env['appointment.booking'].sudo()
 
+        # Handle payment failures (webhook-triggered)
+        for tx in self.filtered(lambda t: t.state in ('error', 'cancel')):
+            booking = tx.appointment_booking_id
+            if not booking and hasattr(tx, 'sale_order_ids'):
+                for so in tx.sale_order_ids:
+                    booking = Booking.search([
+                        ('sale_order_id', '=', so.id),
+                        ('payment_status', '=', 'pending'),
+                    ], limit=1)
+                    if booking:
+                        break
+            if booking:
+                booking._handle_payment_failure(
+                    error_message=tx.state_message or tx.state
+                )
+
         for tx in self.filtered(lambda t: t.state == 'done'):
             # Flow 1: Direct booking transaction (backward compat)
             if tx.appointment_booking_id:

@@ -6,6 +6,7 @@ access_appointment_slot_public,appointment.slot.public,model_appointment_slot,ba
 access_appointment_slot_user,appointment.slot.user,model_appointment_slot,group_appointment_user,1,0,0,0
 access_appointment_slot_manager,appointment.slot.manager,model_appointment_slot,group_appointment_manager,1,1,1,1
 access_appointment_booking_public,appointment.booking.public,model_appointment_booking,base.group_public,1,0,1,0
+access_appointment_booking_portal,appointment.booking.portal,model_appointment_booking,base.group_portal,1,0,1,0
 access_appointment_booking_user,appointment.booking.user,model_appointment_booking,group_appointment_user,1,1,1,0
 access_appointment_booking_manager,appointment.booking.manager,model_appointment_booking,group_appointment_manager,1,1,1,1
 access_appointment_question_public,appointment.question.public,model_appointment_question,base.group_public,1,0,0,0

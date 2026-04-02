@@ -32,7 +32,7 @@
                                             </t>
                                         </p>
                                         <t t-if="appointment_type.description">
-                                            <p class="card-text" t-raw="appointment_type.description"/>
+                                            <p class="card-text" t-out="appointment_type.description"/>
                                         </t>
                                     </div>
                                     <div class="card-footer bg-transparent">
@@ -101,11 +101,11 @@
                                     </div>
 
                                     <t t-if="appointment_type.description">
-                                        <div class="mb-4" t-raw="appointment_type.description"/>
+                                        <div class="mb-4" t-out="appointment_type.description"/>
                                     </t>
 
                                     <t t-if="appointment_type.introduction_page">
-                                        <div class="mb-4" t-raw="appointment_type.introduction_page"/>
+                                        <div class="mb-4" t-out="appointment_type.introduction_page"/>
                                     </t>
 
                                     <a t-attf-href="/appointment/#{appointment_type.id}/schedule"
@@ -235,7 +235,7 @@
                                                  t-attf-aria-labelledby="faqHeading#{faq.id}"
                                                  data-bs-parent="#faqAccordion">
                                                 <div class="accordion-body">
-                                                    <t t-if="faq.answer" t-raw="faq.answer"/>
+                                                    <t t-if="faq.answer" t-out="faq.answer"/>
                                                 </div>
                                             </div>
                                         </div>
@@ -319,7 +319,7 @@
                                             <div class="mb-3">
                                                 <label class="form-label" t-esc="t['phone']"/>
                                                 <input type="tel" class="form-control bg-light" disabled="disabled"
-                                                       name="guest_phone" t-att-value="portal_partner.phone"/>
+                                                       t-att-value="portal_partner.phone"/>
                                                 <input type="hidden" name="guest_phone" t-att-value="portal_partner.phone"/>
                                             </div>
                                         </t>
@@ -345,7 +345,9 @@
                                         <div class="mb-3">
                                             <label for="guest_count" class="form-label" t-esc="t['number_of_guests']"/>
                                             <input type="number" class="form-control" id="guest_count"
-                                                   name="guest_count" min="1" value="1"/>
+                                                   name="guest_count" min="1"
+                                                   t-att-max="appointment_type.max_guests if hasattr(appointment_type, 'max_guests') and appointment_type.max_guests else 100"
+                                                   value="1"/>
                                         </div>
 
                                         <div class="mb-3">
@@ -476,7 +478,7 @@
 
                                         <t t-if="booking.appointment_type_id.confirmation_page">
                                             <hr class="my-4"/>
-                                            <div class="text-start" t-raw="booking.appointment_type_id.confirmation_page"/>
+                                            <div class="text-start" t-out="booking.appointment_type_id.confirmation_page"/>
                                         </t>
 
                                         <div class="mt-4">

@@ -265,7 +265,13 @@ class AppointmentBooking(models.Model):
                     if not has_paid_invoice:
                         booking.sale_order_id.sudo()._action_cancel()
 
-                booking.write({'state': 'cancelled'})
+                cancel_vals = {'state': 'cancelled'}
+                # M3: Update payment_status on cancellation
+                if booking.payment_status == 'pending':
+                    cancel_vals['payment_status'] = 'not_required'
+                elif booking.payment_status == 'paid':
+                    cancel_vals['payment_status'] = 'refunded'
+                booking.write(cancel_vals)
 
                 # Send cancellation email
                 booking._send_cancellation_email()
@@ -273,9 +279,9 @@ class AppointmentBooking(models.Model):
         return True
 
     def action_draft(self):
-        """Reset to draft"""
+        """Reset to draft (only from cancelled state)"""
         for booking in self:
-            if booking.state in ('cancelled', 'done'):
+            if booking.state == 'cancelled':
                 booking.write({'state': 'draft'})
         return True
 
@@ -338,28 +344,28 @@ class AppointmentBooking(models.Model):
         self.ensure_one()
         template = self.env.ref('reservation_module.email_template_booking_confirmed', raise_if_not_found=False)
         if template and self.guest_email:
-            template.send_mail(self.id, force_send=True)
+            template.send_mail(self.id, force_send=False)
 
     def _send_cancellation_email(self):
         """Send cancellation email to the guest"""
         self.ensure_one()
         template = self.env.ref('reservation_module.email_template_booking_cancelled', raise_if_not_found=False)
         if template and self.guest_email:
-            template.send_mail(self.id, force_send=True)
+            template.send_mail(self.id, force_send=False)
 
     def _send_booking_created_email(self):
         """Send booking created email (draft state) with payment info if applicable"""
         self.ensure_one()
         template = self.env.ref('reservation_module.email_template_booking_created', raise_if_not_found=False)
         if template and self.guest_email:
-            template.send_mail(self.id, force_send=True)
+            template.send_mail(self.id, force_send=False)
 
     def _send_booking_done_email(self):
         """Send booking completed email to the guest"""
         self.ensure_one()
         template = self.env.ref('reservation_module.email_template_booking_done', raise_if_not_found=False)
         if template and self.guest_email:
-            template.send_mail(self.id, force_send=True)
+            template.send_mail(self.id, force_send=False)
 
     def _auto_assign_staff(self):
         """Auto-assign staff with least bookings this month, filtering out conflicting staff first"""
@@ -487,6 +493,7 @@ class AppointmentBooking(models.Model):
 
         sale_order = self.env['sale.order'].sudo().create({
             'partner_id': partner.id,
+            'company_id': self.company_id.id or self.env.company.id,
             'origin': self.name,
             'note': f"Booking: {self.name} | {appointment_type.name} | "
                     f"{self.start_datetime} - {self.end_datetime}",
@@ -516,15 +523,20 @@ class AppointmentBooking(models.Model):
         if product and product.exists():
             return product
 
-        # Create the generic product
-        product = self.env['product.product'].sudo().create({
+        # Create the generic product with default sale tax
+        company = self.env.company
+        default_tax = company.account_sale_tax_id
+        product_vals = {
             'name': 'Appointment Booking',
             'type': 'service',
             'list_price': 0.0,
             'sale_ok': True,
             'purchase_ok': False,
             'invoice_policy': 'order',
-        })
+        }
+        if default_tax:
+            product_vals['taxes_id'] = [(6, 0, [default_tax.id])]
+        product = self.env['product.product'].sudo().create(product_vals)
         # Register as ir.model.data so env.ref() finds it next time
         self.env['ir.model.data'].sudo().create({
             'name': 'product_appointment_generic',

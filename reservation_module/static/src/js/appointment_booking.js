@@ -10,6 +10,12 @@ import { _t } from "@web/core/l10n/translation";
 publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
     selector: '#appointment-reservation',
 
+    _escapeHtml: function (str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    },
+
     start: function () {
         this._super.apply(this, arguments);
         this.appointmentTypeId = this.el.dataset.appointmentTypeId;
@@ -236,7 +242,7 @@ publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
             } else if (data.result && data.result.error) {
                 slotsContainer.innerHTML = `
                     <div class="col-12">
-                        <div class="alert alert-danger">${data.result.error}</div>
+                        <div class="alert alert-danger">${this._escapeHtml(data.result.error)}</div>
                     </div>
                 `;
             } else {
@@ -268,15 +274,15 @@ publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
 
         let html = '';
         slots.forEach((slot) => {
-            const bookUrl = `/appointment/${this.appointmentTypeId}/book?start_datetime=${encodeURIComponent(slot.start)}&end_datetime=${encodeURIComponent(slot.end)}`;
-            const resourceParam = this.resourceId ? `&resource_id=${this.resourceId}` : '';
-            const staffParam = this.staffId ? `&staff_id=${this.staffId}` : '';
+            const bookUrl = `/appointment/${encodeURIComponent(this.appointmentTypeId)}/book?start_datetime=${encodeURIComponent(slot.start)}&end_datetime=${encodeURIComponent(slot.end)}`;
+            const resourceParam = this.resourceId ? `&resource_id=${encodeURIComponent(this.resourceId)}` : '';
+            const staffParam = this.staffId ? `&staff_id=${encodeURIComponent(this.staffId)}` : '';
 
             html += `
                 <div class="col-auto mb-2">
-                    <a href="${bookUrl}${resourceParam}${staffParam}" class="time-slot text-decoration-none">
-                        <div class="slot-time">${slot.start_time} - ${slot.end_time}</div>
-                        <div class="slot-availability">${slot.available} ${_t("available")}</div>
+                    <a href="${this._escapeHtml(bookUrl + resourceParam + staffParam)}" class="time-slot text-decoration-none">
+                        <div class="slot-time">${this._escapeHtml(slot.start_time)} - ${this._escapeHtml(slot.end_time)}</div>
+                        <div class="slot-availability">${this._escapeHtml(String(slot.available))} ${_t("available")}</div>
                     </a>
                 </div>
             `;

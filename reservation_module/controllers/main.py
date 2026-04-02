@@ -229,26 +229,15 @@ class AppointmentController(http.Controller):
             return zh_tw
         return en_us
 
-    @http.route('/appointment/debug/lang', type='http', auth='public', website=True)
-    def debug_lang(self, **kwargs):
-        """Debug endpoint to check current language settings"""
-        import json
-
-        debug_info = {
-            'env_lang': getattr(request.env, 'lang', None),
-            'context_lang': request.env.context.get('lang') if hasattr(request, 'env') else None,
-            'frontend_lang_cookie': request.httprequest.cookies.get('frontend_lang'),
-            'user_lang': request.env.user.lang if hasattr(request.env, 'user') else None,
-            'translations_used': 'zh_TW' if self._get_translations().get('book_now') == '立即預約' else 'en_US',
-        }
-
+    @staticmethod
+    def _safe_int(value, default=None):
+        """Safely convert a value to int, returning default on failure."""
+        if not value:
+            return default
         try:
-            website = request.env['website'].get_current_website()
-            debug_info['website_default_lang'] = website.default_lang_id.code if website else None
-        except Exception as e:
-            debug_info['website_error'] = str(e)
-
-        return json.dumps(debug_info, indent=2, ensure_ascii=False)
+            return int(value)
+        except (ValueError, TypeError):
+            return default
 
     @http.route('/appointment', type='http', auth='public', website=True)
     def appointment_list(self, **kwargs):
@@ -298,7 +287,7 @@ class AppointmentController(http.Controller):
         staff = appointment_type.staff_user_ids if show_staff_panel else appointment_type.staff_user_ids.browse()
 
         # Calculate date range
-        start_date = datetime.now().date()
+        start_date = fields.Date.context_today(request.env['appointment.type'])
         end_date = start_date + timedelta(days=appointment_type.max_booking_days)
 
         return request.render('reservation_module.appointment_schedule_page', {
@@ -309,8 +298,8 @@ class AppointmentController(http.Controller):
             'show_location_panel': show_location_panel,
             'start_date': start_date,
             'end_date': end_date,
-            'selected_resource_id': int(resource_id) if resource_id else None,
-            'selected_staff_id': int(staff_id) if staff_id else None,
+            'selected_resource_id': self._safe_int(resource_id),
+            'selected_staff_id': self._safe_int(staff_id),
             't': self._get_translations(),
         })
 
@@ -356,7 +345,7 @@ class AppointmentController(http.Controller):
             ]
         availabilities = request.env['appointment.availability'].sudo().search(availability_domain)
 
-        min_booking_time = datetime.now() + timedelta(hours=appointment_type.min_booking_hours)
+        min_booking_time = fields.Datetime.now() + timedelta(hours=appointment_type.min_booking_hours)
 
         # Batch fetch bookings for conflict detection
         Booking = request.env['appointment.booking'].sudo()
@@ -491,7 +480,7 @@ class AppointmentController(http.Controller):
         available_days = set(int(a.dayofweek) for a in availabilities)
 
         dates = []
-        today = datetime.now().date()
+        today = fields.Date.context_today(request.env['appointment.type'])
         for day in range(1, num_days + 1):
             d = datetime(year, month, day).date()
             if d >= today and d.weekday() in available_days:
@@ -534,12 +523,14 @@ class AppointmentController(http.Controller):
             end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
 
         resource = None
-        if resource_id:
-            resource = request.env['resource.resource'].sudo().browse(int(resource_id))
+        rid = self._safe_int(resource_id)
+        if rid:
+            resource = request.env['resource.resource'].sudo().browse(rid)
 
         staff = None
-        if staff_id:
-            staff = request.env['res.users'].sudo().browse(int(staff_id))
+        sid = self._safe_int(staff_id)
+        if sid:
+            staff = request.env['res.users'].sudo().browse(sid)
 
         # Pre-fill form for logged-in portal users
         portal_partner = None
@@ -576,12 +567,14 @@ class AppointmentController(http.Controller):
             end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
 
         resource = None
-        if data.get('resource_id'):
-            resource = request.env['resource.resource'].sudo().browse(int(data['resource_id']))
+        rid = self._safe_int(data.get('resource_id'))
+        if rid:
+            resource = request.env['resource.resource'].sudo().browse(rid)
 
         staff = None
-        if data.get('staff_id'):
-            staff = request.env['res.users'].sudo().browse(int(data['staff_id']))
+        sid = self._safe_int(data.get('staff_id'))
+        if sid:
+            staff = request.env['res.users'].sudo().browse(sid)
 
         return request.render('reservation_module.appointment_book_page', {
             'appointment_type': appointment_type,
@@ -607,11 +600,36 @@ class AppointmentController(http.Controller):
                 return self._render_booking_form_error(
                     appointment_type, data, _('Please fill in all required fields.'))
 
+        # Validate & sanitize guest_name (strip HTML tags)
+        guest_name = re.sub(r'<[^>]+>', '', data.get('guest_name', '')).strip()
+        if not guest_name or len(guest_name) > 256:
+            return self._render_booking_form_error(
+                appointment_type, data, _('Please enter a valid name.'))
+
         # Validate email format
-        email = data.get('guest_email', '')
+        email = data.get('guest_email', '').strip()
         if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
             return self._render_booking_form_error(
                 appointment_type, data, _('Please enter a valid email address.'))
+
+        # Validate phone (if provided): only digits, spaces, +, -, ()
+        guest_phone = (data.get('guest_phone') or '').strip()
+        if guest_phone and not re.match(r'^[0-9+\-() ]{0,30}$', guest_phone):
+            return self._render_booking_form_error(
+                appointment_type, data, _('Please enter a valid phone number.'))
+
+        # Safe int() casts for guest_count (H2 + H3)
+        try:
+            guest_count = int(data.get('guest_count', 1))
+        except (ValueError, TypeError):
+            guest_count = 1
+        if guest_count < 1:
+            guest_count = 1
+        # Enforce upper bound from appointment type capacity
+        max_guests = appointment_type.max_guests if hasattr(appointment_type, 'max_guests') and appointment_type.max_guests else 100
+        if guest_count > max_guests:
+            return self._render_booking_form_error(
+                appointment_type, data, _('Maximum %d guests allowed.', max_guests))
 
         try:
             start_dt = datetime.strptime(data['start_datetime'], '%Y-%m-%d %H:%M:%S')
@@ -627,47 +645,98 @@ class AppointmentController(http.Controller):
         else:
             end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
 
-        # Create booking
+        # M8: Server-side max_booking_days validation
+        max_date = fields.Date.today() + timedelta(days=appointment_type.max_booking_days)
+        if start_dt.date() > max_date:
+            return self._render_booking_form_error(
+                appointment_type, data, _('Cannot book beyond %d days in advance.', appointment_type.max_booking_days))
+
+        # Prevent booking in the past
+        if start_dt < datetime.now():
+            return self._render_booking_form_error(
+                appointment_type, data, _('Cannot book a time slot in the past.'))
+
+        # Safe int() casts for resource_id and staff_id (H3)
+        resource_id = None
+        if data.get('resource_id'):
+            try:
+                resource_id = int(data['resource_id'])
+            except (ValueError, TypeError):
+                resource_id = None
+
+        staff_id = None
+        if data.get('staff_id'):
+            try:
+                staff_id = int(data['staff_id'])
+            except (ValueError, TypeError):
+                staff_id = None
+
+        # C4: Server-side slot conflict check before creating booking
+        Booking = request.env['appointment.booking'].sudo()
+        conflict = Booking._check_booking_conflict(
+            start_dt=start_dt,
+            end_dt=end_dt,
+            staff_user_id=staff_id or False,
+            resource_id=resource_id or False,
+        )
+        if conflict.get('staff_conflict'):
+            return self._render_booking_form_error(
+                appointment_type, data, _('This staff member is no longer available for the selected time. Please choose another time.'))
+        if conflict.get('resource_conflict'):
+            return self._render_booking_form_error(
+                appointment_type, data, _('This location is no longer available for the selected time. Please choose another time.'))
+
+        # M1: Basic rate limiting — max 5 bookings per email per hour
+        one_hour_ago = fields.Datetime.now() - timedelta(hours=1)
+        recent_count = Booking.search_count([
+            ('guest_email', '=', email),
+            ('create_date', '>=', one_hour_ago),
+        ])
+        if recent_count >= 5:
+            return self._render_booking_form_error(
+                appointment_type, data, _('Too many booking attempts. Please try again later.'))
+
+        # Build booking values
         booking_vals = {
             'appointment_type_id': appointment_type.id,
-            'guest_name': data.get('guest_name'),
-            'guest_email': data.get('guest_email'),
-            'guest_phone': data.get('guest_phone'),
-            'guest_count': int(data.get('guest_count', 1)),
+            'guest_name': guest_name,
+            'guest_phone': guest_phone,
+            'guest_count': guest_count,
             'start_datetime': start_dt,
             'end_datetime': end_dt,
-            'notes': data.get('notes'),
+            'notes': (data.get('notes') or '')[:2000],  # L3: limit notes length
         }
 
-        if data.get('resource_id'):
-            booking_vals['resource_id'] = int(data['resource_id'])
-        if data.get('staff_id'):
-            booking_vals['staff_user_id'] = int(data['staff_id'])
+        if resource_id:
+            booking_vals['resource_id'] = resource_id
+        if staff_id:
+            booking_vals['staff_user_id'] = staff_id
+
+        # M4: For logged-in users, always use partner email instead of form input
+        if not request.env.user._is_public():
+            partner = request.env.user.partner_id
+            booking_vals['guest_email'] = partner.email or email
+        else:
+            booking_vals['guest_email'] = email
+            partner = request.env['res.partner'].sudo().search([
+                ('email', '=', email)
+            ], limit=1)
+            if not partner:
+                partner = request.env['res.partner'].sudo().create({
+                    'name': guest_name,
+                    'email': email,
+                    'phone': guest_phone,
+                })
+        booking_vals['partner_id'] = partner.id
 
         # Set payment status
         if appointment_type.require_payment:
             booking_vals['payment_status'] = 'pending'
             booking_vals['payment_amount'] = appointment_type.payment_amount
             if appointment_type.payment_per_person:
-                booking_vals['payment_amount'] *= int(data.get('guest_count', 1))
+                booking_vals['payment_amount'] *= guest_count
 
-        # Link partner: use logged-in user's partner for portal users,
-        # otherwise search/create by email for public visitors
-        if not request.env.user._is_public():
-            partner = request.env.user.partner_id
-        else:
-            partner = request.env['res.partner'].sudo().search([
-                ('email', '=', data.get('guest_email'))
-            ], limit=1)
-            if not partner:
-                partner = request.env['res.partner'].sudo().create({
-                    'name': data.get('guest_name'),
-                    'email': data.get('guest_email'),
-                    'phone': data.get('guest_phone'),
-                })
-        booking_vals['partner_id'] = partner.id
-
-        booking = request.env['appointment.booking'].sudo().create(booking_vals)
+        booking = Booking.create(booking_vals)
 
         # Auto-assign staff/location if not customer-chosen
         if appointment_type.assign_staff and not booking.staff_user_id:
@@ -840,24 +909,33 @@ class AppointmentController(http.Controller):
         })
 
     @http.route('/appointment/payment/transaction/<int:booking_id>', type='json', auth='public')
-    def appointment_payment_transaction(self, booking_id, **kwargs):
+    def appointment_payment_transaction(self, booking_id, access_token=None, **kwargs):
         """Create payment transaction for appointment booking"""
         booking = request.env['appointment.booking'].sudo().browse(booking_id)
         if not booking.exists():
             return {'error': 'Booking not found'}
+
+        # Validate access token
+        if not access_token or booking.access_token != access_token:
+            return {'error': 'Invalid access token'}
 
         # Get partner
         partner = booking.partner_id
         if not partner:
             return {'error': 'Partner not found'}
 
-        # Create transaction using Odoo payment flow
+        # Create transaction using Odoo payment flow — only pass known safe kwargs
+        tx_kwargs = {}
+        for key in ('provider_id', 'payment_method_id', 'token_id', 'flow', 'tokenization_requested', 'landing_route'):
+            if key in kwargs:
+                tx_kwargs[key] = kwargs[key]
+
         tx_sudo = request.env['payment.transaction'].sudo()._create_transaction(
             amount=booking.payment_amount,
             currency_id=booking.currency_id.id,
             partner_id=partner.id,
             reference_prefix=f'APPT-{booking.id}',
-            **kwargs,
+            **tx_kwargs,
         )
 
         # Link transaction to booking
@@ -873,8 +951,13 @@ class AppointmentController(http.Controller):
         if not booking_id:
             return request.redirect('/appointment')
 
-        booking = request.env['appointment.booking'].sudo().browse(int(booking_id))
-        if not booking.exists():
+        try:
+            booking_id = int(booking_id)
+        except (ValueError, TypeError):
+            return request.redirect('/appointment')
+
+        booking = request.env['appointment.booking'].sudo().browse(booking_id)
+        if not booking.exists() or not token or booking.access_token != token:
             return request.redirect('/appointment')
 
         # Check transaction status
@@ -919,7 +1002,7 @@ class AppointmentPortal(CustomerPortal):
             'name': {'label': _('Reference'), 'order': 'name desc'},
             'state': {'label': _('Status'), 'order': 'state asc'},
         }
-        if not sortby:
+        if not sortby or sortby not in searchbar_sortings:
             sortby = 'date'
         order = searchbar_sortings[sortby]['order']
 

@@ -678,6 +678,12 @@ class AppointmentController(http.Controller):
         # Auto confirm if enabled and no payment required
         if appointment_type.auto_confirm and not appointment_type.require_payment:
             booking.action_confirm()
+            # action_confirm already sends confirmation email
+        else:
+            # Send "booking created" email for:
+            # 1. Payment-required bookings (draft + payment pending)
+            # 2. Non-auto-confirm bookings (draft, awaiting manual confirmation)
+            booking._send_booking_created_email()
 
         # Redirect to appropriate page
         if appointment_type.require_payment:

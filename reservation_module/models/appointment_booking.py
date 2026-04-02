@@ -235,6 +235,7 @@ class AppointmentBooking(models.Model):
         for booking in self:
             if booking.state == 'confirmed':
                 booking.write({'state': 'done'})
+                booking._send_booking_done_email()
         return True
 
     def action_cancel(self):
@@ -343,6 +344,20 @@ class AppointmentBooking(models.Model):
         """Send cancellation email to the guest"""
         self.ensure_one()
         template = self.env.ref('reservation_module.email_template_booking_cancelled', raise_if_not_found=False)
+        if template and self.guest_email:
+            template.send_mail(self.id, force_send=True)
+
+    def _send_booking_created_email(self):
+        """Send booking created email (draft state) with payment info if applicable"""
+        self.ensure_one()
+        template = self.env.ref('reservation_module.email_template_booking_created', raise_if_not_found=False)
+        if template and self.guest_email:
+            template.send_mail(self.id, force_send=True)
+
+    def _send_booking_done_email(self):
+        """Send booking completed email to the guest"""
+        self.ensure_one()
+        template = self.env.ref('reservation_module.email_template_booking_done', raise_if_not_found=False)
         if template and self.guest_email:
             template.send_mail(self.id, force_send=True)
 

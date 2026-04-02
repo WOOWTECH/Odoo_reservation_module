@@ -308,4 +308,229 @@
             </field>
         </record>
     </data>
+
+    <!-- New email templates (noupdate=0 to ensure they are created/updated on upgrade) -->
+    <data noupdate="0">
+        <!-- Email: Booking Created (draft state, with optional payment pending info) -->
+        <record id="email_template_booking_created" model="mail.template">
+            <field name="name">Appointment: Booking Created</field>
+            <field name="model_id" ref="model_appointment_booking"/>
+            <field name="email_from">{{ (object.company_id.email or user.email_formatted) }}</field>
+            <field name="email_to">{{ object.guest_email }}</field>
+            <field name="subject">Your booking has been received - {{ object.name }}</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;">
+    <!-- Header -->
+    <div style="background-color: #f0ad4e; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h2 style="color: #ffffff; margin: 0; font-size: 22px;">📋 Booking Received</h2>
+    </div>
+
+    <!-- Body -->
+    <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
+        <p style="font-size: 15px; margin-top: 0;">
+            Dear <t t-out="object.guest_name"/>,
+        </p>
+        <p style="font-size: 14px;">
+            Thank you for your booking. Your reservation has been received and is being processed.
+        </p>
+
+        <!-- Booking details card -->
+        <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+            <tr>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;">
+                    📋 Booking Reference
+                </td>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;">
+                    <t t-out="object.name"/>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;">
+                    📊 Status
+                </td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef;">
+                    <span style="display: inline-block; padding: 3px 10px; background-color: #ffeeba; color: #856404; border-radius: 4px; font-size: 12px; font-weight: bold;">Draft / Pending</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;">
+                    🏷️ Appointment Type
+                </td>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;">
+                    <t t-out="object.appointment_type_id.name"/>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;">
+                    🗓️ Date &amp; Time
+                </td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef;">
+                    <t t-out="object.start_datetime" t-options='{"widget": "datetime"}'/> — <t t-out="object.end_datetime" t-options='{"widget": "datetime"}'/>
+                </td>
+            </tr>
+            <t t-if="object.staff_user_id">
+                <tr>
+                    <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;">
+                        👤 Staff
+                    </td>
+                    <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;">
+                        <t t-out="object.staff_user_id.name"/>
+                    </td>
+                </tr>
+            </t>
+            <t t-if="object.resource_id">
+                <tr>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;">
+                        📍 Location / Resource
+                    </td>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef;">
+                        <t t-out="object.resource_id.name"/>
+                    </td>
+                </tr>
+            </t>
+            <tr>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;">
+                    👥 Guests
+                </td>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;">
+                    <t t-out="object.guest_count"/>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Payment pending notice -->
+        <t t-if="object.payment_status == 'pending'">
+            <div style="margin: 20px 0; padding: 16px; background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 8px;">
+                <p style="margin: 0 0 8px 0; font-size: 15px; font-weight: bold; color: #856404;">
+                    💳 Payment Required
+                </p>
+                <p style="margin: 0 0 12px 0; font-size: 14px; color: #856404;">
+                    Your booking requires payment before it can be confirmed. Please complete your payment to secure your reservation.
+                </p>
+                <t t-if="object.payment_amount">
+                    <p style="margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #856404;">
+                        Amount Due: <t t-out="object.payment_amount" t-options='{"widget": "monetary", "display_currency": object.currency_id}'/>
+                    </p>
+                </t>
+                <t t-if="object.sale_order_id">
+                    <div style="text-align: center;">
+                        <a t-attf-href="{{ object.sale_order_id.get_portal_url() }}"
+                           style="display: inline-block; background-color: #ffc107; color: #212529; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;">
+                            Go to Payment
+                        </a>
+                    </div>
+                </t>
+            </div>
+        </t>
+
+        <!-- No payment required notice -->
+        <t t-if="object.payment_status == 'not_required'">
+            <div style="margin: 20px 0; padding: 16px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px;">
+                <p style="margin: 0; font-size: 14px; color: #155724;">
+                    ✓ Your booking is being processed and will be confirmed shortly.
+                </p>
+            </div>
+        </t>
+
+        <!-- View booking link -->
+        <div style="text-align: center; margin: 20px 0;">
+            <a t-att-href="object.get_portal_url()"
+               style="display: inline-block; background-color: #875A7B; color: #ffffff; padding: 10px 28px; text-decoration: none; border-radius: 6px; font-size: 14px;">
+                View Booking Details
+            </a>
+        </div>
+
+        <p style="font-size: 14px; color: #555; margin-bottom: 0;">
+            Thank you for choosing us!
+        </p>
+        <p style="font-size: 14px; color: #555; margin-top: 8px;">
+            Best regards,<br/>
+            <strong><t t-out="object.company_id.name"/></strong>
+        </p>
+    </div>
+</div>
+            </field>
+        </record>
+
+        <!-- Email: Booking Completed (done state) -->
+        <record id="email_template_booking_done" model="mail.template">
+            <field name="name">Appointment: Booking Completed</field>
+            <field name="model_id" ref="model_appointment_booking"/>
+            <field name="email_from">{{ (object.company_id.email or user.email_formatted) }}</field>
+            <field name="email_to">{{ object.guest_email }}</field>
+            <field name="subject">Your appointment has been completed - {{ object.name }}</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;">
+    <!-- Header -->
+    <div style="background-color: #28a745; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h2 style="color: #ffffff; margin: 0; font-size: 22px;">✔ Appointment Completed</h2>
+    </div>
+
+    <!-- Body -->
+    <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
+        <p style="font-size: 15px; margin-top: 0;">
+            Dear <t t-out="object.guest_name"/>,
+        </p>
+        <p style="font-size: 14px;">
+            Your appointment has been completed. Thank you for your visit!
+        </p>
+
+        <!-- Booking details card -->
+        <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+            <tr>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;">
+                    📋 Booking Reference
+                </td>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;">
+                    <t t-out="object.name"/>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;">
+                    🏷️ Appointment Type
+                </td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef;">
+                    <t t-out="object.appointment_type_id.name"/>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;">
+                    🗓️ Date &amp; Time
+                </td>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;">
+                    <t t-out="object.start_datetime" t-options='{"widget": "datetime"}'/> — <t t-out="object.end_datetime" t-options='{"widget": "datetime"}'/>
+                </td>
+            </tr>
+            <t t-if="object.staff_user_id">
+                <tr>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;">
+                        👤 Staff
+                    </td>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef;">
+                        <t t-out="object.staff_user_id.name"/>
+                    </td>
+                </tr>
+            </t>
+        </table>
+
+        <!-- Book again -->
+        <div style="text-align: center; margin: 24px 0;">
+            <p style="font-size: 14px; color: #555;">
+                We hope you had a great experience. We'd love to see you again!
+            </p>
+            <a t-att-href="'/appointment/' + str(object.appointment_type_id.id)"
+               style="display: inline-block; background-color: #875A7B; color: #ffffff; padding: 10px 28px; text-decoration: none; border-radius: 6px; font-size: 14px;">
+                Book Again
+            </a>
+        </div>
+
+        <p style="font-size: 14px; color: #555; margin-top: 8px;">
+            Best regards,<br/>
+            <strong><t t-out="object.company_id.name"/></strong>
+        </p>
+    </div>
+</div>
+            </field>
+        </record>
+    </data>
 </odoo>

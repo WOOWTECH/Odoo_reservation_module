@@ -25,36 +25,109 @@
             <field name="email_to">{{ object.guest_email }}</field>
             <field name="subject">Your appointment has been confirmed - {{ object.name }}</field>
             <field name="body_html" type="html">
-<div style="margin: 0px; padding: 0px;">
-    <p style="margin: 0px; padding: 0px; font-size: 13px;">
-        Dear <t t-out="object.guest_name"/>,
-        <br/><br/>
-        Your appointment has been confirmed. Here are the details:
-        <br/><br/>
-        <strong>Appointment Type:</strong> <t t-out="object.appointment_type_id.name"/><br/>
-        <strong>Date &amp; Time:</strong> <t t-out="object.start_datetime" t-options='{"widget": "datetime"}'/> - <t t-out="object.end_datetime" t-options='{"widget": "datetime"}'/><br/>
-        <t t-if="object.resource_id">
-            <strong>Resource:</strong> <t t-out="object.resource_id.name"/><br/>
-        </t>
-        <t t-if="object.staff_user_id">
-            <strong>Staff:</strong> <t t-out="object.staff_user_id.name"/><br/>
-        </t>
-        <strong>Number of Guests:</strong> <t t-out="object.guest_count"/><br/>
+<div style="margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;">
+    <!-- Header -->
+    <div style="background-color: #875A7B; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h2 style="color: #ffffff; margin: 0; font-size: 22px;">✓ Booking Confirmed</h2>
+    </div>
+
+    <!-- Body -->
+    <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
+        <p style="font-size: 15px; margin-top: 0;">
+            Dear <t t-out="object.guest_name"/>,
+        </p>
+        <p style="font-size: 14px;">
+            Your appointment has been confirmed. Here are the details:
+        </p>
+
+        <!-- Booking details card -->
+        <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+            <tr>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;">
+                    📋 Booking Reference
+                </td>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;">
+                    <t t-out="object.name"/>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;">
+                    🏷️ Appointment Type
+                </td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef; font-weight: bold;">
+                    <t t-out="object.appointment_type_id.name"/>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;">
+                    🗓️ Date &amp; Time
+                </td>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;">
+                    <t t-out="object.start_datetime" t-options='{"widget": "datetime"}'/> — <t t-out="object.end_datetime" t-options='{"widget": "datetime"}'/>
+                </td>
+            </tr>
+            <t t-if="object.staff_user_id">
+                <tr>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;">
+                        👤 Staff
+                    </td>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef;">
+                        <t t-out="object.staff_user_id.name"/>
+                    </td>
+                </tr>
+            </t>
+            <t t-if="object.resource_id">
+                <tr>
+                    <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;">
+                        📍 Location / Resource
+                    </td>
+                    <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;">
+                        <t t-out="object.resource_id.name"/>
+                    </td>
+                </tr>
+            </t>
+            <tr>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;">
+                    👥 Guests
+                </td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef;">
+                    <t t-out="object.guest_count"/>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Meeting URL button -->
         <t t-if="object.meeting_url">
-            <br/>
-            <strong>Meeting Link:</strong> <a t-att-href="object.meeting_url"><t t-out="object.meeting_url"/></a><br/>
+            <div style="text-align: center; margin: 24px 0; padding: 20px; background-color: #f0faf0; border: 1px solid #c3e6c3; border-radius: 8px;">
+                <p style="margin: 0 0 12px 0; font-size: 14px; color: #555;">
+                    🎥 This is an online meeting. Use the link below to join at the scheduled time:
+                </p>
+                <a t-att-href="object.meeting_url"
+                   style="display: inline-block; background-color: #28a745; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;">
+                    Join Meeting
+                </a>
+                <p style="margin: 12px 0 0 0; font-size: 12px; color: #888;">
+                    <t t-out="object.meeting_url"/>
+                </p>
+            </div>
         </t>
-        <br/>
-        <strong>Booking Reference:</strong> <t t-out="object.name"/><br/>
-        <br/>
-        You can view or manage your booking here:<br/>
-        <a t-att-href="object.get_portal_url()">View Booking</a>
-        <br/><br/>
-        Thank you for your booking!
-        <br/><br/>
-        Best regards,<br/>
-        <t t-out="object.company_id.name"/>
-    </p>
+
+        <!-- View booking link -->
+        <div style="text-align: center; margin: 20px 0;">
+            <a t-att-href="object.get_portal_url()"
+               style="display: inline-block; background-color: #875A7B; color: #ffffff; padding: 10px 28px; text-decoration: none; border-radius: 6px; font-size: 14px;">
+                View Booking Details
+            </a>
+        </div>
+
+        <p style="font-size: 14px; color: #555; margin-bottom: 0;">
+            Thank you for your booking!
+        </p>
+        <p style="font-size: 14px; color: #555; margin-top: 8px;">
+            Best regards,<br/>
+            <strong><t t-out="object.company_id.name"/></strong>
+        </p>
+    </div>
 </div>
             </field>
         </record>
@@ -66,22 +139,65 @@
             <field name="email_to">{{ object.guest_email }}</field>
             <field name="subject">Your appointment has been cancelled - {{ object.name }}</field>
             <field name="body_html" type="html">
-<div style="margin: 0px; padding: 0px;">
-    <p style="margin: 0px; padding: 0px; font-size: 13px;">
-        Dear <t t-out="object.guest_name"/>,
-        <br/><br/>
-        Your appointment has been cancelled. Here were the details:
-        <br/><br/>
-        <strong>Appointment Type:</strong> <t t-out="object.appointment_type_id.name"/><br/>
-        <strong>Date &amp; Time:</strong> <t t-out="object.start_datetime" t-options='{"widget": "datetime"}'/> - <t t-out="object.end_datetime" t-options='{"widget": "datetime"}'/><br/>
-        <strong>Booking Reference:</strong> <t t-out="object.name"/><br/>
-        <br/>
-        If you wish to make a new appointment, please visit:<br/>
-        <a t-att-href="'/appointment/' + str(object.appointment_type_id.id)">Book Again</a>
-        <br/><br/>
-        Best regards,<br/>
-        <t t-out="object.company_id.name"/>
-    </p>
+<div style="margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;">
+    <!-- Header -->
+    <div style="background-color: #dc3545; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h2 style="color: #ffffff; margin: 0; font-size: 22px;">Booking Cancelled</h2>
+    </div>
+
+    <!-- Body -->
+    <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
+        <p style="font-size: 15px; margin-top: 0;">
+            Dear <t t-out="object.guest_name"/>,
+        </p>
+        <p style="font-size: 14px;">
+            Your appointment has been cancelled. Here were the details:
+        </p>
+
+        <!-- Booking details card -->
+        <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+            <tr>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;">
+                    📋 Booking Reference
+                </td>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;">
+                    <t t-out="object.name"/>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;">
+                    🏷️ Appointment Type
+                </td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef;">
+                    <t t-out="object.appointment_type_id.name"/>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;">
+                    🗓️ Date &amp; Time
+                </td>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;">
+                    <t t-out="object.start_datetime" t-options='{"widget": "datetime"}'/> — <t t-out="object.end_datetime" t-options='{"widget": "datetime"}'/>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Book again button -->
+        <div style="text-align: center; margin: 24px 0;">
+            <p style="font-size: 14px; color: #555;">
+                If you wish to make a new appointment:
+            </p>
+            <a t-att-href="'/appointment/' + str(object.appointment_type_id.id)"
+               style="display: inline-block; background-color: #875A7B; color: #ffffff; padding: 10px 28px; text-decoration: none; border-radius: 6px; font-size: 14px;">
+                Book Again
+            </a>
+        </div>
+
+        <p style="font-size: 14px; color: #555; margin-top: 8px;">
+            Best regards,<br/>
+            <strong><t t-out="object.company_id.name"/></strong>
+        </p>
+    </div>
 </div>
             </field>
         </record>
@@ -93,31 +209,101 @@
             <field name="email_to">{{ object.guest_email }}</field>
             <field name="subject">Reminder: Your appointment is coming up - {{ object.name }}</field>
             <field name="body_html" type="html">
-<div style="margin: 0px; padding: 0px;">
-    <p style="margin: 0px; padding: 0px; font-size: 13px;">
-        Dear <t t-out="object.guest_name"/>,
-        <br/><br/>
-        This is a friendly reminder about your upcoming appointment:
-        <br/><br/>
-        <strong>Appointment Type:</strong> <t t-out="object.appointment_type_id.name"/><br/>
-        <strong>Date &amp; Time:</strong> <t t-out="object.start_datetime" t-options='{"widget": "datetime"}'/> - <t t-out="object.end_datetime" t-options='{"widget": "datetime"}'/><br/>
-        <t t-if="object.resource_id">
-            <strong>Resource:</strong> <t t-out="object.resource_id.name"/><br/>
+<div style="margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;">
+    <!-- Header -->
+    <div style="background-color: #17a2b8; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h2 style="color: #ffffff; margin: 0; font-size: 22px;">⏰ Appointment Reminder</h2>
+    </div>
+
+    <!-- Body -->
+    <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
+        <p style="font-size: 15px; margin-top: 0;">
+            Dear <t t-out="object.guest_name"/>,
+        </p>
+        <p style="font-size: 14px;">
+            This is a friendly reminder about your upcoming appointment:
+        </p>
+
+        <!-- Booking details card -->
+        <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+            <tr>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;">
+                    📋 Booking Reference
+                </td>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;">
+                    <t t-out="object.name"/>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;">
+                    🏷️ Appointment Type
+                </td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef;">
+                    <t t-out="object.appointment_type_id.name"/>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;">
+                    🗓️ Date &amp; Time
+                </td>
+                <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;">
+                    <t t-out="object.start_datetime" t-options='{"widget": "datetime"}'/> — <t t-out="object.end_datetime" t-options='{"widget": "datetime"}'/>
+                </td>
+            </tr>
+            <t t-if="object.staff_user_id">
+                <tr>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;">
+                        👤 Staff
+                    </td>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef;">
+                        <t t-out="object.staff_user_id.name"/>
+                    </td>
+                </tr>
+            </t>
+            <t t-if="object.resource_id">
+                <tr>
+                    <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;">
+                        📍 Location / Resource
+                    </td>
+                    <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;">
+                        <t t-out="object.resource_id.name"/>
+                    </td>
+                </tr>
+            </t>
+        </table>
+
+        <!-- Meeting URL button -->
+        <t t-if="object.meeting_url">
+            <div style="text-align: center; margin: 24px 0; padding: 20px; background-color: #f0faf0; border: 1px solid #c3e6c3; border-radius: 8px;">
+                <p style="margin: 0 0 12px 0; font-size: 14px; color: #555;">
+                    🎥 Join your online meeting using the link below:
+                </p>
+                <a t-att-href="object.meeting_url"
+                   style="display: inline-block; background-color: #28a745; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;">
+                    Join Meeting
+                </a>
+                <p style="margin: 12px 0 0 0; font-size: 12px; color: #888;">
+                    <t t-out="object.meeting_url"/>
+                </p>
+            </div>
         </t>
-        <t t-if="object.staff_user_id">
-            <strong>Staff:</strong> <t t-out="object.staff_user_id.name"/><br/>
-        </t>
-        <br/>
-        <strong>Booking Reference:</strong> <t t-out="object.name"/><br/>
-        <br/>
-        You can view your booking here:<br/>
-        <a t-att-href="object.get_portal_url()">View Booking</a>
-        <br/><br/>
-        We look forward to seeing you!
-        <br/><br/>
-        Best regards,<br/>
-        <t t-out="object.company_id.name"/>
-    </p>
+
+        <!-- View booking link -->
+        <div style="text-align: center; margin: 20px 0;">
+            <a t-att-href="object.get_portal_url()"
+               style="display: inline-block; background-color: #17a2b8; color: #ffffff; padding: 10px 28px; text-decoration: none; border-radius: 6px; font-size: 14px;">
+                View Booking Details
+            </a>
+        </div>
+
+        <p style="font-size: 14px; color: #555; margin-bottom: 0;">
+            We look forward to seeing you!
+        </p>
+        <p style="font-size: 14px; color: #555; margin-top: 8px;">
+            Best regards,<br/>
+            <strong><t t-out="object.company_id.name"/></strong>
+        </p>
+    </div>
 </div>
             </field>
         </record>

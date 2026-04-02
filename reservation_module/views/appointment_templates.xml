@@ -431,27 +431,31 @@
                                             <p><strong><t t-esc="t['guests_label']"/></strong> <t t-esc="booking.guest_count"/></p>
                                         </div>
 
-                                        <!-- Online Meeting: Join Meeting button -->
-                                        <t t-if="booking.meeting_url">
-                                            <div class="my-4">
-                                                <a t-att-href="booking.meeting_url" target="_blank"
-                                                   class="btn btn-success btn-lg w-100">
-                                                    <i class="fa fa-video-camera me-2"/>
-                                                    <t t-esc="t.get('join_meeting', 'Join Meeting')"/>
-                                                </a>
-                                            </div>
-                                        </t>
+                                        <!-- Email notification notice -->
+                                        <div class="alert alert-info text-center my-4">
+                                            <i class="fa fa-envelope fa-lg me-2"/>
+                                            <strong><t t-esc="t.get('booking_info_sent_email', 'Booking confirmation details have been sent to your email')"/></strong>
+                                            <br/>
+                                            <small class="text-muted"><t t-esc="booking.guest_email"/></small>
+                                            <t t-if="booking.meeting_url">
+                                                <br/>
+                                                <small><i class="fa fa-video-camera me-1"/><t t-esc="t.get('meeting_link_in_email', '(The meeting link is included in the email)')"/></small>
+                                            </t>
+                                        </div>
+
+                                        <!-- View My Bookings button -->
+                                        <div class="my-4">
+                                            <a href="/my/bookings"
+                                               class="btn btn-primary btn-lg w-100">
+                                                <i class="fa fa-list me-2"/>
+                                                <t t-esc="t.get('view_my_bookings', 'View My Bookings')"/>
+                                            </a>
+                                        </div>
 
                                         <t t-if="booking.appointment_type_id.confirmation_page">
                                             <hr class="my-4"/>
                                             <div class="text-start" t-raw="booking.appointment_type_id.confirmation_page"/>
                                         </t>
-
-                                        <hr class="my-4"/>
-
-                                        <p class="text-muted small">
-                                            <t t-esc="t['confirmation_email_sent']"/> <strong t-esc="booking.guest_email"/>
-                                        </p>
 
                                         <div class="mt-4">
                                             <a href="/appointment" class="btn btn-outline-primary">

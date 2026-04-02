@@ -2,6 +2,7 @@
 
 from odoo import http, fields, _
 from odoo.http import request
+from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
 from datetime import datetime, timedelta
 import calendar
 import json
@@ -118,6 +119,21 @@ class AppointmentController(http.Controller):
             'pending_payment': '待付款',
             'pending_payment_msg': '您的預約正在等待付款確認。',
             'go_to_payment': '前往付款',
+            # Portal booking list
+            'my_bookings': '我的預約',
+            'view_my_bookings': '查看我的預約',
+            'booking_info_sent_email': '相關預約資訊已傳送到您的電子信箱',
+            'meeting_link_in_email': '（會議連結已包含在郵件中）',
+            'upcoming_bookings': '即將到來的預約',
+            'completed_bookings': '已完成的預約',
+            'all_bookings': '所有預約',
+            'no_bookings_yet': '您還沒有任何預約',
+            'booking_status': '狀態',
+            'view_details': '查看詳情',
+            'status_confirmed': '已確認',
+            'status_done': '已完成',
+            'status_cancelled': '已取消',
+            'status_draft': '草稿',
         }
 
         # English translations (en_US) - default
@@ -189,6 +205,21 @@ class AppointmentController(http.Controller):
             'pending_payment': 'Pending Payment',
             'pending_payment_msg': 'Your booking is waiting for payment confirmation.',
             'go_to_payment': 'Go to Payment',
+            # Portal booking list
+            'my_bookings': 'My Bookings',
+            'view_my_bookings': 'View My Bookings',
+            'booking_info_sent_email': 'Booking confirmation details have been sent to your email',
+            'meeting_link_in_email': '(The meeting link is included in the email)',
+            'upcoming_bookings': 'Upcoming Bookings',
+            'completed_bookings': 'Completed Bookings',
+            'all_bookings': 'All Bookings',
+            'no_bookings_yet': 'You have no bookings yet',
+            'booking_status': 'Status',
+            'view_details': 'View Details',
+            'status_confirmed': 'Confirmed',
+            'status_done': 'Completed',
+            'status_cancelled': 'Cancelled',
+            'status_draft': 'Draft',
         }
 
         # Return appropriate translation based on language
@@ -839,3 +870,104 @@ class AppointmentController(http.Controller):
         else:
             # Payment failed or cancelled — re-render full payment page with error
             return self._render_payment_page(booking, error=_('Payment was not completed. Please try again.'))
+
+
+class AppointmentPortal(CustomerPortal):
+    """Portal controller for /my/bookings pages"""
+
+    def _prepare_home_portal_values(self, counters):
+        """Add booking count to the portal home page"""
+        values = super()._prepare_home_portal_values(counters)
+        if 'booking_count' in counters:
+            partner = request.env.user.partner_id
+            values['booking_count'] = request.env['appointment.booking'].sudo().search_count([
+                ('partner_id', '=', partner.id),
+                ('state', 'in', ['draft', 'confirmed', 'done']),
+            ])
+        return values
+
+    @http.route(['/my/bookings', '/my/bookings/page/<int:page>'],
+                type='http', auth='user', website=True)
+    def portal_my_bookings(self, page=1, sortby=None, filterby=None, **kw):
+        """Portal page listing user's bookings"""
+        partner = request.env.user.partner_id
+        BookingSudo = request.env['appointment.booking'].sudo()
+
+        domain = [('partner_id', '=', partner.id)]
+
+        # Sorting
+        searchbar_sortings = {
+            'date': {'label': _('Date'), 'order': 'start_datetime desc'},
+            'name': {'label': _('Reference'), 'order': 'name desc'},
+            'state': {'label': _('Status'), 'order': 'state asc'},
+        }
+        if not sortby:
+            sortby = 'date'
+        order = searchbar_sortings[sortby]['order']
+
+        # Filtering
+        now = fields.Datetime.now()
+        searchbar_filters = {
+            'all': {'label': _('All'), 'domain': [('state', '!=', 'cancelled')]},
+            'upcoming': {'label': _('Upcoming'), 'domain': [
+                ('state', '=', 'confirmed'),
+                ('start_datetime', '>=', now),
+            ]},
+            'completed': {'label': _('Completed'), 'domain': [
+                ('state', '=', 'done'),
+            ]},
+            'cancelled': {'label': _('Cancelled'), 'domain': [
+                ('state', '=', 'cancelled'),
+            ]},
+        }
+        if not filterby or filterby not in searchbar_filters:
+            filterby = 'all'
+        domain += searchbar_filters[filterby]['domain']
+
+        # Count and pagination
+        booking_count = BookingSudo.search_count(domain)
+        pager_values = portal_pager(
+            url="/my/bookings",
+            total=booking_count,
+            page=page,
+            step=10,
+            url_args={'sortby': sortby, 'filterby': filterby},
+        )
+
+        bookings = BookingSudo.search(
+            domain, order=order, limit=10, offset=pager_values['offset']
+        )
+
+        # Get translations
+        t = AppointmentController()._get_translations()
+
+        values = {
+            'bookings': bookings,
+            'page_name': 'my_bookings',
+            'pager': pager_values,
+            'default_url': '/my/bookings',
+            'searchbar_sortings': searchbar_sortings,
+            'sortby': sortby,
+            'searchbar_filters': searchbar_filters,
+            'filterby': filterby,
+            't': t,
+        }
+        return request.render('reservation_module.portal_my_bookings', values)
+
+    @http.route('/my/bookings/<int:booking_id>', type='http', auth='user', website=True)
+    def portal_my_booking_detail(self, booking_id, **kw):
+        """Portal page showing single booking details"""
+        booking = request.env['appointment.booking'].sudo().browse(booking_id)
+        partner = request.env.user.partner_id
+
+        if not booking.exists() or booking.partner_id != partner:
+            return request.redirect('/my/bookings')
+
+        t = AppointmentController()._get_translations()
+
+        values = {
+            'booking': booking,
+            'page_name': 'my_booking_detail',
+            't': t,
+        }
+        return request.render('reservation_module.portal_my_booking_detail', values)

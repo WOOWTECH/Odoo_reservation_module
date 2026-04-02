@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Portal Home: "My Bookings" card                              -->
+    <!-- ============================================================ -->
+    <template id="portal_my_home_booking"
+              name="My Bookings"
+              customize_show="True"
+              inherit_id="portal.portal_my_home"
+              priority="40">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_service_category_enable" t-value="True"/>
+        </xpath>
+        <div id="portal_service_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/reservation_module/static/src/img/booking.svg'"/>
+                <t t-set="title">My Bookings</t>
+                <t t-set="url" t-value="'/my/bookings'"/>
+                <t t-set="text">View and manage your appointments</t>
+                <t t-set="placeholder_count" t-value="'booking_count'"/>
+            </t>
+        </div>
+    </template>
+
+    <!-- ============================================================ -->
+    <!-- Portal Breadcrumbs                                            -->
+    <!-- ============================================================ -->
+    <template id="portal_my_home_menu_booking"
+              name="Portal layout: booking menu entries"
+              inherit_id="portal.portal_breadcrumbs"
+              priority="40">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'my_bookings'"
+                class="breadcrumb-item active">
+                My Bookings
+            </li>
+            <li t-if="page_name == 'my_booking_detail'"
+                t-attf-class="breadcrumb-item">
+                <a href="/my/bookings">My Bookings</a>
+            </li>
+            <li t-if="page_name == 'my_booking_detail' and booking"
+                class="breadcrumb-item active">
+                <t t-out="booking.name"/>
+            </li>
+        </xpath>
+    </template>
+
+    <!-- ============================================================ -->
+    <!-- Portal: Booking List Page (/my/bookings)                     -->
+    <!-- ============================================================ -->
+    <template id="portal_my_bookings" name="My Bookings">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title" t-value="t.get('my_bookings', 'My Bookings')"/>
+            </t>
+
+            <!-- Empty state -->
+            <div t-if="not bookings" class="alert alert-warning text-center" role="alert">
+                <i class="fa fa-calendar-o fa-2x mb-2 d-block"/>
+                <t t-out="t.get('no_bookings_yet', 'You have no bookings yet')"/>
+                <div class="mt-3">
+                    <a href="/appointment" class="btn btn-primary">
+                        <i class="fa fa-plus me-1"/>
+                        <t t-out="t.get('book_now', 'Book Now')"/>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Booking table -->
+            <t t-if="bookings" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>
+                            <span class="d-none d-md-inline"><t t-out="t.get('booking_reference_label', 'Booking Reference')"/></span>
+                            <span class="d-block d-md-none">#</span>
+                        </th>
+                        <th><t t-out="t.get('appointment_label', 'Appointment')"/></th>
+                        <th class="text-end">
+                            <span class="d-none d-md-inline"><t t-out="t.get('date_time', 'Date &amp; Time')"/></span>
+                            <span class="d-block d-md-none"><t t-out="t.get('date_time', 'Date')"/></span>
+                        </th>
+                        <th class="text-center"><t t-out="t.get('booking_status', 'Status')"/></th>
+                    </tr>
+                </thead>
+                <t t-foreach="bookings" t-as="bk">
+                    <tr>
+                        <td>
+                            <a t-attf-href="/my/bookings/#{bk.id}">
+                                <t t-out="bk.name"/>
+                            </a>
+                        </td>
+                        <td>
+                            <span t-out="bk.appointment_type_id.name"/>
+                        </td>
+                        <td class="text-end">
+                            <span t-field="bk.start_datetime" t-options="{'widget': 'date'}"/>
+                            <span class="d-none d-md-inline" t-field="bk.start_datetime" t-options="{'time_only': True}"/>
+                        </td>
+                        <td class="text-center">
+                            <span t-if="bk.state == 'confirmed'"
+                                  class="badge rounded-pill text-bg-success">
+                                <i class="fa fa-fw fa-check"/>
+                                <t t-out="t.get('status_confirmed', 'Confirmed')"/>
+                            </span>
+                            <span t-if="bk.state == 'done'"
+                                  class="badge rounded-pill text-bg-info">
+                                <i class="fa fa-fw fa-check-circle"/>
+                                <t t-out="t.get('status_done', 'Completed')"/>
+                            </span>
+                            <span t-if="bk.state == 'cancelled'"
+                                  class="badge rounded-pill text-bg-danger">
+                                <i class="fa fa-fw fa-times"/>
+                                <t t-out="t.get('status_cancelled', 'Cancelled')"/>
+                            </span>
+                            <span t-if="bk.state == 'draft'"
+                                  class="badge rounded-pill text-bg-secondary">
+                                <i class="fa fa-fw fa-clock-o"/>
+                                <t t-out="t.get('status_draft', 'Draft')"/>
+                            </span>
+                        </td>
+                    </tr>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ============================================================ -->
+    <!-- Portal: Booking Detail Page (/my/bookings/<id>)              -->
+    <!-- ============================================================ -->
+    <template id="portal_my_booking_detail" name="My Booking Detail">
+        <t t-call="portal.portal_layout">
+            <t t-set="o_portal_fullwidth_alert" groups="base.group_user">
+                <t t-call="portal.portal_back_in_edit_mode">
+                    <t t-set="backend_url"
+                       t-value="'/odoo/appointments/bookings/%s' % booking.id"/>
+                </t>
+            </t>
+
+            <div class="container py-4">
+                <div class="row">
+                    <div class="col-lg-8 mx-auto">
+                        <!-- Booking Header -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0">
+                                    <i class="fa fa-calendar me-2"/>
+                                    <t t-out="booking.name"/>
+                                </h4>
+                                <span t-if="booking.state == 'confirmed'"
+                                      class="badge text-bg-success fs-6">
+                                    <i class="fa fa-check me-1"/>
+                                    <t t-out="t.get('status_confirmed', 'Confirmed')"/>
+                                </span>
+                                <span t-if="booking.state == 'done'"
+                                      class="badge text-bg-info fs-6">
+                                    <i class="fa fa-check-circle me-1"/>
+                                    <t t-out="t.get('status_done', 'Completed')"/>
+                                </span>
+                                <span t-if="booking.state == 'cancelled'"
+                                      class="badge text-bg-danger fs-6">
+                                    <i class="fa fa-times me-1"/>
+                                    <t t-out="t.get('status_cancelled', 'Cancelled')"/>
+                                </span>
+                                <span t-if="booking.state == 'draft'"
+                                      class="badge text-bg-secondary fs-6">
+                                    <i class="fa fa-clock-o me-1"/>
+                                    <t t-out="t.get('status_draft', 'Draft')"/>
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <!-- Appointment Info -->
+                                <div class="row mb-3">
+                                    <div class="col-sm-4 text-muted">
+                                        <i class="fa fa-tag me-1"/>
+                                        <t t-out="t.get('appointment_label', 'Appointment:')"/>
+                                    </div>
+                                    <div class="col-sm-8 fw-bold">
+                                        <t t-out="booking.appointment_type_id.name"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-sm-4 text-muted">
+                                        <i class="fa fa-clock-o me-1"/>
+                                        <t t-out="t.get('date_time', 'Date &amp; Time:')"/>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <span t-field="booking.start_datetime"/> -
+                                        <span t-field="booking.end_datetime" t-options="{'time_only': True}"/>
+                                    </div>
+                                </div>
+
+                                <t t-if="booking.staff_user_id">
+                                    <div class="row mb-3">
+                                        <div class="col-sm-4 text-muted">
+                                            <i class="fa fa-user me-1"/>
+                                            <t t-out="t.get('staff_label', 'Staff:')"/>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <t t-out="booking.staff_user_id.name"/>
+                                        </div>
+                                    </div>
+                                </t>
+
+                                <t t-if="booking.resource_id">
+                                    <div class="row mb-3">
+                                        <div class="col-sm-4 text-muted">
+                                            <i class="fa fa-map-marker me-1"/>
+                                            <t t-out="t.get('location_label', 'Location:')"/>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <t t-out="booking.resource_id.name"/>
+                                        </div>
+                                    </div>
+                                </t>
+
+                                <div class="row mb-3">
+                                    <div class="col-sm-4 text-muted">
+                                        <i class="fa fa-users me-1"/>
+                                        <t t-out="t.get('guests_label', 'Guests:')"/>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <t t-out="booking.guest_count"/>
+                                    </div>
+                                </div>
+
+                                <!-- Meeting URL -->
+                                <t t-if="booking.meeting_url and booking.state == 'confirmed'">
+                                    <hr/>
+                                    <div class="text-center my-3">
+                                        <a t-att-href="booking.meeting_url" target="_blank"
+                                           class="btn btn-success btn-lg">
+                                            <i class="fa fa-video-camera me-2"/>
+                                            <t t-out="t.get('join_meeting', 'Join Meeting')"/>
+                                        </a>
+                                    </div>
+                                </t>
+
+                                <!-- Payment info -->
+                                <t t-if="booking.payment_status == 'paid'">
+                                    <hr/>
+                                    <div class="row mb-3">
+                                        <div class="col-sm-4 text-muted">
+                                            <i class="fa fa-credit-card me-1"/>
+                                            <t t-out="t.get('payment', 'Payment')"/>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <span class="badge text-bg-success">
+                                                <i class="fa fa-check me-1"/>Paid
+                                            </span>
+                                        </div>
+                                    </div>
+                                </t>
+                                <t t-if="booking.payment_status == 'pending' and booking.sale_order_id">
+                                    <hr/>
+                                    <div class="text-center my-3">
+                                        <a t-attf-href="/my/orders/#{booking.sale_order_id.id}?access_token=#{booking.sale_order_id.access_token}"
+                                           class="btn btn-primary btn-lg">
+                                            <i class="fa fa-credit-card me-2"/>
+                                            <t t-out="t.get('go_to_payment', 'Go to Payment')"/>
+                                        </a>
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- Card Footer: Cancel -->
+                            <t t-if="booking.state == 'confirmed'">
+                                <div class="card-footer text-center">
+                                    <a t-attf-href="/appointment/booking/#{booking.id}/cancel?token=#{booking.access_token}"
+                                       class="btn btn-outline-danger btn-sm">
+                                        <i class="fa fa-times me-1"/>
+                                        <t t-out="t.get('cancel_booking', 'Cancel Booking')"/>
+                                    </a>
+                                </div>
+                            </t>
+                        </div>
+
+                        <!-- Back to list -->
+                        <div class="text-center">
+                            <a href="/my/bookings" class="btn btn-outline-primary">
+                                <i class="fa fa-arrow-left me-1"/>
+                                <t t-out="t.get('my_bookings', 'My Bookings')"/>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

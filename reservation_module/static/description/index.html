@@ -57,16 +57,43 @@
         th {
             background: #f5f5f5;
         }
+        .screenshot-section {
+            margin: 40px 0;
+        }
+        .screenshot-section h3 {
+            border-bottom: 2px solid #714B67;
+            padding-bottom: 8px;
+        }
+        .screenshot-item {
+            margin: 25px 0;
+        }
+        .screenshot-item h4 {
+            color: #555;
+            margin-bottom: 8px;
+        }
+        .screenshot-item p {
+            color: #666;
+            margin-bottom: 12px;
+        }
+        .screenshot-item img {
+            max-width: 100%;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <h1>Reservation Booking Enhancement</h1>
-    <p><span class="badge">Odoo 18 Community</span></p>
+    <p>
+        <span class="badge">Odoo 18 Community</span>
+        <span class="badge" style="background: #28a745;">v18.0.2.1.0</span>
+    </p>
 
     <p>
-        A complete appointment booking system for Odoo Community Edition, providing enterprise-level
-        appointment management capabilities.
+        A complete appointment booking system for Odoo Community Edition with online booking portal,
+        payment integration, Discuss channel meeting rooms, and multi-language support.
     </p>
 
     <h2>Features</h2>
@@ -90,17 +117,162 @@
         <div class="feature-card">
             <i class="fas fa-credit-card"></i>
             <h3>Payment Integration</h3>
-            <p>Collect payments upfront with Odoo's payment providers.</p>
+            <p>Collect payments upfront with per-guest pricing support.</p>
         </div>
         <div class="feature-card">
-            <i class="fas fa-check-circle"></i>
-            <h3>Auto Confirmation</h3>
-            <p>Automatically confirm bookings based on capacity rules.</p>
+            <i class="fas fa-comments"></i>
+            <h3>Discuss Meeting Rooms</h3>
+            <p>Auto-created chat channels with video call support for online bookings.</p>
         </div>
         <div class="feature-card">
             <i class="fas fa-bell"></i>
             <h3>Email Notifications</h3>
-            <p>Automatic confirmation and reminder emails.</p>
+            <p>Automatic confirmation and reminder emails with meeting links.</p>
+        </div>
+    </div>
+
+    <!-- Backend Management Screenshots -->
+    <div class="screenshot-section">
+        <h2>Backend Management</h2>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-th-large"></i> Appointment Types Kanban</h4>
+            <p>Manage all appointment types from a visual kanban view with type icons and publish status.</p>
+            <img src="screenshots/02_backend_appointment_types.png" alt="Appointment Types Kanban View">
+        </div>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-cog"></i> Appointment Type Configuration</h4>
+            <p>Configure staff assignment, location type (Online Meeting / Physical), timezone, and video link.</p>
+            <img src="screenshots/03_backend_appointment_type_form.png" alt="Appointment Type Form">
+        </div>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-sliders-h"></i> Booking Options</h4>
+            <p>Set payment rules, slot duration, advance booking limits, and cancellation policies.</p>
+            <img src="screenshots/04_backend_appointment_options_tab.png" alt="Appointment Options Tab">
+        </div>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-list"></i> All Bookings List</h4>
+            <p>View all bookings with reference, customer, type, date/time, status, and assigned staff.</p>
+            <img src="screenshots/01_backend_booking_list.png" alt="All Bookings List">
+        </div>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-file-alt"></i> Booking Form Detail</h4>
+            <p>Complete booking details with customer info, Discuss channel meeting URL, and status tracking.</p>
+            <img src="screenshots/05_backend_booking_form.png" alt="Booking Form Detail">
+        </div>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-envelope"></i> Confirmation Email</h4>
+            <p>Automatic confirmation emails with booking details and meeting links sent via chatter.</p>
+            <img src="screenshots/06_backend_booking_email.png" alt="Booking Confirmation Email">
+        </div>
+    </div>
+
+    <!-- Online Booking Flow Screenshots -->
+    <div class="screenshot-section">
+        <h2>Online Booking Flow</h2>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-list-ul"></i> Step 1: Appointment List</h4>
+            <p>Customers visit <code>/appointment</code> to browse all published appointment types.</p>
+            <img src="screenshots/07_frontend_appointment_list.png" alt="Appointment List Page">
+        </div>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-info-circle"></i> Step 2: Appointment Detail</h4>
+            <p>View appointment description, duration, and click "Book Now" to start.</p>
+            <img src="screenshots/08_frontend_appointment_detail.png" alt="Appointment Detail Page">
+        </div>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-calendar-day"></i> Step 3: Date & Staff Selection</h4>
+            <p>Choose a date from the calendar and optionally select a preferred staff member.</p>
+            <img src="screenshots/09_frontend_date_selection.png" alt="Date and Staff Selection">
+        </div>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-clock"></i> Step 4: Time Slot Selection</h4>
+            <p>Available time slots based on staff availability, shown in configured intervals.</p>
+            <img src="screenshots/10_frontend_time_slots.png" alt="Time Slot Selection">
+        </div>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-edit"></i> Step 5: Booking Form</h4>
+            <p>Fill in name, email, phone, guests, and notes. Payment alert shown for paid types.</p>
+            <img src="screenshots/11_frontend_booking_form.png" alt="Booking Form">
+        </div>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-check-circle"></i> Step 6: Booking Confirmed</h4>
+            <p>Confirmation page with booking reference, details, and email notification. Online meetings show "Join Meeting" button.</p>
+            <img src="screenshots/18_frontend_booking_confirmed.png" alt="Booking Confirmed">
+        </div>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-video"></i> Join Meeting Button</h4>
+            <p>Online meeting confirmations include a "Join Meeting" button linking to the Discuss channel.</p>
+            <img src="screenshots/19_frontend_confirmed_join_meeting.png" alt="Confirmed with Join Meeting">
+        </div>
+    </div>
+
+    <!-- Customer Portal Screenshots -->
+    <div class="screenshot-section">
+        <h2>Customer Portal</h2>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-home"></i> Portal Home</h4>
+            <p>Logged-in customers see "My Bookings" and "Discussions" links in their portal.</p>
+            <img src="screenshots/12_portal_home.png" alt="Portal Home">
+        </div>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-list-alt"></i> My Bookings</h4>
+            <p>View all bookings with reference, type, date/time, and status badges.</p>
+            <img src="screenshots/13_portal_bookings_list.png" alt="My Bookings List">
+        </div>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-file-invoice"></i> Booking Detail</h4>
+            <p>Full booking details with "Open Meeting Room" button and "Cancel Booking" option.</p>
+            <img src="screenshots/14_portal_booking_detail.png" alt="Portal Booking Detail">
+        </div>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-comments"></i> My Discussions</h4>
+            <p>Central hub for all meeting room Discuss channels accessible from the portal.</p>
+            <img src="screenshots/16_portal_discussions.png" alt="My Discussions Page">
+        </div>
+    </div>
+
+    <!-- Discuss Channel Integration Screenshots -->
+    <div class="screenshot-section">
+        <h2>Discuss Channel Integration</h2>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-hashtag"></i> Auto-Created Channels</h4>
+            <p>Booking channels appear in Discuss sidebar, named with appointment type and reference.</p>
+            <img src="screenshots/17_backend_discuss_channels.png" alt="Backend Discuss Channels">
+        </div>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-video"></i> Portal Meeting Room</h4>
+            <p>Real-time messaging, video/audio call buttons, and member presence in the channel.</p>
+            <img src="screenshots/15_discuss_channel.png" alt="Discuss Channel Meeting Room">
+        </div>
+    </div>
+
+    <!-- Payment Flow Screenshots -->
+    <div class="screenshot-section">
+        <h2>Payment Flow</h2>
+
+        <div class="screenshot-item">
+            <h4><i class="fas fa-credit-card"></i> Payment Pending</h4>
+            <p>Paid bookings show "draft" status with appointment details and "Go to Payment" button.</p>
+            <img src="screenshots/20_frontend_payment_pending.png" alt="Payment Pending Page">
         </div>
     </div>
 
@@ -122,7 +294,7 @@
             </tr>
             <tr>
                 <td><strong>Video Call</strong></td>
-                <td>Virtual meeting scheduling</td>
+                <td>Virtual meeting with Discuss channel</td>
                 <td>Remote consultations</td>
             </tr>
             <tr>
@@ -158,6 +330,8 @@
         <li>Custom questions and forms</li>
         <li>Timezone support</li>
         <li>Capacity-based auto-confirmation</li>
+        <li>Per-guest pricing for paid appointments</li>
+        <li>Discuss channel auto-creation for online meetings</li>
     </ul>
 
     <h2>Support</h2>

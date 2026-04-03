@@ -82,4 +82,5 @@ Thumbs.db
 filestore/
 sessions/
 
-screenshots/
+# Test screenshots (not module description screenshots)
+/test_suite_pw/screenshots/

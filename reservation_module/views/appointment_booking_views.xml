@@ -31,6 +31,7 @@
                             <field name="duration" widget="float_time"/>
                             <field name="resource_id" invisible="not resource_id"/>
                             <field name="staff_user_id" invisible="not staff_user_id"/>
+                            <field name="meeting_url" widget="url" invisible="not meeting_url"/>
                         </group>
                         <group string="Guest Information">
                             <field name="partner_id"/>
@@ -45,6 +46,7 @@
                             <field name="payment_status"/>
                             <field name="payment_amount"/>
                             <field name="currency_id" invisible="1"/>
+                            <field name="sale_order_id" invisible="not sale_order_id"/>
                         </group>
                     </group>
                     <notebook>

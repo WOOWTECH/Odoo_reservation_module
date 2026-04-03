@@ -138,6 +138,11 @@ class AppointmentType(models.Model):
         default=1.0,
         help='Cancellation deadline in hours before start',
     )
+    reminder_hours = fields.Float(
+        'Reminder Before (hours)',
+        default=24.0,
+        help='Send reminder email this many hours before the appointment',
+    )
 
     # Auto Confirmation
     auto_confirm = fields.Boolean(
@@ -279,6 +284,14 @@ class AppointmentType(models.Model):
         for record in self:
             if record.auto_confirm_capacity_percent < 0 or record.auto_confirm_capacity_percent > 1.0:
                 raise ValidationError(_('Auto confirm capacity must be between 0 and 1.0 (0% to 100%).'))
+
+    @api.constrains('require_payment', 'payment_amount')
+    def _check_payment_configuration(self):
+        for record in self:
+            if record.require_payment and not record.payment_amount:
+                raise ValidationError(
+                    _('Payment amount must be set when payment is required.')
+                )
 
     def action_view_bookings(self):
         """Open bookings for this appointment type"""

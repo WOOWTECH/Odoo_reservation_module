@@ -10,6 +10,12 @@ import { _t } from "@web/core/l10n/translation";
 publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
     selector: '#appointment-reservation',
 
+    _escapeHtml: function (str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    },
+
     start: function () {
         this._super.apply(this, arguments);
         this.appointmentTypeId = this.el.dataset.appointmentTypeId;
@@ -102,12 +108,19 @@ publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
             });
         }
 
-        // Add event listeners to dates
+        // Add event listeners to dates (click + keyboard)
         const dateCells = this.el.querySelectorAll('.reservation-day:not(.disabled)');
         dateCells.forEach((cell) => {
             cell.addEventListener('click', () => {
                 const date = cell.dataset.date;
                 this._selectDate(date);
+            });
+            cell.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const date = cell.dataset.date;
+                    this._selectDate(date);
+                }
             });
         });
     },
@@ -126,11 +139,11 @@ publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
 
         let html = `
             <div class="reservation-header d-flex justify-content-between align-items-center mb-3">
-                <button type="button" class="btn btn-outline-secondary reservation-prev">
+                <button type="button" class="btn btn-outline-secondary reservation-prev" aria-label="Previous month">
                     <i class="fa fa-chevron-left"></i>
                 </button>
-                <h5 class="mb-0">${monthNames[month]} ${year}</h5>
-                <button type="button" class="btn btn-outline-secondary reservation-next">
+                <h5 class="mb-0" aria-live="polite">${monthNames[month]} ${year}</h5>
+                <button type="button" class="btn btn-outline-secondary reservation-next" aria-label="Next month">
                     <i class="fa fa-chevron-right"></i>
                 </button>
             </div>
@@ -166,9 +179,12 @@ publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
             if (isSelected) cellClass += ' selected';
             if (hasEvent) cellClass += ' has-event';
 
+            const tabIdx = isDisabled ? '' : 'tabindex="0"';
+            const ariaLabel = `${day} ${monthNames[month]} ${year}${isDisabled ? ', unavailable' : ''}${isSelected ? ', selected' : ''}`;
+
             html += `
                 <div class="col p-1">
-                    <div class="${cellClass}" data-date="${dateStr}">
+                    <div class="${cellClass}" data-date="${dateStr}" role="button" aria-label="${ariaLabel}" ${tabIdx}>
                         ${day}
                     </div>
                 </div>
@@ -236,7 +252,7 @@ publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
             } else if (data.result && data.result.error) {
                 slotsContainer.innerHTML = `
                     <div class="col-12">
-                        <div class="alert alert-danger">${data.result.error}</div>
+                        <div class="alert alert-danger">${this._escapeHtml(data.result.error)}</div>
                     </div>
                 `;
             } else {
@@ -268,15 +284,16 @@ publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
 
         let html = '';
         slots.forEach((slot) => {
-            const bookUrl = `/appointment/${this.appointmentTypeId}/book?start_datetime=${encodeURIComponent(slot.start)}&end_datetime=${encodeURIComponent(slot.end)}`;
-            const resourceParam = this.resourceId ? `&resource_id=${this.resourceId}` : '';
-            const staffParam = this.staffId ? `&staff_id=${this.staffId}` : '';
+            const bookUrl = `/appointment/${encodeURIComponent(this.appointmentTypeId)}/book?start_datetime=${encodeURIComponent(slot.start)}&end_datetime=${encodeURIComponent(slot.end)}`;
+            const resourceParam = this.resourceId ? `&resource_id=${encodeURIComponent(this.resourceId)}` : '';
+            const staffParam = this.staffId ? `&staff_id=${encodeURIComponent(this.staffId)}` : '';
 
+            const slotLabel = `Book ${this._escapeHtml(slot.start_time)} to ${this._escapeHtml(slot.end_time)}, ${this._escapeHtml(String(slot.available))} available`;
             html += `
                 <div class="col-auto mb-2">
-                    <a href="${bookUrl}${resourceParam}${staffParam}" class="time-slot text-decoration-none">
-                        <div class="slot-time">${slot.start_time} - ${slot.end_time}</div>
-                        <div class="slot-availability">${slot.available} ${_t("available")}</div>
+                    <a href="${this._escapeHtml(bookUrl + resourceParam + staffParam)}" class="time-slot text-decoration-none" aria-label="${slotLabel}">
+                        <div class="slot-time">${this._escapeHtml(slot.start_time)} - ${this._escapeHtml(slot.end_time)}</div>
+                        <div class="slot-availability">${this._escapeHtml(String(slot.available))} ${_t("available")}</div>
                     </a>
                 </div>
             `;

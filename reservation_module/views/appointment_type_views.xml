@@ -49,7 +49,9 @@
                     <group string="Location">
                         <group>
                             <field name="location_type"/>
-                            <field name="video_link" invisible="location_type != 'online'" placeholder="https://meet.google.com/..."/>
+                            <field name="video_link" invisible="location_type != 'online'"
+                                   placeholder="Leave blank to auto-generate Odoo meeting link"
+                                   string="Custom Video Link (optional)"/>
                         </group>
                         <group>
                             <field name="location_id" invisible="location_type != 'physical'"

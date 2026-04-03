@@ -55,6 +55,26 @@
             <field name="groups" eval="[(4, ref('group_appointment_manager'))]"/>
         </record>
 
+        <!-- Appointment Booking: Public users can only create (no read of others) -->
+        <record id="appointment_booking_rule_public" model="ir.rule">
+            <field name="name">Appointment Booking: Public No Read</field>
+            <field name="model_id" ref="model_appointment_booking"/>
+            <field name="domain_force">[(0, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('base.group_public'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Appointment Booking: Portal users see only their own bookings -->
+        <record id="appointment_booking_rule_portal" model="ir.rule">
+            <field name="name">Appointment Booking: Portal Own</field>
+            <field name="model_id" ref="model_appointment_booking"/>
+            <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+
         <!-- Appointment Booking: Users see their own, managers see all -->
         <record id="appointment_booking_rule_user" model="ir.rule">
             <field name="name">Appointment Booking: User Own</field>

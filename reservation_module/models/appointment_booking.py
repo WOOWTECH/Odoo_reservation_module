@@ -3,6 +3,8 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import timedelta, datetime
+import secrets
+import uuid
 
 
 class AppointmentBooking(models.Model):
@@ -67,6 +69,18 @@ class AppointmentBooking(models.Model):
         string='Reservation Event',
         ondelete='set null',
     )
+    meeting_url = fields.Char(
+        'Meeting URL',
+        compute='_compute_meeting_url',
+    )
+
+    # Sales Order Integration
+    sale_order_id = fields.Many2one(
+        'sale.order',
+        string='Sales Order',
+        ondelete='set null',
+        copy=False,
+    )
 
     # Payment
     payment_status = fields.Selection([
@@ -102,6 +116,18 @@ class AppointmentBooking(models.Model):
     # Access Token for website
     access_token = fields.Char('Access Token', copy=False)
 
+    # Reminder tracking
+    reminder_sent = fields.Boolean('Reminder Sent', default=False, copy=False)
+
+    # Payment failure tracking
+    payment_failure_count = fields.Integer('Payment Failures', default=0, copy=False)
+
+    # Discuss channel integration
+    discuss_channel_id = fields.Many2one(
+        'discuss.channel', string='Discussion Channel',
+        copy=False, ondelete='set null',
+    )
+
     # Company
     company_id = fields.Many2one(
         'res.company',
@@ -118,43 +144,65 @@ class AppointmentBooking(models.Model):
             else:
                 booking.duration = 0
 
+    @api.depends('discuss_channel_id', 'appointment_type_id.video_link',
+                 'appointment_type_id.location_type', 'calendar_event_id.videocall_location')
+    def _compute_meeting_url(self):
+        for booking in self:
+            if booking.appointment_type_id.location_type != 'online':
+                booking.meeting_url = False
+            elif booking.discuss_channel_id:
+                # Discuss channel = unified meeting room (chat + video)
+                booking.meeting_url = f"/discuss/channel/{booking.discuss_channel_id.id}?discussions=1"
+            elif booking.appointment_type_id.video_link:
+                # Manual override from appointment type
+                booking.meeting_url = booking.appointment_type_id.video_link
+            elif booking.calendar_event_id and booking.calendar_event_id.videocall_location:
+                # Auto-generated Odoo videocall URL (legacy fallback)
+                booking.meeting_url = booking.calendar_event_id.videocall_location
+            else:
+                booking.meeting_url = False
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             if vals.get('name', 'New') == 'New':
                 vals['name'] = self.env['ir.sequence'].next_by_code('appointment.booking') or 'New'
             if not vals.get('access_token'):
-                vals['access_token'] = self.env['ir.sequence'].next_by_code('appointment.booking.token') or self._generate_token()
+                vals['access_token'] = secrets.token_urlsafe(32)
         return super().create(vals_list)
 
-    def _generate_token(self):
-        import secrets
-        return secrets.token_urlsafe(32)
-
     @api.model
-    def _check_booking_conflict(self, start_dt, end_dt, staff_user_id=False, resource_id=False, exclude_booking_id=False):
+    def _check_booking_conflict(self, start_dt, end_dt, staff_user_id=False, resource_id=False, exclude_booking_id=False, lock=False):
         """Check if staff or resource has conflicting bookings across ALL appointment types.
+
+        Args:
+            lock: If True, uses SELECT FOR UPDATE to prevent race conditions
+                  during booking creation. Only use inside a write transaction.
 
         Returns dict: {'staff_conflict': bool, 'resource_conflict': bool, 'resource_remaining': int}
         """
-        domain = [
-            ('state', 'in', ['confirmed', 'done']),
-            ('start_datetime', '<', end_dt),
-            ('end_datetime', '>', start_dt),
-        ]
-        if exclude_booking_id:
-            domain.append(('id', '!=', exclude_booking_id))
-
         result = {'staff_conflict': False, 'resource_conflict': False, 'resource_remaining': 1}
 
+        base_where = "state IN ('confirmed', 'done') AND start_datetime < %s AND end_datetime > %s"
+        base_params = [end_dt, start_dt]
+        if exclude_booking_id:
+            base_where += " AND id != %s"
+            base_params.append(exclude_booking_id)
+
+        lock_clause = " FOR UPDATE" if lock else ""
+
         if staff_user_id:
-            staff_count = self.search_count(domain + [('staff_user_id', '=', staff_user_id)])
+            query = f"SELECT COUNT(*) FROM appointment_booking WHERE {base_where} AND staff_user_id = %s{lock_clause}"
+            self.env.cr.execute(query, base_params + [staff_user_id])
+            staff_count = self.env.cr.fetchone()[0]
             result['staff_conflict'] = staff_count > 0
 
         if resource_id:
             resource = self.env['resource.resource'].browse(resource_id)
             capacity = resource.capacity or 1
-            res_count = self.search_count(domain + [('resource_id', '=', resource_id)])
+            query = f"SELECT COUNT(*) FROM appointment_booking WHERE {base_where} AND resource_id = %s{lock_clause}"
+            self.env.cr.execute(query, base_params + [resource_id])
+            res_count = self.env.cr.fetchone()[0]
             result['resource_conflict'] = res_count >= capacity
             result['resource_remaining'] = max(0, capacity - res_count)
 
@@ -196,6 +244,9 @@ class AppointmentBooking(models.Model):
             if conflict['resource_conflict']:
                 raise UserError(_('Location is fully booked for this time slot.'))
 
+            # Create Discuss channel (soft-coupled: only if cs_portal_discuss installed)
+            booking._create_discuss_channel()
+
             # Create calendar event
             booking._create_calendar_event()
 
@@ -211,6 +262,7 @@ class AppointmentBooking(models.Model):
         for booking in self:
             if booking.state == 'confirmed':
                 booking.write({'state': 'done'})
+                booking._send_booking_done_email()
         return True
 
     def action_cancel(self):
@@ -231,7 +283,31 @@ class AppointmentBooking(models.Model):
                 if booking.calendar_event_id:
                     booking.calendar_event_id.unlink()
 
-                booking.write({'state': 'cancelled'})
+                # Cancel linked sale order (if no paid invoice)
+                if booking.sale_order_id and booking.sale_order_id.state in ('draft', 'sent', 'sale'):
+                    has_paid_invoice = any(
+                        inv.payment_state in ('paid', 'in_payment')
+                        for inv in booking.sale_order_id.invoice_ids
+                    )
+                    if not has_paid_invoice:
+                        booking.sale_order_id.sudo()._action_cancel()
+
+                # Archive Discuss channel
+                if booking.discuss_channel_id and booking.discuss_channel_id.active:
+                    booking.discuss_channel_id.message_post(
+                        body=_("This booking has been cancelled. The discussion is now archived."),
+                        message_type='notification',
+                        subtype_xmlid='mail.mt_comment',
+                    )
+                    booking.discuss_channel_id.sudo().write({'active': False})
+
+                cancel_vals = {'state': 'cancelled'}
+                # M3: Update payment_status on cancellation
+                if booking.payment_status == 'pending':
+                    cancel_vals['payment_status'] = 'not_required'
+                elif booking.payment_status == 'paid':
+                    cancel_vals['payment_status'] = 'refunded'
+                booking.write(cancel_vals)
 
                 # Send cancellation email
                 booking._send_cancellation_email()
@@ -239,14 +315,78 @@ class AppointmentBooking(models.Model):
         return True
 
     def action_draft(self):
-        """Reset to draft"""
+        """Reset to draft (only from cancelled state)"""
         for booking in self:
-            if booking.state in ('cancelled', 'done'):
+            if booking.state == 'cancelled':
+                # Unarchive Discuss channel if it was archived
+                if booking.discuss_channel_id:
+                    archived_channel = booking.discuss_channel_id.sudo().with_context(active_test=False).filtered(lambda c: not c.active)
+                    if archived_channel:
+                        archived_channel.write({'active': True})
+                        archived_channel.message_post(
+                            body=_("This booking has been reopened."),
+                            message_type='notification',
+                            subtype_xmlid='mail.mt_comment',
+                        )
                 booking.write({'state': 'draft'})
         return True
 
+    def _create_discuss_channel(self):
+        """Create a Discuss channel for this booking (if cs_portal_discuss is installed).
+
+        The channel serves as a unified meeting room: chat + video (via Discuss built-in call).
+        Soft-coupled — if cs_portal_discuss is not installed, falls back to videocall URL.
+        """
+        self.ensure_one()
+        if self.discuss_channel_id:
+            return self.discuss_channel_id
+
+        # Soft-couple: only create if cs_portal_discuss is installed
+        installed = self.env['ir.module.module'].sudo().search([
+            ('name', '=', 'cs_portal_discuss'),
+            ('state', '=', 'installed'),
+        ], limit=1)
+        if not installed:
+            return self.env['discuss.channel']
+
+        # Determine members: staff + guest
+        member_ids = []
+        staff_partner = self.staff_user_id.partner_id if self.staff_user_id else self.env.user.partner_id
+        member_ids.append(staff_partner.id)
+        if self.partner_id and self.partner_id.id != staff_partner.id:
+            member_ids.append(self.partner_id.id)
+
+        channel = self.env['discuss.channel'].sudo().create({
+            'name': f"{self.appointment_type_id.name} - {self.guest_name} ({self.name})",
+            'channel_type': 'channel',
+            'channel_member_ids': [
+                (0, 0, {'partner_id': pid}) for pid in member_ids
+            ],
+        })
+
+        # Post welcome message
+        start_dt = fields.Datetime.context_timestamp(self, self.start_datetime)
+        channel.message_post(
+            body=_(
+                "Appointment scheduled for %(date)s at %(time)s.\n"
+                "Use the call button above to start your video meeting.",
+                date=start_dt.strftime('%Y-%m-%d'),
+                time=start_dt.strftime('%H:%M'),
+            ),
+            message_type='notification',
+            subtype_xmlid='mail.mt_comment',
+        )
+
+        self.discuss_channel_id = channel
+        return channel
+
     def _create_calendar_event(self):
-        """Create a calendar event for this booking"""
+        """Create a calendar event for this booking.
+
+        For online appointments, integrates with Odoo's native calendar videocall:
+        - If video_link is set on the appointment type, uses it as a custom videocall URL.
+        - If video_link is empty, auto-generates an Odoo Discuss videocall URL.
+        """
         self.ensure_one()
         if self.calendar_event_id:
             return self.calendar_event_id
@@ -260,10 +400,19 @@ class AppointmentBooking(models.Model):
             'user_id': self.staff_user_id.id if self.staff_user_id else self.env.user.id,
         }
 
-        # Add resource if available
-        if self.resource_id:
-            event_vals['res_model'] = 'resource.resource'
-            event_vals['res_id'] = self.resource_id.id
+        # Online meeting: set videocall location only if no Discuss channel
+        # (when cs_portal_discuss is installed, the channel IS the meeting room)
+        appointment_type = self.appointment_type_id
+        if appointment_type.location_type == 'online' and not self.discuss_channel_id:
+            if appointment_type.video_link:
+                # Manual override — custom videocall URL
+                event_vals['videocall_location'] = appointment_type.video_link
+            else:
+                # Auto-generate Odoo Discuss videocall URL
+                access_token = uuid.uuid4().hex
+                event_vals['access_token'] = access_token
+                base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+                event_vals['videocall_location'] = f"{base_url}/calendar/join_videocall/{access_token}"
 
         event = self.env['calendar.event'].create(event_vals)
         self.calendar_event_id = event
@@ -290,14 +439,86 @@ class AppointmentBooking(models.Model):
         self.ensure_one()
         template = self.env.ref('reservation_module.email_template_booking_confirmed', raise_if_not_found=False)
         if template and self.guest_email:
-            template.send_mail(self.id, force_send=True)
+            template.send_mail(self.id, force_send=False)
 
     def _send_cancellation_email(self):
         """Send cancellation email to the guest"""
         self.ensure_one()
         template = self.env.ref('reservation_module.email_template_booking_cancelled', raise_if_not_found=False)
         if template and self.guest_email:
-            template.send_mail(self.id, force_send=True)
+            template.send_mail(self.id, force_send=False)
+
+    def _send_booking_created_email(self):
+        """Send booking created email (draft state) with payment info if applicable"""
+        self.ensure_one()
+        template = self.env.ref('reservation_module.email_template_booking_created', raise_if_not_found=False)
+        if template and self.guest_email:
+            template.send_mail(self.id, force_send=False)
+
+    def _send_booking_done_email(self):
+        """Send booking completed email to the guest"""
+        self.ensure_one()
+        template = self.env.ref('reservation_module.email_template_booking_done', raise_if_not_found=False)
+        if template and self.guest_email:
+            template.send_mail(self.id, force_send=False)
+
+    def _send_reminder_email(self):
+        """Send reminder email to the guest"""
+        self.ensure_one()
+        template = self.env.ref('reservation_module.email_template_booking_reminder', raise_if_not_found=False)
+        if template and self.guest_email:
+            template.send_mail(self.id, force_send=False)
+
+    def _handle_payment_failure(self, error_message=''):
+        """Track payment failure and send notifications to customer + admin."""
+        self.ensure_one()
+        self.payment_failure_count += 1
+
+        # Send failure notification to customer
+        template = self.env.ref('reservation_module.email_template_payment_failure', raise_if_not_found=False)
+        if template and self.guest_email:
+            template.send_mail(self.id, force_send=False)
+
+        # Send admin alert via internal note on booking chatter
+        admin_msg = _(
+            'Payment failure #%(count)s for booking %(booking)s.\n'
+            'Customer: %(name)s (%(email)s)\n'
+            'Amount: %(amount)s %(currency)s',
+            count=self.payment_failure_count,
+            booking=self.name,
+            name=self.guest_name,
+            email=self.guest_email,
+            amount=self.payment_amount,
+            currency=self.currency_id.name if self.currency_id else '',
+        )
+        if error_message:
+            admin_msg += _('\nError: %s', error_message)
+
+        self.message_post(
+            body=admin_msg,
+            message_type='notification',
+            subtype_xmlid='mail.mt_note',
+        )
+
+    @api.model
+    def _cron_send_reminders(self):
+        """Cron job: send reminder emails for upcoming confirmed bookings.
+
+        Looks for confirmed bookings starting within the next reminder_hours window
+        that haven't been reminded yet (reminder_sent=False).
+        """
+        now = fields.Datetime.now()
+        bookings = self.search([
+            ('state', '=', 'confirmed'),
+            ('reminder_sent', '=', False),
+            ('start_datetime', '>', now),
+        ])
+        for booking in bookings:
+            reminder_hours = booking.appointment_type_id.reminder_hours or 24
+            reminder_threshold = booking.start_datetime - timedelta(hours=reminder_hours)
+            if now >= reminder_threshold:
+                booking._send_reminder_email()
+                booking.reminder_sent = True
 
     def _auto_assign_staff(self):
         """Auto-assign staff with least bookings this month, filtering out conflicting staff first"""
@@ -394,3 +615,87 @@ class AppointmentBooking(models.Model):
         self.ensure_one()
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         return f'{base_url}/appointment/booking/{self.id}?token={self.access_token}'
+
+    def _create_sale_order(self):
+        """Create a sale order for paid bookings using the native Odoo sales flow.
+
+        Uses the payment_product_id from the appointment type as the SO line product.
+        Falls back to a generic service product if payment_product_id is not configured.
+        Handles per-person pricing by adjusting quantity.
+        """
+        self.ensure_one()
+        if self.sale_order_id:
+            return self.sale_order_id
+
+        appointment_type = self.appointment_type_id
+        if not appointment_type.require_payment:
+            return False
+
+        partner = self.partner_id
+        if not partner:
+            return False
+
+        # Use configured product or fallback to generic service product
+        product = appointment_type.payment_product_id
+        if not product:
+            product = self._get_or_create_fallback_payment_product()
+        if not product:
+            return False
+
+        qty = self.guest_count if appointment_type.payment_per_person else 1
+
+        sale_order = self.env['sale.order'].sudo().create({
+            'partner_id': partner.id,
+            'company_id': self.company_id.id or self.env.company.id,
+            'origin': self.name,
+            'note': f"Booking: {self.name} | {appointment_type.name} | "
+                    f"{self.start_datetime} - {self.end_datetime}",
+            'order_line': [(0, 0, {
+                'product_id': product.id,
+                'name': f"{appointment_type.name} - {self.name}",
+                'product_uom_qty': qty,
+                'price_unit': appointment_type.payment_amount,
+            })],
+        })
+
+        # Mark as "sent" so the portal shows the "Pay Now" button.
+        # Odoo's _has_to_be_paid() requires state in ('draft', 'sent').
+        # The SO will be auto-confirmed by Odoo's payment post-processing.
+        sale_order.action_quotation_sent()
+
+        # Ensure portal access_token is generated (needed for public/anonymous access)
+        sale_order._portal_ensure_token()
+
+        self.sale_order_id = sale_order
+        return sale_order
+
+    def _get_or_create_fallback_payment_product(self):
+        """Get or create a generic 'Appointment Booking' service product as fallback."""
+        xmlid = 'reservation_module.product_appointment_generic'
+        product = self.env.ref(xmlid, raise_if_not_found=False)
+        if product and product.exists():
+            return product
+
+        # Create the generic product with default sale tax
+        company = self.env.company
+        default_tax = company.account_sale_tax_id
+        product_vals = {
+            'name': 'Appointment Booking',
+            'type': 'service',
+            'list_price': 0.0,
+            'sale_ok': True,
+            'purchase_ok': False,
+            'invoice_policy': 'order',
+        }
+        if default_tax:
+            product_vals['taxes_id'] = [(6, 0, [default_tax.id])]
+        product = self.env['product.product'].sudo().create(product_vals)
+        # Register as ir.model.data so env.ref() finds it next time
+        self.env['ir.model.data'].sudo().create({
+            'name': 'product_appointment_generic',
+            'module': 'reservation_module',
+            'model': 'product.product',
+            'res_id': product.id,
+            'noupdate': True,
+        })
+        return product

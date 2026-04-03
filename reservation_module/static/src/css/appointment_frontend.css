@@ -209,11 +209,66 @@
     margin-right: 10px;
 }
 
+/* ===== WCAG 2.1 AA: Focus Indicators ===== */
+#appointment-reservation .reservation-day:focus {
+    outline: 3px solid #007bff;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25);
+}
+
+.time-slot:focus {
+    outline: 3px solid #007bff;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25);
+}
+
+.reservation-prev:focus,
+.reservation-next:focus {
+    outline: 3px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* Skip to content link (visually hidden until focused) */
+.skip-to-content {
+    position: absolute;
+    top: -100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #007bff;
+    color: #fff;
+    padding: 8px 24px;
+    z-index: 10000;
+    border-radius: 0 0 8px 8px;
+    font-size: 14px;
+    text-decoration: none;
+    transition: top 0.2s;
+}
+.skip-to-content:focus {
+    top: 0;
+    color: #fff;
+}
+
+/* ===== Mobile Touch Targets (min 44x44px) ===== */
+#appointment-reservation .reservation-day {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.time-slot {
+    min-height: 44px;
+    min-width: 44px;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .time-slot {
         display: block;
         margin: 5px 0;
+        padding: 14px 20px;
+        min-height: 48px;
     }
 
     .appointment-card .card-img-top {
@@ -222,5 +277,24 @@
 
     .payment-amount {
         font-size: 2rem;
+    }
+
+    /* Ensure all interactive elements meet 44px touch target */
+    #appointment-reservation .reservation-day {
+        min-height: 48px;
+        min-width: 48px;
+        font-size: 1rem;
+    }
+
+    .btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Increase portal table row touch targets */
+    .o_portal_my_doc_table td a {
+        display: inline-block;
+        min-height: 44px;
+        line-height: 44px;
     }
 }

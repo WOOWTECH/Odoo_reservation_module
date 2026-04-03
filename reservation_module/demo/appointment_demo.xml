@@ -281,6 +281,16 @@
             <field name="hour_to">18.0</field>
         </record>
 
+        <!-- Product for Expert Consultation -->
+        <record id="product_expert_consultation" model="product.product">
+            <field name="name">Expert Consultation Service</field>
+            <field name="type">service</field>
+            <field name="list_price">100.00</field>
+            <field name="sale_ok" eval="True"/>
+            <field name="purchase_ok" eval="False"/>
+            <field name="invoice_policy">order</field>
+        </record>
+
         <!-- Appointment Type: Paid Consultation -->
         <record id="appointment_type_consultation" model="appointment.type">
             <field name="name">Expert Consultation</field>
@@ -298,6 +308,7 @@
             <field name="allow_customer_choose_staff" eval="True"/>
             <field name="require_payment" eval="True"/>
             <field name="payment_amount">100.00</field>
+            <field name="payment_product_id" ref="product_expert_consultation"/>
             <field name="auto_confirm" eval="True"/>
             <field name="is_published" eval="True"/>
             <field name="icon">fa-user-md</field>

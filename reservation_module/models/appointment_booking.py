@@ -122,6 +122,12 @@ class AppointmentBooking(models.Model):
     # Payment failure tracking
     payment_failure_count = fields.Integer('Payment Failures', default=0, copy=False)
 
+    # Discuss channel integration
+    discuss_channel_id = fields.Many2one(
+        'discuss.channel', string='Discussion Channel',
+        copy=False, ondelete='set null',
+    )
+
     # Company
     company_id = fields.Many2one(
         'res.company',
@@ -138,16 +144,20 @@ class AppointmentBooking(models.Model):
             else:
                 booking.duration = 0
 
-    @api.depends('appointment_type_id.video_link', 'appointment_type_id.location_type', 'calendar_event_id.videocall_location')
+    @api.depends('discuss_channel_id', 'appointment_type_id.video_link',
+                 'appointment_type_id.location_type', 'calendar_event_id.videocall_location')
     def _compute_meeting_url(self):
         for booking in self:
             if booking.appointment_type_id.location_type != 'online':
                 booking.meeting_url = False
+            elif booking.discuss_channel_id:
+                # Discuss channel = unified meeting room (chat + video)
+                booking.meeting_url = f"/discuss/channel/{booking.discuss_channel_id.id}?discussions=1"
             elif booking.appointment_type_id.video_link:
                 # Manual override from appointment type
                 booking.meeting_url = booking.appointment_type_id.video_link
             elif booking.calendar_event_id and booking.calendar_event_id.videocall_location:
-                # Auto-generated Odoo videocall URL
+                # Auto-generated Odoo videocall URL (legacy fallback)
                 booking.meeting_url = booking.calendar_event_id.videocall_location
             else:
                 booking.meeting_url = False
@@ -234,6 +244,9 @@ class AppointmentBooking(models.Model):
             if conflict['resource_conflict']:
                 raise UserError(_('Location is fully booked for this time slot.'))
 
+            # Create Discuss channel (soft-coupled: only if cs_portal_discuss installed)
+            booking._create_discuss_channel()
+
             # Create calendar event
             booking._create_calendar_event()
 
@@ -279,6 +292,15 @@ class AppointmentBooking(models.Model):
                     if not has_paid_invoice:
                         booking.sale_order_id.sudo()._action_cancel()
 
+                # Archive Discuss channel
+                if booking.discuss_channel_id and booking.discuss_channel_id.active:
+                    booking.discuss_channel_id.message_post(
+                        body=_("This booking has been cancelled. The discussion is now archived."),
+                        message_type='notification',
+                        subtype_xmlid='mail.mt_comment',
+                    )
+                    booking.discuss_channel_id.sudo().write({'active': False})
+
                 cancel_vals = {'state': 'cancelled'}
                 # M3: Update payment_status on cancellation
                 if booking.payment_status == 'pending':
@@ -296,8 +318,67 @@ class AppointmentBooking(models.Model):
         """Reset to draft (only from cancelled state)"""
         for booking in self:
             if booking.state == 'cancelled':
+                # Unarchive Discuss channel if it was archived
+                if booking.discuss_channel_id:
+                    archived_channel = booking.discuss_channel_id.sudo().with_context(active_test=False).filtered(lambda c: not c.active)
+                    if archived_channel:
+                        archived_channel.write({'active': True})
+                        archived_channel.message_post(
+                            body=_("This booking has been reopened."),
+                            message_type='notification',
+                            subtype_xmlid='mail.mt_comment',
+                        )
                 booking.write({'state': 'draft'})
         return True
+
+    def _create_discuss_channel(self):
+        """Create a Discuss channel for this booking (if cs_portal_discuss is installed).
+
+        The channel serves as a unified meeting room: chat + video (via Discuss built-in call).
+        Soft-coupled — if cs_portal_discuss is not installed, falls back to videocall URL.
+        """
+        self.ensure_one()
+        if self.discuss_channel_id:
+            return self.discuss_channel_id
+
+        # Soft-couple: only create if cs_portal_discuss is installed
+        installed = self.env['ir.module.module'].sudo().search([
+            ('name', '=', 'cs_portal_discuss'),
+            ('state', '=', 'installed'),
+        ], limit=1)
+        if not installed:
+            return self.env['discuss.channel']
+
+        # Determine members: staff + guest
+        member_ids = []
+        staff_partner = self.staff_user_id.partner_id if self.staff_user_id else self.env.user.partner_id
+        member_ids.append(staff_partner.id)
+        if self.partner_id and self.partner_id.id != staff_partner.id:
+            member_ids.append(self.partner_id.id)
+
+        channel = self.env['discuss.channel'].sudo().create({
+            'name': f"{self.appointment_type_id.name} - {self.guest_name} ({self.name})",
+            'channel_type': 'channel',
+            'channel_member_ids': [
+                (0, 0, {'partner_id': pid}) for pid in member_ids
+            ],
+        })
+
+        # Post welcome message
+        start_dt = fields.Datetime.context_timestamp(self, self.start_datetime)
+        channel.message_post(
+            body=_(
+                "Appointment scheduled for %(date)s at %(time)s.\n"
+                "Use the call button above to start your video meeting.",
+                date=start_dt.strftime('%Y-%m-%d'),
+                time=start_dt.strftime('%H:%M'),
+            ),
+            message_type='notification',
+            subtype_xmlid='mail.mt_comment',
+        )
+
+        self.discuss_channel_id = channel
+        return channel
 
     def _create_calendar_event(self):
         """Create a calendar event for this booking.
@@ -319,10 +400,10 @@ class AppointmentBooking(models.Model):
             'user_id': self.staff_user_id.id if self.staff_user_id else self.env.user.id,
         }
 
-        # Add resource info to description (resource.resource is tracked via booking linkage)
-        # Online meeting: set videocall location using Odoo native mechanism
+        # Online meeting: set videocall location only if no Discuss channel
+        # (when cs_portal_discuss is installed, the channel IS the meeting room)
         appointment_type = self.appointment_type_id
-        if appointment_type.location_type == 'online':
+        if appointment_type.location_type == 'online' and not self.discuss_channel_id:
             if appointment_type.video_link:
                 # Manual override — custom videocall URL
                 event_vals['videocall_location'] = appointment_type.video_link

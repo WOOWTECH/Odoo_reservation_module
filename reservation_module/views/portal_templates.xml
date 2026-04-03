@@ -244,12 +244,18 @@
                                         <div class="card-body text-center">
                                             <p class="mb-2 text-muted">
                                                 <i class="fa fa-video-camera me-1"/>
-                                                <t t-out="t.get('online_meeting_label', 'This is an online meeting. Use the link below to join at the scheduled time:')"/>
+                                                <t t-if="booking.discuss_channel_id">
+                                                    This is an online meeting. Open the meeting room below to chat and start a video call:
+                                                </t>
+                                                <t t-else="">
+                                                    <t t-out="t.get('online_meeting_label', 'This is an online meeting. Use the link below to join at the scheduled time:')"/>
+                                                </t>
                                             </p>
                                             <a t-att-href="booking.meeting_url" target="_blank"
                                                class="btn btn-success btn-lg mb-2">
                                                 <i class="fa fa-video-camera me-2"/>
-                                                <t t-out="t.get('join_meeting', 'Join Meeting')"/>
+                                                <t t-if="booking.discuss_channel_id">Open Meeting Room</t>
+                                                <t t-else=""><t t-out="t.get('join_meeting', 'Join Meeting')"/></t>
                                             </a>
                                             <p class="mb-0 small text-muted">
                                                 <t t-out="booking.meeting_url"/>

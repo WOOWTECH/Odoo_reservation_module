@@ -341,6 +341,10 @@ class AppointmentBooking(models.Model):
         if self.discuss_channel_id:
             return self.discuss_channel_id
 
+        # Only create channels for online appointments
+        if self.appointment_type_id.location_type != 'online':
+            return self.env['discuss.channel']
+
         # Soft-couple: only create if cs_portal_discuss is installed
         installed = self.env['ir.module.module'].sudo().search([
             ('name', '=', 'cs_portal_discuss'),
@@ -356,13 +360,18 @@ class AppointmentBooking(models.Model):
         if self.partner_id and self.partner_id.id != staff_partner.id:
             member_ids.append(self.partner_id.id)
 
-        channel = self.env['discuss.channel'].sudo().create({
+        # group_public_id = portal group so cs_portal_discuss includes it in /my/discussions
+        portal_group = self.env.ref('base.group_portal', raise_if_not_found=False)
+        channel_vals = {
             'name': f"{self.appointment_type_id.name} - {self.guest_name} ({self.name})",
             'channel_type': 'channel',
             'channel_member_ids': [
                 (0, 0, {'partner_id': pid}) for pid in member_ids
             ],
-        })
+        }
+        if portal_group:
+            channel_vals['group_public_id'] = portal_group.id
+        channel = self.env['discuss.channel'].sudo().create(channel_vals)
 
         # Post welcome message
         start_dt = fields.Datetime.context_timestamp(self, self.start_datetime)

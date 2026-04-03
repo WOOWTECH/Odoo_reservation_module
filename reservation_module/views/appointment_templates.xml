@@ -357,7 +357,7 @@
                                             <label for="guest_count" class="form-label" t-esc="t['number_of_guests']"/>
                                             <input type="number" class="form-control" id="guest_count"
                                                    name="guest_count" min="1"
-                                                   t-att-max="appointment_type.max_guests if hasattr(appointment_type, 'max_guests') and appointment_type.max_guests else 100"
+                                                   max="100"
                                                    value="1"/>
                                         </div>
 

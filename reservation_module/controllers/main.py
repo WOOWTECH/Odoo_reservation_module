@@ -627,7 +627,7 @@ class AppointmentController(http.Controller):
         if guest_count < 1:
             guest_count = 1
         # Enforce upper bound from appointment type capacity
-        max_guests = appointment_type.max_guests if hasattr(appointment_type, 'max_guests') and appointment_type.max_guests else 100
+        max_guests = 100
         if guest_count > max_guests:
             return self._render_booking_form_error(
                 appointment_type, data, _('Maximum %d guests allowed.', max_guests))

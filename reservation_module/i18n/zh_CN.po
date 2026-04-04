@@ -1,14 +1,14 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# * reservation_module
+# 	* reservation_module
 #
 # Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-29 00:00+0000\n"
-"PO-Revision-Date: 2026-01-29 00:00+0000\n"
+"POT-Creation-Date: 2026-04-04 00:00+0000\n"
+"PO-Revision-Date: 2026-04-04 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Chinese (Simplified) (https://www.transifex.com/odoo/teams/)\n"
 "Language: zh_CN\n"
@@ -59,8 +59,8 @@ msgstr "预约问题"
 
 #. module: reservation_module
 #: model:ir.ui.menu,name:reservation_module.menu_calendar_root
-msgid "Reservation"
-msgstr "预约"
+msgid "Calendar"
+msgstr "日历"
 
 #. module: reservation_module
 #: model:ir.ui.menu,name:reservation_module.menu_appointment_types
@@ -74,8 +74,8 @@ msgstr "所有预约"
 
 #. module: reservation_module
 #: model:ir.ui.menu,name:reservation_module.menu_appointment_resource_bookings
-msgid "Resource Bookings"
-msgstr "资源预约"
+msgid "Location Bookings"
+msgstr "场地预约"
 
 #. module: reservation_module
 #: model:ir.ui.menu,name:reservation_module.menu_appointment_staff_bookings
@@ -133,9 +133,29 @@ msgid "Location"
 msgstr "地点"
 
 #. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__location_address
+msgid "Physical location for the appointment"
+msgstr "预约的实体地点"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__video_conference_link
+msgid "Video Conference Link"
+msgstr "视频会议链接"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__video_conference_link
+msgid "Link to video conference"
+msgstr "视频会议链接"
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__slot_duration
 msgid "Slot Duration (hours)"
 msgstr "时段长度（小时）"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__slot_duration
+msgid "Duration of each appointment slot in hours"
+msgstr "每个预约时段的持续时间（小时）"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__slot_interval
@@ -143,9 +163,19 @@ msgid "Slot Interval"
 msgstr "时段间隔"
 
 #. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__slot_interval
+msgid "Time interval between available slots"
+msgstr "可用时段之间的时间间隔"
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__max_booking_days
 msgid "Max Booking Days"
 msgstr "最大预约天数"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__max_booking_days
+msgid "How many days in advance can appointments be booked"
+msgstr "可以提前多少天预约"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__min_booking_hours
@@ -153,9 +183,19 @@ msgid "Min Booking Hours"
 msgstr "最短预约时间"
 
 #. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__min_booking_hours
+msgid "Minimum hours before the appointment start time that booking is allowed"
+msgstr "允许预约的最短提前时间（小时）"
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__min_cancel_hours
 msgid "Min Cancel Hours"
 msgstr "最短取消时间"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__min_cancel_hours
+msgid "Hours before appointment start time until when cancellation is allowed"
+msgstr "允许取消的截止时间（开始前几小时）"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__auto_confirm
@@ -163,9 +203,19 @@ msgid "Auto Confirm"
 msgstr "自动确认"
 
 #. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__auto_confirm
+msgid "Automatically confirm bookings"
+msgstr "自动确认预约"
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__require_payment
 msgid "Require Payment"
 msgstr "需要付款"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__require_payment
+msgid "Require payment before confirming the appointment"
+msgstr "确认预约前需要付款"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_amount
@@ -173,14 +223,29 @@ msgid "Payment Amount"
 msgstr "付款金额"
 
 #. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_amount
+msgid "Amount to charge for the appointment"
+msgstr "预约需支付的金额"
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__resource_ids
 msgid "Resources"
 msgstr "资源"
 
 #. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__resource_ids
+msgid "Resources available for this appointment type"
+msgstr "此预约类型可用的资源"
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__staff_user_ids
 msgid "Staff"
 msgstr "员工"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__staff_user_ids
+msgid "Staff members available for this appointment type"
+msgstr "此预约类型可用的员工"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__is_published
@@ -626,7 +691,7 @@ msgstr "设为草稿"
 #. module: reservation_module
 #: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_calendar
 msgid "Appointment Calendar"
-msgstr "预约排程"
+msgstr "预约日历"
 
 #. module: reservation_module
 msgid "hour(s)"
@@ -639,22 +704,6 @@ msgstr "座位"
 #. module: reservation_module
 msgid "available"
 msgstr "可用"
-
-#. module: reservation_module
-msgid "Appointment:"
-msgstr "预约项目："
-
-#. module: reservation_module
-msgid "Date & Time:"
-msgstr "日期与时间："
-
-#. module: reservation_module
-msgid "Resource:"
-msgstr "资源："
-
-#. module: reservation_module
-msgid "Guests:"
-msgstr "访客人数："
 
 #. module: reservation_module
 #: model:ir.ui.view,arch_db:reservation_module.appointment_list
@@ -700,6 +749,26 @@ msgstr "继续付款"
 #: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
 msgid "Staff:"
 msgstr "员工："
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
+msgid "Appointment:"
+msgstr "预约项目："
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
+msgid "Date & Time:"
+msgstr "日期与时间："
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
+msgid "Resource:"
+msgstr "资源："
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
+msgid "Guests:"
+msgstr "访客人数："
 
 #. module: reservation_module
 #: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
@@ -841,18 +910,8 @@ msgstr "当客户预约时，预约信息将显示在这里。"
 
 #. module: reservation_module
 #: model:ir.actions.act_window,name:reservation_module.action_appointment_booking_calendar
-msgid "Bookings"
-msgstr "预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_calendar_resource
-msgid "Resource Bookings"
-msgstr "资源预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_calendar_staff
-msgid "Staff Bookings"
-msgstr "员工预约"
+msgid "Bookings Calendar"
+msgstr "预约日历"
 
 #. module: reservation_module
 #: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
@@ -861,8 +920,8 @@ msgstr "分享"
 
 #. module: reservation_module
 #: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Resource Gantt"
-msgstr "资源甘特图"
+msgid "Location Gantt"
+msgstr "场地甘特图"
 
 #. module: reservation_module
 #: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
@@ -873,16 +932,6 @@ msgstr "员工甘特图"
 #: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Archived"
 msgstr "已归档"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Location"
-msgstr "地点"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Availability"
-msgstr "可用时间"
 
 #. module: reservation_module
 #: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
@@ -961,11 +1010,6 @@ msgstr "时长"
 
 #. module: reservation_module
 #: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-msgid "Upcoming"
-msgstr "即将到来"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "Total"
 msgstr "总计"
 
@@ -985,11 +1029,6 @@ msgid "staff members"
 msgstr "员工成员"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
-msgid "Archived"
-msgstr "已归档"
-
-#. module: reservation_module
 #: model:ir.actions.act_window,help:reservation_module.action_appointment_type
 msgid "Create your first appointment type"
 msgstr "创建您的第一个预约类型"
@@ -998,11 +1037,6 @@ msgstr "创建您的第一个预约类型"
 #: model:ir.actions.act_window,help:reservation_module.action_appointment_type
 msgid "Allow your customers to book appointments online."
 msgstr "让您的客户在线预约。"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Answers"
-msgstr "答案"
 
 #. module: reservation_module
 #: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form

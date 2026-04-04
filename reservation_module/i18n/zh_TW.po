@@ -2,12 +2,13 @@
 # This file contains the translation of the following modules:
 # 	* reservation_module
 #
+# Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-10 10:00+0000\n"
-"PO-Revision-Date: 2026-03-10 10:00+0000\n"
+"POT-Creation-Date: 2026-04-04 00:00+0000\n"
+"PO-Revision-Date: 2026-04-04 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Chinese (Traditional)\n"
 "Language: zh_TW\n"
@@ -17,402 +18,82 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Appointment Type"
-msgstr "預約類型"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Share"
-msgstr "分享"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__booking_count
-msgid "Bookings"
-msgstr "預約數"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Location Gantt"
-msgstr "場地甘特圖"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Staff Gantt"
-msgstr "員工甘特圖"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Archived"
-msgstr "已封存"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Location"
-msgstr "地點"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Availability"
-msgstr "可用時段"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Capacity"
-msgstr "容量"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Locations"
-msgstr "場地"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Staff Members"
-msgstr "服務人員"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Weekly Schedule"
-msgstr "每週排程"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Add Closing Days"
-msgstr "新增休息日"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Questions"
-msgstr "問題"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Communication"
-msgstr "通訊"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Introduction Page"
-msgstr "簡介頁面"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Content shown to visitors before booking..."
-msgstr "預約前顯示給訪客的內容..."
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Confirmation Page"
-msgstr "確認頁面"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Content shown after booking confirmation..."
-msgstr "預約確認後顯示的內容..."
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Email Notifications"
-msgstr "郵件通知"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Email notifications are automatically sent when bookings are confirmed, rescheduled, or cancelled."
-msgstr "當預約確認、改期或取消時，系統會自動發送郵件通知。"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Options"
-msgstr "選項"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Booking Settings"
-msgstr "預約設定"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Payment"
-msgstr "付款"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Scheduling"
-msgstr "排程"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "before start"
-msgstr "開始前"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Cancellation"
-msgstr "取消"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Display"
-msgstr "顯示"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Provide a description for your customers..."
-msgstr "為您的客戶提供說明..."
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_list
-msgid "Appointment Types"
-msgstr "預約類型"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-msgid "duration"
-msgstr "時長"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-msgid "Published"
-msgstr "已發布"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-msgid "Unpublished"
-msgstr "未發布"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-msgid "Upcoming"
-msgstr "即將到來"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-msgid "Total"
-msgstr "總計"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-msgid "locations"
-msgstr "個場地"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-msgid "staff members"
-msgstr "位服務人員"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
-msgid "Search Appointment Types"
-msgstr "搜尋預約類型"
-
-#. module: reservation_module
-#: model:ir.actions.act_window,name:reservation_module.appointment_type_action
-msgid "Appointments"
-msgstr "預約"
-
-#. module: reservation_module
-#: model_terms:ir.actions.act_window,help:reservation_module.appointment_type_action
-msgid "Create your first appointment type"
-msgstr "建立您的第一個預約類型"
-
-#. module: reservation_module
-#: model_terms:ir.actions.act_window,help:reservation_module.appointment_type_action
-msgid "Let your customers book appointments online."
-msgstr "讓您的客戶可以線上預約。"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Booking"
-msgstr "預約"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Confirm"
-msgstr "確認"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Mark Done"
-msgstr "標記完成"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Cancel"
-msgstr "取消"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Set to Draft"
-msgstr "設為草稿"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Booking Details"
-msgstr "預約詳情"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Guest Information"
-msgstr "訪客資訊"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Notes"
-msgstr "備註"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Guest notes..."
-msgstr "訪客的備註..."
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Internal Notes"
-msgstr "內部備註"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Internal notes (not visible to guests)..."
-msgstr "內部備註（訪客不可見）..."
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Technical"
-msgstr "技術"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-msgid "Search Bookings"
-msgstr "搜尋預約"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-msgid "Today"
-msgstr "今天"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-msgid "This Week"
-msgstr "本週"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-msgid "Draft"
-msgstr "草稿"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-msgid "Confirmed"
-msgstr "已確認"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-msgid "Done"
-msgstr "已完成"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-msgid "Cancelled"
-msgstr "已取消"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-msgid "Appointment Type"
-msgstr "預約類型"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-msgid "Status"
-msgstr "狀態"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-msgid "Date"
-msgstr "日期"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-msgid "Staff"
-msgstr "員工"
-
-#. module: reservation_module
-#: model:ir.actions.act_window,name:reservation_module.appointment_booking_action
-msgid "All Bookings"
-msgstr "所有預約"
-
-#. module: reservation_module
-#: model_terms:ir.actions.act_window,help:reservation_module.appointment_booking_action
-msgid "No bookings yet"
-msgstr "尚無預約"
-
-#. module: reservation_module
-#: model_terms:ir.actions.act_window,help:reservation_module.appointment_booking_action
-msgid "Bookings will appear here when customers make appointments."
-msgstr "當客戶進行預約時，預約將會顯示在這裡。"
-
-#. module: reservation_module
-#: model:ir.actions.act_window,name:reservation_module.appointment_booking_action_resource
-msgid "Location Bookings"
-msgstr "場地預約"
-
-#. module: reservation_module
-#: model:ir.actions.act_window,name:reservation_module.appointment_booking_action_staff
-msgid "Staff Bookings"
-msgstr "員工預約"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_calendar_resource
-msgid "Location Bookings"
-msgstr "場地預約"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_calendar_staff
-msgid "Staff Bookings"
-msgstr "員工預約"
-
-#. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.appointment_menu_root
+#: model:ir.module.category,name:reservation_module.module_category_appointment
 msgid "Appointments"
 msgstr "預約管理"
 
 #. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.appointment_menu_calendar
+#: model:res.groups,name:reservation_module.group_appointment_user
+msgid "User"
+msgstr "使用者"
+
+#. module: reservation_module
+#: model:res.groups,name:reservation_module.group_appointment_manager
+msgid "Manager"
+msgstr "管理員"
+
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_appointment_type
+msgid "Appointment Type"
+msgstr "預約類型"
+
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_appointment_booking
+msgid "Appointment Booking"
+msgstr "預約訂單"
+
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_appointment_slot
+msgid "Appointment Slot"
+msgstr "預約時段"
+
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_appointment_availability
+msgid "Appointment Availability"
+msgstr "預約可用時間"
+
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_appointment_question
+msgid "Appointment Question"
+msgstr "預約問題"
+
+#. module: reservation_module
+#: model:ir.ui.menu,name:reservation_module.menu_calendar_root
 msgid "Calendar"
 msgstr "行事曆"
 
 #. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.appointment_menu_appointments
-msgid "Appointment Types"
+#: model:ir.ui.menu,name:reservation_module.menu_appointment_types
+msgid "Appointments"
 msgstr "預約類型"
 
 #. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.appointment_menu_bookings
+#: model:ir.ui.menu,name:reservation_module.menu_appointment_bookings
 msgid "All Bookings"
 msgstr "所有預約"
 
 #. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.appointment_menu_resource_bookings
+#: model:ir.ui.menu,name:reservation_module.menu_appointment_resource_bookings
 msgid "Location Bookings"
 msgstr "場地預約"
 
 #. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.appointment_menu_staff_bookings
+#: model:ir.ui.menu,name:reservation_module.menu_appointment_staff_bookings
 msgid "Staff Bookings"
 msgstr "員工預約"
 
 #. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.appointment_menu_reports
+#: model:ir.ui.menu,name:reservation_module.menu_appointment_reports
 msgid "Reports"
 msgstr "報表"
 
 #. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.appointment_menu_configuration
+#: model:ir.ui.menu,name:reservation_module.menu_appointment_configuration
 msgid "Configuration"
 msgstr "設定"
 
 #. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.appointment_menu_settings
+#: model:ir.ui.menu,name:reservation_module.menu_appointment_settings
 msgid "Settings"
 msgstr "設定"
 
@@ -420,16 +101,6 @@ msgstr "設定"
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__name
 msgid "Name"
 msgstr "名稱"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__sequence
-msgid "Sequence"
-msgstr "順序"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__active
-msgid "Active"
-msgstr "啟用"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__description
@@ -443,132 +114,42 @@ msgstr "地點類型"
 
 #. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__location_type__online
-msgid "Online Meeting"
-msgstr "線上會議"
+msgid "Online"
+msgstr "線上"
 
 #. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__location_type__physical
-msgid "Physical Location"
-msgstr "實體地點"
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__location_type__in_person
+msgid "In Person"
+msgstr "現場"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__location_id
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__location_type__phone
+msgid "Phone"
+msgstr "電話"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__location_address
 msgid "Location"
 msgstr "地點"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__location_id
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__location_address
 msgid "Physical location for the appointment"
 msgstr "預約的實體地點"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__location_address
-msgid "Location Address"
-msgstr "地點地址"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__video_link
-msgid "Video Link"
-msgstr "視訊連結"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__video_link
-msgid "Video conference link"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__video_conference_link
+msgid "Video Conference Link"
 msgstr "視訊會議連結"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__assign_staff
-msgid "Staff"
-msgstr "員工"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__assign_staff
-msgid "Assign staff members to bookings"
-msgstr "為預約指派員工"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__assign_location
-msgid "Location"
-msgstr "場地"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__assign_location
-msgid "Assign a location to bookings"
-msgstr "為預約指派場地"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__allow_customer_choose_staff
-msgid "Allow Customer to Choose Staff"
-msgstr "允許客戶選擇員工"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__allow_customer_choose_staff
-msgid "Let customers pick their preferred staff member"
-msgstr "讓客戶選擇偏好的員工"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__allow_customer_choose_location
-msgid "Allow Customer to Choose Location"
-msgstr "允許客戶選擇場地"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__allow_customer_choose_location
-msgid "Let customers pick their preferred location"
-msgstr "讓客戶選擇偏好的場地"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__manage_capacity
-msgid "Manage Capacity"
-msgstr "管理容量"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__manage_capacity
-msgid "Enable resource capacity management"
-msgstr "啟用資源容量管理"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__total_capacity
-msgid "Total Capacity"
-msgstr "總容量"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__total_capacity
-msgid "Total capacity across all resources"
-msgstr "所有資源的總容量"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__max_concurrent_bookings
-msgid "Max Concurrent Bookings"
-msgstr "最大同時預約數"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__max_concurrent_bookings
-msgid "Maximum concurrent bookings per user"
-msgstr "每位使用者的最大同時預約數"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__resource_ids
-msgid "Locations"
-msgstr "場地"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__resource_ids
-msgid "Resources available for this appointment type"
-msgstr "此預約類型可用的場地"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__staff_user_ids
-msgid "Staff Members"
-msgstr "服務人員"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__staff_user_ids
-msgid "Staff members available for this appointment type"
-msgstr "此預約類型可用的服務人員"
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__video_conference_link
+msgid "Link to video conference"
+msgstr "視訊會議連結"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__slot_duration
-msgid "Time Slot Duration (hours)"
+msgid "Slot Duration (hours)"
 msgstr "時段長度（小時）"
 
 #. module: reservation_module
@@ -578,8 +159,8 @@ msgstr "每個預約時段的持續時間（小時）"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__slot_interval
-msgid "Time Slot Interval (hours)"
-msgstr "時段間隔（小時）"
+msgid "Slot Interval"
+msgstr "時段間隔"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__slot_interval
@@ -593,27 +174,27 @@ msgstr "最大預約天數"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__max_booking_days
-msgid "How many days in advance bookings can be made"
+msgid "How many days in advance can appointments be booked"
 msgstr "可以提前多少天預約"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__min_booking_hours
-msgid "Min Advance Booking (hours)"
-msgstr "最短提前預約時間（小時）"
+msgid "Min Booking Hours"
+msgstr "最短預約時間"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__min_booking_hours
-msgid "Minimum advance time for bookings in hours"
+msgid "Minimum hours before the appointment start time that booking is allowed"
 msgstr "允許預約的最短提前時間（小時）"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__cancel_before_hours
-msgid "Cancellation Deadline (hours)"
-msgstr "取消截止時間（小時）"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__min_cancel_hours
+msgid "Min Cancel Hours"
+msgstr "最短取消時間"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__cancel_before_hours
-msgid "Cancellation deadline in hours before start"
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__min_cancel_hours
+msgid "Hours before appointment start time until when cancellation is allowed"
 msgstr "允許取消的截止時間（開始前幾小時）"
 
 #. module: reservation_module
@@ -627,34 +208,14 @@ msgid "Automatically confirm bookings"
 msgstr "自動確認預約"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__auto_confirm_capacity_percent
-msgid "Auto Confirm Capacity (%)"
-msgstr "自動確認容量（%）"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__auto_confirm_capacity_percent
-msgid "Auto confirm until this capacity percentage is reached"
-msgstr "達到此容量百分比前自動確認"
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__require_payment
 msgid "Require Payment"
 msgstr "需要付款"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__require_payment
-msgid "Require payment before confirming booking"
+msgid "Require payment before confirming the appointment"
 msgstr "確認預約前需要付款"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_product_id
-msgid "Payment Product"
-msgstr "付款產品"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_product_id
-msgid "Product used for payment"
-msgstr "用於付款的產品"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_amount
@@ -663,72 +224,37 @@ msgstr "付款金額"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_amount
-msgid "Amount to be paid for the booking"
+msgid "Amount to charge for the appointment"
 msgstr "預約需支付的金額"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_per_person
-msgid "Per Person Pricing"
-msgstr "按人數收費"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__resource_ids
+msgid "Resources"
+msgstr "場地"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_per_person
-msgid "Charge per person instead of per booking"
-msgstr "按人數收費而非按預約收費"
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__resource_ids
+msgid "Resources available for this appointment type"
+msgstr "此預約類型可用的場地"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__currency_id
-msgid "Currency"
-msgstr "貨幣"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__staff_user_ids
+msgid "Staff"
+msgstr "服務人員"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__show_image
-msgid "Show Image"
-msgstr "顯示圖片"
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__staff_user_ids
+msgid "Staff members available for this appointment type"
+msgstr "此預約類型可用的服務人員"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__image
-msgid "Image"
-msgstr "圖片"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__image_url
-msgid "Image URL"
-msgstr "圖片網址"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__icon
-msgid "Icon"
-msgstr "圖示"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__timezone
-msgid "Timezone"
-msgstr "時區"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__introduction_page
-msgid "Introduction Page"
-msgstr "簡介頁面"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__introduction_page
-msgid "Content displayed on the booking page"
-msgstr "預約頁面上顯示的內容"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__confirmation_page
-msgid "Confirmation Page"
-msgstr "確認頁面"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__confirmation_page
-msgid "Content displayed after booking confirmation"
-msgstr "預約確認後顯示的內容"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__is_published
+msgid "Published"
+msgstr "已發布"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__availability_ids
-msgid "Availability Slots"
+msgid "Availability"
 msgstr "可用時段"
 
 #. module: reservation_module
@@ -742,139 +268,9 @@ msgid "Bookings"
 msgstr "預約"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__booking_count
-msgid "Booking Count"
-msgstr "預約數"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__upcoming_booking_count
-msgid "Upcoming Bookings"
-msgstr "即將到來的預約"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__is_published
-msgid "Published"
-msgstr "已發布"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__website_url
-msgid "Website URL"
-msgstr "網站網址"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__appointment_type_id
-msgid "Appointment Type"
-msgstr "預約類型"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__dayofweek
-msgid "Day of Week"
-msgstr "星期幾"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__0
-msgid "Monday"
-msgstr "星期一"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__1
-msgid "Tuesday"
-msgstr "星期二"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__2
-msgid "Wednesday"
-msgstr "星期三"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__3
-msgid "Thursday"
-msgstr "星期四"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__4
-msgid "Friday"
-msgstr "星期五"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__5
-msgid "Saturday"
-msgstr "星期六"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__6
-msgid "Sunday"
-msgstr "星期日"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__hour_from
-msgid "From"
-msgstr "從"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_availability__hour_from
-msgid "Start time (24-hour format)"
-msgstr "開始時間（24小時制）"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__hour_to
-msgid "To"
-msgstr "到"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_availability__hour_to
-msgid "End time (24-hour format)"
-msgstr "結束時間（24小時制）"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__resource_id
-msgid "Location"
-msgstr "場地"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_availability__resource_id
-msgid "Leave empty to apply to all locations"
-msgstr "留空則適用於所有場地"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__user_id
-msgid "Staff"
-msgstr "員工"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_availability__user_id
-msgid "Leave empty to apply to all staff"
-msgstr "留空則適用於所有員工"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_payment_transaction__appointment_booking_id
-msgid "Booking"
-msgstr "預約"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_payment_transaction__appointment_booking_id
-msgid "Related booking record"
-msgstr "關聯的預約記錄"
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__name
 msgid "Booking Reference"
 msgstr "預約編號"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__appointment_type_id
-msgid "Appointment Type"
-msgstr "預約類型"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__slot_id
-msgid "Slot"
-msgstr "時段"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__partner_id
-msgid "Contact"
-msgstr "聯絡人"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__guest_name
@@ -897,16 +293,6 @@ msgid "Number of Guests"
 msgstr "訪客人數"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__resource_id
-msgid "Location"
-msgstr "場地"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__staff_user_id
-msgid "Staff"
-msgstr "服務人員"
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__start_datetime
 msgid "Start Time"
 msgstr "開始時間"
@@ -922,49 +308,14 @@ msgid "Duration (hours)"
 msgstr "持續時間（小時）"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__state
-msgid "Status"
-msgstr "狀態"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_status
-msgid "Payment Status"
-msgstr "付款狀態"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_amount
-msgid "Payment Amount"
-msgstr "付款金額"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__currency_id
-msgid "Currency"
-msgstr "貨幣"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__calendar_event_id
-msgid "Calendar Event"
-msgstr "日曆事件"
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__notes
 msgid "Notes"
 msgstr "備註"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__internal_notes
-msgid "Internal Notes"
-msgstr "內部備註"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__access_token
-msgid "Access Token"
-msgstr "存取權杖"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__company_id
-msgid "Company"
-msgstr "公司"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__state
+msgid "Status"
+msgstr "狀態"
 
 #. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__draft
@@ -987,6 +338,11 @@ msgid "Cancelled"
 msgstr "已取消"
 
 #. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_status
+msgid "Payment Status"
+msgstr "付款狀態"
+
+#. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__payment_status__not_required
 msgid "Not Required"
 msgstr "不需要"
@@ -1002,24 +358,59 @@ msgid "Paid"
 msgstr "已付款"
 
 #. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__payment_status__refunded
-msgid "Refunded"
-msgstr "已退款"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__day_of_week
+msgid "Day of Week"
+msgstr "星期幾"
+
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__day_of_week__0
+msgid "Monday"
+msgstr "星期一"
+
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__day_of_week__1
+msgid "Tuesday"
+msgstr "星期二"
+
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__day_of_week__2
+msgid "Wednesday"
+msgstr "星期三"
+
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__day_of_week__3
+msgid "Thursday"
+msgstr "星期四"
+
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__day_of_week__4
+msgid "Friday"
+msgstr "星期五"
+
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__day_of_week__5
+msgid "Saturday"
+msgstr "星期六"
+
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__day_of_week__6
+msgid "Sunday"
+msgstr "星期日"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__start_hour
+msgid "Start Hour"
+msgstr "開始時間"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__end_hour
+msgid "End Hour"
+msgstr "結束時間"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__name
 msgid "Question"
 msgstr "問題"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__appointment_type_id
-msgid "Appointment Type"
-msgstr "預約類型"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__sequence
-msgid "Sequence"
-msgstr "順序"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__answer
@@ -1029,86 +420,8 @@ msgstr "回答"
 #. module: reservation_module
 #: code:addons/reservation_module/controllers/main.py:0
 #, python-format
-msgid "Payment was not completed. Please try again."
-msgstr "付款未完成，請重試。"
-
-#. module: reservation_module
-#: code:addons/reservation_module/controllers/main.py:0
-#, python-format
 msgid "Please fill in all required fields."
 msgstr "請填寫所有必填欄位。"
-
-#. module: reservation_module
-#: code:addons/reservation_module/controllers/main.py:0
-#, python-format
-msgid "Please enter a valid email address."
-msgstr "請輸入有效的電子郵件地址。"
-
-#. module: reservation_module
-#: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
-msgid "Slot duration must be greater than 0."
-msgstr "時段長度必須大於0。"
-
-#. module: reservation_module
-#: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
-msgid "Maximum booking days must be at least 1."
-msgstr "最大預約天數至少為1。"
-
-#. module: reservation_module
-#: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
-msgid "Auto confirm capacity must be between 0 and 1.0 (0% to 100%)."
-msgstr "自動確認容量必須在0到1.0之間（0%到100%）。"
-
-#. module: reservation_module
-#: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
-msgid "Settings"
-msgstr "設定"
-
-#. module: reservation_module
-#: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
-msgid "Allow others to book meetings in your reservation"
-msgstr "允許其他人在您的預約系統中預約會議"
-
-#. module: reservation_module
-#: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
-msgid "Schedule video meetings with one or more participants"
-msgstr "與一位或多位參與者安排視訊會議"
-
-#. module: reservation_module
-#: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
-msgid "Let customers book tables at your restaurant or bar"
-msgstr "讓客戶在您的餐廳或酒吧預訂桌位"
-
-#. module: reservation_module
-#: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
-msgid "Book a Resource"
-msgstr "預訂資源"
-
-#. module: reservation_module
-#: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
-msgid "Allow customers to book resources like rooms, tennis courts, etc."
-msgstr "允許客戶預訂會議室、網球場等資源"
-
-#. module: reservation_module
-#: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
-msgid "Let customers book a paid slot in your reservation"
-msgstr "讓客戶在您的預約系統中預約付費時段"
-
-#. module: reservation_module
-#: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
-msgid "Let customers book a fee per person for activities"
-msgstr "讓客戶按人數預約活動費用"
 
 #. module: reservation_module
 #: code:addons/reservation_module/models/appointment_availability.py:0
@@ -1127,3 +440,630 @@ msgstr "結束時間必須在0到24之間。"
 #, python-format
 msgid "Start time must be before end time."
 msgstr "開始時間必須早於結束時間。"
+
+#. module: reservation_module
+#: code:addons/reservation_module/models/appointment_booking.py:0
+#, python-format
+msgid "End time must be after start time."
+msgstr "結束時間必須晚於開始時間。"
+
+#. module: reservation_module
+#: code:addons/reservation_module/models/appointment_booking.py:0
+#, python-format
+msgid "Number of guests must be at least 1."
+msgstr "訪客人數至少為1人。"
+
+#. module: reservation_module
+#: code:addons/reservation_module/models/appointment_booking.py:0
+#, python-format
+msgid "Payment is required before confirming this booking."
+msgstr "確認此預約前需要付款。"
+
+#. module: reservation_module
+#: code:addons/reservation_module/models/appointment_slot.py:0
+#, python-format
+msgid "Capacity must be at least 1."
+msgstr "容量至少為1。"
+
+#. module: reservation_module
+#: code:addons/reservation_module/models/appointment_type.py:0
+#, python-format
+msgid "Slot duration must be greater than 0."
+msgstr "時段長度必須大於0。"
+
+#. module: reservation_module
+#: code:addons/reservation_module/models/appointment_type.py:0
+#, python-format
+msgid "Maximum booking days must be at least 1."
+msgstr "最大預約天數至少為1。"
+
+#. module: reservation_module
+#: code:addons/reservation_module/models/appointment_type.py:0
+#, python-format
+msgid "Auto confirm capacity must be between 0 and 100."
+msgstr "自動確認容量必須在0到100之間。"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_list
+msgid "Book Now"
+msgstr "立即預約"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_page
+msgid "Book Appointment"
+msgstr "預約"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
+msgid "Select Date & Time"
+msgstr "選擇日期與時間"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
+msgid "Select Staff"
+msgstr "選擇服務人員"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
+msgid "Select Resource"
+msgstr "選擇場地"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
+msgid "Available Times"
+msgstr "可用時段"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
+msgid "Loading available slots..."
+msgstr "正在載入可用時段..."
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
+msgid "Complete Your Booking"
+msgstr "完成預約"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
+msgid "Name *"
+msgstr "姓名 *"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
+msgid "Email *"
+msgstr "電子郵件 *"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
+msgid "Phone"
+msgstr "電話"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
+msgid "Number of Guests"
+msgstr "訪客人數"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
+msgid "Confirm Booking"
+msgstr "確認預約"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
+msgid "Booking Confirmed!"
+msgstr "預約已確認！"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
+msgid "Your booking reference is:"
+msgstr "您的預約編號是："
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
+msgid "A confirmation email has been sent to"
+msgstr "確認郵件已發送至"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
+msgid "Book Another Appointment"
+msgstr "再預約一個"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_cancel_page
+msgid "Cancel Booking"
+msgstr "取消預約"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_cancel_page
+msgid "Are you sure you want to cancel this booking?"
+msgstr "您確定要取消此預約嗎？"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_cancel_page
+msgid "Yes, Cancel Booking"
+msgstr "是的，取消預約"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_cancelled_page
+msgid "Booking Cancelled"
+msgstr "預約已取消"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_cancelled_page
+msgid "Your booking has been cancelled successfully."
+msgstr "您的預約已成功取消。"
+
+#. module: reservation_module
+#: model:mail.template,subject:reservation_module.mail_template_appointment_confirmed
+msgid "Your appointment has been confirmed"
+msgstr "您的預約已確認"
+
+#. module: reservation_module
+#: model:mail.template,subject:reservation_module.mail_template_appointment_cancelled
+msgid "Your appointment has been cancelled"
+msgstr "您的預約已取消"
+
+#. module: reservation_module
+#: model:mail.template,subject:reservation_module.mail_template_appointment_reminder
+msgid "Reminder: Your appointment is coming up"
+msgstr "提醒：您的預約即將到來"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "General"
+msgstr "一般"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Communication"
+msgstr "通訊"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Introduction Message"
+msgstr "簡介訊息"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Confirmation Message"
+msgstr "確認訊息"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Payment"
+msgstr "付款"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Advanced"
+msgstr "進階"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "Published"
+msgstr "已發布"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "Unpublished"
+msgstr "未發布"
+
+#. module: reservation_module
+#: model:ir.actions.act_window,name:reservation_module.action_appointment_type
+msgid "Appointment Types"
+msgstr "預約類型"
+
+#. module: reservation_module
+#: model:ir.actions.act_window,name:reservation_module.action_appointment_booking
+msgid "All Bookings"
+msgstr "所有預約"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+msgid "Booking Information"
+msgstr "預約資訊"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+msgid "Guest Information"
+msgstr "訪客資訊"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+msgid "Confirm"
+msgstr "確認"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+msgid "Cancel"
+msgstr "取消"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+msgid "Mark as Done"
+msgstr "標記完成"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+msgid "Set to Draft"
+msgstr "設為草稿"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_calendar
+msgid "Appointment Calendar"
+msgstr "預約行事曆"
+
+#. module: reservation_module
+msgid "hour(s)"
+msgstr "小時"
+
+#. module: reservation_module
+msgid "seats"
+msgstr "座位"
+
+#. module: reservation_module
+msgid "available"
+msgstr "可用"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_list
+msgid "Book an Appointment"
+msgstr "預約服務"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_list
+msgid "No appointment types available at the moment."
+msgstr "目前沒有可用的預約類型。"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_page
+msgid "per person"
+msgstr "每人"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
+msgid "Book"
+msgstr "預約"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
+msgid "-- Select --"
+msgstr "-- 請選擇 --"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
+msgid "Any additional information..."
+msgstr "任何其他資訊..."
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
+msgid "will be required to confirm your booking."
+msgstr "需要付款才能確認您的預約。"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
+msgid "Continue to Payment"
+msgstr "繼續付款"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
+msgid "Staff:"
+msgstr "服務人員："
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
+msgid "Appointment:"
+msgstr "預約項目："
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
+msgid "Date & Time:"
+msgstr "日期與時間："
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
+msgid "Resource:"
+msgstr "場地："
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
+msgid "Guests:"
+msgstr "訪客人數："
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
+msgid "Appointment Details"
+msgstr "預約詳情"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
+msgid "Type:"
+msgstr "類型："
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
+msgid "Name:"
+msgstr "姓名："
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
+msgid "Email:"
+msgstr "電子郵件："
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
+msgid "Phone:"
+msgstr "電話："
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
+msgid "Number of Guests:"
+msgstr "訪客人數："
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_cancel_page
+msgid "Cancel Booking?"
+msgstr "取消預約？"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_cancel_page
+msgid "Are you sure you want to cancel your booking?"
+msgstr "您確定要取消您的預約嗎？"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_cancel_page
+msgid "Booking Reference:"
+msgstr "預約編號："
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_cancel_page
+msgid "No, Keep Booking"
+msgstr "不，保留預約"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_cancelled_page
+msgid "has been cancelled."
+msgstr "已被取消。"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_cancelled_page
+msgid "Book a New Appointment"
+msgstr "預約新時段"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_payment_page
+msgid "Booking Summary"
+msgstr "預約摘要"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_payment_page
+msgid "Amount Due"
+msgstr "應付金額"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_payment_page
+msgid "Select a payment method to complete your booking."
+msgstr "選擇付款方式以完成預約。"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_payment_page
+msgid "Pay with"
+msgstr "使用付款"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_payment_page
+msgid "No payment methods available. Please contact us to complete your booking."
+msgstr "沒有可用的付款方式。請聯繫我們完成您的預約。"
+
+#. module: reservation_module
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+#, javascript-format
+msgid "Loading available times..."
+msgstr "正在載入可用時段..."
+
+#. module: reservation_module
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+#, javascript-format
+msgid "Error loading available times. Please try again."
+msgstr "載入可用時段時發生錯誤。請重試。"
+
+#. module: reservation_module
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+#, javascript-format
+msgid "No available times for this date."
+msgstr "此日期沒有可用時段。"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+msgid "Today"
+msgstr "今天"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+msgid "This Week"
+msgstr "本週"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+msgid "Upcoming"
+msgstr "即將到來"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+msgid "Group By"
+msgstr "分組依據"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+msgid "Date"
+msgstr "日期"
+
+#. module: reservation_module
+#: model:ir.actions.act_window,help:reservation_module.action_appointment_booking
+msgid "No bookings yet"
+msgstr "尚無預約"
+
+#. module: reservation_module
+#: model:ir.actions.act_window,help:reservation_module.action_appointment_booking
+msgid "Bookings will appear here when customers make appointments."
+msgstr "當客戶進行預約時，預約將會顯示在這裡。"
+
+#. module: reservation_module
+#: model:ir.actions.act_window,name:reservation_module.action_appointment_booking_calendar
+msgid "Bookings Calendar"
+msgstr "預約行事曆"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Share"
+msgstr "分享"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Location Gantt"
+msgstr "場地甘特圖"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Staff Gantt"
+msgstr "員工甘特圖"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Archived"
+msgstr "已封存"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Schedule Configuration"
+msgstr "排程設定"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Capacity"
+msgstr "容量"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Staff Members"
+msgstr "服務人員"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Weekly Schedule"
+msgstr "每週排程"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Add Closing Days"
+msgstr "新增休息日"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Introduction Page"
+msgstr "簡介頁面"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Confirmation Page"
+msgstr "確認頁面"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Email Notifications"
+msgstr "郵件通知"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Email notifications are automatically sent when bookings are confirmed, rescheduled, or cancelled."
+msgstr "當預約確認、改期或取消時，系統會自動發送郵件通知。"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Booking Settings"
+msgstr "預約設定"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Scheduling"
+msgstr "排程"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "before start time"
+msgstr "開始前"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Cancellation"
+msgstr "取消"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Display"
+msgstr "顯示"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "duration"
+msgstr "時長"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "Total"
+msgstr "總計"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "resources"
+msgstr "個場地"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "capacity:"
+msgstr "容量："
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "staff members"
+msgstr "位服務人員"
+
+#. module: reservation_module
+#: model:ir.actions.act_window,help:reservation_module.action_appointment_type
+msgid "Create your first appointment type"
+msgstr "建立您的第一個預約類型"
+
+#. module: reservation_module
+#: model:ir.actions.act_window,help:reservation_module.action_appointment_type
+msgid "Allow your customers to book appointments online."
+msgstr "讓您的客戶可以線上預約。"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+msgid "Notes from the guest..."
+msgstr "訪客的備註..."
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+msgid "Internal Notes"
+msgstr "內部備註"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+msgid "Internal notes (not visible to guests)..."
+msgstr "內部備註（訪客不可見）..."
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+msgid "Technical"
+msgstr "技術"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_list
+msgid "Search Bookings"
+msgstr "搜尋預約"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
+msgid "Search Appointment Types"
+msgstr "搜尋預約類型"

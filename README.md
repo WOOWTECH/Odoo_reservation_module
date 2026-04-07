@@ -1,275 +1,605 @@
-# Reservation Booking Enhancement / 預約管理系統
+<p align="center">
+  <img src="docs/screenshots/icon.png" alt="Reservation Booking Enhancement" width="120"/>
+</p>
 
-**Version: 18.0.2.1.0** | **Odoo 18 Community Edition** | **License: LGPL-3**
+<h1 align="center">Reservation Booking Enhancement</h1>
 
-A complete appointment booking system for Odoo 18 Community Edition with online booking portal, payment integration, Discuss channel meeting rooms, and multi-language support.
+<p align="center">
+  <strong>Complete Appointment Booking System for Odoo 18 Community Edition</strong><br/>
+  Online booking portal, payment integration, Discuss channel meeting rooms, and multi-language support
+</p>
 
-適用於 Odoo 18 社群版的完整預約管理系統，支援線上預約、付款整合、Discuss 頻道會議室及多語言。
+<p align="center">
+  <a href="#features">Features</a> &bull;
+  <a href="#architecture">Architecture</a> &bull;
+  <a href="#screenshots">Screenshots</a> &bull;
+  <a href="#appointment-types">Appointment Types</a> &bull;
+  <a href="#installation">Installation</a> &bull;
+  <a href="#configuration">Configuration</a> &bull;
+  <a href="#security">Security</a> &bull;
+  <a href="README_zh-TW.md">中文文件</a>
+</p>
 
----
-
-## Table of Contents / 目錄
-
-- [Features / 功能特色](#features--功能特色)
-- [Screenshots / 操作截圖](#screenshots--操作截圖)
-  - [Backend Management / 後台管理](#backend-management--後台管理)
-  - [Online Booking Flow / 線上預約流程](#online-booking-flow--線上預約流程)
-  - [Customer Portal / 客戶入口](#customer-portal--客戶入口)
-  - [Discuss Channel Integration / Discuss 頻道整合](#discuss-channel-integration--discuss-頻道整合)
-  - [Payment Flow / 付款流程](#payment-flow--付款流程)
-- [Appointment Types / 預約類型](#appointment-types--預約類型)
-- [Installation / 安裝方式](#installation--安裝方式)
-- [Configuration / 設定](#configuration--設定)
-- [Dependencies / 相依模組](#dependencies--相依模組)
-- [Support / 技術支援](#support--技術支援)
-
----
-
-## Features / 功能特色
-
-- **Multiple Appointment Types / 多種預約類型**: Meetings, video calls, table bookings, resource reservations, paid consultations, and paid seats
-- **Resource & Staff Management / 資源與員工管理**: Manage availability of rooms, tables, equipment, and staff members
-- **Online Booking Portal / 線上預約入口**: Beautiful public-facing booking pages with date/time selection
-- **Payment Integration / 付款整合**: Collect payments upfront with Odoo's payment providers (supports per-guest pricing)
-- **Discuss Channel Meeting Rooms / Discuss 頻道會議室**: Auto-created chat channels for online meeting bookings with video call support
-- **Auto Confirmation / 自動確認**: Automatically confirm bookings based on capacity rules
-- **Email Notifications / 電子郵件通知**: Automatic confirmation and reminder emails with meeting links
-- **Customer Portal / 客戶入口**: Customers can view, manage, and cancel bookings from their portal
-- **Multi-language Support / 多語言支援**: English, Traditional Chinese (zh_TW), Simplified Chinese (zh_CN)
+<p align="center">
+  <img src="https://img.shields.io/badge/Odoo-18.0-purple?logo=odoo" alt="Odoo 18"/>
+  <img src="https://img.shields.io/badge/Python-3.10+-blue?logo=python" alt="Python 3.10+"/>
+  <img src="https://img.shields.io/badge/License-LGPL--3-green" alt="License"/>
+  <img src="https://img.shields.io/badge/Version-18.0.2.1.0-orange" alt="Version"/>
+  <img src="https://img.shields.io/badge/PostgreSQL-13+-blue?logo=postgresql" alt="PostgreSQL"/>
+</p>
 
 ---
 
-## Screenshots / 操作截圖
+## Overview
 
-### Backend Management / 後台管理
+**Reservation Booking Enhancement** is a complete appointment booking system for Odoo 18 Community Edition. It brings the functionality of Odoo Enterprise's Appointment module to the Community edition — online booking portal, resource management, payment processing, Discuss channel meeting rooms, and multi-language support.
 
-#### Appointment Types Kanban / 預約類型看板
+### Why This Module?
 
-Manage all your appointment types from a visual kanban view. Each card shows the appointment name, type icon, and published status.
-
-從看板檢視管理所有預約類型，每張卡片顯示預約名稱、類型圖示及發佈狀態。
-
-![Appointment Types Kanban](reservation_module/static/description/screenshots/02_backend_appointment_types.png)
-
-#### Appointment Type Configuration / 預約類型設定
-
-Configure each appointment type with staff assignment, location type (Online Meeting / Physical), timezone, and video link settings.
-
-設定每種預約類型的員工分配、地點類型（線上會議/實體）、時區及視訊連結。
-
-![Appointment Type Form](reservation_module/static/description/screenshots/03_backend_appointment_type_form.png)
-
-#### Appointment Options Tab / 預約選項頁籤
-
-Configure booking options including payment settings (price per person, payment requirement), scheduling rules (slot duration, advance booking limits), and cancellation policies.
-
-設定預約選項，包括付款設定（每人價格、是否需付款）、排程規則（時段長度、預約限制）及取消政策。
-
-![Appointment Options Tab](reservation_module/static/description/screenshots/04_backend_appointment_options_tab.png)
-
-#### All Bookings List / 所有預約列表
-
-View all bookings in a comprehensive list with booking reference, customer name, appointment type, date/time, status, and assigned staff.
-
-以完整列表檢視所有預約，包含預約編號、客戶姓名、預約類型、日期時間、狀態及指派員工。
-
-![All Bookings List](reservation_module/static/description/screenshots/01_backend_booking_list.png)
-
-#### Booking Form Detail / 預約表單詳情
-
-View complete booking details including customer information, appointment details, discuss channel meeting URL, and status tracking.
-
-檢視完整預約詳情，包括客戶資訊、預約細節、Discuss 頻道會議連結及狀態追蹤。
-
-![Booking Form](reservation_module/static/description/screenshots/05_backend_booking_form.png)
-
-#### Booking Confirmation Email / 預約確認信件
-
-The chatter shows automatic confirmation emails sent to customers with booking details and meeting links.
-
-聊天記錄顯示自動發送給客戶的確認郵件，包含預約詳情及會議連結。
-
-![Booking Email](reservation_module/static/description/screenshots/06_backend_booking_email.png)
+| Challenge | Solution |
+|-----------|----------|
+| Odoo CE lacks an appointment booking system | Full-featured booking with 6 appointment types |
+| Online booking requires custom development | Ready-to-use public booking portal at `/appointment` |
+| Meeting rooms need third-party tools | Built-in Discuss channel integration with video call support |
+| Resource scheduling is manual | Automated availability management for staff, rooms, and equipment |
+| Payment collection is separate | Integrated Odoo payment providers with per-guest pricing |
+| Customer portal has no booking management | Portal dashboard with booking history, details, and cancellation |
 
 ---
 
-### Online Booking Flow / 線上預約流程
+## Features
 
-#### Step 1: Appointment List Page / 步驟一：預約列表頁面
+### Appointment Management
 
-Customers visit `/appointment` to see all published appointment types with descriptions.
+- **6 Appointment Types** — Meetings, video calls, table bookings, resource reservations, paid consultations, and paid seats
+- **Resource & Staff Scheduling** — Manage availability of rooms, tables, equipment, and staff with weekly schedules
+- **Automatic Confirmation** — Auto-confirm bookings based on capacity rules and availability
+- **Cancellation Policies** — Configurable cancellation deadlines with grace periods
+- **FAQ / Q&A Support** — Add questions and answers to each appointment type
 
-客戶訪問 `/appointment` 查看所有已發佈的預約類型及說明。
+### Online Booking Portal
 
-![Appointment List](reservation_module/static/description/screenshots/07_frontend_appointment_list.png)
+- **Public Booking Pages** — Beautiful `/appointment` listing page with appointment type cards
+- **Step-by-Step Booking** — Date selection → staff choice → time slot → guest form → confirmation
+- **Responsive Design** — Mobile-friendly booking flow with modern CSS styling
+- **Guest Information** — Collect name, email, phone, number of guests, and custom notes
+- **Capacity Validation** — Enforce maximum capacity per time slot across all bookings
 
-#### Step 2: Appointment Detail / 步驟二：預約詳情頁面
+### Payment Integration
 
-Select an appointment type to see its description, duration, and a "Book Now" button to start booking.
+- **Odoo Payment Providers** — Works with all Odoo payment providers (Stripe, PayPal, etc.)
+- **Per-Guest Pricing** — Price per person with automatic total calculation
+- **Payment-Required Flow** — Draft bookings until payment confirmed, then auto-confirm
+- **Free & Paid Types** — Support both free and paid appointment types in the same system
 
-選擇預約類型查看說明、時長，並點擊「立即預約」開始預約。
+### Discuss Channel Meeting Rooms
 
-![Appointment Detail](reservation_module/static/description/screenshots/08_frontend_appointment_detail.png)
+- **Auto-Created Channels** — Confirm an online meeting → Discuss channel is created automatically
+- **Video Call Support** — Meeting URL generated and shared with customers via email
+- **Portal Access** — Customers join meeting rooms directly from their portal booking page
+- **Member Management** — Staff and customers auto-added to the channel with correct access rights
 
-#### Step 3: Date & Staff Selection / 步驟三：日期與員工選擇
+### Customer Portal
 
-Choose a date from the calendar and optionally select a preferred staff member from the dropdown.
+- **My Bookings Dashboard** — Portal users see all their bookings with status, type, and date
+- **Booking Detail Page** — Complete booking information with "Open Meeting Room" and "Cancel Booking" actions
+- **My Discussions** — Central hub for all meeting room channels accessible from the portal
+- **Status Tracking** — Real-time booking status (Draft, Confirmed, Cancelled)
 
-從日曆選擇日期，並可從下拉選單選擇偏好的員工。
+### Email Notifications
 
-![Date Selection](reservation_module/static/description/screenshots/09_frontend_date_selection.png)
+- **Confirmation Emails** — Automatic emails with booking details, meeting links, and calendar attachment
+- **Reminder System** — Configurable email reminders before appointments
+- **Meeting URL Included** — Online meeting bookings include the Discuss channel URL in all emails
 
-#### Step 4: Time Slot Selection / 步驟四：時段選擇
+### Multi-Language Support
 
-Available time slots are displayed based on staff availability and existing bookings. Slots are shown in the configured interval (e.g., 30 minutes).
-
-根據員工可用時間及現有預約顯示可用時段。時段按設定的間隔顯示（例如 30 分鐘）。
-
-![Time Slots](reservation_module/static/description/screenshots/10_frontend_time_slots.png)
-
-#### Step 5: Booking Form / 步驟五：預約表單
-
-Fill in guest information including name, email, phone, number of guests, and optional notes. For paid appointments, a payment alert is shown.
-
-填寫賓客資訊，包括姓名、電子郵件、電話、賓客人數及備註。付費預約會顯示付款提示。
-
-![Booking Form](reservation_module/static/description/screenshots/11_frontend_booking_form.png)
-
-#### Step 6: Booking Confirmed / 步驟六：預約確認
-
-After successful booking, a confirmation page shows the booking reference, appointment details, and a notification that confirmation email has been sent. For online meetings, a "Join Meeting" button links to the Discuss channel.
-
-預約成功後，確認頁面顯示預約編號、預約詳情，及確認郵件已發送的通知。線上會議預約會顯示「加入會議」按鈕連結至 Discuss 頻道。
-
-![Booking Confirmed](reservation_module/static/description/screenshots/18_frontend_booking_confirmed.png)
-
-#### Booking Confirmed with Join Meeting / 預約確認含加入會議
-
-For online meeting bookings, the confirmation page includes a "Join Meeting" button that opens the Discuss channel for video calls and chat.
-
-線上會議預約的確認頁面包含「加入會議」按鈕，可開啟 Discuss 頻道進行視訊通話和聊天。
-
-![Confirmed with Join Meeting](reservation_module/static/description/screenshots/19_frontend_confirmed_join_meeting.png)
+- **English** — Full interface and email templates
+- **Traditional Chinese (zh_TW)** — Complete translation for Taiwan market
+- **Simplified Chinese (zh_CN)** — Complete translation for China market
+- **Extensible** — Standard Odoo `.po` translation format for easy additions
 
 ---
 
-### Customer Portal / 客戶入口
+## Architecture
 
-#### Portal Home / 入口首頁
+```
+┌──────────────────────────────────────────────────────────────────┐
+│               Reservation Booking Enhancement                     │
+│                  (reservation_module)                              │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐   │
+│  │  Backend Views   │  │  Website Portal  │  │ Customer Portal │   │
+│  │                  │  │                  │  │                 │   │
+│  │ • Type Kanban    │  │ • /appointment   │  │ • My Bookings   │   │
+│  │ • Booking List   │  │ • Date Picker    │  │ • Booking Detail│   │
+│  │ • Booking Form   │  │ • Time Slots     │  │ • My Discussions│   │
+│  │ • Calendar View  │  │ • Booking Form   │  │ • Cancel Action │   │
+│  │ • Gantt View     │  │ • Confirmation   │  │ • Meeting Room  │   │
+│  └────────┬─────────┘  └────────┬─────────┘  └────────┬────────┘   │
+│           │                     │                      │           │
+│           └──────────┬──────────┘──────────────────────┘           │
+│                      │                                             │
+│  ┌───────────────────▼────────────────────────────────────────┐   │
+│  │                     Models Layer                            │   │
+│  │                                                             │   │
+│  │  appointment.type          appointment.booking               │   │
+│  │  ├── name, description     ├── name, email, phone            │   │
+│  │  ├── location_type         ├── appointment_type_id            │   │
+│  │  ├── slot_duration         ├── slot_id, staff_user_id         │   │
+│  │  ├── price, payment_required ├── state (draft/confirmed/...)  │   │
+│  │  ├── max_capacity          ├── discuss_channel_id             │   │
+│  │  └── question_ids          └── payment_transaction_id         │   │
+│  │                                                             │   │
+│  │  appointment.slot           appointment.question              │   │
+│  │  ├── start_datetime         ├── name, answer                  │   │
+│  │  ├── end_datetime           └── appointment_type_id           │   │
+│  │  └── appointment_type_id                                     │   │
+│  │                                                             │   │
+│  │  appointment.availability   resource.resource                 │   │
+│  │  ├── day_of_week            ├── name                          │   │
+│  │  ├── hour_from/hour_to      ├── resource_type                 │   │
+│  │  └── appointment_type_id    └── user_id                       │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                      │                                             │
+│  ┌───────────────────▼────────────────────────────────────────┐   │
+│  │                   Controllers                               │   │
+│  │                                                             │   │
+│  │  /appointment              → Appointment listing             │   │
+│  │  /appointment/<id>         → Appointment detail              │   │
+│  │  /appointment/<id>/book    → Date & time selection           │   │
+│  │  /appointment/<id>/submit  → Booking submission              │   │
+│  │  /my/bookings              → Portal booking list             │   │
+│  │  /my/booking/<id>          → Portal booking detail           │   │
+│  │  /my/booking/<id>/cancel   → Cancel booking                  │   │
+│  │  /my/discussions           → Portal discussions              │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                                                                   │
+├───────────────────────────────────────────────────────────────────┤
+│                         Odoo 18 Framework                          │
+│  Calendar │ Resource │ Website │ Portal │ Payment │ Mail │ Sale   │
+├───────────────────────────────────────────────────────────────────┤
+│                    PostgreSQL Database                              │
+└───────────────────────────────────────────────────────────────────┘
+```
+
+### Module Dependency Graph
+
+```
+reservation_module
+    │
+    ├── calendar     (Odoo Calendar - event management)
+    ├── resource     (Resource Management - staff & room scheduling)
+    ├── website      (Website Builder - public booking pages)
+    ├── portal       (Customer Portal - My Bookings dashboard)
+    ├── payment      (Payment Engine - Stripe, PayPal, etc.)
+    ├── mail         (Discuss / Email - channel creation, notifications)
+    ├── sale         (Sales - payment transaction integration)
+    └── product      (Product - appointment type pricing)
+```
+
+### Booking Flow
+
+```
+┌───────────────────────────────────────────────────────────────────┐
+│                     Online Booking Flow                            │
+│                                                                   │
+│  1. Customer visits /appointment                                  │
+│     └── Lists all published appointment types                     │
+│                                                                   │
+│  2. Selects an appointment type                                   │
+│     └── Shows description, duration, "Book Now" button            │
+│                                                                   │
+│  3. Picks a date and (optionally) a staff member                  │
+│     └── Calendar widget + staff dropdown                          │
+│                                                                   │
+│  4. Chooses a time slot                                           │
+│     └── Available slots based on staff schedule & capacity        │
+│                                                                   │
+│  5. Fills in guest information                                    │
+│     └── Name, email, phone, # guests, notes                      │
+│                                                                   │
+│  6a. FREE appointment → Booking confirmed immediately             │
+│      ├── Confirmation email sent                                  │
+│      ├── Calendar event created                                   │
+│      └── (If online) Discuss channel created + meeting URL        │
+│                                                                   │
+│  6b. PAID appointment → Booking in "Draft" status                 │
+│      ├── "Go to Payment" button shown                             │
+│      ├── Payment processed via Odoo payment provider              │
+│      └── On payment success → auto-confirm + email + channel      │
+│                                                                   │
+│  7. Customer manages booking from portal                          │
+│     ├── View booking details                                      │
+│     ├── Open meeting room (for online meetings)                   │
+│     └── Cancel booking (if within cancellation deadline)          │
+└───────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Screenshots
+
+### Backend — Appointment Types Kanban
+
+Manage all appointment types from a visual kanban view. Each card shows the type name, icon, and published status.
+
+<p align="center">
+  <img src="docs/screenshots/02_backend_appointment_types.png" alt="Appointment Types Kanban" width="720"/>
+</p>
+
+### Backend — Appointment Type Configuration
+
+Configure each type with staff assignment, location type (Online Meeting / Physical), timezone, video link, and scheduling rules.
+
+<p align="center">
+  <img src="docs/screenshots/03_backend_appointment_type_form.png" alt="Appointment Type Form" width="720"/>
+</p>
+
+### Backend — Appointment Options Tab
+
+Set booking options: payment settings (price per person, payment requirement), slot duration, advance booking limits, and cancellation policies.
+
+<p align="center">
+  <img src="docs/screenshots/04_backend_appointment_options_tab.png" alt="Appointment Options" width="720"/>
+</p>
+
+### Backend — All Bookings List
+
+View all bookings with reference number, customer name, appointment type, date/time, status, and assigned staff.
+
+<p align="center">
+  <img src="docs/screenshots/01_backend_booking_list.png" alt="All Bookings List" width="720"/>
+</p>
+
+### Backend — Booking Form Detail
+
+Complete booking details: customer info, appointment details, Discuss channel meeting URL, and status tracking in chatter.
+
+<p align="center">
+  <img src="docs/screenshots/05_backend_booking_form.png" alt="Booking Form" width="720"/>
+</p>
+
+### Backend — Confirmation Email
+
+Automatic confirmation email sent to customers with booking details, meeting links, and calendar information.
+
+<p align="center">
+  <img src="docs/screenshots/06_backend_booking_email.png" alt="Booking Email" width="720"/>
+</p>
+
+### Online Booking — Appointment List
+
+Customers visit `/appointment` to browse all published appointment types with descriptions and durations.
+
+<p align="center">
+  <img src="docs/screenshots/07_frontend_appointment_list.png" alt="Appointment List Page" width="720"/>
+</p>
+
+### Online Booking — Appointment Detail
+
+Appointment detail page with description, duration info, and "Book Now" button.
+
+<p align="center">
+  <img src="docs/screenshots/08_frontend_appointment_detail.png" alt="Appointment Detail" width="720"/>
+</p>
+
+### Online Booking — Date & Staff Selection
+
+Calendar-based date picker with optional staff member selection dropdown.
+
+<p align="center">
+  <img src="docs/screenshots/09_frontend_date_selection.png" alt="Date Selection" width="720"/>
+</p>
+
+### Online Booking — Time Slot Selection
+
+Available time slots displayed based on staff schedule, existing bookings, and capacity limits.
+
+<p align="center">
+  <img src="docs/screenshots/10_frontend_time_slots.png" alt="Time Slots" width="720"/>
+</p>
+
+### Online Booking — Guest Information Form
+
+Fill in name, email, phone, number of guests, and notes. Paid appointments show a payment alert.
+
+<p align="center">
+  <img src="docs/screenshots/11_frontend_booking_form.png" alt="Booking Form" width="720"/>
+</p>
+
+### Online Booking — Confirmation Page
+
+Booking confirmed with reference number, details, and "Join Meeting" button for online appointments.
+
+<p align="center">
+  <img src="docs/screenshots/18_frontend_booking_confirmed.png" alt="Booking Confirmed" width="720"/>
+</p>
+
+### Online Booking — Join Meeting
+
+Online meeting confirmation with "Join Meeting" button linking directly to the Discuss channel.
+
+<p align="center">
+  <img src="docs/screenshots/19_frontend_confirmed_join_meeting.png" alt="Join Meeting" width="720"/>
+</p>
+
+### Portal — Home Dashboard
 
 Logged-in customers see "My Bookings" and "Discussions" links in their portal dashboard.
 
-已登入的客戶在入口儀表板看到「我的預約」和「討論」連結。
+<p align="center">
+  <img src="docs/screenshots/12_portal_home.png" alt="Portal Home" width="720"/>
+</p>
 
-![Portal Home](reservation_module/static/description/screenshots/12_portal_home.png)
+### Portal — My Bookings
 
-#### My Bookings List / 我的預約列表
+Booking list with reference number, type, date/time, and status (Confirmed, Cancelled, etc.).
 
-View all bookings with reference number, appointment type, date/time, and status (Confirmed, Cancelled, etc.).
+<p align="center">
+  <img src="docs/screenshots/13_portal_bookings_list.png" alt="My Bookings" width="720"/>
+</p>
 
-檢視所有預約，包含預約編號、預約類型、日期時間及狀態（已確認、已取消等）。
+### Portal — Booking Detail
 
-![My Bookings](reservation_module/static/description/screenshots/13_portal_bookings_list.png)
+Full booking details with status badge, "Open Meeting Room" button, and "Cancel Booking" action.
 
-#### Booking Detail / 預約詳情
+<p align="center">
+  <img src="docs/screenshots/14_portal_booking_detail.png" alt="Booking Detail" width="720"/>
+</p>
 
-View booking details with status badge, appointment information, date/time, guest count. For online meetings, an "Open Meeting Room" button links to the Discuss channel. A "Cancel Booking" option is also available.
+### Portal — My Discussions
 
-檢視預約詳情，包含狀態徽章、預約資訊、日期時間、賓客人數。線上會議預約顯示「開啟會議室」按鈕連結至 Discuss 頻道。也提供「取消預約」選項。
+Central hub for all Discuss channels — meeting rooms are accessible from the portal.
 
-![Booking Detail](reservation_module/static/description/screenshots/14_portal_booking_detail.png)
+<p align="center">
+  <img src="docs/screenshots/16_portal_discussions.png" alt="My Discussions" width="720"/>
+</p>
 
-#### My Discussions / 我的討論
+### Discuss — Automatic Channel Creation
 
-Portal users can access all their Discuss channels from the "My Discussions" page, providing a central hub for meeting room communication.
+Online meeting bookings auto-create Discuss channels with the appointment type name and booking reference.
 
-入口用戶可從「我的討論」頁面存取所有 Discuss 頻道，作為會議室溝通的中心樞紐。
+<p align="center">
+  <img src="docs/screenshots/17_backend_discuss_channels.png" alt="Discuss Channels" width="720"/>
+</p>
 
-![My Discussions](reservation_module/static/description/screenshots/16_portal_discussions.png)
+### Discuss — Portal Meeting Room
 
----
+Customers access the Discuss channel from their portal with real-time messaging and video call buttons.
 
-### Discuss Channel Integration / Discuss 頻道整合
+<p align="center">
+  <img src="docs/screenshots/15_discuss_channel.png" alt="Discuss Channel" width="720"/>
+</p>
 
-#### Automatic Channel Creation / 自動建立頻道
+### Payment — Pending Payment
 
-When an online meeting booking is confirmed, a Discuss channel is automatically created. The channel includes the appointment type name and booking reference (e.g., "Video Consultation - Customer Name (APT00903)").
+Paid bookings are created in "Draft" status with a "Go to Payment" button and payment pending alert.
 
-當線上會議預約確認時，系統自動建立 Discuss 頻道。頻道包含預約類型名稱和預約編號（例如「Video Consultation - 客戶名稱 (APT00903)」）。
-
-![Backend Discuss Channels](reservation_module/static/description/screenshots/17_backend_discuss_channels.png)
-
-#### Portal Discuss Channel / 入口 Discuss 頻道
-
-Customers access the Discuss channel through their portal booking detail page. The channel provides real-time messaging, video call buttons, and member presence indicators.
-
-客戶從入口預約詳情頁面存取 Discuss 頻道。頻道提供即時通訊、視訊通話按鈕及成員在線狀態指示。
-
-![Discuss Channel](reservation_module/static/description/screenshots/15_discuss_channel.png)
-
----
-
-### Payment Flow / 付款流程
-
-#### Payment Pending / 等待付款
-
-For paid appointment types, bookings are created in "draft" status with a "Go to Payment" button. The page shows appointment details, guest information, and a payment pending alert.
-
-付費預約類型的預約以「草稿」狀態建立，並顯示「前往付款」按鈕。頁面顯示預約詳情、賓客資訊及等待付款提示。
-
-![Payment Pending](reservation_module/static/description/screenshots/20_frontend_payment_pending.png)
+<p align="center">
+  <img src="docs/screenshots/20_frontend_payment_pending.png" alt="Payment Pending" width="720"/>
+</p>
 
 ---
 
-## Appointment Types / 預約類型
+## Appointment Types
 
-| Type / 類型 | Description / 說明 | Use Case / 使用情境 |
+| Type | Description | Use Case |
 |------|-------------|----------|
-| Meeting / 會議 | Book time with staff members / 與員工預約時間 | Consultations, interviews / 諮詢、面試 |
-| Video Call / 視訊通話 | Virtual meeting with Discuss channel / 含 Discuss 頻道的虛擬會議 | Remote consultations / 遠端諮詢 |
-| Table Booking / 餐桌預訂 | Reserve tables at restaurants / 預訂餐廳桌位 | Restaurants, bars / 餐廳、酒吧 |
-| Resource Booking / 資源預訂 | Book rooms, courts, equipment / 預訂房間、場地、設備 | Meeting rooms, sports facilities / 會議室、運動設施 |
-| Paid Consultation / 付費諮詢 | Paid time slots with professionals / 與專業人士的付費時段 | Legal, medical consultations / 法律、醫療諮詢 |
-| Paid Seat / 付費座位 | Per-person booking with payment / 按人數收費的預約 | Events, theaters, tours / 活動、劇院、旅遊 |
+| **Meeting** | Book time with staff members | Consultations, interviews, 1-on-1 sessions |
+| **Video Call** | Virtual meeting with auto-created Discuss channel | Remote consultations, telemedicine, online tutoring |
+| **Table Booking** | Reserve tables at venues | Restaurants, bars, co-working spaces |
+| **Resource Booking** | Book rooms, courts, or equipment | Meeting rooms, sports courts, rental equipment |
+| **Paid Consultation** | Paid time slots with professionals | Legal advice, medical consultations, coaching |
+| **Paid Seat** | Per-person booking with payment | Events, workshops, theater, group tours |
 
 ---
 
-## Installation / 安裝方式
+## Installation
 
-1. Copy the `reservation_module` folder to your Odoo addons directory / 將 `reservation_module` 資料夾複製到 Odoo 附加模組目錄
-2. Update the apps list in Odoo / 在 Odoo 中更新應用程式列表
-3. Install "Reservation Booking Enhancement" from the Apps menu / 從應用程式選單安裝「Reservation Booking Enhancement」
+### Prerequisites
 
-## Configuration / 設定
+- **Odoo 18.0** Community Edition
+- **PostgreSQL 13+**
+- **Python 3.10+**
 
-1. Go to **Reservation > Appointments** to create appointment types / 前往 **預約 > 預約類型** 建立預約類型
-2. Configure availability schedules (weekly schedule with day/time ranges) / 設定可用時間表（每週排程含日期/時間範圍）
-3. Add staff members and configure "Allow Customer to Choose Staff" / 新增員工並設定「允許客戶選擇員工」
-4. Set location type: Physical, Online Meeting, or Customer's Location / 設定地點類型：實體、線上會議或客戶地點
-5. Configure payment options if required (price per person, payment required) / 如需要設定付款選項（每人價格、是否需付款）
-6. Set scheduling rules: slot duration, booking window, cancellation deadline / 設定排程規則：時段長度、預約窗口、取消期限
-7. Publish appointment types to make them available at `/appointment` / 發佈預約類型使其在 `/appointment` 上可用
+### Step 1: Deploy Module
 
-## Dependencies / 相依模組
+```bash
+# Clone the repository
+git clone https://github.com/WOOWTECH/Odoo_reservation_module.git
 
-- `calendar` - Odoo Calendar (core)
-- `resource` - Resource Management (core)
-- `website` - Website Builder (core)
-- `payment` - Payment Engine (core)
-- `mail` - Discuss / Email (core)
-- `sale` - Sales (core, for paid appointments)
-- `portal` - Customer Portal (core)
+# Copy to Odoo addons path
+cp -r Odoo_reservation_module/reservation_module /path/to/odoo/addons/
 
-## License / 授權條款
+# Update module list & install
+./odoo-bin -u reservation_module -d your_database
+```
 
-LGPL-3
+### Step 2: Install in Odoo
 
-## Support / 技術支援
+1. Go to **Apps** menu
+2. Click **Update Apps List**
+3. Search for **"Reservation Booking Enhancement"**
+4. Click **Install**
 
-For support, please contact us at [support@woowtech.com](mailto:support@woowtech.com) or visit [woowtech.com](https://aiot.woowtech.io/)
+### Step 3: Configure Payment (Optional)
 
-如需支援，請聯繫 [support@woowtech.com](mailto:support@woowtech.com) 或訪問 [woowtech.com](https://aiot.woowtech.io/)
+If you need paid appointments:
+
+1. Go to **Invoicing > Configuration > Payment Providers**
+2. Enable and configure your preferred provider (Stripe, PayPal, etc.)
+3. The module will automatically use configured payment providers for paid appointment types
 
 ---
 
-© 2026 WoowTech. All rights reserved.
+## Configuration
+
+### 1. Create Appointment Types
+
+Navigate to **Calendar > Appointments**
+
+1. Click **Create** to add a new appointment type
+2. Set the **Name**, **Description**, and **Appointment Category** (Meeting, Video Call, Table, Resource, Paid Consultation, Paid Seat)
+3. Choose **Location Type**: Physical, Online Meeting, or Customer's Location
+4. Assign **Staff Members** who can handle this appointment type
+5. Toggle **Allow Customer to Choose Staff** if desired
+
+### 2. Configure Availability
+
+On the appointment type form, go to the **Availability** tab:
+
+1. Add weekly availability rules (day of week + hour range)
+2. Set **Slot Duration** (e.g., 30 min, 1 hour)
+3. Configure **Min/Max Advance Booking** windows
+4. Set **Maximum Capacity** per slot (for table/resource bookings)
+
+### 3. Configure Payment Options
+
+On the **Options** tab:
+
+1. Toggle **Payment Required** for paid types
+2. Set **Price per Person** (or fixed price)
+3. Link to a **Product** for sales order generation
+4. Configure cancellation deadline
+
+### 4. Configure Discuss Integration
+
+For online meeting types:
+
+1. Set **Location Type** to "Online Meeting"
+2. (Optional) Set a **Video Conference Link** for the meeting URL
+3. The system auto-creates Discuss channels on booking confirmation
+4. Portal users are automatically added to their booking's channel
+
+### 5. Add FAQ / Q&A
+
+On the **Questions** tab:
+
+1. Add common questions with their answers
+2. These are displayed on the public booking page
+
+### 6. Publish
+
+Toggle the **Published** switch to make the appointment type visible at `/appointment`.
+
+---
+
+## Security
+
+### Access Control Groups
+
+| Group | Access Level |
+|-------|-------------|
+| **Public** | View published appointment types, submit bookings |
+| **Portal** | View own bookings, access own Discuss channels, cancel own bookings |
+| **User** | View all bookings, manage own appointments |
+| **Manager** | Full CRUD on all bookings, appointment types, and settings |
+
+### Permission Model
+
+```
+┌────────────────────────────────────────────────────────┐
+│                 Access Control Matrix                    │
+│                                                         │
+│  appointment.type                                       │
+│  ├── Public:  Read (published only via website)         │
+│  ├── Portal:  Read                                      │
+│  ├── User:    Read / Write                              │
+│  └── Manager: Read / Write / Create / Delete            │
+│                                                         │
+│  appointment.booking                                    │
+│  ├── Public:  Create (via website form)                 │
+│  ├── Portal:  Read own / Cancel own                     │
+│  ├── User:    Read all / Write own                      │
+│  └── Manager: Full CRUD                                 │
+│                                                         │
+│  appointment.slot                                       │
+│  ├── Public:  Read (available slots only)               │
+│  ├── Portal:  Read                                      │
+│  ├── User:    Read / Write                              │
+│  └── Manager: Full CRUD                                 │
+│                                                         │
+│  resource.resource                                      │
+│  ├── User:    Read                                      │
+│  └── Manager: Full CRUD                                 │
+└────────────────────────────────────────────────────────┘
+```
+
+### Security Features
+
+- **Record Rules** — Users can only view/modify bookings based on their group
+- **Portal Isolation** — Portal users see only their own bookings and channels
+- **CSRF Protection** — All form submissions include CSRF tokens
+- **Payment Validation** — Server-side payment verification before confirming paid bookings
+- **Discuss Channel Restriction** — Only online meeting bookings create channels; members restricted to booking parties
+
+---
+
+## Dependencies
+
+| Module | Type | Description |
+|--------|------|-------------|
+| `calendar` | Core | Calendar event management |
+| `resource` | Core | Staff and resource scheduling |
+| `website` | Core | Public booking pages |
+| `portal` | Core | Customer portal dashboard |
+| `payment` | Core | Payment provider integration |
+| `mail` | Core | Discuss channels and email notifications |
+| `sale` | Core | Sales order integration for paid bookings |
+| `product` | Core | Appointment type pricing |
+
+All dependencies are **standard Odoo 18 CE modules** — no third-party modules required.
+
+---
+
+## Changelog
+
+### v18.0.2.1.0 (2026-04)
+
+- **Feature:** Discuss channel integration for online meeting bookings — auto-created channels with portal access
+- **Feature:** "My Discussions" portal page for centralized meeting room access
+- **Feature:** Video conference link support in appointment types and confirmation emails
+- **Fix:** Resolved 500 error on booking form caused by non-existent `max_guests` field
+- **Fix:** Restricted Discuss channel creation to online meeting bookings only
+- **Fix:** Set portal group access for Discuss channel members
+- **i18n:** Complete zh_TW and zh_CN translations matching the current `.pot` template
+
+### v18.0.2.0.0 (2026-03)
+
+- **Feature:** Payment integration with per-guest pricing and draft-until-paid flow
+- **Feature:** Customer portal with "My Bookings" dashboard and booking detail pages
+- **Feature:** Email confirmation with meeting links and calendar attachments
+- **Feature:** FAQ/Q&A support for appointment types
+- **Feature:** Cancellation policies with configurable deadlines
+
+### v18.0.1.0.0 (2026-03)
+
+- **Initial Release:** Complete appointment booking system with 6 appointment types
+- **Feature:** Online booking portal with step-by-step flow
+- **Feature:** Resource and staff scheduling with weekly availability
+- **Feature:** Automatic confirmation based on capacity rules
+- **Feature:** Backend management views (kanban, list, form, calendar, gantt)
+
+---
+
+## Support
+
+- **Website:** [aiot.woowtech.io](https://aiot.woowtech.io/)
+- **Email:** [support@woowtech.com](mailto:support@woowtech.com)
+- **Issues:** [GitHub Issues](https://github.com/WOOWTECH/Odoo_reservation_module/issues)
+
+---
+
+## License
+
+This project is licensed under **LGPL-3** (GNU Lesser General Public License v3).
+
+See [LICENSE](https://www.gnu.org/licenses/lgpl-3.0.html) for details.
+
+---
+
+<p align="center">
+  <sub>Built by <a href="https://github.com/WOOWTECH">WOOWTECH</a> &bull; Powered by Odoo 18 Community Edition</sub>
+</p>

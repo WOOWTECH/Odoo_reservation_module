@@ -430,17 +430,17 @@ class AppointmentBooking(models.Model):
     def _get_event_description(self):
         """Generate event description"""
         lines = []
-        lines.append(f"Guest: {self.guest_name}")
+        lines.append(_("Guest: %s") % self.guest_name)
         if self.guest_email:
-            lines.append(f"Email: {self.guest_email}")
+            lines.append(_("Email: %s") % self.guest_email)
         if self.guest_phone:
-            lines.append(f"Phone: {self.guest_phone}")
+            lines.append(_("Phone: %s") % self.guest_phone)
         if self.guest_count > 1:
-            lines.append(f"Number of guests: {self.guest_count}")
+            lines.append(_("Number of guests: %s") % self.guest_count)
         if self.resource_id:
-            lines.append(f"Location: {self.resource_id.name}")
+            lines.append(_("Location: %s") % self.resource_id.name)
         if self.notes:
-            lines.append(f"\nNotes: {self.notes}")
+            lines.append("\n" + _("Notes: %s") % self.notes)
         return '\n'.join(lines)
 
     def _send_confirmation_email(self):
@@ -689,7 +689,7 @@ class AppointmentBooking(models.Model):
         company = self.env.company
         default_tax = company.account_sale_tax_id
         product_vals = {
-            'name': 'Appointment Booking',
+            'name': _('Appointment Booking'),
             'type': 'service',
             'list_price': 0.0,
             'sale_ok': True,

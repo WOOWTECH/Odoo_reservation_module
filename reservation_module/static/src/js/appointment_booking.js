@@ -139,11 +139,11 @@ publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
 
         let html = `
             <div class="reservation-header d-flex justify-content-between align-items-center mb-3">
-                <button type="button" class="btn btn-outline-secondary reservation-prev" aria-label="Previous month">
+                <button type="button" class="btn btn-outline-secondary reservation-prev" aria-label="${_t('Previous month')}">
                     <i class="fa fa-chevron-left"></i>
                 </button>
                 <h5 class="mb-0" aria-live="polite">${monthNames[month]} ${year}</h5>
-                <button type="button" class="btn btn-outline-secondary reservation-next" aria-label="Next month">
+                <button type="button" class="btn btn-outline-secondary reservation-next" aria-label="${_t('Next month')}">
                     <i class="fa fa-chevron-right"></i>
                 </button>
             </div>
@@ -180,7 +180,7 @@ publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
             if (hasEvent) cellClass += ' has-event';
 
             const tabIdx = isDisabled ? '' : 'tabindex="0"';
-            const ariaLabel = `${day} ${monthNames[month]} ${year}${isDisabled ? ', unavailable' : ''}${isSelected ? ', selected' : ''}`;
+            const ariaLabel = `${day} ${monthNames[month]} ${year}${isDisabled ? ', ' + _t('unavailable') : ''}${isSelected ? ', ' + _t('selected') : ''}`;
 
             html += `
                 <div class="col p-1">

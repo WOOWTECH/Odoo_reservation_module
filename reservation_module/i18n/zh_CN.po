@@ -2,15 +2,14 @@
 # This file contains the translation of the following modules:
 # 	* reservation_module
 #
-# Translators:
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 18.0\n"
+"Project-Id-Version: Odoo Server 18.0-20260119\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-14 00:00+0000\n"
-"PO-Revision-Date: 2026-04-14 00:00+0000\n"
+"POT-Creation-Date: 2026-04-20 23:44+0000\n"
+"PO-Revision-Date: 2026-04-21 00:00+0000\n"
 "Last-Translator: \n"
-"Language-Team: Chinese (Simplified) (https://www.transifex.com/odoo/teams/)\n"
+"Language-Team: Chinese (Simplified)\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,29 +19,623 @@ msgstr ""
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_booking.py:0
-#, python-format
 msgid ""
 "\n"
 "Error: %s"
-msgstr ""
+msgstr "\n错误：%s"
+
+#. module: reservation_module
+#: model:mail.template,body_html:reservation_module.email_template_booking_done
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;\">\n"
+"    <!-- Header -->\n"
+"    <div style=\"background-color: #28a745; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;\">\n"
+"        <h2 style=\"color: #ffffff; margin: 0; font-size: 22px;\">✔ Appointment Completed</h2>\n"
+"    </div>\n"
 "\n"
-"错误：%s"
+"    <!-- Body -->\n"
+"    <div style=\"background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;\">\n"
+"        <p style=\"font-size: 15px; margin-top: 0;\">\n"
+"            Dear <t t-out=\"object.guest_name\"/>,\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px;\">\n"
+"            Your appointment has been completed. Thank you for your visit!\n"
+"        </p>\n"
+"\n"
+"        <!-- Booking details card -->\n"
+"        <table style=\"width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;\">\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;\">\n"
+"                    📋 Booking Reference\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    🏷️ Appointment Type\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.appointment_type_id.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    🗓️ Date &amp; Time\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <t t-if=\"object.staff_user_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        👤 Staff\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.staff_user_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"        </table>\n"
+"\n"
+"        <!-- Book again -->\n"
+"        <div style=\"text-align: center; margin: 24px 0;\">\n"
+"            <p style=\"font-size: 14px; color: #555;\">\n"
+"                We hope you had a great experience. We'd love to see you again!\n"
+"            </p>\n"
+"            <a t-att-href=\"'/appointment/' + str(object.appointment_type_id.id)\" style=\"display: inline-block; background-color: #875A7B; color: #ffffff; padding: 10px 28px; text-decoration: none; border-radius: 6px; font-size: 14px;\">\n"
+"                Book Again\n"
+"            </a>\n"
+"        </div>\n"
+"\n"
+"        <p style=\"font-size: 14px; color: #555; margin-top: 8px;\">\n"
+"            Best regards,<br/>\n"
+"            <strong><t t-out=\"object.company_id.name\"/></strong>\n"
+"        </p>\n"
+"    </div>\n"
+"</div>\n"
+"            "
+msgstr ""
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
-msgid "-- Select --"
-msgstr "-- 请选择 --"
+#: model:mail.template,body_html:reservation_module.email_template_booking_confirmed
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;\">\n"
+"    <!-- Header -->\n"
+"    <div style=\"background-color: #875A7B; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;\">\n"
+"        <h2 style=\"color: #ffffff; margin: 0; font-size: 22px;\">✓ Booking Confirmed</h2>\n"
+"    </div>\n"
+"\n"
+"    <!-- Body -->\n"
+"    <div style=\"background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;\">\n"
+"        <p style=\"font-size: 15px; margin-top: 0;\">\n"
+"            Dear <t t-out=\"object.guest_name\"/>,\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px;\">\n"
+"            Your appointment has been confirmed. Here are the details:\n"
+"        </p>\n"
+"\n"
+"        <!-- Booking details card -->\n"
+"        <table style=\"width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;\">\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;\">\n"
+"                    Booking Reference\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    Status\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <span style=\"display: inline-block; padding: 3px 10px; background-color: #d4edda; color: #155724; border-radius: 4px; font-size: 12px; font-weight: bold;\">Confirmed</span>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    Appointment Type\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.appointment_type_id.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    Date &amp; Time\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <t t-if=\"object.staff_user_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        Staff\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.staff_user_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"            <t t-if=\"object.resource_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        Location / Resource\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.resource_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    Guests\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.guest_count\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"        </table>\n"
+"\n"
+"        <!-- Meeting URL button -->\n"
+"        <t t-if=\"object.meeting_url\">\n"
+"            <div style=\"text-align: center; margin: 24px 0; padding: 20px; background-color: #f0faf0; border: 1px solid #c3e6c3; border-radius: 8px;\">\n"
+"                <p style=\"margin: 0 0 12px 0; font-size: 14px; color: #555;\">\n"
+"                    This is an online meeting. Use the link below to join at the scheduled time:\n"
+"                </p>\n"
+"                <a t-att-href=\"object.meeting_url\" style=\"display: inline-block; background-color: #28a745; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
+"                    Join Meeting\n"
+"                </a>\n"
+"                <p style=\"margin: 12px 0 0 0; font-size: 12px; color: #888;\">\n"
+"                    <t t-out=\"object.meeting_url\"/>\n"
+"                </p>\n"
+"            </div>\n"
+"        </t>\n"
+"\n"
+"        <!-- View booking link -->\n"
+"        <div style=\"text-align: center; margin: 20px 0;\">\n"
+"            <a t-att-href=\"object.get_portal_url()\" style=\"display: inline-block; background-color: #875A7B; color: #ffffff; padding: 10px 28px; text-decoration: none; border-radius: 6px; font-size: 14px;\">\n"
+"                View Booking Details\n"
+"            </a>\n"
+"        </div>\n"
+"\n"
+"        <p style=\"font-size: 14px; color: #555; margin-bottom: 0;\">\n"
+"            Thank you for your booking!\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px; color: #555; margin-top: 8px;\">\n"
+"            Best regards,<br/>\n"
+"            <strong><t t-out=\"object.company_id.name\"/></strong>\n"
+"        </p>\n"
+"    </div>\n"
+"</div>\n"
+"            "
+msgstr ""
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
-msgid "A confirmation email has been sent to"
-msgstr "确认邮件已发送至"
+#: model:mail.template,body_html:reservation_module.email_template_booking_cancelled
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;\">\n"
+"    <!-- Header -->\n"
+"    <div style=\"background-color: #dc3545; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;\">\n"
+"        <h2 style=\"color: #ffffff; margin: 0; font-size: 22px;\">Booking Cancelled</h2>\n"
+"    </div>\n"
+"\n"
+"    <!-- Body -->\n"
+"    <div style=\"background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;\">\n"
+"        <p style=\"font-size: 15px; margin-top: 0;\">\n"
+"            Dear <t t-out=\"object.guest_name\"/>,\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px;\">\n"
+"            Your appointment has been cancelled. Here were the details:\n"
+"        </p>\n"
+"\n"
+"        <!-- Booking details card -->\n"
+"        <table style=\"width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;\">\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;\">\n"
+"                    Booking Reference\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    Status\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <span style=\"display: inline-block; padding: 3px 10px; background-color: #f8d7da; color: #721c24; border-radius: 4px; font-size: 12px; font-weight: bold;\">Cancelled</span>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    Appointment Type\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.appointment_type_id.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    Date &amp; Time\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <t t-if=\"object.staff_user_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        Staff\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.staff_user_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"        </table>\n"
+"\n"
+"        <!-- Book again button -->\n"
+"        <div style=\"text-align: center; margin: 24px 0;\">\n"
+"            <p style=\"font-size: 14px; color: #555;\">\n"
+"                If you wish to make a new appointment:\n"
+"            </p>\n"
+"            <a t-att-href=\"'/appointment/' + str(object.appointment_type_id.id)\" style=\"display: inline-block; background-color: #875A7B; color: #ffffff; padding: 10px 28px; text-decoration: none; border-radius: 6px; font-size: 14px;\">\n"
+"                Book Again\n"
+"            </a>\n"
+"        </div>\n"
+"\n"
+"        <p style=\"font-size: 14px; color: #555; margin-top: 8px;\">\n"
+"            Best regards,<br/>\n"
+"            <strong><t t-out=\"object.company_id.name\"/></strong>\n"
+"        </p>\n"
+"    </div>\n"
+"</div>\n"
+"            "
+msgstr ""
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Access:"
-msgstr "访问："
+#: model:mail.template,body_html:reservation_module.email_template_booking_created
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;\">\n"
+"    <!-- Header -->\n"
+"    <div style=\"background-color: #f0ad4e; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;\">\n"
+"        <h2 style=\"color: #ffffff; margin: 0; font-size: 22px;\">📋 Booking Received</h2>\n"
+"    </div>\n"
+"\n"
+"    <!-- Body -->\n"
+"    <div style=\"background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;\">\n"
+"        <p style=\"font-size: 15px; margin-top: 0;\">\n"
+"            Dear <t t-out=\"object.guest_name\"/>,\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px;\">\n"
+"            Thank you for your booking. Your reservation has been received and is being processed.\n"
+"        </p>\n"
+"\n"
+"        <!-- Booking details card -->\n"
+"        <table style=\"width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;\">\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;\">\n"
+"                    📋 Booking Reference\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    📊 Status\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <span style=\"display: inline-block; padding: 3px 10px; background-color: #ffeeba; color: #856404; border-radius: 4px; font-size: 12px; font-weight: bold;\">Draft / Pending</span>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    🏷️ Appointment Type\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.appointment_type_id.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    🗓️ Date &amp; Time\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <t t-if=\"object.staff_user_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        👤 Staff\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.staff_user_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"            <t t-if=\"object.resource_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        📍 Location / Resource\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.resource_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    👥 Guests\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.guest_count\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"        </table>\n"
+"\n"
+"        <!-- Payment pending notice -->\n"
+"        <t t-if=\"object.payment_status == 'pending'\">\n"
+"            <div style=\"margin: 20px 0; padding: 16px; background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 8px;\">\n"
+"                <p style=\"margin: 0 0 8px 0; font-size: 15px; font-weight: bold; color: #856404;\">\n"
+"                    💳 Payment Required\n"
+"                </p>\n"
+"                <p style=\"margin: 0 0 12px 0; font-size: 14px; color: #856404;\">\n"
+"                    Your booking requires payment before it can be confirmed. Please complete your payment to secure your reservation.\n"
+"                </p>\n"
+"                <t t-if=\"object.payment_amount\">\n"
+"                    <p style=\"margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #856404;\">\n"
+"                        Amount Due: <t t-out=\"object.payment_amount\" t-options=\"{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: object.currency_id}\"/>\n"
+"                    </p>\n"
+"                </t>\n"
+"                <t t-if=\"object.sale_order_id\">\n"
+"                    <div style=\"text-align: center;\">\n"
+"                        <a t-attf-href=\"{{ object.sale_order_id.get_portal_url() }}\" style=\"display: inline-block; background-color: #ffc107; color: #212529; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
+"                            Go to Payment\n"
+"                        </a>\n"
+"                    </div>\n"
+"                </t>\n"
+"            </div>\n"
+"        </t>\n"
+"\n"
+"        <!-- No payment required notice -->\n"
+"        <t t-if=\"object.payment_status == 'not_required'\">\n"
+"            <div style=\"margin: 20px 0; padding: 16px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px;\">\n"
+"                <p style=\"margin: 0; font-size: 14px; color: #155724;\">\n"
+"                    ✓ Your booking is being processed and will be confirmed shortly.\n"
+"                </p>\n"
+"            </div>\n"
+"        </t>\n"
+"\n"
+"        <!-- View booking link -->\n"
+"        <div style=\"text-align: center; margin: 20px 0;\">\n"
+"            <a t-att-href=\"object.get_portal_url()\" style=\"display: inline-block; background-color: #875A7B; color: #ffffff; padding: 10px 28px; text-decoration: none; border-radius: 6px; font-size: 14px;\">\n"
+"                View Booking Details\n"
+"            </a>\n"
+"        </div>\n"
+"\n"
+"        <p style=\"font-size: 14px; color: #555; margin-bottom: 0;\">\n"
+"            Thank you for choosing us!\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px; color: #555; margin-top: 8px;\">\n"
+"            Best regards,<br/>\n"
+"            <strong><t t-out=\"object.company_id.name\"/></strong>\n"
+"        </p>\n"
+"    </div>\n"
+"</div>\n"
+"            "
+msgstr ""
+
+#. module: reservation_module
+#: model:mail.template,body_html:reservation_module.email_template_payment_failure
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;\">\n"
+"    <div style=\"background-color: #dc3545; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;\">\n"
+"        <h2 style=\"color: #ffffff; margin: 0; font-size: 22px;\">Payment Failed</h2>\n"
+"    </div>\n"
+"    <div style=\"background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;\">\n"
+"        <p style=\"font-size: 15px; margin-top: 0;\">\n"
+"            Dear <t t-out=\"object.guest_name\"/>,\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px;\">\n"
+"            We were unable to process the payment for your booking. Your reservation is still pending.\n"
+"        </p>\n"
+"        <table style=\"width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;\">\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;\">\n"
+"                    Booking Reference\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    Amount Due\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.payment_amount\" t-options=\"{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: object.currency_id}\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"        </table>\n"
+"        <div style=\"text-align: center; margin: 24px 0;\">\n"
+"            <p style=\"font-size: 14px; color: #555;\">Please try again using the link below:</p>\n"
+"            <t t-if=\"object.sale_order_id\">\n"
+"                <a t-attf-href=\"{{ object.sale_order_id.get_portal_url() }}\" style=\"display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
+"                    Retry Payment\n"
+"                </a>\n"
+"            </t>\n"
+"            <t t-else=\"\">\n"
+"                <a t-att-href=\"object.get_portal_url()\" style=\"display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
+"                    View Booking\n"
+"                </a>\n"
+"            </t>\n"
+"        </div>\n"
+"        <p style=\"font-size: 14px; color: #555;\">\n"
+"            If you continue to experience issues, please contact us for assistance.\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px; color: #555; margin-top: 8px;\">\n"
+"            Best regards,<br/>\n"
+"            <strong><t t-out=\"object.company_id.name\"/></strong>\n"
+"        </p>\n"
+"    </div>\n"
+"</div>\n"
+"            "
+msgstr ""
+
+#. module: reservation_module
+#: model:mail.template,body_html:reservation_module.email_template_booking_reminder
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"        Dear <t t-out=\"object.guest_name\"/>,\n"
+"        <br/><br/>\n"
+"        This is a friendly reminder about your upcoming appointment:\n"
+"        <br/><br/>\n"
+"        <strong>Appointment Type:</strong> <t t-out=\"object.appointment_type_id.name\"/><br/>\n"
+"        <strong>Date &amp; Time:</strong> <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> - <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/><br/>\n"
+"        <t t-if=\"object.resource_id\">\n"
+"            <strong>Resource:</strong> <t t-out=\"object.resource_id.name\"/><br/>\n"
+"        </t>\n"
+"        <t t-if=\"object.staff_user_id\">\n"
+"            <strong>Staff:</strong> <t t-out=\"object.staff_user_id.name\"/><br/>\n"
+"        </t>\n"
+"        <br/>\n"
+"        <strong>Booking Reference:</strong> <t t-out=\"object.name\"/><br/>\n"
+"        <br/>\n"
+"        You can view your booking here:<br/>\n"
+"        <a t-att-href=\"object.get_portal_url()\">View Booking</a>\n"
+"        <br/><br/>\n"
+"        We look forward to seeing you!\n"
+"        <br/><br/>\n"
+"        Best regards,<br/>\n"
+"        <t t-out=\"object.company_id.name\"/>\n"
+"    </p>\n"
+"</div>\n"
+"            "
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "<i class=\"fa fa-calendar\"/> Bookings"
+msgstr "<i class=\"fa fa-calendar\"/> 预约"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "<i class=\"fa fa-download me-1\"/> Export My Data"
+msgstr "<i class=\"fa fa-download me-1\"/> 导出我的数据"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid ""
+"<i class=\"fa fa-info-circle\"/> Email notifications are automatically sent "
+"when bookings are confirmed, rescheduled, or cancelled."
+msgstr "<i class=\"fa fa-info-circle\"/> 当预约确认、改期或取消时，系统会自动发送邮件通知。"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "<i class=\"fa fa-share-alt\"/> Share"
+msgstr "<i class=\"fa fa-share-alt\"/> 分享"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_request
+msgid "<i class=\"fa fa-trash me-1\"/> Confirm Data Deletion"
+msgstr "<i class=\"fa fa-trash me-1\"/> 确认删除数据"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "<i class=\"fa fa-trash me-1\"/> Delete My Data"
+msgstr "<i class=\"fa fa-trash me-1\"/> 删除我的数据"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "<i class=\"fa fa-users text-muted\"/> Capacity:"
+msgstr "<i class=\"fa fa-users text-muted\"/> 容量："
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "<span class=\"badge bg-info-light text-info\">Special Event</span>"
+msgstr "<span class=\"badge bg-info-light text-info\">特别活动</span>"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "<span class=\"badge bg-success-light text-success\">Published</span>"
+msgstr "<span class=\"badge bg-success-light text-success\">已发布</span>"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "<span class=\"badge bg-warning-light text-warning\">Unpublished</span>"
+msgstr "<span class=\"badge bg-warning-light text-warning\">未发布</span>"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid ""
+"<span class=\"badge text-bg-success\">\n"
+"                                                <i class=\"fa fa-check me-1\"/>Paid\n"
+"                                            </span>"
+msgstr "<span class=\"badge text-bg-success\">\n                                                <i class=\"fa fa-check me-1\"/>已付款\n                                            </span>"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "<span class=\"d-block d-md-none\">#</span>"
+msgstr "<span class=\"d-block d-md-none\">#</span>"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.sale_order_portal_booking_link
+msgid "<span class=\"ms-2\">|</span>"
+msgstr "<span class=\"ms-2\">|</span>"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "<span>Location Gantt</span>"
+msgstr "<span>场地甘特图</span>"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "<span>Staff Gantt</span>"
+msgstr "<span>员工甘特图</span>"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "<span>before start</span>"
+msgstr "<span>开始前</span>"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "<strong>Access:</strong> View all your booking data via the"
+msgstr "<strong>访问：</strong> 通过以下方式查看您的所有预约数据"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.sale_order_portal_booking_link
+msgid "<strong>Booking:</strong>"
+msgstr "<strong>预约：</strong>"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "<strong>Deletion:</strong> Request deletion of your data via"
+msgstr "<strong>删除：</strong> 通过以下方式申请删除您的数据"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid ""
+"<strong>Export:</strong> Download your data in machine-readable format via"
+msgstr "<strong>导出：</strong> 通过以下方式下载机器可读格式的数据"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "<strong>Rectification:</strong> Contact us to correct inaccurate data"
+msgstr "<strong>更正：</strong> 联系我们以更正不正确的数据"
+
+#. module: reservation_module
+#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
+msgid "Absolutely! Our kitchen can accommodate:"
+msgstr "当然可以！我们的厨房可以配合："
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__access_token
@@ -50,21 +643,68 @@ msgid "Access Token"
 msgstr "访问令牌"
 
 #. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_needaction
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_needaction
+msgid "Action Needed"
+msgstr "需要处理"
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__active
 msgid "Active"
 msgstr "启用"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_ids
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_ids
+msgid "Activities"
+msgstr "活动"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_exception_decoration
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "活动异常标识"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_state
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_state
+msgid "Activity State"
+msgstr "活动状态"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_type_icon
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "活动类型图标"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_type.py:0
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Add Closing Days"
 msgstr "添加休息日"
 
 #. module: reservation_module
-#: model:ir.actions.act_window,name:reservation_module.action_appointment_booking
-#: model:ir.ui.menu,name:reservation_module.menu_appointment_bookings
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+#: model_terms:appointment.type,description:reservation_module.appointment_type_video_call
+msgid "After booking, our team will send you a meeting link."
+msgstr "预约后，我们的团队会向您发送会议链接。"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "All"
+msgstr "全部"
+
+#. module: reservation_module
+#: model:ir.actions.act_window,name:reservation_module.appointment_booking_action
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_bookings
 msgid "All Bookings"
 msgstr "所有预约"
+
+#. module: reservation_module
+#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
+msgid "Allergy-specific menus"
+msgstr "过敏者专属菜单"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__allow_customer_choose_location
@@ -77,46 +717,25 @@ msgid "Allow Customer to Choose Staff"
 msgstr "允许客户选择员工"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_payment_page
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Amount Due"
-msgstr "应付金额"
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_amount
+msgid "Amount to be paid for the booking"
+msgstr "预约需支付的金额"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Amount Due:"
-msgstr "应付金额："
+#: model_terms:appointment.question,answer:reservation_module.question_table_occasion
+msgid "Anniversaries — romantic table setup with candles"
+msgstr "周年纪念 — 浪漫烛光桌位布置"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__answer
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Answer"
 msgstr "回答"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
-msgid "Any additional information..."
-msgstr "任何其他信息..."
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Appointment:"
-msgstr "预约项目："
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Appointment Reminder"
-msgstr "预约提醒"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Appointment Details"
-msgstr "预约详情"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__name
-msgid "Appointment FAQ"
-msgstr "预约常见问题"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "Any notes you provide"
+msgstr "您提供的任何备注"
 
 #. module: reservation_module
 #: model:ir.model,name:reservation_module.model_appointment_availability
@@ -124,22 +743,11 @@ msgid "Appointment Availability"
 msgstr "预约可用时间"
 
 #. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
 #: model:ir.model,name:reservation_module.model_appointment_booking
-#: code:addons/reservation_module/models/appointment_type.py:0
-#: model:ir.sequence,name:reservation_module.seq_appointment_booking
-#, python-format
 msgid "Appointment Booking"
 msgstr "预约"
-
-#. module: reservation_module
-#: model:ir.sequence,name:reservation_module.seq_appointment_booking_token
-msgid "Appointment Booking Token"
-msgstr "预约令牌"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Appointment Completed"
-msgstr "预约已完成"
 
 #. module: reservation_module
 #: model:ir.model,name:reservation_module.model_appointment_question
@@ -153,116 +761,116 @@ msgstr "预约时段"
 
 #. module: reservation_module
 #: model:ir.model,name:reservation_module.model_appointment_type
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__appointment_type_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__appointment_type_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__appointment_type_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__appointment_type_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__appointment_type_id
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_search_view
 msgid "Appointment Type"
 msgstr "预约类型"
 
 #. module: reservation_module
-#: model:ir.rule,name:reservation_module.appointment_type_rule_public_read
-msgid "Appointment Type: Public Read"
-msgstr "预约类型：公开读取"
-
-#. module: reservation_module
-#: model:ir.rule,name:reservation_module.appointment_type_rule_user
-msgid "Appointment Type: User Access"
-msgstr "预约类型：用户访问"
-
-#. module: reservation_module
-#: model:ir.rule,name:reservation_module.appointment_type_rule_manager
-msgid "Appointment Type: Manager Full Access"
-msgstr "预约类型：管理员完全访问"
-
-#. module: reservation_module
-#: model:ir.actions.act_window,name:reservation_module.action_appointment_type
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__appointment_type_ids
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_appointments
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_list
 msgid "Appointment Types"
 msgstr "预约类型"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_resource__appointment_type_ids
-msgid "Appointment Types"
-msgstr "预约类型"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
+msgid "Appointment calendar"
+msgstr "预约日历"
 
 #. module: reservation_module
-#: model:ir.rule,name:reservation_module.appointment_booking_rule_public
-msgid "Appointment Booking: Public No Read"
-msgstr "预约：公开不可读取"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "Appointment date, time, and preferences"
+msgstr "预约日期、时间和偏好"
 
 #. module: reservation_module
-#: model:ir.rule,name:reservation_module.appointment_booking_rule_portal
-msgid "Appointment Booking: Portal Own"
-msgstr "预约：门户用户仅限自己"
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"Appointment scheduled for %(date)s at %(time)s.\n"
+"Use the call button above to start your video meeting."
+msgstr "预约已安排在 %(date)s %(time)s。\n请使用上方的通话按钮开始视频会议。"
 
 #. module: reservation_module
-#: model:ir.rule,name:reservation_module.appointment_booking_rule_user
-msgid "Appointment Booking: User Own"
-msgstr "预约：用户仅限自己"
-
-#. module: reservation_module
-#: model:ir.rule,name:reservation_module.appointment_booking_rule_manager
-msgid "Appointment Booking: Manager Full Access"
-msgstr "预约：管理员完全访问"
-
-#. module: reservation_module
-#: model:mail.template,name:reservation_module.mail_template_appointment_reminder
-msgid "Appointment: Booking Reminder"
-msgstr "预约：预约提醒"
-
-#. module: reservation_module
-#: model:mail.template,name:reservation_module.mail_template_appointment_created
-msgid "Appointment: Booking Created"
-msgstr "预约：预约已创建"
-
-#. module: reservation_module
-#: model:mail.template,name:reservation_module.mail_template_appointment_completed
-msgid "Appointment: Booking Completed"
-msgstr "预约：预约已完成"
-
-#. module: reservation_module
-#: model:mail.template,name:reservation_module.mail_template_appointment_confirmed
-msgid "Appointment: Booking Confirmed"
-msgstr "预约：预约已确认"
-
-#. module: reservation_module
-#: model:mail.template,name:reservation_module.mail_template_appointment_cancelled
+#: model:mail.template,name:reservation_module.email_template_booking_cancelled
 msgid "Appointment: Booking Cancelled"
 msgstr "预约：预约已取消"
 
 #. module: reservation_module
-#: model:mail.template,name:reservation_module.mail_template_appointment_payment_failed
+#: model:mail.template,name:reservation_module.email_template_booking_done
+msgid "Appointment: Booking Completed"
+msgstr "预约：预约已完成"
+
+#. module: reservation_module
+#: model:mail.template,name:reservation_module.email_template_booking_confirmed
+msgid "Appointment: Booking Confirmed"
+msgstr "预约：预约已确认"
+
+#. module: reservation_module
+#: model:mail.template,name:reservation_module.email_template_booking_created
+msgid "Appointment: Booking Created"
+msgstr "预约：预约已创建"
+
+#. module: reservation_module
+#: model:mail.template,name:reservation_module.email_template_booking_reminder
+msgid "Appointment: Booking Reminder"
+msgstr "预约：预约提醒"
+
+#. module: reservation_module
+#: model:mail.template,name:reservation_module.email_template_payment_failure
 msgid "Appointment: Payment Failed"
 msgstr "预约：付款失败"
 
 #. module: reservation_module
-#: model:ir.cron,name:reservation_module.cron_appointment_reminder
+#: model:ir.actions.server,name:reservation_module.ir_cron_send_booking_reminders_ir_actions_server
 msgid "Appointment: Send Booking Reminders"
 msgstr "预约：发送预约提醒"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-#: model:ir.ui.view,arch_db:reservation_module.appointment_cancel_page
-msgid "Are you sure you want to cancel your booking?"
-msgstr "您确定要取消您的预约吗？"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Archived"
-msgstr "已归档"
-
-#. module: reservation_module
+#: model:ir.actions.act_window,name:reservation_module.appointment_type_action
 #: model:ir.module.category,name:reservation_module.module_category_appointment
-#: model:ir.ui.menu,name:reservation_module.menu_appointment_types
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_root
 msgid "Appointments"
 msgstr "预约管理"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_list
-#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
-msgid "Appointment calendar"
-msgstr "预约日历"
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "April"
+msgstr "四月"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
+msgid "Archived"
+msgstr "已归档"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__assign_location
+msgid "Assign a location to bookings"
+msgstr "将场地分配至预约"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__assign_staff
+msgid "Assign staff members to bookings"
+msgstr "将员工分配至预约"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_attachment_count
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_attachment_count
+msgid "Attachment Count"
+msgstr "附件数量"
+
+#. module: reservation_module
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "August"
+msgstr "八月"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__auto_confirm
@@ -270,21 +878,20 @@ msgid "Auto Confirm"
 msgstr "自动确认"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__auto_confirm_capacity
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__auto_confirm_capacity_percent
 msgid "Auto Confirm Capacity (%)"
 msgstr "自动确认容量 (%)"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
 msgid "Auto confirm capacity must be between 0 and 1.0 (0% to 100%)."
 msgstr "自动确认容量必须介于 0 到 1.0（0% 至 100%）之间。"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
-msgid "Auto-Assign"
-msgstr "自动分配"
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__auto_confirm_capacity_percent
+msgid "Auto confirm until this capacity percentage is reached"
+msgstr "在达到此容量百分比之前自动确认"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__auto_confirm
@@ -292,8 +899,7 @@ msgid "Automatically confirm bookings"
 msgstr "自动确认预约"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__availability_ids
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Availability"
 msgstr "可用时间"
 
@@ -313,97 +919,46 @@ msgid "Available Count"
 msgstr "可用数量"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
-msgid "Available Times"
-msgstr "可用时段"
+#: model_terms:appointment.question,answer:reservation_module.question_consultation_experience
+msgid "Be ready to share your screen if needed"
+msgstr "需要时准备好分享屏幕"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Best regards,"
-msgstr "此致，"
+#: model_terms:appointment.question,answer:reservation_module.question_table_occasion
+msgid "Birthdays — complimentary dessert and decoration"
+msgstr "生日 — 免费甜点与装饰"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
-msgid "Book"
-msgstr "预约"
+#: model_terms:appointment.type,description:reservation_module.appointment_type_consultation
+msgid "Book a one-on-one consultation with an expert."
+msgstr "预约一对一专家咨询。"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Book Again"
-msgstr "再次预约"
+#: model_terms:appointment.type,description:reservation_module.appointment_type_tennis
+msgid "Book our professional tennis court."
+msgstr "预约我们的专业网球场。"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_cancelled_page
-msgid "Book a New Appointment"
-msgstr "预约新时段"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__booked_count
+msgid "Booked Count"
+msgstr "已预约数量"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_list
-msgid "Book an Appointment"
-msgstr "预约服务"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
-msgid "Book Another Appointment"
-msgstr "再预约一个"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_list
-msgid "Book Now"
-msgstr "立即预约"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_payment_transaction__booking_id
+#: model:ir.model.fields,field_description:reservation_module.field_payment_transaction__appointment_booking_id
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Booking"
 msgstr "预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Booking"
-msgstr "预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Booking:"
-msgstr "预约："
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_cancelled_page
-msgid "Booking Cancelled"
-msgstr "预约已取消"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Booking Cancelled"
-msgstr "预约已取消"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
-msgid "Booking Confirmed!"
-msgstr "预约已确认！"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Booking Confirmed"
-msgstr "预约已确认"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__booking_count
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_resource__booking_count
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__booking_count
 msgid "Booking Count"
 msgstr "预约数量"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Booking Details"
 msgstr "预约详情"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Booking Received"
-msgstr "已收到预约"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__name
@@ -411,131 +966,134 @@ msgid "Booking Reference"
 msgstr "预约编号"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_cancel_page
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Booking Reference:"
-msgstr "预约编号："
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Booking Settings"
 msgstr "预约设置"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_payment_page
-msgid "Booking Summary"
-msgstr "预约摘要"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
-msgid "Booking confirmation details have been sent to your email"
-msgstr "预约确认详情已发送至您的邮箱"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__booking_ids
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_type.py:0
+#: code:addons/reservation_module/models/resource_resource.py:0
+#: model:ir.actions.act_window,name:reservation_module.appointment_booking_action_calendar
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__booking_ids
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__booking_ids
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_calendar
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_list
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_list_view
 msgid "Bookings"
 msgstr "预约"
 
 #. module: reservation_module
-#: model:ir.actions.act_window,name:reservation_module.action_appointment_booking_calendar
-msgid "Bookings Calendar"
-msgstr "预约日历"
-
-#. module: reservation_module
-#: model:ir.actions.act_window,help:reservation_module.action_appointment_booking
+#: model_terms:ir.actions.act_window,help:reservation_module.appointment_booking_action
 msgid "Bookings will appear here when customers make appointments."
 msgstr "当客户预约时，预约信息将显示在这里。"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_list
+#: model:appointment.type,name:reservation_module.appointment_type_meeting
+msgid "Business Meeting"
+msgstr "商务会议"
+
+#. module: reservation_module
+#: model_terms:appointment.question,answer:reservation_module.question_table_occasion
+msgid "Business dinners — presentation-ready private room"
+msgstr "商务晚宴 — 配备演示设备的包间"
+
+#. module: reservation_module
+#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
+msgid "Business strategy and planning"
+msgstr "商业策略与规划"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_book_page
 msgid "By booking, you agree to our"
 msgstr "预约即表示您同意我们的"
 
 #. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.menu_calendar_root
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_calendar
 msgid "Calendar"
 msgstr "日历"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+#: model:appointment.question,name:reservation_module.question_table_occasion
+msgid "Can I request a special occasion setup?"
+msgstr "我可以要求特殊场合布置吗？"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_request
 msgid "Cancel"
 msgstr "取消"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_cancel_page
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Cancel Booking"
-msgstr "取消预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_cancel_page
-msgid "Cancel Booking?"
-msgstr "取消预约？"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__min_cancel_hours
-msgid "Cancellation Deadline (hours)"
-msgstr "取消截止时间（小时）"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Cancellation"
 msgstr "取消政策"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__min_cancel_hours
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__cancel_before_hours
+msgid "Cancellation Deadline (hours)"
+msgstr "取消截止时间（小时）"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__cancel_before_hours
 msgid "Cancellation deadline in hours before start"
 msgstr "开始前可取消的截止时间（小时）"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_booking.py:0
-#, python-format
 msgid "Cancellation is only allowed until %s hours before the appointment."
 msgstr "取消预约仅允许在预约开始前 %s 小时进行。"
 
 #. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__cancelled
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Cancelled"
 msgstr "已取消"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
-#, python-format
 msgid "Cannot book a time slot in the past."
 msgstr "无法预约已过去的时段。"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
-#, python-format
 msgid "Cannot book beyond %d days in advance."
 msgstr "无法提前超过 %d 天预约。"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__capacity
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_resource__capacity
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__capacity
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Capacity"
 msgstr "容量"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_slot.py:0
-#, python-format
 msgid "Capacity must be at least 1."
 msgstr "容量至少为 1。"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-msgid "Capacity:"
-msgstr "容量："
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_per_person
+msgid "Charge per person instead of per booking"
+msgstr "按人数收费而非按预约收费"
+
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_tennis
+msgid "Clay court surface"
+msgstr "红土球场"
+
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_meeting
+msgid "Client consultations"
+msgstr "客户咨询"
 
 #. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_slot__state__closed
@@ -543,8 +1101,7 @@ msgid "Closed"
 msgstr "已关闭"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Communication"
 msgstr "通讯"
 
@@ -554,157 +1111,146 @@ msgid "Company"
 msgstr "公司"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
-msgid "Complete Your Booking"
-msgstr "完成您的预约"
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "Completed"
+msgstr "已完成"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "Completed Bookings"
-msgstr "已完成的预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Confirm"
-msgstr "确认"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
-msgid "Confirm Booking"
-msgstr "确认预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_deletion_page
-msgid "Confirm Data Deletion"
-msgstr "确认删除数据"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__confirmed
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Confirmed"
-msgstr "已确认"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__confirmation_page
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Confirmation Page"
-msgstr "确认页面"
-
-#. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.menu_appointment_configuration
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_configuration
 msgid "Configuration"
 msgstr "配置"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__contact_id
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+msgid "Confirm"
+msgstr "确认"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__confirmation_page
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Confirmation Page"
+msgstr "确认页面"
+
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__confirmed
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+msgid "Confirmed"
+msgstr "已确认"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__partner_id
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
 msgid "Contact"
 msgstr "联系人"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Contact"
-msgstr "联系人"
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__confirmation_page
+msgid "Content displayed after booking confirmation"
+msgstr "预约确认后显示的内容"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Contact us to correct inaccurate data"
-msgstr "联系我们更正不准确的数据"
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__introduction_page
+msgid "Content displayed on the booking page"
+msgstr "在预约页面上显示的内容"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Content shown after booking confirmation..."
 msgstr "预约确认后显示的内容..."
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Content shown to visitors before booking..."
 msgstr "预约前显示给访客的内容..."
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
-msgid "Continue to Payment"
-msgstr "继续付款"
-
-#. module: reservation_module
-#: model:ir.actions.act_window,help:reservation_module.action_appointment_type
-msgid "Create your first appointment type"
-msgstr "创建您的第一个预约类型"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_resource_view_form
+#: model_terms:ir.actions.act_window,help:reservation_module.resource_resource_action
 msgid "Create a new resource"
 msgstr "创建新资源"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__currency_id
+#: model_terms:ir.actions.act_window,help:reservation_module.appointment_type_action
+msgid "Create your first appointment type"
+msgstr "创建您的第一个预约类型"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__create_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__create_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__create_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__create_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__create_uid
+msgid "Created by"
+msgstr "创建者"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__create_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__create_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__create_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__create_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__create_date
+msgid "Created on"
+msgstr "创建日期"
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__currency_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__currency_id
 msgid "Currency"
 msgstr "货币"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Custom Video Link (optional)"
 msgstr "自定义视频链接（可选）"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Data Deletion Request"
-msgstr "数据删除请求"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Data Export"
-msgstr "数据导出"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Data Retention"
-msgstr "数据保留"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Data We Collect"
-msgstr "我们收集的数据"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_deletion_complete_page
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_confirmed
 msgid "Data Deletion Complete"
 msgstr "数据删除完成"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Date & Time:"
-msgstr "日期与时间："
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "Data Deletion Request"
+msgstr "数据删除请求"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "Date"
-msgstr "日期"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "Data Export"
+msgstr "数据导出"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__day_of_week
-msgid "Day of Week"
-msgstr "星期几"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "Data Retention"
+msgstr "数据保留"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Dear"
-msgstr "尊敬的"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "Data We Collect"
+msgstr "我们收集的数据"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
-#, python-format
-msgid "Deleted User"
-msgstr "已删除的用户"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+msgid "Date"
+msgstr "日期"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Deletion:"
-msgstr "删除："
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__dayofweek
+msgid "Day of Week"
+msgstr "星期几"
+
+#. module: reservation_module
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "December"
+msgstr "十二月"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "Deleted User"
+msgstr "已删除的用户"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__description
@@ -712,32 +1258,40 @@ msgid "Description"
 msgstr "描述"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Display"
-msgstr "显示"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__channel_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__discuss_channel_id
 msgid "Discussion Channel"
 msgstr "讨论频道"
 
 #. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Display"
+msgstr "显示"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__display_name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__display_name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__display_name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__display_name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__display_name
+msgid "Display Name"
+msgstr "显示名称"
+
+#. module: reservation_module
+#: model:appointment.question,name:reservation_module.question_table_dietary
+msgid "Do you accommodate dietary restrictions?"
+msgstr "你们能配合饮食限制吗？"
+
+#. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__done
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Done"
 msgstr "已完成"
 
 #. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__draft
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Draft"
 msgstr "草稿"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Draft / Pending"
-msgstr "草稿 / 待处理"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__duration
@@ -745,37 +1299,20 @@ msgid "Duration (hours)"
 msgstr "时长（小时）"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "e.g. Meeting, Table Booking"
-msgstr "例如：会议、餐桌预约"
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__slot_duration
+msgid "Duration of each appointment slot in hours"
+msgstr "每个预约时段的时长（小时）"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Email"
-msgstr "邮箱"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Email:"
-msgstr "邮箱："
-
-#. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/models/appointment_booking.py:0
-#, python-format
-msgid "Email: %s"
-msgstr "邮箱：%s"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Email Notifications"
 msgstr "邮件通知"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Email notifications are automatically sent when bookings are confirmed, rescheduled, or cancelled."
-msgstr "当预约被确认、重新安排或取消时，系统会自动发送邮件通知。"
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid "Email: %s"
+msgstr "邮箱：%s"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__manage_capacity
@@ -789,58 +1326,90 @@ msgid "End Time"
 msgstr "结束时间"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_availability__end_hour
+#: model:ir.model.fields,help:reservation_module.field_appointment_availability__hour_to
 msgid "End time (24-hour format)"
 msgstr "结束时间（24小时制）"
 
 #. module: reservation_module
 #. odoo-python
-#: code:addons/reservation_module/models/appointment_availability.py:0
-#, python-format
-msgid "End time must be between 0 and 24."
-msgstr "结束时间必须介于 0 到 24 之间。"
-
-#. module: reservation_module
-#. odoo-python
 #: code:addons/reservation_module/models/appointment_booking.py:0
-#, python-format
+#: code:addons/reservation_module/models/appointment_slot.py:0
 msgid "End time must be after start time."
 msgstr "结束时间必须晚于开始时间。"
 
 #. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "Error loading available times. Please try again."
-msgstr "加载可用时段时发生错误，请重试。"
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_availability.py:0
+msgid "End time must be between 0 and 24."
+msgstr "结束时间必须介于 0 到 24 之间。"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Export:"
-msgstr "导出："
+#: model_terms:appointment.type,description:reservation_module.appointment_type_tennis
+msgid "Equipment rental available"
+msgstr "可租借器材"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model:appointment.type,name:reservation_module.appointment_type_consultation
+msgid "Expert Consultation"
+msgstr "专家咨询"
+
+#. module: reservation_module
+#: model:product.template,name:reservation_module.product_expert_consultation_product_template
+msgid "Expert Consultation Service"
+msgstr "专家咨询服务"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "FAQ"
 msgstr "常见问题"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "FAQ Entry"
 msgstr "常见问题条目"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Frequently Asked Questions"
-msgstr "常见问题"
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "February"
+msgstr "二月"
 
 #. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__day_of_week__4
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_follower_ids
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_follower_ids
+msgid "Followers"
+msgstr "关注者"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_partner_ids
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "关注者（合作伙伴）"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__activity_type_icon
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "Font awesome 图标，例如 fa-tasks"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "For privacy-related inquiries, please contact us through our website."
+msgstr "如有隐私相关问题，请通过我们的网站联系我们。"
+
+#. module: reservation_module
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "Fri"
+msgstr "五"
+
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__4
 msgid "Friday"
 msgstr "星期五"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__start_hour
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__hour_from
 msgid "From"
 msgstr "从"
 
@@ -850,13 +1419,17 @@ msgid "Fully Booked"
 msgstr "已约满"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Go to Payment"
-msgstr "前往付款"
+#: model_terms:appointment.question,answer:reservation_module.question_consultation_experience
+msgid "Gather any relevant documents or data"
+msgstr "准备好相关文件或数据"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
+msgid "Gluten-free dishes"
+msgstr "无麸质菜肴"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Group By"
 msgstr "分组依据"
 
@@ -866,8 +1439,7 @@ msgid "Guest Email"
 msgstr "访客邮箱"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Guest Information"
 msgstr "访客信息"
 
@@ -882,32 +1454,31 @@ msgid "Guest Phone"
 msgstr "访客电话"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Guest notes..."
 msgstr "访客备注..."
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_booking.py:0
-#, python-format
 msgid "Guest: %s"
 msgstr "访客：%s"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Guests"
-msgstr "访客"
+#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
+msgid "Halal preparations"
+msgstr "清真料理"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
-msgid "Guests:"
-msgstr "访客人数："
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__has_message
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__has_message
+msgid "Has Message"
+msgstr "有消息"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_cancelled_page
-msgid "has been cancelled."
-msgstr "已被取消。"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "How We Use Your Data"
+msgstr "我们如何使用您的数据"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__max_booking_days
@@ -915,34 +1486,57 @@ msgid "How many days in advance bookings can be made"
 msgstr "可以提前多少天进行预约"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "How We Use Your Data"
-msgstr "我们如何使用您的数据"
+#: model:appointment.question,name:reservation_module.question_consultation_experience
+msgid "How should I prepare for my consultation?"
+msgstr "我应该如何为咨询做准备？"
 
 #. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__id
+msgid "ID"
+msgstr "ID"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_exception_icon
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_exception_icon
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__icon
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_resource__icon
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__icon
 msgid "Icon"
 msgstr "图标"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "If you continue to experience issues, please contact us for assistance."
-msgstr "如果您持续遇到问题，请联系我们获取帮助。"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "If you wish to make a new appointment:"
-msgstr "如果您想进行新的预约："
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__activity_exception_icon
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "用于指示异常活动的图标。"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__is_scheduled
-msgid "If checked, availability windows are subdivided into time slots. If unchecked, each availability window is a single bookable event."
+msgid ""
+"If checked, availability windows are subdivided into time slots. If "
+"unchecked, each availability window is a single bookable event."
 msgstr "勾选后，可用时间窗口将被细分为多个时段。未勾选时，每个可用时间窗口作为一个可预约的整体。"
 
 #. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_needaction
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "勾选后，新消息需要您的关注。"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_has_error
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_has_sms_error
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__message_has_error
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "勾选后，表示某些消息有投递错误。"
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__image
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_resource__image
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__image
 msgid "Image"
 msgstr "图片"
 
@@ -952,138 +1546,81 @@ msgid "Image URL"
 msgstr "图片网址"
 
 #. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_table
+msgid "Indoor and outdoor seating available"
+msgstr "提供室内与室外座位"
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__internal_notes
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Internal Notes"
 msgstr "内部备注"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Internal notes (not visible to guests)..."
 msgstr "内部备注（访客不可见）..."
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__introduction_page
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Introduction Page"
 msgstr "介绍页面"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__introduction_page
-msgid "Content displayed on the booking page"
-msgstr "在预约页面上显示的内容"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__confirmation_page
-msgid "Content displayed after booking confirmation"
-msgstr "预约确认后显示的内容"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Join Meeting"
-msgstr "加入会议"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Join your online meeting using the link below:"
-msgstr "使用以下链接加入您的在线会议："
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_is_follower
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_is_follower
+msgid "Is Follower"
+msgstr "是否为关注者"
 
 #. module: reservation_module
 #. odoo-javascript
 #: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
 msgid "January"
 msgstr "一月"
 
 #. module: reservation_module
 #. odoo-javascript
 #: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "February"
-msgstr "二月"
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "March"
-msgstr "三月"
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "April"
-msgstr "四月"
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "May"
-msgstr "五月"
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "June"
-msgstr "六月"
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
 msgid "July"
 msgstr "七月"
 
 #. module: reservation_module
 #. odoo-javascript
 #: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "August"
-msgstr "八月"
+msgid "June"
+msgstr "六月"
 
 #. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "September"
-msgstr "九月"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__write_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__write_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__write_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__write_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__write_uid
+msgid "Last Updated by"
+msgstr "最后更新者"
 
 #. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "October"
-msgstr "十月"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__write_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__write_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_question__write_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__write_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__write_date
+msgid "Last Updated on"
+msgstr "最后更新日期"
 
 #. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "November"
-msgstr "十一月"
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "December"
-msgstr "十二月"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Leave blank to auto-generate Odoo meeting link"
 msgstr "留空将自动生成 Odoo 会议链接"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_availability__location_id
+#: model:ir.model.fields,help:reservation_module.field_appointment_availability__resource_id
 msgid "Leave empty to apply to all locations"
 msgstr "留空则适用于所有场地"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_availability__staff_user_id
+#: model:ir.model.fields,help:reservation_module.field_appointment_availability__user_id
 msgid "Leave empty to apply to all staff"
 msgstr "留空则适用于所有员工"
 
@@ -1098,27 +1635,18 @@ msgid "Let customers pick their preferred staff member"
 msgstr "让客户选择偏好的员工"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_actions
+#: model_terms:ir.actions.act_window,help:reservation_module.appointment_type_action
 msgid "Let your customers book appointments online."
 msgstr "让您的客户在线预约。"
 
 #. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "Loading available times..."
-msgstr "正在加载可用时段..."
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
-msgid "Loading available slots..."
-msgstr "正在加载可用时段..."
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__location_id
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__location_id
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__location_id
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__resource_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__resource_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__resource_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__assign_location
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__location_id
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Location"
 msgstr "场地"
 
@@ -1128,15 +1656,13 @@ msgid "Location Address"
 msgstr "场地地址"
 
 #. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.menu_appointment_resource_bookings
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_list
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_type.py:0
+#: model:ir.actions.act_window,name:reservation_module.appointment_booking_action_resource
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_resource_bookings
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_calendar_resource
 msgid "Location Bookings"
 msgstr "场地预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Location Gantt"
-msgstr "场地甘特图"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__location_type
@@ -1144,32 +1670,21 @@ msgid "Location Type"
 msgstr "地点类型"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Location / Resource"
-msgstr "场地 / 资源"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
-msgid "Location:"
-msgstr "场地："
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid "Location is fully booked for this time slot."
+msgstr "该场地在此时段已约满。"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_booking.py:0
-#, python-format
 msgid "Location: %s"
 msgstr "场地：%s"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__location_ids
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__resource_ids
 msgid "Locations"
 msgstr "场地"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-msgid "locations"
-msgstr "个场地"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__manage_capacity
@@ -1187,7 +1702,13 @@ msgid "Manager"
 msgstr "管理员"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "March"
+msgstr "三月"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Mark Done"
 msgstr "标记为完成"
 
@@ -1203,8 +1724,13 @@ msgstr "最大同时预约数"
 
 #. module: reservation_module
 #. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "Maximum %d guests allowed."
+msgstr "最多允许 %d 位访客。"
+
+#. module: reservation_module
+#. odoo-python
 #: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
 msgid "Maximum booking days must be at least 1."
 msgstr "最大预约天数至少为 1 天。"
 
@@ -1214,16 +1740,15 @@ msgid "Maximum concurrent bookings per user"
 msgstr "每位用户最大同时预约数"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_resource__capacity
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__capacity
 msgid "Maximum number of concurrent bookings for this resource"
 msgstr "此资源的最大同时预约数"
 
 #. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/controllers/main.py:0
-#, python-format
-msgid "Maximum %d guests allowed."
-msgstr "最多允许 %d 位访客。"
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "May"
+msgstr "五月"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__meeting_url
@@ -1231,9 +1756,16 @@ msgid "Meeting URL"
 msgstr "会议网址"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Meeting link will be available after booking confirmation."
-msgstr "会议链接将在预约确认后提供。"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_has_error
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_has_error
+msgid "Message Delivery error"
+msgstr "消息投递错误"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_ids
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_ids
+msgid "Messages"
+msgstr "消息"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__min_booking_hours
@@ -1246,133 +1778,72 @@ msgid "Minimum advance time for bookings in hours"
 msgstr "预约的最短提前时间（小时）"
 
 #. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__day_of_week__0
-msgid "Monday"
-msgstr "星期一"
-
-#. module: reservation_module
 #. odoo-javascript
 #: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
 msgid "Mon"
 msgstr "一"
 
 #. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "Tue"
-msgstr "二"
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__0
+msgid "Monday"
+msgstr "星期一"
 
 #. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "Wed"
-msgstr "三"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__my_activity_date_deadline
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "我的活动截止日期"
 
 #. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "Thu"
-msgstr "四"
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "Fri"
-msgstr "五"
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "Sat"
-msgstr "六"
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "Sun"
-msgstr "日"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "My Bookings"
-msgstr "我的预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_home_booking
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_home_menu_booking
 msgid "My Bookings"
 msgstr "我的预约"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__name
-#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
 msgid "Name"
 msgstr "姓名"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Name:"
-msgstr "姓名："
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
 msgid "Name, email address, and phone number"
 msgstr "姓名、邮箱地址和电话号码"
 
 #. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "Next month"
-msgstr "下个月"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_calendar_event_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "下一个活动日历事件"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_cancel_page
-msgid "No, Keep Booking"
-msgstr "不，保留预约"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_date_deadline
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "下一个活动截止日期"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_list
-msgid "No appointment types available at the moment."
-msgstr "目前没有可用的预约类型。"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_summary
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_summary
+msgid "Next Activity Summary"
+msgstr "下一个活动摘要"
 
 #. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "No available times for this date."
-msgstr "此日期没有可用时段。"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_type_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_type_id
+msgid "Next Activity Type"
+msgstr "下一个活动类型"
 
 #. module: reservation_module
-#: model:ir.actions.act_window,help:reservation_module.action_appointment_booking
+#: model_terms:appointment.type,description:reservation_module.appointment_type_tennis
+msgid "Night lighting available"
+msgstr "提供夜间照明"
+
+#. module: reservation_module
+#: model_terms:ir.actions.act_window,help:reservation_module.appointment_booking_action
 msgid "No bookings yet"
 msgstr "尚无预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_payment_page
-msgid "No payment methods available. Please contact us to complete your booking."
-msgstr "没有可用的付款方式。请联系我们完成您的预约。"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__notes
-#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Notes"
-msgstr "备注"
-
-#. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/models/appointment_booking.py:0
-#, python-format
-msgid "Notes: %s"
-msgstr "备注：%s"
 
 #. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__payment_status__not_required
@@ -1380,29 +1851,69 @@ msgid "Not Required"
 msgstr "不需要"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__guest_count
-#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
-msgid "Number of Guests"
-msgstr "访客人数"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Number of Guests:"
-msgstr "访客人数："
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__notes
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+msgid "Notes"
+msgstr "备注"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_booking.py:0
-#, python-format
+msgid "Notes: %s"
+msgstr "备注：%s"
+
+#. module: reservation_module
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "November"
+msgstr "十一月"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_needaction_counter
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_needaction_counter
+msgid "Number of Actions"
+msgstr "操作数量"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__guest_count
+msgid "Number of Guests"
+msgstr "访客人数"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_has_error_counter
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_has_error_counter
+msgid "Number of errors"
+msgstr "错误数量"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
 msgid "Number of guests must be at least 1."
 msgstr "访客人数至少为 1 人。"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_booking.py:0
-#, python-format
 msgid "Number of guests: %s"
 msgstr "访客人数：%s"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_needaction_counter
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "需要处理的消息数量"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_has_error_counter
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "投递失败的消息数量"
+
+#. module: reservation_module
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "October"
+msgstr "十月"
 
 #. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__location_type__online
@@ -1410,19 +1921,24 @@ msgid "Online Meeting"
 msgstr "在线会议"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Online Meeting"
-msgstr "在线会议"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
 msgid "Open Meeting Room"
 msgstr "打开会议室"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Options"
 msgstr "选项"
+
+#. module: reservation_module
+#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
+msgid "Our expert consultations cover a wide range of topics including:"
+msgstr "我们的专家咨询涵盖广泛的主题，包括："
+
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__payment_status__paid
+msgid "Paid"
+msgstr "已付款"
 
 #. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_slot__state__partial
@@ -1430,38 +1946,16 @@ msgid "Partially Booked"
 msgstr "部分预约"
 
 #. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__payment_status__paid
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "Paid"
-msgstr "已付款"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_payment_page
-msgid "Pay with"
-msgstr "付款方式"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-#: model:ir.ui.view,arch_db:reservation_module.appointment_payment_page
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Payment"
 msgstr "付款"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_amount
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_amount
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_amount
 msgid "Payment Amount"
 msgstr "付款金额"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_amount
-msgid "Amount to be paid for the booking"
-msgstr "预约需支付的金额"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Payment Failed"
-msgstr "付款失败"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_failure_count
@@ -1474,61 +1968,61 @@ msgid "Payment Product"
 msgstr "付款产品"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_product_id
-msgid "Product used for payment"
-msgstr "用于付款的产品"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Payment Required"
-msgstr "需要付款"
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_status
 msgid "Payment Status"
 msgstr "付款状态"
 
 #. module: reservation_module
+#: model:ir.model,name:reservation_module.model_payment_transaction
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_transaction_id
 msgid "Payment Transaction"
 msgstr "付款交易"
 
 #. module: reservation_module
 #. odoo-python
+#: code:addons/reservation_module/models/appointment_type.py:0
+msgid "Payment amount must be set when payment is required."
+msgstr "需要付款时必须设置付款金额。"
+
+#. module: reservation_module
+#. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
-#, python-format
 msgid "Payment configuration error. Please contact support."
 msgstr "付款配置错误，请联系客服。"
 
 #. module: reservation_module
+#: model:mail.template,subject:reservation_module.email_template_payment_failure
+msgid "Payment failed for your booking - {{ object.name }}"
+msgstr "您的预约付款失败 - {{ object.name }}"
+
+#. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_booking.py:0
-#, python-format
 msgid ""
 "Payment failure #%(count)s for booking %(booking)s.\n"
 "Customer: %(name)s (%(email)s)\n"
 "Amount: %(amount)s %(currency)s"
-msgstr ""
-"预约 %(booking)s 第 %(count)s 次付款失败。\n"
-"客户：%(name)s (%(email)s)\n"
-"金额：%(amount)s %(currency)s"
+msgstr "预约 %(booking)s 第 %(count)s 次付款失败。\n客户：%(name)s (%(email)s)\n金额：%(amount)s %(currency)s"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "Payment information (processed securely by our payment provider)"
+msgstr "付款信息（由我们的付款服务商安全处理）"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_booking.py:0
-#, python-format
 msgid "Payment is required before confirming this booking."
 msgstr "确认此预约前需要付款。"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
-msgid "Payment of"
-msgstr "付款金额"
+#: model_terms:appointment.type,description:reservation_module.appointment_type_consultation
+msgid "Payment is required to confirm your booking."
+msgstr "需要付款才能确认您的预约。"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
-#, python-format
 msgid "Payment was not completed. Please try again."
 msgstr "付款未完成，请重试。"
 
@@ -1538,115 +2032,123 @@ msgid "Pending"
 msgstr "待处理"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Pending Payment"
-msgstr "待付款"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__per_person_pricing
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_per_person
 msgid "Per Person Pricing"
 msgstr "按人收费"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__per_person_pricing
-msgid "Charge per person instead of per booking"
-msgstr "按人数收费而非按预约收费"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
-msgid "Phone"
-msgstr "电话"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Phone:"
-msgstr "电话："
-
-#. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_booking.py:0
-#, python-format
 msgid "Phone: %s"
 msgstr "电话：%s"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__location_address
-msgid "Physical location for the appointment"
-msgstr "预约的实体地点"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__location_type__in_person
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__location_type__physical
 msgid "Physical Location"
 msgstr "实体地点"
 
 #. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__location_id
+msgid "Physical location for the appointment"
+msgstr "预约的实体地点"
+
+#. module: reservation_module
+#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
+msgid ""
+"Please describe your specific needs when booking so we can match you with "
+"the right expert."
+msgstr "预约时请描述您的具体需求，以便我们为您匹配合适的专家。"
+
+#. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
-#, python-format
 msgid "Please enter a valid email address."
 msgstr "请输入有效的邮箱地址。"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
-#, python-format
 msgid "Please enter a valid name."
 msgstr "请输入有效的姓名。"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
-#, python-format
 msgid "Please enter a valid phone number."
 msgstr "请输入有效的电话号码。"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
-#, python-format
 msgid "Please fill in all required fields."
 msgstr "请填写所有必填字段。"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Please try again using the link below:"
-msgstr "请使用以下链接重试："
+#: model_terms:appointment.question,answer:reservation_module.question_table_occasion
+msgid "Please mention your occasion in the booking notes."
+msgstr "请在预约备注中注明您的场合。"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "portal"
-msgstr "门户"
+#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
+msgid ""
+"Please note any dietary needs in the booking notes so we can prepare "
+"accordingly."
+msgstr "请在预约备注中注明任何饮食需求，以便我们做相应准备。"
 
 #. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "Previous month"
-msgstr "上个月"
+#: model_terms:appointment.question,answer:reservation_module.question_consultation_experience
+msgid "Prepare a list of specific questions or topics"
+msgstr "准备具体的问题或主题清单"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_list
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_book_page
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
 msgid "Privacy Policy"
 msgstr "隐私政策"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
+#: model_terms:appointment.type,description:reservation_module.appointment_type_table
+msgid "Private room options"
+msgstr "包间选择"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
 msgid "Process and manage your appointment bookings"
 msgstr "处理和管理您的预约"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
+#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
+msgid "Process optimization"
+msgstr "流程优化"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
 msgid "Process payments when required"
 msgstr "在需要时处理付款"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_product_id
+msgid "Product used for payment"
+msgstr "用于付款的产品"
+
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_meeting
+msgid "Project discussions"
+msgstr "项目讨论"
+
+#. module: reservation_module
+#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
+msgid "Project management guidance"
+msgstr "项目管理指导"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Provide a description for your customers..."
 msgstr "为您的客户提供描述..."
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__is_published
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
 msgid "Published"
 msgstr "已发布"
 
@@ -1661,12 +2163,14 @@ msgid "Questions"
 msgstr "问题"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Rectification:"
-msgstr "更正："
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__rating_ids
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__rating_ids
+msgid "Ratings"
+msgstr "评分"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
 msgid "Reference"
 msgstr "编号"
 
@@ -1676,7 +2180,7 @@ msgid "Refunded"
 msgstr "已退款"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_payment_transaction__booking_id
+#: model:ir.model.fields,help:reservation_module.field_payment_transaction__appointment_booking_id
 msgid "Related booking record"
 msgstr "关联的预约记录"
 
@@ -1691,24 +2195,19 @@ msgid "Reminder Sent"
 msgstr "提醒已发送"
 
 #. module: reservation_module
-#: model:mail.template,subject:reservation_module.mail_template_appointment_reminder
+#: model:mail.template,subject:reservation_module.email_template_booking_reminder
 msgid "Reminder: Your appointment is coming up - {{ object.name }}"
 msgstr "提醒：您的预约即将开始 - {{ object.name }}"
 
 #. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.menu_appointment_reports
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_reports
 msgid "Reports"
 msgstr "报表"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_deletion_page
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_request
 msgid "Request Data Deletion"
 msgstr "请求删除数据"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Request deletion of your data via"
-msgstr "通过以下方式请求删除您的数据"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__require_payment
@@ -1721,45 +2220,65 @@ msgid "Require payment before confirming booking"
 msgstr "确认预约前需要付款"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__event_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__calendar_event_id
 msgid "Reservation Event"
 msgstr "预约事件"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_resource_view_form
+#: model_terms:appointment.type,description:reservation_module.appointment_type_table
+msgid "Reserve a table at our restaurant."
+msgstr "在我们的餐厅预订座位。"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
 msgid "Resource"
 msgstr "资源"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_resource_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
 msgid "Resource Name"
 msgstr "资源名称"
 
 #. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.menu_appointment_resources
-#: model:ir.ui.view,arch_db:reservation_module.appointment_resource_view_tree
+#: model:ir.actions.act_window,name:reservation_module.resource_resource_action
+#: model:ir.model,name:reservation_module.model_resource_resource
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_resources
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_list_view
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_search_view
 msgid "Resources"
 msgstr "资源"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__location_ids
-msgid "Resources available for this appointment type"
-msgstr "此预约类型可用的资源"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_resource_view_form
+#: model_terms:ir.actions.act_window,help:reservation_module.resource_resource_action
 msgid "Resources are bookable items like rooms, tables, courts, or equipment."
 msgstr "资源是可预约的项目，如房间、餐桌、球场或设备。"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Retry Payment"
-msgstr "重试付款"
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__resource_ids
+msgid "Resources available for this appointment type"
+msgstr "此预约类型可用的资源"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_deleted_page
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_user_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_user_id
+msgid "Responsible User"
+msgstr "负责人"
+
+#. module: reservation_module
+#: model:appointment.type,name:reservation_module.appointment_type_table
+msgid "Restaurant Reservation"
+msgstr "餐厅订位"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_confirmed
 msgid "Return to Appointments"
 msgstr "返回预约"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_has_sms_error
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "短信投递错误"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__sale_order_id
@@ -1767,9 +2286,25 @@ msgid "Sales Order"
 msgstr "销售订单"
 
 #. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__day_of_week__5
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "Sat"
+msgstr "六"
+
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__5
 msgid "Saturday"
 msgstr "星期六"
+
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_meeting
+msgid "Schedule a business meeting with our team, suitable for:"
+msgstr "预约与我们团队的商务会议，适合："
+
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_video_call
+msgid "Schedule a video consultation from anywhere in the world."
+msgstr "从世界任何地方预约视频咨询。"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__is_scheduled
@@ -1777,45 +2312,24 @@ msgid "Scheduled Appointment"
 msgstr "排程预约"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Scheduled Appointment"
-msgstr "排程预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Scheduling"
 msgstr "排程"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-msgid "Search Bookings"
-msgstr "搜索预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_search
 msgid "Search Appointment Types"
 msgstr "搜索预约类型"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
-msgid "Select Date & Time"
-msgstr "选择日期和时间"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+msgid "Search Bookings"
+msgstr "搜索预约"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
-msgid "Select Location"
-msgstr "选择场地"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
-msgid "Select Staff"
-msgstr "选择员工"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_payment_page
-msgid "Select a payment method to complete your booking."
-msgstr "选择付款方式以完成预约。"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "Send booking confirmations, reminders, and updates"
+msgstr "发送预约确认、提醒和更新"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__reminder_hours
@@ -1823,23 +2337,31 @@ msgid "Send reminder email this many hours before the appointment"
 msgstr "在预约前指定小时数发送提醒邮件"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-msgid "Set to Draft"
-msgstr "设为草稿"
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "September"
+msgstr "九月"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__sequence
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__sequence
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__sequence
 msgid "Sequence"
 msgstr "序号"
 
 #. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.menu_appointment_settings
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+msgid "Set to Draft"
+msgstr "设为草稿"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_type.py:0
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_settings
 msgid "Settings"
 msgstr "设置"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Share"
 msgstr "分享"
 
@@ -1849,7 +2371,7 @@ msgid "Show Image"
 msgstr "显示图片"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_list
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
 msgid "Skip to calendar"
 msgstr "跳转到日历"
 
@@ -1861,39 +2383,31 @@ msgstr "时段"
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
 msgid "Slot duration must be greater than 0."
 msgstr "时段时长必须大于 0。"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Special Event"
-msgstr "特别活动"
+#: model_terms:appointment.type,description:reservation_module.appointment_type_table
+msgid "Special occasion arrangements"
+msgstr "特殊场合安排"
 
 #. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__user_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__staff_user_id
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__staff_user_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__staff_user_id
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__assign_staff
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Staff"
 msgstr "员工"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Staff"
-msgstr "员工"
-
-#. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.menu_appointment_staff_bookings
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_list
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_type.py:0
+#: model:ir.actions.act_window,name:reservation_module.appointment_booking_action_staff
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_staff_bookings
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_calendar_staff
 msgid "Staff Bookings"
 msgstr "员工预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Staff Gantt"
-msgstr "员工甘特图"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__staff_user_ids
@@ -1901,32 +2415,15 @@ msgid "Staff Members"
 msgstr "员工成员"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__staff_user_ids
-msgid "Staff members available for this appointment type"
-msgstr "此预约类型可用的员工"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Staff:"
-msgstr "员工："
-
-#. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_booking.py:0
-#, python-format
 msgid "Staff member is already booked for this time slot."
 msgstr "该员工在此时段已被预约。"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__staff_user_ids
-msgid "Assign staff members to bookings"
-msgstr "将员工分配至预约"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__location_ids
-msgid "Assign a location to bookings"
-msgstr "将场地分配至预约"
+msgid "Staff members available for this appointment type"
+msgstr "此预约类型可用的员工"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__start_datetime
@@ -1935,21 +2432,19 @@ msgid "Start Time"
 msgstr "开始时间"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_availability__start_hour
+#: model:ir.model.fields,help:reservation_module.field_appointment_availability__hour_from
 msgid "Start time (24-hour format)"
 msgstr "开始时间（24小时制）"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_availability.py:0
-#, python-format
 msgid "Start time must be before end time."
 msgstr "开始时间必须早于结束时间。"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_availability.py:0
-#, python-format
 msgid "Start time must be between 0 and 24."
 msgstr "开始时间必须介于 0 到 24 之间。"
 
@@ -1959,100 +2454,111 @@ msgid "State"
 msgstr "状态"
 
 #. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__state
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Status"
 msgstr "状态"
 
 #. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__day_of_week__6
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__activity_state
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr "基于活动的状态\n逾期：截止日期已过\n今天：活动日期为今天\n计划中：未来的活动。"
+
+#. module: reservation_module
+#: model_terms:appointment.type,description:reservation_module.appointment_type_meeting
+msgid "Strategic planning"
+msgstr "战略规划"
+
+#. module: reservation_module
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "Sun"
+msgstr "日"
+
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__6
 msgid "Sunday"
 msgstr "星期日"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Technical"
 msgstr "技术"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Thank you for choosing us!"
-msgstr "感谢您选择我们！"
+#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
+msgid "Technical architecture reviews"
+msgstr "技术架构审查"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Thank you for your booking!"
-msgstr "感谢您的预约！"
+#: model:appointment.type,name:reservation_module.appointment_type_tennis
+msgid "Tennis Court Booking"
+msgstr "网球场预约"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Thank you for your booking. Your reservation has been received and is being processed."
-msgstr "感谢您的预约。您的预约已收到，正在处理中。"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
-msgid "(The meeting link is included in the email)"
-msgstr "（会议链接已包含在邮件中）"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "This is an online meeting. Use the link below to join at the scheduled time:"
-msgstr "这是一个在线会议。请在预定时间使用以下链接加入："
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "This is an online meeting. Use the link below to join at the scheduled time:"
-msgstr "这是一个在线会议。请在预定时间使用以下链接加入："
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "This is an online meeting. Open the meeting room below to chat and start a video call:"
-msgstr "这是一个在线会议。打开下方的会议室进行聊天和视频通话："
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+msgid "This Week"
+msgstr "本周"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_booking.py:0
-#, python-format
 msgid "This booking has been cancelled. The discussion is now archived."
 msgstr "此预约已被取消。讨论已归档。"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_booking.py:0
-#, python-format
 msgid "This booking has been reopened."
 msgstr "此预约已重新开启。"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_deletion_page
-msgid "This will cancel all your active bookings and anonymize your personal data. This action cannot be undone."
-msgstr "此操作将取消您所有有效预约并匿名化您的个人数据。此操作无法撤销。"
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid ""
+"This is an online meeting. Open the meeting room below to chat and start a "
+"video call:"
+msgstr "这是一个在线会议。打开下方的会议室进行聊天和视频通话："
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
-#, python-format
-msgid "This location is no longer available for the selected time. Please choose another time."
+msgid ""
+"This location is no longer available for the selected time. Please choose "
+"another time."
 msgstr "该场地在所选时间已不可用，请选择其他时间。"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
-#, python-format
-msgid "This staff member is no longer available for the selected time. Please choose another time."
+msgid ""
+"This staff member is no longer available for the selected time. Please "
+"choose another time."
 msgstr "该员工在所选时间已不可用，请选择其他时间。"
 
 #. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__day_of_week__3
-msgid "Thursday"
-msgstr "星期四"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_request
+msgid ""
+"This will cancel all your active bookings and anonymize your personal data.\n"
+"                                        This action cannot be undone."
+msgstr "这将取消您所有有效的预约并匿名化您的个人数据。\n                                        此操作无法撤销。"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-msgid "This Week"
-msgstr "本周"
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "Thu"
+msgstr "四"
+
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__3
+msgid "Thursday"
+msgstr "星期四"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__slot_duration
@@ -2075,21 +2581,30 @@ msgid "Timezone"
 msgstr "时区"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__end_hour
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__hour_to
 msgid "To"
 msgstr "至"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model_terms:appointment.question,answer:reservation_module.question_consultation_experience
+msgid "To get the most out of your session:"
+msgstr "为了充分利用您的咨询时段："
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Today"
 msgstr "今天"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
-#, python-format
 msgid "Too many booking attempts. Please try again later."
 msgstr "预约尝试次数过多，请稍后重试。"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "Total"
+msgstr "总计"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__total_capacity
@@ -2102,52 +2617,56 @@ msgid "Total capacity across all resources"
 msgstr "所有资源的总容量"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-msgid "Total"
-msgstr "总计"
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "Tue"
+msgstr "二"
 
 #. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__day_of_week__1
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__1
 msgid "Tuesday"
 msgstr "星期二"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Type:"
-msgstr "类型："
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__activity_exception_decoration
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "记录上的异常活动类型。"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-msgid "Unpublished"
-msgstr "未发布"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "Under applicable data protection regulations, you have the right to:"
+msgstr "根据适用的数据保护法规，您有权："
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_list_view
 msgid "Upcoming"
 msgstr "即将到来"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__upcoming_booking_count
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_resource__upcoming_booking_count
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__upcoming_booking_count
 msgid "Upcoming Bookings"
 msgstr "即将到来的预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "Upcoming Bookings"
-msgstr "即将到来的预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Under applicable data protection regulations, you have the right to:"
-msgstr "根据适用的数据保护法规，您有权："
 
 #. module: reservation_module
 #: model:res.groups,name:reservation_module.group_appointment_user
 msgid "User"
 msgstr "用户"
+
+#. module: reservation_module
+#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
+msgid "Vegetarian and vegan options"
+msgstr "素食与纯素选择"
+
+#. module: reservation_module
+#: model:appointment.type,name:reservation_module.appointment_type_video_call
+msgid "Video Consultation"
+msgstr "视频咨询"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__video_link
@@ -2160,45 +2679,27 @@ msgid "Video conference link"
 msgstr "视频会议链接"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "View and manage your appointments"
-msgstr "查看和管理您的预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
+#: model_terms:ir.ui.view,arch_db:reservation_module.sale_order_portal_booking_link
 msgid "View Booking Details"
 msgstr "查看预约详情"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "View Booking"
-msgstr "查看预约"
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_home_booking
+msgid "View and manage your appointments"
+msgstr "查看和管理您的预约"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "View Details"
-msgstr "查看详情"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid ""
+"We retain booking data for the period required by applicable laws.\n"
+"                               Cancelled bookings are kept for record-keeping purposes but can be anonymized on request."
+msgstr "我们会在适用法律要求的期限内保留预约数据。\n                               已取消的预约会保留作为记录用途，但可应要求进行匿名化处理。"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
-msgid "View My Bookings"
-msgstr "查看我的预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "View all your booking data via the"
-msgstr "通过以下方式查看您所有的预约数据"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Download your data in machine-readable format via"
-msgstr "通过以下方式下载机器可读格式的数据"
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__day_of_week__2
-msgid "Wednesday"
-msgstr "星期三"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__website_message_ids
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__website_message_ids
+msgid "Website Messages"
+msgstr "网站消息"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__website_url
@@ -2206,319 +2707,155 @@ msgid "Website URL"
 msgstr "网站网址"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "Weekly Schedule"
-msgstr "每周排程"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "We hope you had a great experience. We'd love to see you again!"
-msgstr "希望您有愉快的体验，期待再次为您服务！"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "We look forward to seeing you!"
-msgstr "期待与您见面！"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "We were unable to process the payment for your booking. Your reservation is still pending."
-msgstr "我们无法处理您的预约付款。您的预约仍处于待处理状态。"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "We retain booking data for the period required by applicable laws. Cancelled bookings are kept for record-keeping purposes but can be anonymized on request."
-msgstr "我们按照适用法律要求的期限保留预约数据。已取消的预约会为记录目的而保留，但可根据请求进行匿名化处理。"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "When you make an appointment booking, we collect:"
-msgstr "当您进行预约时，我们会收集："
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
-msgid "will be required to confirm your booking."
-msgstr "需要付款才能确认您的预约。"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_cancel_page
-msgid "Yes, Cancel Booking"
-msgstr "是的，取消预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "You have no bookings yet"
-msgstr "您还没有预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Your appointment has been completed. Thank you for your visit!"
-msgstr "您的预约已完成。感谢您的光临！"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Your appointment has been confirmed. Here are the details:"
-msgstr "您的预约已确认。以下是详细信息："
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Your appointment has been cancelled. Here were the details:"
-msgstr "您的预约已取消。以下是预约详情："
-
-#. module: reservation_module
-#: model:mail.template,subject:reservation_module.mail_template_appointment_completed
-msgid "Your appointment has been completed - {{ object.name }}"
-msgstr "您的预约已完成 - {{ object.name }}"
-
-#. module: reservation_module
-#: model:mail.template,subject:reservation_module.mail_template_appointment_confirmed
-msgid "Your appointment has been confirmed - {{ object.name }}"
-msgstr "您的预约已确认 - {{ object.name }}"
-
-#. module: reservation_module
-#: model:mail.template,subject:reservation_module.mail_template_appointment_cancelled
-msgid "Your appointment has been cancelled - {{ object.name }}"
-msgstr "您的预约已取消 - {{ object.name }}"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
-msgid "Your booking reference is:"
-msgstr "您的预约编号是："
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_cancelled_page
-msgid "Your booking"
-msgstr "您的预约"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Your booking is being processed and will be confirmed shortly."
-msgstr "您的预约正在处理中，即将确认。"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Your booking is waiting for payment confirmation."
-msgstr "您的预约正在等待付款确认。"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Your booking requires payment before it can be confirmed. Please complete your payment to secure your reservation."
-msgstr "您的预约需要付款后才能确认。请完成付款以确保预约有效。"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_deleted_page
-msgid "Your booking data has been anonymized and all active bookings have been cancelled."
-msgstr "您的预约数据已匿名化，所有有效预约已取消。"
-
-#. module: reservation_module
-#: model:mail.template,subject:reservation_module.mail_template_appointment_created
-msgid "Your booking has been received - {{ object.name }}"
-msgstr "已收到您的预约 - {{ object.name }}"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Your personal data is used to:"
-msgstr "您的个人数据用于："
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Your Rights"
-msgstr "您的权利"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Appointment date, time, and preferences"
-msgstr "预约日期、时间和偏好"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Any notes you provide"
-msgstr "您提供的任何备注"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Payment information (processed securely by our payment provider)"
-msgstr "付款信息（由我们的付款服务商安全处理）"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "Send booking confirmations, reminders, and updates"
-msgstr "发送预约确认、提醒和更新"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_privacy_page
-msgid "For privacy-related inquiries, please contact us through our website."
-msgstr "如有隐私相关问题，请通过我们的网站联系我们。"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "This is a friendly reminder about your upcoming appointment:"
-msgstr "温馨提醒您即将到来的预约："
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Appointment Type"
-msgstr "预约类型"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Date & Time"
-msgstr "日期与时间"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Booking Reference"
-msgstr "预约编号"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Booking Received"
-msgstr "已收到预约"
-
-#. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/models/appointment_booking.py:0
-#, python-format
-msgid ""
-"Appointment scheduled for %(date)s at %(time)s.\n"
-"Use the call button above to start your video meeting."
-msgstr ""
-"预约已安排在 %(date)s %(time)s。\n"
-"请使用上方的通话按钮开始视频会议。"
-
-#. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/models/appointment_booking.py:0
-#, python-format
-msgid "Location is fully booked for this time slot."
-msgstr "该场地在此时段已约满。"
-
-#. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/models/appointment_type.py:0
-#, python-format
-msgid "Payment amount must be set when payment is required."
-msgstr "需要付款时必须设置付款金额。"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__booked_count
-msgid "Booked Count"
-msgstr "已预约数量"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "before start"
-msgstr "开始之前"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__auto_confirm_capacity
-msgid "Auto Confirm Capacity (%)"
-msgstr "自动确认容量 (%)"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__auto_confirm_capacity
-msgid "Auto confirm until this capacity percentage is reached"
-msgstr "在达到此容量百分比之前自动确认"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__slot_duration
-msgid "Duration of each appointment slot in hours"
-msgstr "每个预约时段的时长（小时）"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-msgid "duration"
-msgstr "时长"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_list
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_page
-msgid "hour(s)"
-msgstr "小时"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_list
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_page
-msgid "seats"
-msgstr "座位"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-msgid "staff members"
-msgstr "位员工"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_book_page
-msgid "per person"
-msgstr "每人"
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__website_message_ids
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__website_message_ids
+msgid "Website communication history"
+msgstr "网站通信记录"
 
 #. module: reservation_module
 #. odoo-javascript
 #: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
+msgid "Wed"
+msgstr "三"
+
+#. module: reservation_module
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "Error loading available times. Please try again."
+msgstr "加载可用时段时发生错误，请重试。"
+
+#. module: reservation_module
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "Loading available times..."
+msgstr "正在加载可用时段..."
+
+#. module: reservation_module
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "Next month"
+msgstr "下个月"
+
+#. module: reservation_module
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "No available times for this date."
+msgstr "此日期没有可用时段。"
+
+#. module: reservation_module
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
+msgid "Previous month"
+msgstr "上个月"
+
+#. module: reservation_module
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "available"
 msgstr "可用"
 
 #. module: reservation_module
 #. odoo-javascript
 #: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "unavailable"
-msgstr "不可用"
+msgid "selected"
+msgstr "已选取"
 
 #. module: reservation_module
 #. odoo-javascript
 #: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-#, javascript-format
-msgid "selected"
-msgstr "已选择"
+msgid "unavailable"
+msgstr "不可用"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "All"
-msgstr "全部"
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__2
+msgid "Wednesday"
+msgstr "星期三"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "Completed"
-msgstr "已完成"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Weekly Schedule"
+msgstr "每周排程"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "Export My Data"
-msgstr "导出我的数据"
+#: model:appointment.question,name:reservation_module.question_consultation_topic
+msgid "What topics can I discuss during a consultation?"
+msgstr "咨询时我可以讨论哪些主题？"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "Delete My Data"
-msgstr "删除我的数据"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "When you make an appointment booking, we collect:"
+msgstr "当您进行预约时，我们会收集："
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_booking_page
-msgid "Join Meeting"
-msgstr "加入会议"
+#: model_terms:appointment.question,answer:reservation_module.question_table_occasion
+msgid "Yes! We offer special arrangements for:"
+msgstr "有的！我们提供以下特殊场合安排："
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_confirm_page
-msgid "Booking confirmation details have been sent to your email"
-msgstr "预约确认详情已发送至您的邮箱"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "Your Rights"
+msgstr "您的权利"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Booking Confirmed"
-msgstr "预约已确认"
+#: model:mail.template,subject:reservation_module.email_template_booking_cancelled
+msgid "Your appointment has been cancelled - {{ object.name }}"
+msgstr "您的预约已取消 - {{ object.name }}"
 
 #. module: reservation_module
-#: model:mail.template,subject:reservation_module.mail_template_appointment_payment_failed
-msgid "Payment failed for your booking - {{ object.name }}"
-msgstr "您的预约付款失败 - {{ object.name }}"
+#: model:mail.template,subject:reservation_module.email_template_booking_done
+msgid "Your appointment has been completed - {{ object.name }}"
+msgstr "您的预约已完成 - {{ object.name }}"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Booking Cancelled"
-msgstr "预约已取消"
+#: model:mail.template,subject:reservation_module.email_template_booking_confirmed
+msgid "Your appointment has been confirmed - {{ object.name }}"
+msgstr "您的预约已确认 - {{ object.name }}"
 
 #. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_data
-msgid "Appointment Completed"
-msgstr "预约已完成"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_confirmed
+msgid ""
+"Your booking data has been anonymized and all active bookings have been "
+"cancelled."
+msgstr "您的预约数据已匿名化，所有有效预约已取消。"
+
+#. module: reservation_module
+#: model:mail.template,subject:reservation_module.email_template_booking_created
+msgid "Your booking has been received - {{ object.name }}"
+msgstr "已收到您的预约 - {{ object.name }}"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "Your personal data is used to:"
+msgstr "您的个人数据用于："
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_book_page
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_page
+msgid "breadcrumb"
+msgstr "面包屑导航"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "duration"
+msgstr "时长"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "e.g. Meeting, Table Booking"
+msgstr "例如：会议、餐桌预约"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "locations"
+msgstr "个场地"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+msgid "portal"
+msgstr "门户"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "staff members"
+msgstr "位员工"

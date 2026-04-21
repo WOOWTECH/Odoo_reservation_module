@@ -80,6 +80,10 @@ Thumbs.db
 filestore/
 sessions/
 
+# Playwright / testing artifacts
+.playwright-cli/
+test_screenshots/
+
 # Development files (not part of the module distribution)
 .vibe-images/
 test_suite/

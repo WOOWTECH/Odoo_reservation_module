@@ -7,3 +7,4 @@ from . import appointment_booking
 from . import appointment_question
 from . import resource_resource
 from . import payment_transaction
+from . import ir_http

@@ -1154,5 +1154,8 @@ class AppointmentPortal(CustomerPortal):
             'booking': booking,
             'page_name': 'my_booking_detail',
             't': t,
+            # Portal chatter support
+            'token': booking.access_token,
+            'allow_composer': True,
         }
         return request.render('reservation_module.portal_my_booking_detail', values)

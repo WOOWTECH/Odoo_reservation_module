@@ -303,6 +303,15 @@
                             </t>
                         </div>
 
+                        <!-- Portal Chatter / Message Thread -->
+                        <div class="mt-4">
+                            <t t-call="portal.message_thread">
+                                <t t-set="object" t-value="booking"/>
+                                <t t-set="token" t-value="token"/>
+                                <t t-set="allow_composer" t-value="allow_composer"/>
+                            </t>
+                        </div>
+
                         <!-- Back to list -->
                         <div class="text-center">
                             <a href="/my/bookings" class="btn btn-outline-primary">

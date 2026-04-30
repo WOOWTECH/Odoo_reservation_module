@@ -1,7 +1,34 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-  <line x1="16" y1="2" x2="16" y2="6"/>
-  <line x1="8" y1="2" x2="8" y2="6"/>
-  <line x1="3" y1="10" x2="21" y2="10"/>
-  <path d="M9 16l2 2 4-4"/>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Calendar body - back shadow -->
+  <path d="M14 18H50C51.1 18 52 18.9 52 20V54C52 55.1 51.1 56 50 56H14C12.9 56 12 55.1 12 54V20C12 18.9 12.9 18 14 18Z" fill="#C1DBF6"/>
+  <!-- Calendar body - main face offset for depth -->
+  <path d="M11 16H47C48.1 16 49 16.9 49 18V52C49 53.1 48.1 54 47 54H11C9.9 54 9 53.1 9 52V18C9 16.9 9.9 16 11 16Z" fill="white"/>
+  <!-- Calendar header -->
+  <path d="M11 16H47C48.1 16 49 16.9 49 18V26H9V18C9 16.9 9.9 16 11 16Z" fill="#FBDBD0"/>
+  <!-- Depth connector top -->
+  <path d="M49 18L52 20V26L49 26V18Z" fill="#FBDBD0" opacity="0.7"/>
+  <!-- Depth connector side -->
+  <path d="M49 26L52 26V54L49 54V26Z" fill="#C1DBF6" opacity="0.6"/>
+  <!-- Depth connector bottom -->
+  <path d="M9 54L12 56H50L49 54H9Z" fill="#C1DBF6" opacity="0.5"/>
+  <!-- Calendar ring left -->
+  <rect x="19" y="11" width="3.5" height="12" rx="1.75" fill="#374874"/>
+  <!-- Calendar ring right -->
+  <rect x="35.5" y="11" width="3.5" height="12" rx="1.75" fill="#374874"/>
+  <!-- Grid dots row 1 -->
+  <circle cx="18" cy="33" r="1.5" fill="#C1DBF6"/>
+  <circle cx="26" cy="33" r="1.5" fill="#C1DBF6"/>
+  <circle cx="34" cy="33" r="1.5" fill="#C1DBF6"/>
+  <circle cx="42" cy="33" r="1.5" fill="#C1DBF6"/>
+  <!-- Grid dots row 2 -->
+  <circle cx="18" cy="40" r="1.5" fill="#C1DBF6"/>
+  <circle cx="26" cy="40" r="1.5" fill="#C1DBF6"/>
+  <!-- Checkmark circle -->
+  <circle cx="38" cy="44" r="10" fill="#FBDBD0"/>
+  <!-- Checkmark -->
+  <path d="M33 44L36.5 47.5L43.5 39.5" stroke="#374874" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Main outline -->
+  <path d="M11 16H47C48.1 16 49 16.9 49 18V52C49 53.1 48.1 54 47 54H11C9.9 54 9 53.1 9 52V18C9 16.9 9.9 16 11 16Z" stroke="#374874" stroke-width="1.2"/>
+  <!-- Header line -->
+  <line x1="9" y1="26" x2="49" y2="26" stroke="#374874" stroke-width="1.2"/>
 </svg>

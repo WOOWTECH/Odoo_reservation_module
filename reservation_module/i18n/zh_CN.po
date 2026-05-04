@@ -2859,3 +2859,77 @@ msgstr "门户"
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "staff members"
 msgstr "位员工"
+
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_appointment_closing_day
+msgid "Appointment Closing Day"
+msgstr "预约休息日"
+
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_appointment_closing_day_wizard
+msgid "Add Closing Days Wizard"
+msgstr "添加休息日向导"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__date
+msgid "Date"
+msgstr "日期"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__name
+msgid "Reason"
+msgstr "原因"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__date_from
+msgid "From Date"
+msgstr "起始日期"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__date_to
+msgid "To Date"
+msgstr "结束日期"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__reason
+msgid "Reason"
+msgstr "原因"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__closing_day_ids
+msgid "Closing Days"
+msgstr "休息日"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/wizard/appointment_closing_day_wizard.py:0
+msgid "Closing Days Added"
+msgstr "已添加休息日"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/wizard/appointment_closing_day_wizard.py:0
+msgid "%d closing day(s) added."
+msgstr "已添加 %d 个休息日。"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/wizard/appointment_closing_day_wizard.py:0
+msgid "From Date must be before or equal to To Date."
+msgstr "起始日期必须在结束日期之前或相同。"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_closing_day.py:0
+msgid "Closing day date cannot be in the past."
+msgstr "休息日日期不能是过去的日期。"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_closing_day_wizard_form
+msgid "Cancel"
+msgstr "取消"
+
+#. module: reservation_module
+#: model:ir.ui.view,arch_db:reservation_module.appointment_closing_day_wizard_form
+msgid "e.g. National Holiday, Maintenance..."
+msgstr "例如：国定假日、维护..."

@@ -36,6 +36,8 @@
         "security/ir.model.access.csv",
         # Data
         "data/appointment_data.xml",
+        # Wizard
+        "wizard/appointment_closing_day_wizard_views.xml",
         # Views
         "views/appointment_type_views.xml",
         "views/appointment_booking_views.xml",

@@ -214,6 +214,13 @@ class AppointmentType(models.Model):
         string='Availability Slots',
     )
 
+    # Closing Days
+    closing_day_ids = fields.One2many(
+        'appointment.closing.day',
+        'appointment_type_id',
+        string='Closing Days',
+    )
+
     # Questions
     question_ids = fields.One2many(
         'appointment.question',

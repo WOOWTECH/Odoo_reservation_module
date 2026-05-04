@@ -7,14 +7,19 @@ from . import tests
 
 
 def _post_init_hook(env):
-    """Migrate booking_type data to new boolean fields"""
+    """Migrate booking_type data to new boolean fields (safe for fresh install)"""
     env.cr.execute("""
-        UPDATE appointment_type
-        SET assign_staff = TRUE, allow_customer_choose_staff = TRUE
-        WHERE booking_type = 'user' OR booking_type IS NULL;
+        SELECT column_name FROM information_schema.columns
+        WHERE table_name = 'appointment_type' AND column_name = 'booking_type';
     """)
-    env.cr.execute("""
-        UPDATE appointment_type
-        SET assign_location = TRUE, allow_customer_choose_location = TRUE
-        WHERE booking_type = 'resource';
-    """)
+    if env.cr.fetchone():
+        env.cr.execute("""
+            UPDATE appointment_type
+            SET assign_staff = TRUE, allow_customer_choose_staff = TRUE
+            WHERE booking_type = 'user' OR booking_type IS NULL;
+        """)
+        env.cr.execute("""
+            UPDATE appointment_type
+            SET assign_location = TRUE, allow_customer_choose_location = TRUE
+            WHERE booking_type = 'resource';
+        """)

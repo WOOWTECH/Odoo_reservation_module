@@ -316,6 +316,14 @@ class AppointmentController(http.Controller):
         except ValueError:
             return {'error': 'Invalid date format'}
 
+        # Check closing days — block slots on closed dates
+        closing = request.env['appointment.closing.day'].sudo().search([
+            ('appointment_type_id', '=', appointment_type.id),
+            ('date', '=', selected_date),
+        ], limit=1)
+        if closing:
+            return {'slots': [], 'closing_reason': closing.name or ''}
+
         if appointment_type.is_scheduled:
             return self._get_scheduled_slots(appointment_type, selected_date, resource_id, staff_id)
         else:

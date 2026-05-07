@@ -98,9 +98,9 @@
         <field name="model">appointment.booking</field>
         <field name="arch" type="xml">
             <calendar string="Bookings" date_start="start_datetime" date_stop="end_datetime"
-                      color="appointment_type_id" mode="week" quick_create="0">
+                      color="appointment_type_id" mode="week" quick_create="0" event_open_popup="true">
+                <field name="appointment_type_id" filters="1"/>
                 <field name="guest_name"/>
-                <field name="appointment_type_id"/>
                 <field name="guest_count"/>
             </calendar>
         </field>
@@ -112,9 +112,9 @@
         <field name="model">appointment.booking</field>
         <field name="arch" type="xml">
             <calendar string="Location Bookings" date_start="start_datetime" date_stop="end_datetime"
-                      color="resource_id" mode="week" quick_create="0">
+                      color="resource_id" mode="week" quick_create="0" event_open_popup="true">
+                <field name="resource_id" filters="1"/>
                 <field name="guest_name"/>
-                <field name="resource_id"/>
                 <field name="guest_count"/>
                 <field name="state"/>
             </calendar>
@@ -127,9 +127,9 @@
         <field name="model">appointment.booking</field>
         <field name="arch" type="xml">
             <calendar string="Staff Bookings" date_start="start_datetime" date_stop="end_datetime"
-                      color="staff_user_id" mode="week" quick_create="0">
+                      color="staff_user_id" mode="week" quick_create="0" event_open_popup="true">
+                <field name="staff_user_id" filters="1" avatar_field="image_128"/>
                 <field name="guest_name"/>
-                <field name="staff_user_id"/>
                 <field name="guest_count"/>
                 <field name="state"/>
             </calendar>

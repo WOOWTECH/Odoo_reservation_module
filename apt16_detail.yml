@@ -1,0 +1,124 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - img [ref=e3]
+    - generic [ref=e5]:
+      - link "" [ref=e6] [cursor=pointer]:
+        - /url: "#"
+      - link "Editor" [ref=e7] [cursor=pointer]:
+        - /url: http://localhost:9073/@/en/appointment/16
+  - generic [ref=e8]:
+    - banner [ref=e9]:
+      - navigation "Main" [ref=e10]:
+        - generic [ref=e11]:
+          - link "Logo of My Website" [ref=e12] [cursor=pointer]:
+            - /url: /en
+            - img "Logo of My Website" [ref=e13]:
+              - img "My Website" [ref=e14]
+          - menu [ref=e15]:
+            - menuitem "Home" [ref=e16] [cursor=pointer]
+            - menuitem "Blog" [ref=e17] [cursor=pointer]
+            - menuitem "Courses" [ref=e18] [cursor=pointer]
+            - menuitem "Contact us" [ref=e19] [cursor=pointer]
+          - list [ref=e20]:
+            - listitem [ref=e21]:
+              - button "" [ref=e22] [cursor=pointer]:
+                - generic [ref=e23]: 
+            - listitem [ref=e24]:
+              - link " +1 555-555-5556" [ref=e26] [cursor=pointer]:
+                - /url: tel:+1 555-555-5556
+                - generic [ref=e27]: 
+                - generic [ref=e28]: +1 555-555-5556
+            - listitem [ref=e29]:
+              - button "English (US)" [expanded] [ref=e31] [cursor=pointer]
+            - listitem [ref=e32]:
+              - button "Mitchell Admin" [ref=e33] [cursor=pointer]
+              - text:   
+            - listitem [ref=e34]:
+              - link "Contact Us" [ref=e38] [cursor=pointer]:
+                - /url: /en/contactus
+    - main [ref=e39]:
+      - generic [ref=e43]:
+        - navigation "breadcrumb" [ref=e44]:
+          - list [ref=e45]:
+            - listitem [ref=e46]:
+              - link "Appointments" [ref=e47] [cursor=pointer]:
+                - /url: /en/appointment
+            - listitem [ref=e48]: / 醫美微整形門診
+        - generic [ref=e50]:
+          - heading "醫美微整形門診" [level=2] [ref=e51]
+          - generic [ref=e52]:
+            - generic [ref=e53]:
+              - generic [ref=e54]: 
+              - text: 1.0 hour(s)
+            - generic [ref=e55]:
+              - generic [ref=e56]: 
+              - text: 19740.00 $ (incl. tax)
+          - paragraph [ref=e58]: 專業醫美微整形諮詢與療程預約。含諮詢、注射、雷射等項目。
+          - link " Select Date & Time" [ref=e59] [cursor=pointer]:
+            - /url: /en/appointment/16/schedule
+            - generic [ref=e60]: 
+            - text: Select Date & Time
+      - generic: 
+    - contentinfo [ref=e61]:
+      - generic [ref=e62]:
+        - generic [ref=e65]:
+          - generic [ref=e66]:
+            - paragraph [ref=e67]: How can we help?
+            - heading "Contact us anytime" [level=4] [ref=e68]
+          - generic [ref=e69]:
+            - paragraph [ref=e70]: Call us
+            - heading "+1 555-555-5556" [level=5] [ref=e71]:
+              - link "+1 555-555-5556" [ref=e73] [cursor=pointer]:
+                - /url: tel:+1 555-555-5556
+          - generic [ref=e74]:
+            - paragraph [ref=e75]: Send us a message
+            - heading "hello@mycompany.com" [level=5] [ref=e76]:
+              - link "hello@mycompany.com" [ref=e77] [cursor=pointer]:
+                - /url: mailto:hello@mycompany.com
+          - generic [ref=e79]:
+            - paragraph [ref=e80]: Follow us
+            - link "" [ref=e81] [cursor=pointer]:
+              - /url: /en/website/social/twitter
+              - generic [ref=e82]: 
+            - link "" [ref=e83] [cursor=pointer]:
+              - /url: /en/website/social/linkedin
+              - generic [ref=e84]: 
+            - link "" [ref=e85] [cursor=pointer]:
+              - /url: /en/website/social/instagram
+              - generic [ref=e86]: 
+        - separator [ref=e90]
+        - generic [ref=e93]:
+          - link "Logo of MyCompany" [ref=e95] [cursor=pointer]:
+            - /url: /en
+            - img "Logo of MyCompany" [ref=e96]
+          - list [ref=e98]:
+            - listitem [ref=e99]:
+              - link "Home" [ref=e100] [cursor=pointer]:
+                - /url: /en
+            - listitem [ref=e101]: •
+            - listitem [ref=e102]:
+              - link "About us" [ref=e103] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e104]: •
+            - listitem [ref=e105]:
+              - link "Products" [ref=e106] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e107]: •
+            - listitem [ref=e108]:
+              - link "Terms of Services" [ref=e109] [cursor=pointer]:
+                - /url: "#"
+      - generic [ref=e112]:
+        - generic [ref=e113]:
+          - text: Copyright © Company name
+          - menu [ref=e115]:
+            - menuitem "繁體中文" [ref=e116] [cursor=pointer]
+            - generic [ref=e117]: "|"
+            - menuitem "English (US)" [ref=e118] [cursor=pointer]
+        - generic [ref=e120]:
+          - text: Powered by
+          - link "Odoo" [ref=e121] [cursor=pointer]:
+            - /url: http://www.odoo.com?utm_source=db&utm_medium=website
+            - img "Odoo" [ref=e122]
+          - text: "- Create a"
+          - link "free website" [ref=e123] [cursor=pointer]:
+            - /url: http://www.odoo.com/app/website?utm_source=db&utm_medium=website

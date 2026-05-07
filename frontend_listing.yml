@@ -1,0 +1,288 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - img [ref=e3]
+    - generic [ref=e5]:
+      - link "" [ref=e6] [cursor=pointer]:
+        - /url: "#"
+      - link "Editor" [ref=e7] [cursor=pointer]:
+        - /url: http://localhost:9073/@/en/appointment
+  - generic [ref=e8]:
+    - banner [ref=e9]:
+      - navigation "Main" [ref=e10]:
+        - generic [ref=e11]:
+          - link "Logo of My Website" [ref=e12] [cursor=pointer]:
+            - /url: /en
+            - img "Logo of My Website" [ref=e13]:
+              - img "My Website" [ref=e14]
+          - menu [ref=e15]:
+            - menuitem "Home" [ref=e16] [cursor=pointer]
+            - menuitem "Blog" [ref=e17] [cursor=pointer]
+            - menuitem "Courses" [ref=e18] [cursor=pointer]
+            - menuitem "Contact us" [ref=e19] [cursor=pointer]
+          - list [ref=e20]:
+            - listitem [ref=e21]:
+              - button "" [ref=e22] [cursor=pointer]:
+                - generic [ref=e23]: 
+            - listitem [ref=e24]:
+              - link " +1 555-555-5556" [ref=e26] [cursor=pointer]:
+                - /url: tel:+1 555-555-5556
+                - generic [ref=e27]: 
+                - generic [ref=e28]: +1 555-555-5556
+            - listitem [ref=e29]:
+              - button "English (US)" [expanded] [ref=e31] [cursor=pointer]
+            - listitem [ref=e32]:
+              - button "Mitchell Admin" [ref=e33] [cursor=pointer]
+              - text:   
+            - listitem [ref=e34]:
+              - link "Contact Us" [ref=e38] [cursor=pointer]:
+                - /url: /en/contactus
+    - main [ref=e39]:
+      - generic [ref=e41]:
+        - heading "Book an Appointment" [level=1] [ref=e42]
+        - generic [ref=e43]:
+          - generic [ref=e45]:
+            - generic [ref=e47]: 
+            - generic [ref=e48]:
+              - heading "Business Meeting" [level=5] [ref=e49]
+              - paragraph [ref=e50]:
+                - generic [ref=e51]: 
+                - text: 1.0 hour(s)
+              - paragraph
+              - paragraph [ref=e52]: "Schedule a business meeting with our team, suitable for:"
+              - list [ref=e53]:
+                - listitem [ref=e54]: Project discussions
+                - listitem [ref=e55]: Client consultations
+                - listitem [ref=e56]: Strategic planning
+              - paragraph
+            - link "Book Now" [ref=e58] [cursor=pointer]:
+              - /url: /en/appointment/1
+          - generic [ref=e60]:
+            - generic [ref=e62]: 
+            - generic [ref=e63]:
+              - heading "Video Consultation" [level=5] [ref=e64]
+              - paragraph [ref=e65]:
+                - generic [ref=e66]: 
+                - text: 0.5 hour(s)
+              - paragraph
+              - paragraph [ref=e67]: Schedule a video consultation from anywhere in the world.
+              - paragraph [ref=e68]: After booking, our team will send you a meeting link.
+              - paragraph
+            - link "Book Now" [ref=e70] [cursor=pointer]:
+              - /url: /en/appointment/2
+          - generic [ref=e72]:
+            - generic [ref=e74]: 
+            - generic [ref=e75]:
+              - heading "Restaurant Reservation" [level=5] [ref=e76]
+              - paragraph [ref=e77]:
+                - generic [ref=e78]: 
+                - text: 2.0 hour(s)
+              - paragraph
+              - paragraph [ref=e79]: Reserve a table at our restaurant.
+              - list [ref=e80]:
+                - listitem [ref=e81]: Indoor and outdoor seating available
+                - listitem [ref=e82]: Private room options
+                - listitem [ref=e83]: Special occasion arrangements
+              - paragraph
+            - link "Book Now" [ref=e85] [cursor=pointer]:
+              - /url: /en/appointment/3
+          - generic [ref=e87]:
+            - generic [ref=e89]: 
+            - generic [ref=e90]:
+              - heading "Tennis Court Booking" [level=5] [ref=e91]
+              - paragraph [ref=e92]:
+                - generic [ref=e93]: 
+                - text: 1.0 hour(s)
+              - paragraph
+              - paragraph [ref=e94]: Book our professional tennis court.
+              - list [ref=e95]:
+                - listitem [ref=e96]: Clay court surface
+                - listitem [ref=e97]: Night lighting available
+                - listitem [ref=e98]: Equipment rental available
+              - paragraph
+            - link "Book Now" [ref=e100] [cursor=pointer]:
+              - /url: /en/appointment/4
+          - generic [ref=e102]:
+            - generic [ref=e104]: 
+            - generic [ref=e105]:
+              - heading "Expert Consultation" [level=5] [ref=e106]
+              - paragraph [ref=e107]:
+                - generic [ref=e108]: 
+                - text: 1.0 hour(s)
+              - paragraph
+              - paragraph [ref=e109]: Book a one-on-one consultation with an expert.
+              - paragraph [ref=e110]: Payment is required to confirm your booking.
+              - paragraph
+            - link "Book Now" [ref=e112] [cursor=pointer]:
+              - /url: /en/appointment/5
+          - generic [ref=e114]:
+            - generic [ref=e116]: 
+            - generic [ref=e117]:
+              - heading "Test Deactivated Type" [level=5] [ref=e118]
+              - paragraph [ref=e119]:
+                - generic [ref=e120]: 
+                - text: 1.0 hour(s)
+            - link "Book Now" [ref=e122] [cursor=pointer]:
+              - /url: /en/appointment/9
+          - generic [ref=e124]:
+            - generic [ref=e126]: 
+            - generic [ref=e127]:
+              - heading "Test Deactivated Type" [level=5] [ref=e128]
+              - paragraph [ref=e129]:
+                - generic [ref=e130]: 
+                - text: 1.0 hour(s)
+            - link "Book Now" [ref=e132] [cursor=pointer]:
+              - /url: /en/appointment/12
+          - generic [ref=e134]:
+            - generic [ref=e136]: 
+            - generic [ref=e137]:
+              - heading "Test Paid Appointment" [level=5] [ref=e138]
+              - paragraph [ref=e139]:
+                - generic [ref=e140]: 
+                - text: 1.0 hour(s)
+            - link "Book Now" [ref=e142] [cursor=pointer]:
+              - /url: /en/appointment/13
+          - generic [ref=e144]:
+            - generic [ref=e146]: 
+            - generic [ref=e147]:
+              - heading "醫美看診預約" [level=5] [ref=e148]
+              - paragraph [ref=e149]:
+                - generic [ref=e150]: 
+                - text: 1.0 hour(s)
+            - link "Book Now" [ref=e152] [cursor=pointer]:
+              - /url: /en/appointment/15
+          - generic [ref=e154]:
+            - generic [ref=e156]: 
+            - generic [ref=e157]:
+              - heading "醫美微整形門診" [level=5] [ref=e158]
+              - paragraph [ref=e159]:
+                - generic [ref=e160]: 
+                - text: 1.0 hour(s)
+              - paragraph
+              - paragraph [ref=e161]: 專業醫美微整形諮詢與療程預約。含諮詢、注射、雷射等項目。
+              - paragraph
+            - link "Book Now" [ref=e163] [cursor=pointer]:
+              - /url: /en/appointment/16
+          - generic [ref=e165]:
+            - generic [ref=e167]: 
+            - generic [ref=e168]:
+              - heading "線上法律諮詢" [level=5] [ref=e169]
+              - paragraph [ref=e170]:
+                - generic [ref=e171]: 
+                - text: 0.5 hour(s)
+              - paragraph
+              - paragraph [ref=e172]: 由執業律師提供的專業法律諮詢服務。支援視訊會議。
+              - paragraph
+            - link "Book Now" [ref=e174] [cursor=pointer]:
+              - /url: /en/appointment/17
+          - generic [ref=e176]:
+            - generic [ref=e178]: 
+            - generic [ref=e179]:
+              - heading "私人健身教練課" [level=5] [ref=e180]
+              - paragraph [ref=e181]:
+                - generic [ref=e182]: 
+                - text: 1.0 hour(s)
+              - paragraph
+              - paragraph [ref=e183]: 一對一私人教練課程。包含體適能評估與個人化訓練計畫。
+              - paragraph
+            - link "Book Now" [ref=e185] [cursor=pointer]:
+              - /url: /en/appointment/18
+          - generic [ref=e187]:
+            - generic [ref=e189]: 
+            - generic [ref=e190]:
+              - heading "婚紗攝影預約" [level=5] [ref=e191]
+              - paragraph [ref=e192]:
+                - generic [ref=e193]: 
+                - text: 2.0 hour(s)
+              - paragraph
+              - paragraph [ref=e194]: 專業婚紗及個人形象攝影服務。含造型、場地、後製。
+              - paragraph
+            - link "Book Now" [ref=e196] [cursor=pointer]:
+              - /url: /en/appointment/19
+          - generic [ref=e198]:
+            - generic [ref=e200]: 
+            - generic [ref=e201]:
+              - heading "寵物健檢美容" [level=5] [ref=e202]
+              - paragraph [ref=e203]:
+                - generic [ref=e204]: 
+                - text: 1.5 hour(s)
+              - paragraph
+              - paragraph [ref=e205]: 寵物健康檢查與美容服務。專業獸醫師及美容師駐點。
+              - paragraph
+            - link "Book Now" [ref=e207] [cursor=pointer]:
+              - /url: /en/appointment/20
+          - generic [ref=e209]:
+            - generic [ref=e211]: 
+            - generic [ref=e212]:
+              - heading "免費團體飛輪體驗" [level=5] [ref=e213]
+              - paragraph [ref=e214]:
+                - generic [ref=e215]: 
+                - text: 1.0 hour(s)
+              - paragraph
+              - paragraph [ref=e216]: 免費飛輪體驗課，歡迎新會員體驗。無需付費即可預約。
+              - paragraph
+            - link "Book Now" [ref=e218] [cursor=pointer]:
+              - /url: /en/appointment/21
+      - generic: 
+    - contentinfo [ref=e219]:
+      - generic [ref=e220]:
+        - generic [ref=e223]:
+          - generic [ref=e224]:
+            - paragraph [ref=e225]: How can we help?
+            - heading "Contact us anytime" [level=4] [ref=e226]
+          - generic [ref=e227]:
+            - paragraph [ref=e228]: Call us
+            - heading "+1 555-555-5556" [level=5] [ref=e229]:
+              - link "+1 555-555-5556" [ref=e231] [cursor=pointer]:
+                - /url: tel:+1 555-555-5556
+          - generic [ref=e232]:
+            - paragraph [ref=e233]: Send us a message
+            - heading "hello@mycompany.com" [level=5] [ref=e234]:
+              - link "hello@mycompany.com" [ref=e235] [cursor=pointer]:
+                - /url: mailto:hello@mycompany.com
+          - generic [ref=e237]:
+            - paragraph [ref=e238]: Follow us
+            - link "" [ref=e239] [cursor=pointer]:
+              - /url: /en/website/social/twitter
+              - generic [ref=e240]: 
+            - link "" [ref=e241] [cursor=pointer]:
+              - /url: /en/website/social/linkedin
+              - generic [ref=e242]: 
+            - link "" [ref=e243] [cursor=pointer]:
+              - /url: /en/website/social/instagram
+              - generic [ref=e244]: 
+        - separator [ref=e248]
+        - generic [ref=e251]:
+          - link "Logo of MyCompany" [ref=e253] [cursor=pointer]:
+            - /url: /en
+            - img "Logo of MyCompany" [ref=e254]
+          - list [ref=e256]:
+            - listitem [ref=e257]:
+              - link "Home" [ref=e258] [cursor=pointer]:
+                - /url: /en
+            - listitem [ref=e259]: •
+            - listitem [ref=e260]:
+              - link "About us" [ref=e261] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e262]: •
+            - listitem [ref=e263]:
+              - link "Products" [ref=e264] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e265]: •
+            - listitem [ref=e266]:
+              - link "Terms of Services" [ref=e267] [cursor=pointer]:
+                - /url: "#"
+      - generic [ref=e270]:
+        - generic [ref=e271]:
+          - text: Copyright © Company name
+          - menu [ref=e273]:
+            - menuitem "繁體中文" [ref=e274] [cursor=pointer]
+            - generic [ref=e275]: "|"
+            - menuitem "English (US)" [ref=e276] [cursor=pointer]
+        - generic [ref=e278]:
+          - text: Powered by
+          - link "Odoo" [ref=e279] [cursor=pointer]:
+            - /url: http://www.odoo.com?utm_source=db&utm_medium=website
+            - img "Odoo" [ref=e280]
+          - text: "- Create a"
+          - link "free website" [ref=e281] [cursor=pointer]:
+            - /url: http://www.odoo.com/app/website?utm_source=db&utm_medium=website

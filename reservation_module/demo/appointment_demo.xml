@@ -307,8 +307,7 @@
             <field name="assign_staff" eval="True"/>
             <field name="allow_customer_choose_staff" eval="True"/>
             <field name="require_payment" eval="True"/>
-            <field name="payment_amount">100.00</field>
-            <field name="payment_product_id" ref="product_expert_consultation"/>
+            <field name="payment_product_ids" eval="[(4, ref('product_expert_consultation'))]"/>
             <field name="auto_confirm" eval="True"/>
             <field name="is_published" eval="True"/>
             <field name="icon">fa-user-md</field>

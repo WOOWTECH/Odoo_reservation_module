@@ -232,21 +232,56 @@ class TestAppointmentBooking(TransactionCase):
 
     def test_cancel_pending_payment_resets_status(self):
         """Cancelling a pending-payment booking sets payment_status to not_required."""
+        # Create a paid appointment type to trigger computed payment_status
+        paid_apt = self.env['appointment.type'].create({
+            'name': 'Paid Appointment',
+            'slot_duration': 1.0,
+            'max_booking_days': 30,
+            'min_booking_hours': 0,
+            'auto_confirm': False,
+            'require_payment': True,
+            'is_published': True,
+            'payment_product_ids': [(0, 0, {
+                'name': 'Test Product',
+                'type': 'service',
+                'list_price': 100.0,
+                'sale_ok': True,
+            })],
+        })
         booking = self._create_booking(
-            payment_status='pending',
-            payment_amount=100.0,
+            appointment_type_id=paid_apt.id,
         )
         booking.action_cancel()
         self.assertEqual(booking.payment_status, 'not_required')
 
     def test_cancel_paid_booking_sets_refunded(self):
         """Cancelling a paid booking sets payment_status to refunded."""
+        # With computed payment_status, cancelling a paid booking is tested
+        # through the SO state. When SO is cancelled, status becomes 'refunded'.
+        paid_apt = self.env['appointment.type'].create({
+            'name': 'Paid Appointment 2',
+            'slot_duration': 1.0,
+            'max_booking_days': 30,
+            'min_booking_hours': 0,
+            'auto_confirm': False,
+            'require_payment': True,
+            'is_published': True,
+            'payment_product_ids': [(0, 0, {
+                'name': 'Test Product 2',
+                'type': 'service',
+                'list_price': 100.0,
+                'sale_ok': True,
+            })],
+        })
         booking = self._create_booking(
-            payment_status='paid',
-            payment_amount=100.0,
+            appointment_type_id=paid_apt.id,
         )
-        booking.action_confirm()
-        booking.action_cancel()
+        # Create SO to simulate payment flow
+        so = booking._create_sale_order()
+        self.assertTrue(so)
+        # Cancel the SO to trigger refunded status
+        so._action_cancel()
+        booking.invalidate_recordset()
         self.assertEqual(booking.payment_status, 'refunded')
 
     # ── Reminder cron ────────────────────────────────────────────

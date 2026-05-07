@@ -93,9 +93,10 @@
                                         <t t-if="appointment_type.require_payment">
                                             <span class="badge bg-info">
                                                 <i class="fa fa-credit-card"/>
-                                                <t t-esc="appointment_type.payment_amount"/>
+                                                <t t-esc="'%.2f' % appointment_type.payment_display_amount"/>
                                                 <t t-esc="appointment_type.currency_id.symbol"/>
                                                 <t t-if="appointment_type.payment_per_person"> <t t-esc="t['per_person']"/></t>
+                                                <small t-esc="t.get('incl_tax', '(incl. tax)')"/>
                                             </span>
                                         </t>
                                     </div>
@@ -370,8 +371,9 @@
                                         <t t-if="appointment_type.require_payment">
                                             <div class="alert alert-warning">
                                                 <i class="fa fa-credit-card"/>
-                                                <t t-esc="t['payment_of']"/> <strong><t t-esc="appointment_type.payment_amount"/>
+                                                <t t-esc="t['payment_of']"/> <strong><t t-esc="'%.2f' % appointment_type.payment_display_amount"/>
                                                 <t t-esc="appointment_type.currency_id.symbol"/></strong>
+                                                <small t-esc="t.get('incl_tax', '(incl. tax)')"/>
                                                 <t t-if="appointment_type.payment_per_person"> <t t-esc="t['per_person']"/></t>
                                                 <t t-esc="t['payment_required']"/>
                                             </div>
@@ -424,8 +426,11 @@
                                                <t t-esc="booking.end_datetime" t-options='{"widget": "datetime"}'/>
                                             </p>
                                             <p><strong><t t-esc="t.get('amount_due', 'Amount Due:')"/></strong>
-                                               <t t-esc="'%.2f' % booking.payment_amount"/>
-                                               <t t-esc="booking.currency_id.symbol"/>
+                                               <span class="fs-4 fw-bold text-primary">
+                                                   <t t-esc="'%.2f' % booking.sale_order_id.amount_total"/>
+                                                   <t t-esc="booking.currency_id.symbol"/>
+                                               </span>
+                                               <small class="text-muted" t-esc="t.get('incl_tax', '(incl. tax)')"/>
                                             </p>
                                         </div>
 
@@ -525,8 +530,9 @@
                             <div class="card shadow">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <h4 class="mb-0"><t t-esc="t['booking']"/> <t t-esc="booking.name"/></h4>
-                                    <span t-attf-class="badge #{'bg-success' if booking.state == 'confirmed' else 'bg-secondary' if booking.state == 'draft' else 'bg-danger' if booking.state == 'cancelled' else 'bg-info'}"
-                                          t-esc="booking.state"/>
+                                    <t t-set="state_class" t-value="'bg-success' if booking.state == 'confirmed' else 'bg-warning text-dark' if booking.state == 'pending_payment' else 'bg-secondary' if booking.state == 'draft' else 'bg-danger' if booking.state == 'cancelled' else 'bg-info'"/>
+                                    <t t-set="state_label" t-value="t.get('status_' + booking.state, booking.state)"/>
+                                    <span t-attf-class="badge #{state_class}" t-esc="state_label"/>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
@@ -571,11 +577,21 @@
                                         <div class="alert alert-warning">
                                             <i class="fa fa-clock-o me-2"/>
                                             <t t-esc="t.get('pending_payment_msg', 'Your booking is waiting for payment confirmation.')"/>
+                                            <div class="mt-2">
+                                                <strong><t t-esc="t.get('amount_due', 'Amount Due:')"/></strong>
+                                                <span class="fs-5 fw-bold text-primary ms-1">
+                                                    <t t-esc="'%.2f' % booking.sale_order_id.amount_total"/>
+                                                    <t t-esc="booking.currency_id.symbol"/>
+                                                </span>
+                                                <small class="text-muted" t-esc="t.get('incl_tax', '(incl. tax)')"/>
+                                            </div>
                                         </div>
                                         <a t-attf-href="/my/orders/#{booking.sale_order_id.id}?access_token=#{booking.sale_order_id.access_token}"
                                            class="btn btn-primary">
                                             <i class="fa fa-credit-card me-2"/>
                                             <t t-esc="t.get('go_to_payment', 'Go to Payment')"/>
+                                            — <t t-esc="'%.2f' % booking.sale_order_id.amount_total"/>
+                                            <t t-esc="booking.currency_id.symbol"/>
                                         </a>
                                     </t>
 
@@ -585,7 +601,7 @@
                                         <p t-esc="booking.notes"/>
                                     </t>
 
-                                    <t t-if="booking.state in ['draft', 'confirmed']">
+                                    <t t-if="booking.state in ['draft', 'pending_payment', 'confirmed']">
                                         <hr/>
                                         <a t-attf-href="/appointment/booking/#{booking.id}/cancel?token=#{booking.access_token}"
                                            class="btn btn-outline-danger">
@@ -701,7 +717,7 @@
                                     <div class="text-center py-4 bg-light rounded mb-4">
                                         <h5 class="text-muted mb-2" t-esc="t['amount_due']"/>
                                         <h1 class="text-primary mb-0">
-                                            <t t-esc="'%.2f' % booking.payment_amount"/>
+                                            <t t-esc="'%.2f' % (booking.sale_order_id.amount_total if booking.sale_order_id else 0)"/>
                                             <small><t t-esc="booking.currency_id.symbol"/></small>
                                         </h1>
                                     </div>

@@ -131,8 +131,7 @@
                                 </group>
                                 <group string="Payment">
                                     <field name="require_payment"/>
-                                    <field name="payment_product_id" invisible="not require_payment"/>
-                                    <field name="payment_amount" invisible="not require_payment"/>
+                                    <field name="payment_product_ids" widget="many2many_tags" invisible="not require_payment"/>
                                     <field name="currency_id" invisible="not require_payment"/>
                                     <field name="payment_per_person" invisible="not require_payment"/>
                                 </group>

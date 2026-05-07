@@ -125,6 +125,11 @@
                                 <i class="fa fa-fw fa-times"/>
                                 <t t-out="t.get('status_cancelled', 'Cancelled')"/>
                             </span>
+                            <span t-if="bk.state == 'pending_payment'"
+                                  class="badge rounded-pill text-bg-warning">
+                                <i class="fa fa-fw fa-credit-card"/>
+                                <t t-out="t.get('status_pending_payment', 'Pending Payment')"/>
+                            </span>
                             <span t-if="bk.state == 'draft'"
                                   class="badge rounded-pill text-bg-secondary">
                                 <i class="fa fa-fw fa-clock-o"/>
@@ -173,6 +178,11 @@
                                       class="badge text-bg-danger fs-6">
                                     <i class="fa fa-times me-1"/>
                                     <t t-out="t.get('status_cancelled', 'Cancelled')"/>
+                                </span>
+                                <span t-if="booking.state == 'pending_payment'"
+                                      class="badge text-bg-warning fs-6">
+                                    <i class="fa fa-credit-card me-1"/>
+                                    <t t-out="t.get('status_pending_payment', 'Pending Payment')"/>
                                 </span>
                                 <span t-if="booking.state == 'draft'"
                                       class="badge text-bg-secondary fs-6">
@@ -238,7 +248,7 @@
                                 </div>
 
                                 <!-- Meeting URL -->
-                                <t t-if="booking.meeting_url and booking.state in ('draft', 'confirmed')">
+                                <t t-if="booking.meeting_url and booking.state in ('draft', 'pending_payment', 'confirmed')">
                                     <hr/>
                                     <div class="card border-success my-3">
                                         <div class="card-body text-center">
@@ -292,7 +302,7 @@
                             </div>
 
                             <!-- Card Footer: Cancel -->
-                            <t t-if="booking.state == 'confirmed'">
+                            <t t-if="booking.state in ('draft', 'pending_payment', 'confirmed')">
                                 <div class="card-footer text-center">
                                     <a t-attf-href="/appointment/booking/#{booking.id}/cancel?token=#{booking.access_token}"
                                        class="btn btn-outline-danger btn-sm">

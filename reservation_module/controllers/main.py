@@ -135,6 +135,8 @@ class AppointmentController(http.Controller):
             'status_done': '已完成',
             'status_cancelled': '已取消',
             'status_draft': '草稿',
+            'status_pending_payment': '待付款',
+            'incl_tax': '（含稅）',
         }
 
         # English translations (en_US) - default
@@ -222,6 +224,8 @@ class AppointmentController(http.Controller):
             'status_done': 'Completed',
             'status_cancelled': 'Cancelled',
             'status_draft': 'Draft',
+            'status_pending_payment': 'Pending Payment',
+            'incl_tax': '(incl. tax)',
         }
 
         # Return appropriate translation based on language
@@ -725,12 +729,7 @@ class AppointmentController(http.Controller):
                 })
         booking_vals['partner_id'] = partner.id
 
-        # Set payment status
-        if appointment_type.require_payment:
-            booking_vals['payment_status'] = 'pending'
-            booking_vals['payment_amount'] = appointment_type.payment_amount
-            if appointment_type.payment_per_person:
-                booking_vals['payment_amount'] *= guest_count
+        # Payment status is computed automatically from SO state
 
         # C4: Atomic conflict check + create with row-level locking to prevent race conditions
         # SELECT FOR UPDATE locks conflicting rows so concurrent requests serialize
@@ -846,7 +845,7 @@ class AppointmentController(http.Controller):
             booking.partner_id = partner
 
         # Get payment context
-        amount = booking.payment_amount
+        amount = booking.sale_order_id.amount_total if booking.sale_order_id else 0
         currency = booking.currency_id
         company = request.env.company
 
@@ -943,7 +942,7 @@ class AppointmentController(http.Controller):
                 tx_kwargs[key] = kwargs[key]
 
         tx_sudo = request.env['payment.transaction'].sudo()._create_transaction(
-            amount=booking.payment_amount,
+            amount=booking.sale_order_id.amount_total if booking.sale_order_id else 0,
             currency_id=booking.currency_id.id,
             partner_id=partner.id,
             reference_prefix=f'APPT-{booking.id}',
@@ -1022,7 +1021,7 @@ class AppointmentGDPR(http.Controller):
                 'guest_count': bk.guest_count,
                 'notes': bk.notes or '',
                 'payment_status': bk.payment_status,
-                'payment_amount': bk.payment_amount,
+                'payment_amount': bk.sale_order_id.amount_total if bk.sale_order_id else 0,
                 'created': str(bk.create_date),
             })
 
@@ -1043,7 +1042,7 @@ class AppointmentGDPR(http.Controller):
             BookingSudo = request.env['appointment.booking'].sudo()
             active_bookings = BookingSudo.search([
                 ('partner_id', '=', partner.id),
-                ('state', 'in', ['draft', 'confirmed']),
+                ('state', 'in', ['draft', 'pending_payment', 'confirmed']),
             ])
             for bk in active_bookings:
                 try:
@@ -1075,7 +1074,7 @@ class AppointmentPortal(CustomerPortal):
             partner = request.env.user.partner_id
             values['booking_count'] = request.env['appointment.booking'].sudo().search_count([
                 ('partner_id', '=', partner.id),
-                ('state', 'in', ['draft', 'confirmed', 'done']),
+                ('state', 'in', ['draft', 'pending_payment', 'confirmed', 'done']),
             ])
         return values
 
@@ -1101,7 +1100,10 @@ class AppointmentPortal(CustomerPortal):
         # Filtering
         now = fields.Datetime.now()
         searchbar_filters = {
-            'all': {'label': _('All'), 'domain': [('state', '!=', 'cancelled')]},
+            'all': {'label': _('All'), 'domain': [('state', 'not in', ('cancelled',))]},
+            'pending_payment': {'label': _('Pending Payment'), 'domain': [
+                ('state', '=', 'pending_payment'),
+            ]},
             'upcoming': {'label': _('Upcoming'), 'domain': [
                 ('state', '=', 'confirmed'),
                 ('start_datetime', '>=', now),

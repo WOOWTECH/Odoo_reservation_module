@@ -224,9 +224,9 @@
                 <p style="margin: 0 0 12px 0; font-size: 14px; color: #856404;">
                     Your booking requires payment before it can be confirmed. Please complete your payment to secure your reservation.
                 </p>
-                <t t-if="object.payment_amount">
+                <t t-if="object.sale_order_id">
                     <p style="margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #856404;">
-                        Amount Due: <t t-out="object.payment_amount" t-options='{"widget": "monetary", "display_currency": object.currency_id}'/>
+                        Amount Due: <t t-out="object.sale_order_id.amount_total" t-options='{"widget": "monetary", "display_currency": object.currency_id}'/>
                     </p>
                 </t>
                 <t t-if="object.sale_order_id">
@@ -594,7 +594,7 @@
                     Amount Due
                 </td>
                 <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef; font-weight: bold;">
-                    <t t-out="object.payment_amount" t-options='{"widget": "monetary", "display_currency": object.currency_id}'/>
+                    <t t-out="object.sale_order_id.amount_total if object.sale_order_id else 0" t-options='{"widget": "monetary", "display_currency": object.currency_id}'/>
                 </td>
             </tr>
         </table>

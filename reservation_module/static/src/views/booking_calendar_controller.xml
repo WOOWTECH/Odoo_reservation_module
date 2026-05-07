@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="reservation_module.BookingCalendarController"
+       t-inherit="web.CalendarController"
+       t-inherit-mode="primary">
+        <xpath expr="//Layout" position="inside">
+            <t t-set-slot="control-panel-create-button">
+                <button t-if="model.canCreate"
+                        class="btn btn-primary o-calendar-button-new me-1"
+                        t-on-click="onClickAddButton">
+                    New
+                </button>
+            </t>
+        </xpath>
+    </t>
+</templates>

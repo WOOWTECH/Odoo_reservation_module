@@ -8,16 +8,22 @@
             <form string="Booking">
                 <header>
                     <button name="action_confirm" type="object" string="Confirm"
-                            invisible="state != 'draft'" class="btn-primary"/>
+                            invisible="state not in ['draft', 'pending_payment']" class="btn-primary"/>
                     <button name="action_done" type="object" string="Mark Done"
                             invisible="state != 'confirmed'" class="btn-primary"/>
                     <button name="action_cancel" type="object" string="Cancel"
-                            invisible="state not in ['draft', 'confirmed']"/>
+                            invisible="state not in ['draft', 'pending_payment', 'confirmed']"/>
                     <button name="action_draft" type="object" string="Set to Draft"
                             invisible="state not in ['cancelled', 'done']"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,pending_payment,confirmed,done"/>
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_view_sale_order"
+                                icon="fa-file-text-o" invisible="not sale_order_id">
+                            <field name="sale_order_count" widget="statinfo" string="Sales Order"/>
+                        </button>
+                    </div>
                     <div class="oe_title">
                         <h1>
                             <field name="name" readonly="1"/>
@@ -43,10 +49,8 @@
                     </group>
                     <group invisible="payment_status == 'not_required'">
                         <group string="Payment">
-                            <field name="payment_status"/>
-                            <field name="payment_amount"/>
+                            <field name="payment_status" readonly="1"/>
                             <field name="currency_id" invisible="1"/>
-                            <field name="sale_order_id" invisible="not sale_order_id"/>
                         </group>
                     </group>
                     <notebook>
@@ -86,6 +90,7 @@
                 <field name="resource_id" optional="show"/>
                 <field name="staff_user_id" optional="show"/>
                 <field name="state" widget="badge" decoration-info="state == 'draft'"
+                       decoration-warning="state == 'pending_payment'"
                        decoration-success="state == 'confirmed'" decoration-muted="state == 'cancelled'"
                        decoration-primary="state == 'done'"/>
             </list>
@@ -98,9 +103,10 @@
         <field name="model">appointment.booking</field>
         <field name="arch" type="xml">
             <calendar string="Bookings" date_start="start_datetime" date_stop="end_datetime"
-                      color="appointment_type_id" mode="week" quick_create="0">
+                      color="appointment_type_id" mode="week" quick_create="0" event_open_popup="true"
+                      js_class="booking_calendar">
+                <field name="appointment_type_id" filters="1"/>
                 <field name="guest_name"/>
-                <field name="appointment_type_id"/>
                 <field name="guest_count"/>
             </calendar>
         </field>
@@ -112,9 +118,10 @@
         <field name="model">appointment.booking</field>
         <field name="arch" type="xml">
             <calendar string="Location Bookings" date_start="start_datetime" date_stop="end_datetime"
-                      color="resource_id" mode="week" quick_create="0">
+                      color="resource_id" mode="week" quick_create="0" event_open_popup="true"
+                      js_class="booking_calendar">
+                <field name="resource_id" filters="1"/>
                 <field name="guest_name"/>
-                <field name="resource_id"/>
                 <field name="guest_count"/>
                 <field name="state"/>
             </calendar>
@@ -127,9 +134,10 @@
         <field name="model">appointment.booking</field>
         <field name="arch" type="xml">
             <calendar string="Staff Bookings" date_start="start_datetime" date_stop="end_datetime"
-                      color="staff_user_id" mode="week" quick_create="0">
+                      color="staff_user_id" mode="week" quick_create="0" event_open_popup="true"
+                      js_class="booking_calendar">
+                <field name="staff_user_id" filters="1" avatar_field="image_128"/>
                 <field name="guest_name"/>
-                <field name="staff_user_id"/>
                 <field name="guest_count"/>
                 <field name="state"/>
             </calendar>
@@ -159,6 +167,7 @@
                         domain="[('start_datetime', '&gt;=', context_today())]"/>
                 <separator/>
                 <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Pending Payment" name="pending_payment" domain="[('state', '=', 'pending_payment')]"/>
                 <filter string="Confirmed" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
                 <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
                 <filter string="Cancelled" name="cancelled" domain="[('state', '=', 'cancelled')]"/>

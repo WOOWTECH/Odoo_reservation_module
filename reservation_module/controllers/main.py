@@ -717,12 +717,7 @@ class AppointmentController(http.Controller):
                 })
         booking_vals['partner_id'] = partner.id
 
-        # Set payment status
-        if appointment_type.require_payment:
-            booking_vals['payment_status'] = 'pending'
-            booking_vals['payment_amount'] = appointment_type.payment_amount
-            if appointment_type.payment_per_person:
-                booking_vals['payment_amount'] *= guest_count
+        # Payment status is computed automatically from SO state
 
         # C4: Atomic conflict check + create with row-level locking to prevent race conditions
         # SELECT FOR UPDATE locks conflicting rows so concurrent requests serialize
@@ -838,7 +833,7 @@ class AppointmentController(http.Controller):
             booking.partner_id = partner
 
         # Get payment context
-        amount = booking.payment_amount
+        amount = booking.sale_order_id.amount_total if booking.sale_order_id else 0
         currency = booking.currency_id
         company = request.env.company
 
@@ -935,7 +930,7 @@ class AppointmentController(http.Controller):
                 tx_kwargs[key] = kwargs[key]
 
         tx_sudo = request.env['payment.transaction'].sudo()._create_transaction(
-            amount=booking.payment_amount,
+            amount=booking.sale_order_id.amount_total if booking.sale_order_id else 0,
             currency_id=booking.currency_id.id,
             partner_id=partner.id,
             reference_prefix=f'APPT-{booking.id}',
@@ -1014,7 +1009,7 @@ class AppointmentGDPR(http.Controller):
                 'guest_count': bk.guest_count,
                 'notes': bk.notes or '',
                 'payment_status': bk.payment_status,
-                'payment_amount': bk.payment_amount,
+                'payment_amount': bk.sale_order_id.amount_total if bk.sale_order_id else 0,
                 'created': str(bk.create_date),
             })
 

@@ -93,7 +93,7 @@
                                         <t t-if="appointment_type.require_payment">
                                             <span class="badge bg-info">
                                                 <i class="fa fa-credit-card"/>
-                                                <t t-esc="appointment_type.payment_amount"/>
+                                                <t t-esc="appointment_type.payment_display_amount"/>
                                                 <t t-esc="appointment_type.currency_id.symbol"/>
                                                 <t t-if="appointment_type.payment_per_person"> <t t-esc="t['per_person']"/></t>
                                             </span>
@@ -370,7 +370,7 @@
                                         <t t-if="appointment_type.require_payment">
                                             <div class="alert alert-warning">
                                                 <i class="fa fa-credit-card"/>
-                                                <t t-esc="t['payment_of']"/> <strong><t t-esc="appointment_type.payment_amount"/>
+                                                <t t-esc="t['payment_of']"/> <strong><t t-esc="appointment_type.payment_display_amount"/>
                                                 <t t-esc="appointment_type.currency_id.symbol"/></strong>
                                                 <t t-if="appointment_type.payment_per_person"> <t t-esc="t['per_person']"/></t>
                                                 <t t-esc="t['payment_required']"/>
@@ -424,7 +424,7 @@
                                                <t t-esc="booking.end_datetime" t-options='{"widget": "datetime"}'/>
                                             </p>
                                             <p><strong><t t-esc="t.get('amount_due', 'Amount Due:')"/></strong>
-                                               <t t-esc="'%.2f' % booking.payment_amount"/>
+                                               <t t-esc="'%.2f' % booking.sale_order_id.amount_total"/>
                                                <t t-esc="booking.currency_id.symbol"/>
                                             </p>
                                         </div>
@@ -701,7 +701,7 @@
                                     <div class="text-center py-4 bg-light rounded mb-4">
                                         <h5 class="text-muted mb-2" t-esc="t['amount_due']"/>
                                         <h1 class="text-primary mb-0">
-                                            <t t-esc="'%.2f' % booking.payment_amount"/>
+                                            <t t-esc="'%.2f' % (booking.sale_order_id.amount_total if booking.sale_order_id else 0)"/>
                                             <small><t t-esc="booking.currency_id.symbol"/></small>
                                         </h1>
                                     </div>

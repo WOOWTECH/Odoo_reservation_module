@@ -15,7 +15,7 @@
         - FAQ / Q&A for appointment types
         - Email notifications and reminders
     """,
-    "version": "18.0.2.2.0",
+    "version": "18.0.2.3.0",
     "category": "Services/Appointment",
     "author": "WoowTech",
     "website": "https://aiot.woowtech.io/",
@@ -41,6 +41,7 @@
         # Views
         "views/appointment_type_views.xml",
         "views/appointment_booking_views.xml",
+        "views/sale_order_views.xml",
         "views/resource_views.xml",
         "views/appointment_menus.xml",
         # Website

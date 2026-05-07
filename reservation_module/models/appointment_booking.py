@@ -88,8 +88,12 @@ class AppointmentBooking(models.Model):
         ('pending', 'Pending'),
         ('paid', 'Paid'),
         ('refunded', 'Refunded'),
-    ], string='Payment Status', default='not_required', tracking=True)
-    payment_amount = fields.Monetary('Payment Amount')
+    ], string='Payment Status', compute='_compute_payment_status',
+       store=True, tracking=True, default='not_required')
+    sale_order_count = fields.Integer(
+        'Sales Order Count',
+        compute='_compute_sale_order_count',
+    )
     currency_id = fields.Many2one(
         'res.currency',
         string='Currency',
@@ -161,6 +165,42 @@ class AppointmentBooking(models.Model):
                 booking.meeting_url = booking.calendar_event_id.videocall_location
             else:
                 booking.meeting_url = False
+
+    @api.depends(
+        'appointment_type_id.require_payment',
+        'sale_order_id',
+        'sale_order_id.state',
+        'sale_order_id.invoice_ids.payment_state',
+    )
+    def _compute_payment_status(self):
+        for booking in self:
+            if not booking.appointment_type_id.require_payment:
+                booking.payment_status = 'not_required'
+            elif not booking.sale_order_id:
+                booking.payment_status = 'pending'
+            elif booking.sale_order_id.state == 'cancel':
+                booking.payment_status = 'refunded'
+            elif any(inv.payment_state in ('paid', 'in_payment')
+                     for inv in booking.sale_order_id.invoice_ids):
+                booking.payment_status = 'paid'
+            else:
+                booking.payment_status = 'pending'
+
+    @api.depends('sale_order_id')
+    def _compute_sale_order_count(self):
+        for booking in self:
+            booking.sale_order_count = 1 if booking.sale_order_id else 0
+
+    def action_view_sale_order(self):
+        """Open the linked sales order"""
+        self.ensure_one()
+        return {
+            'name': _('Sales Order'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'sale.order',
+            'view_mode': 'form',
+            'res_id': self.sale_order_id.id,
+        }
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -301,13 +341,7 @@ class AppointmentBooking(models.Model):
                     )
                     booking.discuss_channel_id.sudo().write({'active': False})
 
-                cancel_vals = {'state': 'cancelled'}
-                # M3: Update payment_status on cancellation
-                if booking.payment_status == 'pending':
-                    cancel_vals['payment_status'] = 'not_required'
-                elif booking.payment_status == 'paid':
-                    cancel_vals['payment_status'] = 'refunded'
-                booking.write(cancel_vals)
+                booking.write({'state': 'cancelled'})
 
                 # Send cancellation email
                 booking._send_cancellation_email()
@@ -497,7 +531,7 @@ class AppointmentBooking(models.Model):
             booking=self.name,
             name=self.guest_name,
             email=self.guest_email,
-            amount=self.payment_amount,
+            amount=self.sale_order_id.amount_total if self.sale_order_id else 0,
             currency=self.currency_id.name if self.currency_id else '',
         )
         if error_message:
@@ -626,85 +660,38 @@ class AppointmentBooking(models.Model):
         return f'{base_url}/appointment/booking/{self.id}?token={self.access_token}'
 
     def _create_sale_order(self):
-        """Create a sale order for paid bookings using the native Odoo sales flow.
-
-        Uses the payment_product_id from the appointment type as the SO line product.
-        Falls back to a generic service product if payment_product_id is not configured.
-        Handles per-person pricing by adjusting quantity.
-        """
+        """Create a sale order for paid bookings using multiple products from appointment type."""
         self.ensure_one()
         if self.sale_order_id:
             return self.sale_order_id
 
-        appointment_type = self.appointment_type_id
-        if not appointment_type.require_payment:
+        apt = self.appointment_type_id
+        if not apt.require_payment or not apt.payment_product_ids:
+            return False
+        if not self.partner_id:
             return False
 
-        partner = self.partner_id
-        if not partner:
-            return False
-
-        # Use configured product or fallback to generic service product
-        product = appointment_type.payment_product_id
-        if not product:
-            product = self._get_or_create_fallback_payment_product()
-        if not product:
-            return False
-
-        qty = self.guest_count if appointment_type.payment_per_person else 1
+        qty = self.guest_count if apt.payment_per_person else 1
+        order_lines = []
+        for product in apt.payment_product_ids:
+            order_lines.append((0, 0, {
+                'product_id': product.id,
+                'name': f"{apt.name} - {product.name}",
+                'product_uom_qty': qty,
+                'price_unit': product.list_price,
+            }))
 
         sale_order = self.env['sale.order'].sudo().create({
-            'partner_id': partner.id,
+            'partner_id': self.partner_id.id,
             'company_id': self.company_id.id or self.env.company.id,
             'origin': self.name,
-            'note': f"Booking: {self.name} | {appointment_type.name} | "
+            'note': f"Booking: {self.name} | {apt.name} | "
                     f"{self.start_datetime} - {self.end_datetime}",
-            'order_line': [(0, 0, {
-                'product_id': product.id,
-                'name': f"{appointment_type.name} - {self.name}",
-                'product_uom_qty': qty,
-                'price_unit': appointment_type.payment_amount,
-            })],
+            'order_line': order_lines,
         })
 
-        # Mark as "sent" so the portal shows the "Pay Now" button.
-        # Odoo's _has_to_be_paid() requires state in ('draft', 'sent').
-        # The SO will be auto-confirmed by Odoo's payment post-processing.
         sale_order.action_quotation_sent()
-
-        # Ensure portal access_token is generated (needed for public/anonymous access)
         sale_order._portal_ensure_token()
 
         self.sale_order_id = sale_order
         return sale_order
-
-    def _get_or_create_fallback_payment_product(self):
-        """Get or create a generic 'Appointment Booking' service product as fallback."""
-        xmlid = 'reservation_module.product_appointment_generic'
-        product = self.env.ref(xmlid, raise_if_not_found=False)
-        if product and product.exists():
-            return product
-
-        # Create the generic product with default sale tax
-        company = self.env.company
-        default_tax = company.account_sale_tax_id
-        product_vals = {
-            'name': _('Appointment Booking'),
-            'type': 'service',
-            'list_price': 0.0,
-            'sale_ok': True,
-            'purchase_ok': False,
-            'invoice_policy': 'order',
-        }
-        if default_tax:
-            product_vals['taxes_id'] = [(6, 0, [default_tax.id])]
-        product = self.env['product.product'].sudo().create(product_vals)
-        # Register as ir.model.data so env.ref() finds it next time
-        self.env['ir.model.data'].sudo().create({
-            'name': 'product_appointment_generic',
-            'module': 'reservation_module',
-            'model': 'product.product',
-            'res_id': product.id,
-            'noupdate': True,
-        })
-        return product

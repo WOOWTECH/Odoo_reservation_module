@@ -53,7 +53,6 @@ class PaymentTransaction(models.Model):
             if tx.appointment_booking_id:
                 booking = tx.appointment_booking_id
                 booking.write({
-                    'payment_status': 'paid',
                     'payment_transaction_id': tx.id,
                 })
                 if booking.appointment_type_id.auto_confirm:
@@ -93,7 +92,6 @@ class PaymentTransaction(models.Model):
 
                     for booking in bookings:
                         booking.write({
-                            'payment_status': 'paid',
                             'payment_transaction_id': tx.id,
                         })
                         if booking.appointment_type_id.auto_confirm:

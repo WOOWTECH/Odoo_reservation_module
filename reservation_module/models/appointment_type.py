@@ -161,15 +161,18 @@ class AppointmentType(models.Model):
         'Require Payment',
         help='Require payment before confirming booking',
     )
-    payment_product_id = fields.Many2one(
+    payment_product_ids = fields.Many2many(
         'product.product',
-        string='Payment Product',
-        help='Product used for payment',
-        ondelete='set null',
+        'appointment_type_product_rel',
+        'appointment_type_id',
+        'product_id',
+        string='Payment Products',
+        help='Products used for payment. Each product creates one SO line.',
     )
-    payment_amount = fields.Monetary(
-        'Payment Amount',
-        help='Amount to be paid for the booking',
+    payment_display_amount = fields.Monetary(
+        'Display Amount',
+        compute='_compute_payment_display_amount',
+        help='Sum of selected product prices (for display only)',
     )
     payment_per_person = fields.Boolean(
         'Per Person Pricing',
@@ -274,6 +277,11 @@ class AppointmentType(models.Model):
             else:
                 record.website_url = False
 
+    @api.depends('payment_product_ids', 'payment_product_ids.list_price')
+    def _compute_payment_display_amount(self):
+        for rec in self:
+            rec.payment_display_amount = sum(rec.payment_product_ids.mapped('list_price'))
+
     @api.constrains('slot_duration', 'is_scheduled')
     def _check_slot_duration(self):
         for record in self:
@@ -292,12 +300,12 @@ class AppointmentType(models.Model):
             if record.auto_confirm_capacity_percent < 0 or record.auto_confirm_capacity_percent > 1.0:
                 raise ValidationError(_('Auto confirm capacity must be between 0 and 1.0 (0% to 100%).'))
 
-    @api.constrains('require_payment', 'payment_amount')
+    @api.constrains('require_payment', 'payment_product_ids')
     def _check_payment_configuration(self):
         for record in self:
-            if record.require_payment and not record.payment_amount:
+            if record.require_payment and not record.payment_product_ids:
                 raise ValidationError(
-                    _('Payment amount must be set when payment is required.')
+                    _('At least one payment product must be selected when payment is required.')
                 )
 
     def action_view_bookings(self):

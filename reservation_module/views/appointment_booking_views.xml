@@ -18,6 +18,12 @@
                     <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done"/>
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_view_sale_order"
+                                icon="fa-file-text-o" invisible="not sale_order_id">
+                            <field name="sale_order_count" widget="statinfo" string="Sales Order"/>
+                        </button>
+                    </div>
                     <div class="oe_title">
                         <h1>
                             <field name="name" readonly="1"/>
@@ -43,10 +49,8 @@
                     </group>
                     <group invisible="payment_status == 'not_required'">
                         <group string="Payment">
-                            <field name="payment_status"/>
-                            <field name="payment_amount"/>
+                            <field name="payment_status" readonly="1"/>
                             <field name="currency_id" invisible="1"/>
-                            <field name="sale_order_id" invisible="not sale_order_id"/>
                         </group>
                     </group>
                     <notebook>

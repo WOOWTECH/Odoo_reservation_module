@@ -6,7 +6,11 @@ from odoo.addons.portal.controllers.portal import CustomerPortal, pager as porta
 from datetime import datetime, timedelta
 import calendar
 import json
+import logging
+import pytz
 import re
+
+_logger = logging.getLogger(__name__)
 
 
 class AppointmentController(http.Controller):
@@ -127,7 +131,7 @@ class AppointmentController(http.Controller):
             'meeting_link_in_email': '（會議連結已包含在郵件中）',
             'upcoming_bookings': '即將到來的預約',
             'completed_bookings': '已完成的預約',
-            'all_bookings': '所有預約',
+            'all_bookings': '進行中',
             'no_bookings_yet': '您還沒有任何預約',
             'booking_status': '狀態',
             'view_details': '查看詳情',
@@ -137,6 +141,23 @@ class AppointmentController(http.Controller):
             'status_draft': '草稿',
             'status_pending_payment': '待付款',
             'incl_tax': '（含稅）',
+            # Privacy / GDPR pages
+            'privacy_policy': '隱私政策',
+            'data_we_collect': '我們收集的資料',
+            'how_we_use': '我們如何使用您的資料',
+            'your_rights': '您的權利',
+            'data_retention': '資料保留',
+            'contact': '聯繫方式',
+            'request_data_deletion': '請求刪除資料',
+            'deletion_warning': '這將取消您所有進行中的預約並匿名化您的個人資料。此操作無法撤銷。',
+            'confirm_deletion': '確認刪除資料',
+            'data_deletion_complete': '資料已刪除',
+            'data_deletion_success': '您的預約資料已匿名化，所有進行中的預約已被取消。',
+            'return_to_appointments': '返回預約頁面',
+            'booking_agreement': '預約即表示您同意我們的',
+            'export_my_data': '匯出我的資料',
+            'delete_my_data': '刪除我的資料',
+            'login_required': '（需要登入）',
         }
 
         # English translations (en_US) - default
@@ -216,7 +237,7 @@ class AppointmentController(http.Controller):
             'meeting_link_in_email': '(The meeting link is included in the email)',
             'upcoming_bookings': 'Upcoming Bookings',
             'completed_bookings': 'Completed Bookings',
-            'all_bookings': 'All Bookings',
+            'all_bookings': 'Active',
             'no_bookings_yet': 'You have no bookings yet',
             'booking_status': 'Status',
             'view_details': 'View Details',
@@ -226,6 +247,23 @@ class AppointmentController(http.Controller):
             'status_draft': 'Draft',
             'status_pending_payment': 'Pending Payment',
             'incl_tax': '(incl. tax)',
+            # Privacy / GDPR pages
+            'privacy_policy': 'Privacy Policy',
+            'data_we_collect': 'Data We Collect',
+            'how_we_use': 'How We Use Your Data',
+            'your_rights': 'Your Rights',
+            'data_retention': 'Data Retention',
+            'contact': 'Contact',
+            'request_data_deletion': 'Request Data Deletion',
+            'deletion_warning': 'This will cancel all your active bookings and anonymize your personal data. This action cannot be undone.',
+            'confirm_deletion': 'Confirm Data Deletion',
+            'data_deletion_complete': 'Data Deletion Complete',
+            'data_deletion_success': 'Your booking data has been anonymized and all active bookings have been cancelled.',
+            'return_to_appointments': 'Return to Appointments',
+            'booking_agreement': 'By booking, you agree to our',
+            'export_my_data': 'Export My Data',
+            'delete_my_data': 'Delete My Data',
+            'login_required': '(login required)',
         }
 
         # Return appropriate translation based on language
@@ -334,7 +372,16 @@ class AppointmentController(http.Controller):
             return self._get_event_slots(appointment_type, selected_date, resource_id, staff_id)
 
     def _get_availability_and_bookings(self, appointment_type, selected_date, resource_id, staff_id):
-        """Common setup for both scheduled and event slot generation"""
+        """Common setup for both scheduled and event slot generation.
+
+        Availability hours (hour_from/hour_to) are in the appointment type's timezone.
+        We convert them to UTC for conflict checking against stored datetimes.
+        """
+        tz_name = appointment_type.timezone or 'UTC'
+        try:
+            tz = pytz.timezone(tz_name)
+        except pytz.UnknownTimeZoneError:
+            tz = pytz.UTC
         start_datetime = datetime.combine(selected_date, datetime.min.time())
         end_datetime = datetime.combine(selected_date, datetime.max.time())
 
@@ -492,11 +539,21 @@ class AppointmentController(http.Controller):
         ])
         available_days = set(int(a.dayofweek) for a in availabilities)
 
+        # L4: Fetch closing days for this month to exclude them
+        month_start = datetime(year, month, 1).date()
+        month_end = datetime(year, month, num_days).date()
+        closing_days = request.env['appointment.closing.day'].sudo().search([
+            ('appointment_type_id', '=', appointment_type_id),
+            ('date', '>=', month_start),
+            ('date', '<=', month_end),
+        ])
+        closed_dates = set(c.date for c in closing_days)
+
         dates = []
         today = fields.Date.context_today(request.env['appointment.type'])
         for day in range(1, num_days + 1):
             d = datetime(year, month, day).date()
-            if d >= today and d.weekday() in available_days:
+            if d >= today and d.weekday() in available_days and d not in closed_dates:
                 dates.append(d.strftime('%Y-%m-%d'))
 
         return {'dates': dates}
@@ -638,8 +695,13 @@ class AppointmentController(http.Controller):
             guest_count = 1
         if guest_count < 1:
             guest_count = 1
-        # Enforce upper bound from appointment type capacity
-        max_guests = 100
+        # Enforce upper bound from resource capacity or appointment type default
+        max_guests = appointment_type.max_guests_per_booking if hasattr(appointment_type, 'max_guests_per_booking') and appointment_type.max_guests_per_booking else 100
+        rid = self._safe_int(data.get('resource_id'))
+        if rid:
+            resource = request.env['resource.resource'].sudo().browse(rid)
+            if resource.exists() and resource.capacity:
+                max_guests = resource.capacity
         if guest_count > max_guests:
             return self._render_booking_form_error(
                 appointment_type, data, _('Maximum %d guests allowed.', max_guests))
@@ -658,11 +720,42 @@ class AppointmentController(http.Controller):
         else:
             end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
 
+        # H6: Validate closing days server-side
+        closing = request.env['appointment.closing.day'].sudo().search([
+            ('appointment_type_id', '=', appointment_type.id),
+            ('date', '=', start_dt.date()),
+        ], limit=1)
+        if closing:
+            return self._render_booking_form_error(
+                appointment_type, data,
+                _('This date is closed: %s', closing.name or _('Closed')))
+
         # M8: Server-side max_booking_days validation
         max_date = fields.Date.today() + timedelta(days=appointment_type.max_booking_days)
         if start_dt.date() > max_date:
             return self._render_booking_form_error(
                 appointment_type, data, _('Cannot book beyond %d days in advance.', appointment_type.max_booking_days))
+
+        # L7: Validate selected time falls within an availability window
+        day_of_week = str(start_dt.weekday())
+        avail_domain = [
+            ('appointment_type_id', '=', appointment_type.id),
+            ('dayofweek', '=', day_of_week),
+        ]
+        availabilities = request.env['appointment.availability'].sudo().search(avail_domain)
+        if not availabilities:
+            return self._render_booking_form_error(
+                appointment_type, data, _('No availability on the selected day.'))
+
+        slot_hour = start_dt.hour + start_dt.minute / 60.0
+        slot_end_hour = (end_dt.hour + end_dt.minute / 60.0) if end_dt.date() == start_dt.date() else 24.0
+        in_window = any(
+            avail.hour_from <= slot_hour and slot_end_hour <= avail.hour_to
+            for avail in availabilities
+        )
+        if not in_window:
+            return self._render_booking_form_error(
+                appointment_type, data, _('Selected time is outside available hours.'))
 
         # Prevent booking in the past
         if start_dt < datetime.now():
@@ -1047,8 +1140,12 @@ class AppointmentGDPR(http.Controller):
             for bk in active_bookings:
                 try:
                     bk.action_cancel()
-                except Exception:
-                    bk.write({'state': 'cancelled'})
+                except Exception as e:
+                    _logger.warning(
+                        "GDPR deletion: action_cancel failed for booking %s, "
+                        "skipping (will anonymize data). Error: %s",
+                        bk.name, e,
+                    )
 
             # Anonymize personal data on all bookings
             all_bookings = BookingSudo.search([('partner_id', '=', partner.id)])
@@ -1100,7 +1197,7 @@ class AppointmentPortal(CustomerPortal):
         # Filtering
         now = fields.Datetime.now()
         searchbar_filters = {
-            'all': {'label': _('All'), 'domain': [('state', 'not in', ('cancelled',))]},
+            'all': {'label': _('Active'), 'domain': [('state', 'not in', ('cancelled',))]},
             'pending_payment': {'label': _('Pending Payment'), 'domain': [
                 ('state', '=', 'pending_payment'),
             ]},
@@ -1166,6 +1263,6 @@ class AppointmentPortal(CustomerPortal):
             't': t,
             # Portal chatter support
             'token': booking.access_token,
-            'allow_composer': True,
+            'allow_composer': booking.state not in ('cancelled', 'done'),
         }
         return request.render('reservation_module.portal_my_booking_detail', values)

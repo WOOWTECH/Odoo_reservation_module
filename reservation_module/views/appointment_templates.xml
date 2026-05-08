@@ -12,7 +12,7 @@
                             <div class="col-md-4 mb-4">
                                 <div class="card h-100 shadow-sm">
                                     <t t-if="appointment_type.image">
-                                        <img t-attf-src="data:image/png;base64,#{appointment_type.image}"
+                                        <img t-attf-src="data:image/*;base64,#{appointment_type.image}"
                                              class="card-img-top" style="height: 150px; object-fit: cover;"/>
                                     </t>
                                     <t t-else="">
@@ -25,12 +25,33 @@
                                         <h5 class="card-title" t-esc="appointment_type.name"/>
                                         <p class="card-text text-muted small">
                                             <t t-if="appointment_type.is_scheduled">
-                                                <i class="fa fa-clock-o"/> <t t-esc="appointment_type.slot_duration"/> <t t-esc="t['hours']"/>
+                                                <i class="fa fa-clock-o"/>
+                                                <t t-set="dur" t-value="appointment_type.slot_duration"/>
+                                                <t t-if="dur and dur == int(dur) and int(dur) >= 1">
+                                                    <t t-esc="int(dur)"/> <t t-esc="t['hours']"/>
+                                                </t>
+                                                <t t-elif="dur and dur &lt; 1">
+                                                    <t t-esc="int(dur * 60)"/> min
+                                                </t>
+                                                <t t-elif="dur">
+                                                    <t t-esc="int(dur)"/>h <t t-esc="int(round((dur % 1) * 60))"/>min
+                                                </t>
                                             </t>
                                             <t t-else="">
                                                 <span class="badge bg-info"><t t-esc="t.get('special_event', 'Special Event')"/></span>
                                             </t>
                                         </p>
+                                        <t t-if="appointment_type.require_payment">
+                                            <p class="card-text mb-1">
+                                                <span class="badge bg-info">
+                                                    <i class="fa fa-credit-card"/>
+                                                    <t t-esc="'%.2f' % appointment_type.payment_display_amount"/>
+                                                    <t t-esc="appointment_type.currency_id.symbol"/>
+                                                    <t t-if="appointment_type.payment_per_person"> <t t-esc="t['per_person']"/></t>
+                                                    <small t-esc="t.get('incl_tax', '(incl. tax)')"/>
+                                                </span>
+                                            </p>
+                                        </t>
                                         <t t-if="appointment_type.description">
                                             <p class="card-text" t-out="appointment_type.description"/>
                                         </t>
@@ -73,7 +94,7 @@
 
                             <div class="card shadow">
                                 <t t-if="appointment_type.image">
-                                    <img t-attf-src="data:image/png;base64,#{appointment_type.image}"
+                                    <img t-attf-src="data:image/*;base64,#{appointment_type.image}"
                                          class="card-img-top" style="height: 200px; object-fit: cover;"/>
                                 </t>
                                 <div class="card-body">
@@ -82,7 +103,17 @@
                                     <div class="mb-3">
                                         <t t-if="appointment_type.is_scheduled">
                                             <span class="badge bg-secondary me-2">
-                                                <i class="fa fa-clock-o"/> <t t-esc="appointment_type.slot_duration"/> <t t-esc="t['hours']"/>
+                                                <i class="fa fa-clock-o"/>
+                                                <t t-set="dur" t-value="appointment_type.slot_duration"/>
+                                                <t t-if="dur and dur == int(dur) and int(dur) >= 1">
+                                                    <t t-esc="int(dur)"/> <t t-esc="t['hours']"/>
+                                                </t>
+                                                <t t-elif="dur and dur &lt; 1">
+                                                    <t t-esc="int(dur * 60)"/> min
+                                                </t>
+                                                <t t-elif="dur">
+                                                    <t t-esc="int(dur)"/>h <t t-esc="int(round((dur % 1) * 60))"/>min
+                                                </t>
                                             </span>
                                         </t>
                                         <t t-else="">
@@ -334,23 +365,26 @@
                                             </div>
                                         </t>
                                         <t t-else="">
-                                            <!-- Public visitor: editable inputs -->
+                                            <!-- Public visitor: editable inputs (preserve values on error) -->
                                             <div class="mb-3">
                                                 <label for="guest_name" class="form-label"><t t-esc="t['name']"/> *</label>
                                                 <input type="text" class="form-control" id="guest_name"
                                                        name="guest_name" required="required"
-                                                       aria-required="true"/>
+                                                       aria-required="true"
+                                                       t-att-value="guest_name if guest_name else ''"/>
                                             </div>
                                             <div class="mb-3">
                                                 <label for="guest_email" class="form-label"><t t-esc="t['email']"/> *</label>
                                                 <input type="email" class="form-control" id="guest_email"
                                                        name="guest_email" required="required"
-                                                       aria-required="true"/>
+                                                       aria-required="true"
+                                                       t-att-value="guest_email if guest_email else ''"/>
                                             </div>
                                             <div class="mb-3">
                                                 <label for="guest_phone" class="form-label" t-esc="t['phone']"/>
                                                 <input type="tel" class="form-control" id="guest_phone"
-                                                       name="guest_phone"/>
+                                                       name="guest_phone"
+                                                       t-att-value="guest_phone if guest_phone else ''"/>
                                             </div>
                                         </t>
 
@@ -358,14 +392,13 @@
                                             <label for="guest_count" class="form-label" t-esc="t['number_of_guests']"/>
                                             <input type="number" class="form-control" id="guest_count"
                                                    name="guest_count" min="1"
-                                                   max="100"
-                                                   value="1"/>
+                                                   t-att-value="guest_count if guest_count else 1"/>
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="notes" class="form-label" t-esc="t['notes']"/>
                                             <textarea class="form-control" id="notes" name="notes" rows="3"
-                                                      t-att-placeholder="'Any additional information...'"/>
+                                                      t-att-placeholder="'Any additional information...'"><t t-if="notes" t-esc="notes"/></textarea>
                                         </div>
 
                                         <t t-if="appointment_type.require_payment">
@@ -388,8 +421,8 @@
                                             </t>
                                         </button>
                                         <p class="text-center text-muted small mt-3">
-                                            By booking, you agree to our
-                                            <a href="/appointment/privacy" target="_blank">Privacy Policy</a>.
+                                            <t t-esc="t.get('booking_agreement', 'By booking, you agree to our')"/>
+                                            <a href="/appointment/privacy" target="_blank"><t t-esc="t.get('privacy_policy', 'Privacy Policy')"/></a>.
                                         </p>
                                     </form>
                                 </div>
@@ -411,7 +444,7 @@
                             <div class="card shadow">
                                 <div class="card-body py-5">
                                     <!-- Pending Payment State -->
-                                    <t t-if="booking.payment_status == 'pending' and booking.sale_order_id">
+                                    <t t-if="booking.state == 'pending_payment' and booking.sale_order_id">
                                         <i class="fa fa-clock-o text-warning fa-5x mb-4"/>
                                         <h2 t-esc="t.get('pending_payment', 'Pending Payment')"/>
                                         <p class="text-muted" t-esc="t.get('pending_payment_msg', 'Your booking is waiting for payment confirmation.')"/>
@@ -452,7 +485,7 @@
                                     </t>
 
                                     <!-- Confirmed State -->
-                                    <t t-if="booking.payment_status != 'pending' or not booking.sale_order_id">
+                                    <t t-if="booking.state != 'pending_payment'">
                                         <i class="fa fa-check-circle text-success fa-5x mb-4"/>
                                         <h2 t-esc="t['booking_confirmed']"/>
                                         <p class="text-muted" t-esc="t['booking_reference']"/>
@@ -779,7 +812,7 @@
                 <div class="container py-5">
                     <div class="row">
                         <div class="col-lg-8 mx-auto">
-                            <h1>Privacy Policy</h1>
+                            <h1 t-esc="t.get('privacy_policy', 'Privacy Policy')"/>
                             <hr/>
                             <h3>Data We Collect</h3>
                             <p>When you make an appointment booking, we collect:</p>
@@ -802,8 +835,14 @@
                             <p>Under applicable data protection regulations, you have the right to:</p>
                             <ul>
                                 <li><strong>Access:</strong> View all your booking data via the <a href="/my/bookings">My Bookings</a> portal</li>
-                                <li><strong>Export:</strong> Download your data in machine-readable format via <a href="/my/bookings/export">Data Export</a></li>
-                                <li><strong>Deletion:</strong> Request deletion of your data via <a href="/my/bookings/delete-request">Data Deletion Request</a></li>
+                                <t t-if="request.env.user and not request.env.user._is_public()">
+                                    <li><strong>Export:</strong> Download your data in machine-readable format via <a href="/my/bookings/export">Data Export</a></li>
+                                    <li><strong>Deletion:</strong> Request deletion of your data via <a href="/my/bookings/delete-request">Data Deletion Request</a></li>
+                                </t>
+                                <t t-else="">
+                                    <li><strong>Export:</strong> Download your data in machine-readable format (login required)</li>
+                                    <li><strong>Deletion:</strong> Request deletion of your data (login required)</li>
+                                </t>
                                 <li><strong>Rectification:</strong> Contact us to correct inaccurate data</li>
                             </ul>
 
@@ -830,18 +869,17 @@
                             <div class="card shadow">
                                 <div class="card-body py-5">
                                     <i class="fa fa-exclamation-triangle text-warning fa-5x mb-4"/>
-                                    <h2>Request Data Deletion</h2>
+                                    <h2 t-esc="t.get('request_data_deletion', 'Request Data Deletion')"/>
                                     <p class="text-muted">
-                                        This will cancel all your active bookings and anonymize your personal data.
-                                        This action cannot be undone.
+                                        <t t-esc="t.get('deletion_warning', 'This will cancel all your active bookings and anonymize your personal data. This action cannot be undone.')"/>
                                     </p>
                                     <form method="POST">
                                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                         <button type="submit" class="btn btn-danger">
-                                            <i class="fa fa-trash me-1"/> Confirm Data Deletion
+                                            <i class="fa fa-trash me-1"/> <t t-esc="t.get('confirm_deletion', 'Confirm Data Deletion')"/>
                                         </button>
                                         <a href="/my/bookings" class="btn btn-outline-secondary ms-2">
-                                            Cancel
+                                            <t t-esc="t.get('cancel_booking', 'Cancel')"/>
                                         </a>
                                     </form>
                                 </div>
@@ -863,12 +901,12 @@
                             <div class="card shadow">
                                 <div class="card-body py-5">
                                     <i class="fa fa-check-circle text-success fa-5x mb-4"/>
-                                    <h2>Data Deletion Complete</h2>
+                                    <h2 t-esc="t.get('data_deletion_complete', 'Data Deletion Complete')"/>
                                     <p class="text-muted">
-                                        Your booking data has been anonymized and all active bookings have been cancelled.
+                                        <t t-esc="t.get('data_deletion_success', 'Your booking data has been anonymized and all active bookings have been cancelled.')"/>
                                     </p>
                                     <a href="/appointment" class="btn btn-primary">
-                                        Return to Appointments
+                                        <t t-esc="t.get('return_to_appointments', 'Return to Appointments')"/>
                                     </a>
                                 </div>
                             </div>
@@ -888,16 +926,17 @@
                t-value="request.env['appointment.booking'].sudo().search(
                    [('sale_order_id', '=', sale_order.id)], limit=1)"/>
             <t t-if="linked_booking">
+                <t t-set="t_so" t-value="request.env['ir.http']._get_translation_for_template() if hasattr(request.env['ir.http'], '_get_translation_for_template') else {}"/>
                 <div class="alert alert-info d-flex align-items-center mb-3">
                     <i class="fa fa-calendar fa-lg me-3"/>
                     <div>
-                        <strong>Booking:</strong>
+                        <strong><t t-esc="t_so.get('booking', 'Booking') if t_so else _('Booking')"/>:</strong>
                         <t t-esc="linked_booking.name"/> —
                         <t t-esc="linked_booking.appointment_type_id.name"/>
                         <span class="ms-2">|</span>
                         <a t-attf-href="/appointment/booking/#{linked_booking.id}?token=#{linked_booking.access_token}"
                            class="ms-2 fw-bold">
-                            View Booking Details
+                            <t t-esc="t_so.get('view_details', 'View Booking Details') if t_so else _('View Booking Details')"/>
                         </a>
                     </div>
                 </div>

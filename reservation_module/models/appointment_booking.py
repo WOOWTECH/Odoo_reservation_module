@@ -3,8 +3,11 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import timedelta, datetime
+import logging
 import secrets
 import uuid
+
+_logger = logging.getLogger(__name__)
 
 
 class AppointmentBooking(models.Model):
@@ -516,7 +519,12 @@ class AppointmentBooking(models.Model):
     def _handle_payment_failure(self, error_message=''):
         """Track payment failure and send notifications to customer + admin."""
         self.ensure_one()
-        self.payment_failure_count += 1
+        # Atomic increment to avoid lost updates under concurrent requests
+        self.env.cr.execute(
+            "UPDATE appointment_booking SET payment_failure_count = payment_failure_count + 1 WHERE id = %s",
+            [self.id],
+        )
+        self.invalidate_recordset(['payment_failure_count'])
 
         # Send failure notification to customer
         template = self.env.ref('reservation_module.email_template_payment_failure', raise_if_not_found=False)
@@ -584,7 +592,14 @@ class AppointmentBooking(models.Model):
                 available_staff_ids.append(staff.id)
 
         if not available_staff_ids:
-            return  # No available staff for this time slot
+            _logger.warning(
+                "No available staff for booking %s (type=%s, time=%s~%s). "
+                "All %d staff members have conflicts.",
+                self.name, appointment_type.name,
+                self.start_datetime, self.end_datetime,
+                len(appointment_type.staff_user_ids),
+            )
+            return
 
         # Among available staff, pick the one with fewest bookings this month
         month_start = self.start_datetime.replace(day=1, hour=0, minute=0, second=0)

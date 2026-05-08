@@ -22,6 +22,7 @@
         <record id="email_template_booking_reminder" model="mail.template">
             <field name="name">Appointment: Booking Reminder</field>
             <field name="model_id" ref="model_appointment_booking"/>
+            <field name="lang">{{ object.partner_id.lang }}</field>
             <field name="email_from">{{ (object.company_id.email or user.email_formatted) }}</field>
             <field name="email_to">{{ object.guest_email }}</field>
             <field name="subject">Reminder: Your appointment is coming up - {{ object.name }}</field>
@@ -132,6 +133,7 @@
         <record id="email_template_booking_created" model="mail.template">
             <field name="name">Appointment: Booking Created</field>
             <field name="model_id" ref="model_appointment_booking"/>
+            <field name="lang">{{ object.partner_id.lang }}</field>
             <field name="email_from">{{ (object.company_id.email or user.email_formatted) }}</field>
             <field name="email_to">{{ object.guest_email }}</field>
             <field name="subject">Your booking has been received - {{ object.name }}</field>
@@ -273,6 +275,7 @@
         <record id="email_template_booking_done" model="mail.template">
             <field name="name">Appointment: Booking Completed</field>
             <field name="model_id" ref="model_appointment_booking"/>
+            <field name="lang">{{ object.partner_id.lang }}</field>
             <field name="email_from">{{ (object.company_id.email or user.email_formatted) }}</field>
             <field name="email_to">{{ object.guest_email }}</field>
             <field name="subject">Your appointment has been completed - {{ object.name }}</field>
@@ -354,6 +357,7 @@
         <record id="email_template_booking_confirmed" model="mail.template">
             <field name="name">Appointment: Booking Confirmed</field>
             <field name="model_id" ref="model_appointment_booking"/>
+            <field name="lang">{{ object.partner_id.lang }}</field>
             <field name="email_from">{{ (object.company_id.email or user.email_formatted) }}</field>
             <field name="email_to">{{ object.guest_email }}</field>
             <field name="subject">Your appointment has been confirmed - {{ object.name }}</field>
@@ -477,6 +481,7 @@
         <record id="email_template_booking_cancelled" model="mail.template">
             <field name="name">Appointment: Booking Cancelled</field>
             <field name="model_id" ref="model_appointment_booking"/>
+            <field name="lang">{{ object.partner_id.lang }}</field>
             <field name="email_from">{{ (object.company_id.email or user.email_formatted) }}</field>
             <field name="email_to">{{ object.guest_email }}</field>
             <field name="subject">Your appointment has been cancelled - {{ object.name }}</field>
@@ -565,6 +570,7 @@
         <record id="email_template_payment_failure" model="mail.template">
             <field name="name">Appointment: Payment Failed</field>
             <field name="model_id" ref="model_appointment_booking"/>
+            <field name="lang">{{ object.partner_id.lang }}</field>
             <field name="email_from">{{ (object.company_id.email or user.email_formatted) }}</field>
             <field name="email_to">{{ object.guest_email }}</field>
             <field name="subject">Payment failed for your booking - {{ object.name }}</field>

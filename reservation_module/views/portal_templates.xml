@@ -60,10 +60,10 @@
             <!-- GDPR data management links -->
             <div class="text-end mb-3">
                 <a href="/my/bookings/export" class="btn btn-outline-secondary btn-sm me-2">
-                    <i class="fa fa-download me-1"/> Export My Data
+                    <i class="fa fa-download me-1"/> <t t-esc="t.get('export_my_data', 'Export My Data')"/>
                 </a>
                 <a href="/my/bookings/delete-request" class="btn btn-outline-danger btn-sm">
-                    <i class="fa fa-trash me-1"/> Delete My Data
+                    <i class="fa fa-trash me-1"/> <t t-esc="t.get('delete_my_data', 'Delete My Data')"/>
                 </a>
             </div>
 

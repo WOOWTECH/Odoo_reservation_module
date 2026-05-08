@@ -14,7 +14,7 @@
                     <button name="action_cancel" type="object" string="Cancel"
                             invisible="state not in ['draft', 'pending_payment', 'confirmed']"/>
                     <button name="action_draft" type="object" string="Set to Draft"
-                            invisible="state not in ['cancelled', 'done']"/>
+                            invisible="state != 'cancelled'"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,pending_payment,confirmed,done"/>
                 </header>
                 <sheet>

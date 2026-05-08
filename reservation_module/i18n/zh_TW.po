@@ -2933,3 +2933,28 @@ msgstr "取消"
 #: model:ir.ui.view,arch_db:reservation_module.appointment_closing_day_wizard_form
 msgid "e.g. National Holiday, Maintenance..."
 msgstr "例如：國定假日、維護..."
+
+#. module: reservation_module
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__pending_payment
+msgid "Pending Payment"
+msgstr "待付款"
+
+#. module: reservation_module
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "This date is closed: %s"
+msgstr "此日期已關閉：%s"
+
+#. module: reservation_module
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "No availability on the selected day."
+msgstr "所選日期無可用時段。"
+
+#. module: reservation_module
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "Selected time is outside available hours."
+msgstr "所選時間不在營業時間內。"
+
+#. module: reservation_module
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "Maximum %d guests allowed."
+msgstr "最多允許 %d 位客人。"

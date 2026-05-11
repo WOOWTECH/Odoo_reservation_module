@@ -1,0 +1,79 @@
+{
+  "cookies": [
+    {
+      "name": "frontend_lang",
+      "value": "en_US",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1810016160.439583,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "tz",
+      "value": "Asia/Taipei",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "session_id",
+      "value": "fjO9ebCXYGUElTCvmxCErzXfYw0ZJ8lA7DI54uKJP_wVaNRuul3i7pT2uJYP8ZtdpDg8Jn407gZescQXTRRo",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1779085000.636478,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "cids",
+      "value": "1",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1810016200.417638,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://localhost:9073",
+      "localStorage": [
+        {
+          "name": "multi_tab.http_localhost_9073.lastPresenceByTab",
+          "value": "{}"
+        },
+        {
+          "name": "multi_tab.http_localhost_9073.heartbeat",
+          "value": "1778480212473"
+        },
+        {
+          "name": "multi_tab.http_localhost_9073.main",
+          "value": "true"
+        },
+        {
+          "name": "presence.lastPresence",
+          "value": "1778480183800"
+        },
+        {
+          "name": "multi_tab.http_localhost_9073.last_notification_id",
+          "value": "740"
+        },
+        {
+          "name": "web.lastConnectedUser",
+          "value": "[{\"login\":\"admin\",\"name\":\"Mitchell Admin\",\"partnerId\":3,\"partnerWriteDate\":\"2026-05-07 14:15:17\",\"userId\":2}]"
+        },
+        {
+          "name": "presence.focus",
+          "value": "true"
+        }
+      ]
+    }
+  ]
+}

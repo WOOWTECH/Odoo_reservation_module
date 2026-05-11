@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from odoo import api, fields, models, _
+
+_logger = logging.getLogger(__name__)
 
 
 class SaleOrder(models.Model):
@@ -20,6 +24,28 @@ class SaleOrder(models.Model):
     def _compute_booking_count(self):
         for order in self:
             order.booking_count = len(order.booking_ids)
+
+    def action_confirm(self):
+        """Override to auto-confirm linked bookings when SO is confirmed.
+
+        When a customer signs the quotation (SO → sale), linked bookings
+        with auto_confirm enabled are automatically confirmed. The
+        payment_status compute field already treats SO state='sale' as
+        'paid', so action_confirm's payment gate will pass.
+        """
+        res = super().action_confirm()
+        for order in self:
+            for booking in order.booking_ids:
+                if booking.state in ('draft', 'pending_payment') \
+                        and booking.appointment_type_id.auto_confirm:
+                    try:
+                        booking.action_confirm()
+                    except Exception:
+                        _logger.warning(
+                            "Failed to auto-confirm booking %s on SO %s confirm",
+                            booking.name, order.name,
+                        )
+        return res
 
     def action_view_bookings(self):
         """Open bookings linked to this sales order"""

@@ -5,7 +5,6 @@ from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
 from datetime import datetime, timedelta
 import calendar
-import json
 import logging
 import pytz
 import re
@@ -141,23 +140,6 @@ class AppointmentController(http.Controller):
             'status_draft': '草稿',
             'status_pending_payment': '待付款',
             'incl_tax': '（含稅）',
-            # Privacy / GDPR pages
-            'privacy_policy': '隱私政策',
-            'data_we_collect': '我們收集的資料',
-            'how_we_use': '我們如何使用您的資料',
-            'your_rights': '您的權利',
-            'data_retention': '資料保留',
-            'contact': '聯繫方式',
-            'request_data_deletion': '請求刪除資料',
-            'deletion_warning': '這將取消您所有進行中的預約並匿名化您的個人資料。此操作無法撤銷。',
-            'confirm_deletion': '確認刪除資料',
-            'data_deletion_complete': '資料已刪除',
-            'data_deletion_success': '您的預約資料已匿名化，所有進行中的預約已被取消。',
-            'return_to_appointments': '返回預約頁面',
-            'booking_agreement': '預約即表示您同意我們的',
-            'export_my_data': '匯出我的資料',
-            'delete_my_data': '刪除我的資料',
-            'login_required': '（需要登入）',
         }
 
         # English translations (en_US) - default
@@ -247,23 +229,6 @@ class AppointmentController(http.Controller):
             'status_draft': 'Draft',
             'status_pending_payment': 'Pending Payment',
             'incl_tax': '(incl. tax)',
-            # Privacy / GDPR pages
-            'privacy_policy': 'Privacy Policy',
-            'data_we_collect': 'Data We Collect',
-            'how_we_use': 'How We Use Your Data',
-            'your_rights': 'Your Rights',
-            'data_retention': 'Data Retention',
-            'contact': 'Contact',
-            'request_data_deletion': 'Request Data Deletion',
-            'deletion_warning': 'This will cancel all your active bookings and anonymize your personal data. This action cannot be undone.',
-            'confirm_deletion': 'Confirm Data Deletion',
-            'data_deletion_complete': 'Data Deletion Complete',
-            'data_deletion_success': 'Your booking data has been anonymized and all active bookings have been cancelled.',
-            'return_to_appointments': 'Return to Appointments',
-            'booking_agreement': 'By booking, you agree to our',
-            'export_my_data': 'Export My Data',
-            'delete_my_data': 'Delete My Data',
-            'login_required': '(login required)',
         }
 
         # Return appropriate translation based on language
@@ -1077,88 +1042,6 @@ class AppointmentController(http.Controller):
             error_detail = tx_sudo.state_message if tx_sudo else ''
             booking._handle_payment_failure(error_message=error_detail)
             return self._render_payment_page(booking, error=_('Payment was not completed. Please try again.'))
-
-
-class AppointmentGDPR(http.Controller):
-    """GDPR data portability and deletion endpoints for appointment bookings."""
-
-    @http.route('/appointment/privacy', type='http', auth='public', website=True)
-    def privacy_policy(self, **kwargs):
-        """Display privacy policy page"""
-        t = AppointmentController()._get_translations()
-        return request.render('reservation_module.appointment_privacy_policy', {'t': t})
-
-    @http.route('/my/bookings/export', type='http', auth='user', website=True)
-    def export_my_data(self, **kwargs):
-        """GDPR data export: download all personal booking data as JSON"""
-        partner = request.env.user.partner_id
-        BookingSudo = request.env['appointment.booking'].sudo()
-        bookings = BookingSudo.search([('partner_id', '=', partner.id)])
-
-        export_data = {
-            'personal_info': {
-                'name': partner.name,
-                'email': partner.email,
-                'phone': partner.phone or '',
-            },
-            'bookings': [],
-        }
-
-        for bk in bookings:
-            export_data['bookings'].append({
-                'reference': bk.name,
-                'appointment_type': bk.appointment_type_id.name,
-                'state': bk.state,
-                'start_datetime': str(bk.start_datetime),
-                'end_datetime': str(bk.end_datetime),
-                'guest_count': bk.guest_count,
-                'notes': bk.notes or '',
-                'payment_status': bk.payment_status,
-                'payment_amount': bk.sale_order_id.amount_total if bk.sale_order_id else 0,
-                'created': str(bk.create_date),
-            })
-
-        headers = [
-            ('Content-Type', 'application/json; charset=utf-8'),
-            ('Content-Disposition', 'attachment; filename="my_booking_data.json"'),
-        ]
-        return request.make_response(json.dumps(export_data, indent=2, ensure_ascii=False), headers)
-
-    @http.route('/my/bookings/delete-request', type='http', auth='user', website=True, methods=['GET', 'POST'])
-    def request_data_deletion(self, **kwargs):
-        """GDPR data deletion request"""
-        t = AppointmentController()._get_translations()
-
-        if request.httprequest.method == 'POST':
-            partner = request.env.user.partner_id
-            # Cancel all active bookings
-            BookingSudo = request.env['appointment.booking'].sudo()
-            active_bookings = BookingSudo.search([
-                ('partner_id', '=', partner.id),
-                ('state', 'in', ['draft', 'pending_payment', 'confirmed']),
-            ])
-            for bk in active_bookings:
-                try:
-                    bk.action_cancel()
-                except Exception as e:
-                    _logger.warning(
-                        "GDPR deletion: action_cancel failed for booking %s, "
-                        "skipping (will anonymize data). Error: %s",
-                        bk.name, e,
-                    )
-
-            # Anonymize personal data on all bookings
-            all_bookings = BookingSudo.search([('partner_id', '=', partner.id)])
-            all_bookings.write({
-                'guest_name': _('Deleted User'),
-                'guest_email': 'deleted@anonymized.local',
-                'guest_phone': '',
-                'notes': '',
-            })
-
-            return request.render('reservation_module.appointment_deletion_confirmed', {'t': t})
-
-        return request.render('reservation_module.appointment_deletion_request', {'t': t})
 
 
 class AppointmentPortal(CustomerPortal):

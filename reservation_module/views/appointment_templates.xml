@@ -420,10 +420,6 @@
                                                 <t t-esc="t['confirm_booking']"/>
                                             </t>
                                         </button>
-                                        <p class="text-center text-muted small mt-3">
-                                            <t t-esc="t.get('booking_agreement', 'By booking, you agree to our')"/>
-                                            <a href="/appointment/privacy" target="_blank"><t t-esc="t.get('privacy_policy', 'Privacy Policy')"/></a>.
-                                        </p>
                                     </form>
                                 </div>
                             </div>
@@ -796,118 +792,6 @@
                                             <i class="fa fa-arrow-left me-2"/><t t-esc="t.get('cancel_booking', 'Cancel Booking')"/>
                                         </a>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </t>
-    </template>
-
-    <!-- Privacy Policy Page -->
-    <template id="appointment_privacy_policy" name="Privacy Policy">
-        <t t-call="website.layout">
-            <div id="wrap" class="oe_structure">
-                <div class="container py-5">
-                    <div class="row">
-                        <div class="col-lg-8 mx-auto">
-                            <h1 t-esc="t.get('privacy_policy', 'Privacy Policy')"/>
-                            <hr/>
-                            <h3>Data We Collect</h3>
-                            <p>When you make an appointment booking, we collect:</p>
-                            <ul>
-                                <li>Name, email address, and phone number</li>
-                                <li>Appointment date, time, and preferences</li>
-                                <li>Any notes you provide</li>
-                                <li>Payment information (processed securely by our payment provider)</li>
-                            </ul>
-
-                            <h3>How We Use Your Data</h3>
-                            <p>Your personal data is used to:</p>
-                            <ul>
-                                <li>Process and manage your appointment bookings</li>
-                                <li>Send booking confirmations, reminders, and updates</li>
-                                <li>Process payments when required</li>
-                            </ul>
-
-                            <h3>Your Rights</h3>
-                            <p>Under applicable data protection regulations, you have the right to:</p>
-                            <ul>
-                                <li><strong>Access:</strong> View all your booking data via the <a href="/my/bookings">My Bookings</a> portal</li>
-                                <t t-if="request.env.user and not request.env.user._is_public()">
-                                    <li><strong>Export:</strong> Download your data in machine-readable format via <a href="/my/bookings/export">Data Export</a></li>
-                                    <li><strong>Deletion:</strong> Request deletion of your data via <a href="/my/bookings/delete-request">Data Deletion Request</a></li>
-                                </t>
-                                <t t-else="">
-                                    <li><strong>Export:</strong> Download your data in machine-readable format (login required)</li>
-                                    <li><strong>Deletion:</strong> Request deletion of your data (login required)</li>
-                                </t>
-                                <li><strong>Rectification:</strong> Contact us to correct inaccurate data</li>
-                            </ul>
-
-                            <h3>Data Retention</h3>
-                            <p>We retain booking data for the period required by applicable laws.
-                               Cancelled bookings are kept for record-keeping purposes but can be anonymized on request.</p>
-
-                            <h3>Contact</h3>
-                            <p>For privacy-related inquiries, please contact us through our website.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </t>
-    </template>
-
-    <!-- Data Deletion Request Page -->
-    <template id="appointment_deletion_request" name="Data Deletion Request">
-        <t t-call="website.layout">
-            <div id="wrap" class="oe_structure">
-                <div class="container py-5">
-                    <div class="row">
-                        <div class="col-lg-6 mx-auto text-center">
-                            <div class="card shadow">
-                                <div class="card-body py-5">
-                                    <i class="fa fa-exclamation-triangle text-warning fa-5x mb-4"/>
-                                    <h2 t-esc="t.get('request_data_deletion', 'Request Data Deletion')"/>
-                                    <p class="text-muted">
-                                        <t t-esc="t.get('deletion_warning', 'This will cancel all your active bookings and anonymize your personal data. This action cannot be undone.')"/>
-                                    </p>
-                                    <form method="POST">
-                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                        <button type="submit" class="btn btn-danger">
-                                            <i class="fa fa-trash me-1"/> <t t-esc="t.get('confirm_deletion', 'Confirm Data Deletion')"/>
-                                        </button>
-                                        <a href="/my/bookings" class="btn btn-outline-secondary ms-2">
-                                            <t t-esc="t.get('cancel_booking', 'Cancel')"/>
-                                        </a>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </t>
-    </template>
-
-    <!-- Data Deletion Confirmed Page -->
-    <template id="appointment_deletion_confirmed" name="Data Deletion Confirmed">
-        <t t-call="website.layout">
-            <div id="wrap" class="oe_structure">
-                <div class="container py-5">
-                    <div class="row">
-                        <div class="col-lg-6 mx-auto text-center">
-                            <div class="card shadow">
-                                <div class="card-body py-5">
-                                    <i class="fa fa-check-circle text-success fa-5x mb-4"/>
-                                    <h2 t-esc="t.get('data_deletion_complete', 'Data Deletion Complete')"/>
-                                    <p class="text-muted">
-                                        <t t-esc="t.get('data_deletion_success', 'Your booking data has been anonymized and all active bookings have been cancelled.')"/>
-                                    </p>
-                                    <a href="/appointment" class="btn btn-primary">
-                                        <t t-esc="t.get('return_to_appointments', 'Return to Appointments')"/>
-                                    </a>
                                 </div>
                             </div>
                         </div>

@@ -6,20 +6,6 @@
               web_icon="reservation_module,static/description/icon.png"
               sequence="25"/>
 
-    <!-- Calendar submenu (link to calendar module) -->
-    <menuitem id="appointment_menu_calendar"
-              name="Calendar"
-              parent="appointment_menu_root"
-              action="calendar.action_calendar_event"
-              sequence="1"/>
-
-    <!-- Appointments submenu -->
-    <menuitem id="appointment_menu_appointments"
-              name="Appointment Types"
-              parent="appointment_menu_root"
-              action="appointment_type_action"
-              sequence="10"/>
-
     <!-- All Bookings -->
     <menuitem id="appointment_menu_bookings"
               name="All Bookings"
@@ -55,14 +41,14 @@
               sequence="100"
               groups="group_appointment_manager"/>
 
-    <!-- Settings -->
+    <!-- Appointment Types (under Configuration) -->
     <menuitem id="appointment_menu_settings"
-              name="Settings"
+              name="Appointment Types"
               parent="appointment_menu_configuration"
               action="appointment_type_action"
               sequence="10"/>
 
-    <!-- Resources -->
+    <!-- Resources (under Configuration) -->
     <menuitem id="appointment_menu_resources"
               name="Resources"
               parent="appointment_menu_configuration"

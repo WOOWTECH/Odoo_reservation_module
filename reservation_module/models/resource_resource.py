@@ -4,12 +4,14 @@ from odoo import api, fields, models, _
 
 
 class ResourceResource(models.Model):
-    _inherit = 'resource.resource'
+    _name = 'resource.resource'
+    _inherit = ['resource.resource', 'mail.thread', 'mail.activity.mixin']
 
-    # Additional fields for appointment booking
+    # ── Basic information ──
     capacity = fields.Integer(
         'Capacity',
         default=1,
+        tracking=True,
         help='Maximum number of concurrent bookings for this resource',
     )
     appointment_type_ids = fields.Many2many(
@@ -20,11 +22,23 @@ class ResourceResource(models.Model):
         string='Appointment Types',
     )
 
-    # Display settings
+    # ── Location & space details ──
+    location = fields.Char('Location', tracking=True, help='Building, floor, address, etc.')
+    area = fields.Float('Area (m²)', help='Size of the space in square meters')
+    floor = fields.Char('Floor', help='e.g. 1F, B1, 3rd Floor')
+    room_number = fields.Char('Room Number', help='e.g. A101, Suite 5')
+    amenities = fields.Char('Amenities', help='e.g. Projector, Whiteboard, WiFi, TV')
+
+    # ── Display settings ──
     icon = fields.Char('Icon', default='fa-chair')
     image = fields.Binary('Image', attachment=True)
+    active = fields.Boolean('Active', default=True, tracking=True)
 
-    # Booking statistics
+    # ── Rich text tabs ──
+    description = fields.Html('Description', help='Public description visible to customers')
+    internal_note = fields.Html('Internal Note', help='Internal notes, not visible to customers')
+
+    # ── Booking statistics ──
     booking_count = fields.Integer(
         'Booking Count',
         compute='_compute_booking_count',

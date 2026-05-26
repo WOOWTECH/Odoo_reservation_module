@@ -7,7 +7,9 @@
         <field name="arch" type="xml">
             <list string="Resources">
                 <field name="name"/>
-                <field name="icon"/>
+                <field name="location"/>
+                <field name="floor"/>
+                <field name="room_number"/>
                 <field name="capacity"/>
                 <field name="appointment_type_ids" widget="many2many_tags"/>
                 <field name="booking_count" string="Bookings"/>
@@ -42,14 +44,29 @@
                         <group>
                             <field name="resource_type" invisible="1"/>
                             <field name="capacity"/>
-                            <field name="icon"/>
+                            <field name="location"/>
+                            <field name="floor"/>
+                            <field name="room_number"/>
                         </group>
                         <group>
+                            <field name="area"/>
+                            <field name="amenities"/>
                             <field name="appointment_type_ids" widget="many2many_tags"/>
                             <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="active" invisible="1"/>
+                            <field name="icon"/>
                         </group>
                     </group>
+                    <notebook>
+                        <page string="Description" name="description">
+                            <field name="description" placeholder="Public description of this resource..."/>
+                        </page>
+                        <page string="Internal Note" name="internal_note">
+                            <field name="internal_note" placeholder="Internal notes (not visible to customers)..."/>
+                        </page>
+                    </notebook>
                 </sheet>
+                <chatter/>
             </form>
         </field>
     </record>
@@ -61,6 +78,7 @@
         <field name="arch" type="xml">
             <search string="Resources">
                 <field name="name"/>
+                <field name="location"/>
                 <field name="appointment_type_ids"/>
                 <filter string="Appointment Type" name="group_appointment_type" context="{'group_by': 'appointment_type_ids'}"/>
             </search>

@@ -2958,3 +2958,104 @@ msgstr "所選時間不在營業時間內。"
 #: code:addons/reservation_module/controllers/main.py:0
 msgid "Maximum %d guests allowed."
 msgstr "最多允許 %d 位客人。"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__location
+msgid "Location"
+msgstr "位置"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__location
+msgid "Building, floor, address, etc."
+msgstr "建築物、樓層、地址等"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__area
+msgid "Area (m²)"
+msgstr "面積 (m²)"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__area
+msgid "Size of the space in square meters"
+msgstr "空間面積（平方公尺）"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__floor
+msgid "Floor"
+msgstr "樓層"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__floor
+msgid "e.g. 1F, B1, 3rd Floor"
+msgstr "例如：1F、B1、3樓"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__room_number
+msgid "Room Number"
+msgstr "房間編號"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__room_number
+msgid "e.g. A101, Suite 5"
+msgstr "例如：A101、Suite 5"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__amenities
+msgid "Amenities"
+msgstr "設備設施"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__amenities
+msgid "e.g. Projector, Whiteboard, WiFi, TV"
+msgstr "例如：投影機、白板、WiFi、電視"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__description
+msgid "Description"
+msgstr "敘述"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__description
+msgid "Public description visible to customers"
+msgstr "對外公開的場地說明"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__internal_note
+msgid "Internal Note"
+msgstr "內部備註"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__internal_note
+msgid "Internal notes, not visible to customers"
+msgstr "內部備註，不對客戶顯示"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
+msgid "Public description of this resource..."
+msgstr "場地的公開說明..."
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
+msgid "Internal notes (not visible to customers)..."
+msgstr "內部備註（客戶不可見）..."
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
+msgid "Resource Name"
+msgstr "場地名稱"
+
+#. module: reservation_module
+#: model:ir.actions.act_window,name:reservation_module.resource_resource_action
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_list_view
+msgid "Resources"
+msgstr "場地"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_action
+msgid "Create a new resource"
+msgstr "建立新場地"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_action
+msgid "Resources are bookable items like rooms, tables, courts, or equipment."
+msgstr "場地是可預約的項目，例如房間、桌位、場地或設備。"

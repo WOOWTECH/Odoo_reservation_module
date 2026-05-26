@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         Bridge: Replace dashboard SVG icon with FontAwesome
+         (Portal UI style) when woow_portal_ui is installed.
+
+         The portal home card (portal.portal_docs_entry) is already
+         globally styled by woow_portal_ui CSS, so no XPath needed
+         for that. This bridge handles the SVG icon on the home card.
+         ============================================================ -->
+    <template id="bridge_dashboard_icons"
+              name="Bridge: Dashboard Icons to Portal UI style"
+              inherit_id="reservation_module.portal_my_home_booking">
+
+        <!-- Booking card: SVG → fa-calendar (let woow_portal_ui render the FA icon) -->
+        <xpath expr="//t[@t-set='icon']" position="attributes">
+            <attribute name="t-value">False</attribute>
+        </xpath>
+    </template>
+
+</odoo>

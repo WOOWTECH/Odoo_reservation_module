@@ -58,76 +58,94 @@
             </t>
 
             <!-- Empty state -->
-            <div t-if="not bookings" class="alert alert-warning text-center" role="alert">
-                <i class="fa fa-calendar-o fa-2x mb-2 d-block"/>
-                <t t-out="t.get('no_bookings_yet', 'You have no bookings yet')"/>
-                <div class="mt-3">
-                    <a href="/appointment" class="btn btn-primary">
-                        <i class="fa fa-plus me-1"/>
+            <t t-if="not bookings">
+                <div class="wt-empty-state mt-4">
+                    <i class="fa fa-calendar-o"/>
+                    <p><t t-out="t.get('no_bookings_yet', 'You have no bookings yet')"/></p>
+                    <a href="/appointment" class="wt-btn-ghost mt-2"
+                       style="display: inline-flex;">
+                        <i class="fa fa-plus"/>
                         <t t-out="t.get('book_now', 'Book Now')"/>
                     </a>
                 </div>
-            </div>
+            </t>
 
-            <!-- Booking table -->
-            <t t-if="bookings" t-call="portal.portal_table">
-                <thead>
-                    <tr class="active">
-                        <th>
-                            <span class="d-none d-md-inline"><t t-out="t.get('booking_reference_label', 'Booking Reference')"/></span>
-                            <span class="d-block d-md-none">#</span>
-                        </th>
-                        <th><t t-out="t.get('appointment_label', 'Appointment')"/></th>
-                        <th class="text-end">
-                            <span class="d-none d-md-inline"><t t-out="t.get('date_time', 'Date &amp; Time')"/></span>
-                            <span class="d-block d-md-none"><t t-out="t.get('date_time', 'Date')"/></span>
-                        </th>
-                        <th class="text-center"><t t-out="t.get('booking_status', 'Status')"/></th>
-                    </tr>
-                </thead>
-                <t t-foreach="bookings" t-as="bk">
-                    <tr>
-                        <td>
-                            <a t-attf-href="/my/bookings/#{bk.id}">
-                                <t t-out="bk.name"/>
-                            </a>
-                        </td>
-                        <td>
-                            <span t-out="bk.appointment_type_id.name"/>
-                        </td>
-                        <td class="text-end">
-                            <span t-field="bk.start_datetime" t-options="{'widget': 'date'}"/>
-                            <span class="d-none d-md-inline" t-field="bk.start_datetime" t-options="{'time_only': True}"/>
-                        </td>
-                        <td class="text-center">
-                            <span t-if="bk.state == 'confirmed'"
-                                  class="badge rounded-pill text-bg-success">
-                                <i class="fa fa-fw fa-check"/>
-                                <t t-out="t.get('status_confirmed', 'Confirmed')"/>
-                            </span>
-                            <span t-if="bk.state == 'done'"
-                                  class="badge rounded-pill text-bg-info">
-                                <i class="fa fa-fw fa-check-circle"/>
-                                <t t-out="t.get('status_done', 'Completed')"/>
-                            </span>
-                            <span t-if="bk.state == 'cancelled'"
-                                  class="badge rounded-pill text-bg-danger">
-                                <i class="fa fa-fw fa-times"/>
-                                <t t-out="t.get('status_cancelled', 'Cancelled')"/>
-                            </span>
-                            <span t-if="bk.state == 'pending_payment'"
-                                  class="badge rounded-pill text-bg-warning">
-                                <i class="fa fa-fw fa-credit-card"/>
-                                <t t-out="t.get('status_pending_payment', 'Pending Payment')"/>
-                            </span>
-                            <span t-if="bk.state == 'draft'"
-                                  class="badge rounded-pill text-bg-secondary">
-                                <i class="fa fa-fw fa-clock-o"/>
-                                <t t-out="t.get('status_draft', 'Draft')"/>
-                            </span>
-                        </td>
-                    </tr>
-                </t>
+            <!-- Booking card grid -->
+            <t t-if="bookings">
+                <div class="wt-card-grid mt-3">
+                    <t t-foreach="bookings" t-as="bk">
+                        <a t-attf-href="/my/bookings/#{bk.id}" class="wt-portal-card">
+                            <div class="wt-pc-head">
+                                <span class="wt-pc-icon"><i class="fa fa-calendar"/></span>
+                                <span class="wt-pc-num"><t t-out="bk.name"/></span>
+                                <span t-if="bk.state == 'confirmed'"
+                                      class="wt-badge wt-badge-confirmed">
+                                    <t t-out="t.get('status_confirmed', 'Confirmed')"/>
+                                </span>
+                                <span t-if="bk.state == 'done'"
+                                      class="wt-badge wt-badge-done">
+                                    <t t-out="t.get('status_done', 'Completed')"/>
+                                </span>
+                                <span t-if="bk.state == 'cancelled'"
+                                      class="wt-badge wt-badge-cancelled">
+                                    <t t-out="t.get('status_cancelled', 'Cancelled')"/>
+                                </span>
+                                <span t-if="bk.state == 'pending_payment'"
+                                      class="wt-badge wt-badge-payment">
+                                    <t t-out="t.get('status_pending_payment', 'Pending Payment')"/>
+                                </span>
+                                <span t-if="bk.state == 'draft'"
+                                      class="wt-badge wt-badge-draft">
+                                    <t t-out="t.get('status_draft', 'Draft')"/>
+                                </span>
+                            </div>
+                            <div class="wt-pc-meta">
+                                <div class="wt-pc-row">
+                                    <span class="wt-pc-label">
+                                        <t t-out="t.get('appointment_label', 'Appointment')"/>
+                                    </span>
+                                    <span class="wt-pc-value">
+                                        <t t-out="bk.appointment_type_id.name"/>
+                                    </span>
+                                </div>
+                                <div class="wt-pc-row">
+                                    <span class="wt-pc-label">
+                                        <t t-out="t.get('date_time', 'Date &amp; Time')"/>
+                                    </span>
+                                    <span class="wt-pc-value">
+                                        <t t-esc="bk.start_datetime" t-options='{"widget": "datetime", "format": "yyyy-MM-dd HH:mm"}'/>
+                                    </span>
+                                </div>
+                                <t t-if="bk.resource_id">
+                                    <div class="wt-pc-row">
+                                        <span class="wt-pc-label">
+                                            <t t-out="t.get('location_label', 'Location')"/>
+                                        </span>
+                                        <span class="wt-pc-value">
+                                            <t t-out="bk.resource_id.name"/>
+                                        </span>
+                                    </div>
+                                </t>
+                                <div class="wt-pc-row">
+                                    <span class="wt-pc-label">
+                                        <t t-out="t.get('guests_label', 'Guests')"/>
+                                    </span>
+                                    <span class="wt-pc-value">
+                                        <t t-out="bk.guest_count"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="wt-pc-foot">
+                                <span><t t-out="t.get('view_details', 'View details')"/></span>
+                                <i class="fa fa-angle-right"/>
+                            </div>
+                        </a>
+                    </t>
+                </div>
+
+                <div class="d-flex justify-content-center mt-4">
+                    <t t-call="portal.pager"/>
+                </div>
             </t>
         </t>
     </template>
@@ -144,180 +162,241 @@
                 </t>
             </t>
 
-            <div class="container py-4">
-                <div class="row">
-                    <div class="col-lg-8 mx-auto">
-                        <!-- Booking Header -->
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h4 class="mb-0">
-                                    <i class="fa fa-calendar me-2"/>
-                                    <t t-out="booking.name"/>
-                                </h4>
-                                <span t-if="booking.state == 'confirmed'"
-                                      class="badge text-bg-success fs-6">
-                                    <i class="fa fa-check me-1"/>
-                                    <t t-out="t.get('status_confirmed', 'Confirmed')"/>
-                                </span>
-                                <span t-if="booking.state == 'done'"
-                                      class="badge text-bg-info fs-6">
-                                    <i class="fa fa-check-circle me-1"/>
-                                    <t t-out="t.get('status_done', 'Completed')"/>
-                                </span>
-                                <span t-if="booking.state == 'cancelled'"
-                                      class="badge text-bg-danger fs-6">
-                                    <i class="fa fa-times me-1"/>
-                                    <t t-out="t.get('status_cancelled', 'Cancelled')"/>
-                                </span>
-                                <span t-if="booking.state == 'pending_payment'"
-                                      class="badge text-bg-warning fs-6">
-                                    <i class="fa fa-credit-card me-1"/>
-                                    <t t-out="t.get('status_pending_payment', 'Pending Payment')"/>
-                                </span>
-                                <span t-if="booking.state == 'draft'"
-                                      class="badge text-bg-secondary fs-6">
-                                    <i class="fa fa-clock-o me-1"/>
-                                    <t t-out="t.get('status_draft', 'Draft')"/>
-                                </span>
-                            </div>
-                            <div class="card-body">
-                                <!-- Appointment Info -->
-                                <div class="row mb-3">
-                                    <div class="col-sm-4 text-muted">
-                                        <i class="fa fa-tag me-1"/>
-                                        <t t-out="t.get('appointment_label', 'Appointment:')"/>
-                                    </div>
-                                    <div class="col-sm-8 fw-bold">
-                                        <t t-out="booking.appointment_type_id.name"/>
-                                    </div>
-                                </div>
-
-                                <div class="row mb-3">
-                                    <div class="col-sm-4 text-muted">
-                                        <i class="fa fa-clock-o me-1"/>
-                                        <t t-out="t.get('date_time', 'Date &amp; Time:')"/>
-                                    </div>
-                                    <div class="col-sm-8">
-                                        <span t-field="booking.start_datetime"/> -
-                                        <span t-field="booking.end_datetime" t-options="{'time_only': True}"/>
-                                    </div>
-                                </div>
-
-                                <t t-if="booking.staff_user_id">
-                                    <div class="row mb-3">
-                                        <div class="col-sm-4 text-muted">
-                                            <i class="fa fa-user me-1"/>
-                                            <t t-out="t.get('staff_label', 'Staff:')"/>
-                                        </div>
-                                        <div class="col-sm-8">
-                                            <t t-out="booking.staff_user_id.name"/>
-                                        </div>
-                                    </div>
-                                </t>
-
-                                <t t-if="booking.resource_id">
-                                    <div class="row mb-3">
-                                        <div class="col-sm-4 text-muted">
-                                            <i class="fa fa-map-marker me-1"/>
-                                            <t t-out="t.get('location_label', 'Location:')"/>
-                                        </div>
-                                        <div class="col-sm-8">
-                                            <t t-out="booking.resource_id.name"/>
-                                        </div>
-                                    </div>
-                                </t>
-
-                                <div class="row mb-3">
-                                    <div class="col-sm-4 text-muted">
-                                        <i class="fa fa-users me-1"/>
-                                        <t t-out="t.get('guests_label', 'Guests:')"/>
-                                    </div>
-                                    <div class="col-sm-8">
-                                        <t t-out="booking.guest_count"/>
-                                    </div>
-                                </div>
-
-                                <!-- Meeting URL -->
-                                <t t-if="booking.meeting_url and booking.state in ('draft', 'pending_payment', 'confirmed')">
-                                    <hr/>
-                                    <div class="card border-success my-3">
-                                        <div class="card-body text-center">
-                                            <p class="mb-2 text-muted">
-                                                <i class="fa fa-video-camera me-1"/>
-                                                <t t-if="booking.discuss_channel_id">
-                                                    This is an online meeting. Open the meeting room below to chat and start a video call:
-                                                </t>
-                                                <t t-else="">
-                                                    <t t-out="t.get('online_meeting_label', 'This is an online meeting. Use the link below to join at the scheduled time:')"/>
-                                                </t>
-                                            </p>
-                                            <a t-att-href="booking.meeting_url" target="_blank"
-                                               class="btn btn-success btn-lg mb-2">
-                                                <i class="fa fa-video-camera me-2"/>
-                                                <t t-if="booking.discuss_channel_id">Open Meeting Room</t>
-                                                <t t-else=""><t t-out="t.get('join_meeting', 'Join Meeting')"/></t>
-                                            </a>
-                                            <p class="mb-0 small text-muted">
-                                                <t t-out="booking.meeting_url"/>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </t>
-
-                                <!-- Payment info -->
-                                <t t-if="booking.payment_status == 'paid'">
-                                    <hr/>
-                                    <div class="row mb-3">
-                                        <div class="col-sm-4 text-muted">
-                                            <i class="fa fa-credit-card me-1"/>
-                                            <t t-out="t.get('payment', 'Payment')"/>
-                                        </div>
-                                        <div class="col-sm-8">
-                                            <span class="badge text-bg-success">
-                                                <i class="fa fa-check me-1"/>Paid
-                                            </span>
-                                        </div>
-                                    </div>
-                                </t>
-                                <t t-if="booking.payment_status == 'pending' and booking.sale_order_id">
-                                    <hr/>
-                                    <div class="text-center my-3">
-                                        <a t-attf-href="/my/orders/#{booking.sale_order_id.id}?access_token=#{booking.sale_order_id.access_token}"
-                                           class="btn btn-primary btn-lg">
-                                            <i class="fa fa-credit-card me-2"/>
-                                            <t t-out="t.get('go_to_payment', 'Go to Payment')"/>
-                                        </a>
-                                    </div>
-                                </t>
-                            </div>
-
-                            <!-- Card Footer: Cancel -->
-                            <t t-if="booking.state in ('draft', 'pending_payment', 'confirmed')">
-                                <div class="card-footer text-center">
-                                    <a t-attf-href="/appointment/booking/#{booking.id}/cancel?token=#{booking.access_token}"
-                                       class="btn btn-outline-danger btn-sm">
-                                        <i class="fa fa-times me-1"/>
-                                        <t t-out="t.get('cancel_booking', 'Cancel Booking')"/>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="wt-page-header">
+                        <h3>
+                            <i class="fa fa-calendar d-none d-sm-inline"/>
+                            <t t-out="booking.name"/>
+                        </h3>
+                        <div class="d-flex align-items-center gap-2">
+                            <a href="/my/bookings" class="wt-btn-ghost">
+                                <i class="fa fa-arrow-left"/>
+                                <t t-out="t.get('my_bookings', 'My Bookings')"/>
+                            </a>
+                            <t t-if="prev_url or next_url">
+                                <div class="wt-nav-bar">
+                                    <a t-att-href="prev_url or '#'"
+                                       t-attf-class="#{not prev_url and 'disabled' or ''}">
+                                        <i class="fa fa-chevron-left"/>
+                                    </a>
+                                    <a t-att-href="next_url or '#'"
+                                       t-attf-class="#{not next_url and 'disabled' or ''}">
+                                        <i class="fa fa-chevron-right"/>
                                     </a>
                                 </div>
                             </t>
                         </div>
+                    </div>
+                </div>
+            </div>
 
-                        <!-- Portal Chatter / Message Thread -->
-                        <div class="mt-4">
+            <div class="row">
+                <div class="col-lg-8 mb-4">
+                    <!-- Booking Info -->
+                    <div class="wt-detail-card">
+                        <div class="wt-detail-header">
+                            <span class="wt-dot wt-dot-primary"/>
+                            <t t-out="t.get('booking_info', 'Booking Information')"/>
+                        </div>
+                        <div class="wt-detail-body">
+                            <div class="wt-detail-row">
+                                <span class="wt-detail-label">
+                                    <t t-out="t.get('booking_reference_label', 'Reference')"/>
+                                </span>
+                                <span class="wt-detail-value">
+                                    <t t-out="booking.name"/>
+                                </span>
+                            </div>
+
+                            <div class="wt-detail-row">
+                                <span class="wt-detail-label">
+                                    <t t-out="t.get('booking_status', 'Status')"/>
+                                </span>
+                                <span class="wt-detail-value">
+                                    <span t-if="booking.state == 'confirmed'"
+                                          class="wt-badge wt-badge-confirmed">
+                                        <i class="fa fa-check me-1"/>
+                                        <t t-out="t.get('status_confirmed', 'Confirmed')"/>
+                                    </span>
+                                    <span t-if="booking.state == 'done'"
+                                          class="wt-badge wt-badge-done">
+                                        <i class="fa fa-check-circle me-1"/>
+                                        <t t-out="t.get('status_done', 'Completed')"/>
+                                    </span>
+                                    <span t-if="booking.state == 'cancelled'"
+                                          class="wt-badge wt-badge-cancelled">
+                                        <i class="fa fa-times me-1"/>
+                                        <t t-out="t.get('status_cancelled', 'Cancelled')"/>
+                                    </span>
+                                    <span t-if="booking.state == 'pending_payment'"
+                                          class="wt-badge wt-badge-payment">
+                                        <i class="fa fa-credit-card me-1"/>
+                                        <t t-out="t.get('status_pending_payment', 'Pending Payment')"/>
+                                    </span>
+                                    <span t-if="booking.state == 'draft'"
+                                          class="wt-badge wt-badge-draft">
+                                        <i class="fa fa-clock-o me-1"/>
+                                        <t t-out="t.get('status_draft', 'Draft')"/>
+                                    </span>
+                                </span>
+                            </div>
+
+                            <div class="wt-detail-row">
+                                <span class="wt-detail-label">
+                                    <t t-out="t.get('appointment_label', 'Appointment')"/>
+                                </span>
+                                <span class="wt-detail-value">
+                                    <t t-out="booking.appointment_type_id.name"/>
+                                </span>
+                            </div>
+
+                            <div class="wt-detail-row">
+                                <span class="wt-detail-label">
+                                    <t t-out="t.get('date_time', 'Date &amp; Time')"/>
+                                </span>
+                                <span class="wt-detail-value">
+                                    <span t-field="booking.start_datetime"/> -
+                                    <span t-field="booking.end_datetime" t-options="{'time_only': True}"/>
+                                </span>
+                            </div>
+
+                            <t t-if="booking.staff_user_id">
+                                <div class="wt-detail-row">
+                                    <span class="wt-detail-label">
+                                        <t t-out="t.get('staff_label', 'Staff')"/>
+                                    </span>
+                                    <span class="wt-detail-value">
+                                        <t t-out="booking.staff_user_id.name"/>
+                                    </span>
+                                </div>
+                            </t>
+
+                            <t t-if="booking.resource_id">
+                                <div class="wt-detail-row">
+                                    <span class="wt-detail-label">
+                                        <t t-out="t.get('location_label', 'Location')"/>
+                                    </span>
+                                    <span class="wt-detail-value">
+                                        <t t-out="booking.resource_id.name"/>
+                                    </span>
+                                </div>
+                            </t>
+
+                            <div class="wt-detail-row">
+                                <span class="wt-detail-label">
+                                    <t t-out="t.get('guests_label', 'Guests')"/>
+                                </span>
+                                <span class="wt-detail-value">
+                                    <t t-out="booking.guest_count"/>
+                                </span>
+                            </div>
+
+                            <t t-if="booking.notes">
+                                <div class="wt-detail-row">
+                                    <span class="wt-detail-label">
+                                        <t t-out="t.get('notes_label', 'Notes')"/>
+                                    </span>
+                                    <span class="wt-detail-value">
+                                        <t t-out="booking.notes"/>
+                                    </span>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 mb-4">
+                    <!-- Meeting Info -->
+                    <t t-if="booking.meeting_url and booking.state in ('draft', 'pending_payment', 'confirmed')">
+                        <div class="wt-detail-card mb-4">
+                            <div class="wt-detail-header">
+                                <span class="wt-dot wt-dot-green"/>
+                                <t t-out="t.get('meeting_info', 'Meeting')"/>
+                            </div>
+                            <div class="wt-detail-body">
+                                <div class="wt-meeting-card">
+                                    <p class="text-muted mb-2" style="font-size: 13px;">
+                                        <i class="fa fa-video-camera me-1"/>
+                                        <t t-if="booking.discuss_channel_id">
+                                            This is an online meeting. Open the meeting room below to chat and start a video call:
+                                        </t>
+                                        <t t-else="">
+                                            <t t-out="t.get('online_meeting_label', 'This is an online meeting. Use the link below to join at the scheduled time:')"/>
+                                        </t>
+                                    </p>
+                                    <a t-att-href="booking.meeting_url" target="_blank"
+                                       class="wt-btn-meeting">
+                                        <i class="fa fa-video-camera"/>
+                                        <t t-if="booking.discuss_channel_id">Open Meeting Room</t>
+                                        <t t-else=""><t t-out="t.get('join_meeting', 'Join Meeting')"/></t>
+                                    </a>
+                                    <p class="mb-0 mt-2" style="font-size: 11px; color: var(--wt-ink-4);">
+                                        <t t-out="booking.meeting_url"/>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+
+                    <!-- Payment Info -->
+                    <t t-if="booking.payment_status == 'paid'">
+                        <div class="wt-detail-card mb-4">
+                            <div class="wt-detail-header">
+                                <span class="wt-dot wt-dot-green"/>
+                                <t t-out="t.get('payment', 'Payment')"/>
+                            </div>
+                            <div class="wt-detail-body">
+                                <div class="wt-alert-completed">
+                                    <i class="fa fa-check-circle"/>
+                                    <t t-out="t.get('payment_paid', 'Paid')"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                    <t t-if="booking.payment_status == 'pending' and booking.sale_order_id">
+                        <div class="wt-detail-card mb-4">
+                            <div class="wt-detail-header">
+                                <span class="wt-dot wt-dot-cyan"/>
+                                <t t-out="t.get('payment', 'Payment')"/>
+                            </div>
+                            <div class="wt-detail-body text-center py-3">
+                                <a t-attf-href="/my/orders/#{booking.sale_order_id.id}?access_token=#{booking.sale_order_id.access_token}"
+                                   class="wt-btn-start" style="width: auto; display: inline-flex;">
+                                    <i class="fa fa-credit-card"/>
+                                    <t t-out="t.get('go_to_payment', 'Go to Payment')"/>
+                                </a>
+                            </div>
+                        </div>
+                    </t>
+
+                    <!-- Cancel Action -->
+                    <t t-if="booking.state in ('draft', 'pending_payment', 'confirmed')">
+                        <div class="text-center mb-4">
+                            <a t-attf-href="/appointment/booking/#{booking.id}/cancel?token=#{booking.access_token}"
+                               class="wt-btn-cancel">
+                                <i class="fa fa-times"/>
+                                <t t-out="t.get('cancel_booking', 'Cancel Booking')"/>
+                            </a>
+                        </div>
+                    </t>
+                </div>
+            </div>
+
+            <!-- Portal Chatter / Message Thread -->
+            <div class="row">
+                <div class="col-12 wt-chatter-section">
+                    <div class="wt-detail-card">
+                        <div class="wt-detail-header">
+                            <span class="wt-dot wt-dot-lilac"/>
+                            <t t-out="t.get('comments', 'Comments &amp; Discussion')"/>
+                        </div>
+                        <div class="wt-detail-body">
                             <t t-call="portal.message_thread">
                                 <t t-set="object" t-value="booking"/>
                                 <t t-set="token" t-value="token"/>
                                 <t t-set="allow_composer" t-value="allow_composer"/>
                             </t>
-                        </div>
-
-                        <!-- Back to list -->
-                        <div class="text-center">
-                            <a href="/my/bookings" class="btn btn-outline-primary">
-                                <i class="fa fa-arrow-left me-1"/>
-                                <t t-out="t.get('my_bookings', 'My Bookings')"/>
-                            </a>
                         </div>
                     </div>
                 </div>

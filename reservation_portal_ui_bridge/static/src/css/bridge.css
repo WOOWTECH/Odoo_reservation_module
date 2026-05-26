@@ -1,0 +1,52 @@
+/*
+ * Reservation Portal × Portal UI Bridge
+ * ────────────────────────────────────────
+ * When woow_portal_ui is installed this stylesheet overrides the
+ * default purple (#714B67) accent with the Portal UI blue (#6183fc).
+ * Only colour / tint changes — no layout modifications.
+ */
+
+/* ── Card Grid: icon accent ───────────────────────────────── */
+.wt-pc-icon {
+    background: var(--tint-blue, #eef2ff);
+    color: var(--wt-blue, #6183fc);
+}
+
+/* ── Detail Card: header gradient ────────────────────────── */
+.wt-detail-header {
+    background: linear-gradient(135deg, var(--tint-blue, #eef2ff), var(--wt-surface, #fff));
+}
+
+/* ── Page Header: icon ───────────────────────────────────── */
+.wt-page-header h3 i {
+    color: var(--wt-blue, #6183fc);
+}
+
+/* ── Dot accent: primary → blue ──────────────────────────── */
+.wt-dot-primary {
+    background: var(--wt-blue, #6183fc);
+}
+
+/* ── Ghost / outline buttons: border & text ──────────────── */
+.wt-btn-ghost {
+    color: var(--wt-blue, #6183fc);
+    border-color: var(--wt-blue, #6183fc);
+}
+.wt-btn-ghost:hover {
+    background: var(--tint-blue, #eef2ff);
+}
+
+/* ── Nav bar arrows ──────────────────────────────────────── */
+.wt-nav-bar a:hover {
+    background: var(--tint-blue, #eef2ff);
+    border-color: var(--wt-blue, #6183fc);
+    color: var(--wt-blue, #6183fc);
+}
+
+/* ── Card foot arrow accent ──────────────────────────────── */
+.wt-portal-card:hover {
+    border-color: var(--wt-blue, #6183fc);
+}
+.wt-pc-foot i {
+    color: var(--wt-blue, #6183fc);
+}

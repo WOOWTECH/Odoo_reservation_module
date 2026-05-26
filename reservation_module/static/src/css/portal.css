@@ -1,0 +1,787 @@
+/* ============================================================
+   Reservation Portal — Design System
+   Aligned with woow_portal_ui --wt-* token naming
+   ============================================================ */
+
+/* ── Design Tokens ── */
+:root {
+    /* Primary（紫色系） */
+    --wt-primary:     #714B67;
+    --wt-primary-700: #5E3D56;
+    --wt-primary-100: #f0e8ee;
+    --wt-primary-50:  #f8f4f7;
+
+    /* Neutral */
+    --wt-canvas:    #FAFBFF;
+    --wt-surface:   #FFFFFF;
+    --wt-line:      #e3e6ee;
+    --wt-line-soft: #eef0f5;
+    --wt-ink:       #1a1d29;
+    --wt-ink-2:     #4a4e5b;
+    --wt-ink-3:     #8b8e9a;
+    --wt-ink-4:     #b6b9c4;
+
+    /* Tone（語意色） */
+    --wt-tone-coral:  #f45d6d;
+    --wt-tone-green:  #8CD37F;
+    --wt-tone-yellow: #F8D158;
+    --wt-tone-cyan:   #7BDBE0;
+    --wt-tone-orange: #E66D3E;
+    --wt-tone-lilac:  #C09FE0;
+
+    /* Tint（淺背景） */
+    --tint-green:  #ebf7e7;
+    --tint-cyan:   #e3f8f9;
+    --tint-yellow: #fff5d4;
+    --tint-coral:  #fde9eb;
+    --tint-lilac:  #f1e8f8;
+
+    /* Radius */
+    --r-sm:   4px;
+    --r-md:   8px;
+    --r-lg:   12px;
+    --r-pill: 999px;
+
+    /* Shadow */
+    --sh-1: 0 1px 2px rgba(20,22,30,.04), 0 2px 6px rgba(20,22,30,.04);
+    --sh-2: 0 6px 16px rgba(20,22,30,.06), 0 2px 4px rgba(20,22,30,.04);
+
+    /* Typography */
+    --wt-font: "Outfit", "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+
+/* ── Base Typography ── */
+.wt-portal-card,
+.wt-detail-card,
+.wt-progress {
+    font-family: var(--wt-font);
+    color: var(--wt-ink);
+}
+
+/* ============================================================
+   Card Grid — Responsive 3 → 2 → 1
+   ============================================================ */
+.wt-card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+@media (max-width: 1100px) {
+    .wt-card-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 767px) {
+    .wt-card-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================================
+   Portal Card — List Page (.wt-portal-card)
+   ============================================================ */
+.wt-portal-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--wt-surface);
+    border: 1px solid var(--wt-line);
+    border-radius: var(--r-lg);
+    box-shadow: var(--sh-1);
+    text-decoration: none !important;
+    color: var(--wt-ink) !important;
+    overflow: hidden;
+    transition: transform .18s, border-color .18s, box-shadow .18s;
+}
+
+.wt-portal-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--wt-primary);
+    box-shadow: var(--sh-2);
+    color: var(--wt-ink) !important;
+}
+
+/* ── Card Head ── */
+.wt-pc-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px 0;
+}
+
+.wt-pc-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--r-md);
+    background: var(--wt-primary-100);
+    color: var(--wt-primary);
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.wt-pc-num {
+    font-weight: 600;
+    font-size: 15px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ── Card Meta ── */
+.wt-pc-meta {
+    padding: 10px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.wt-pc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.wt-pc-label {
+    color: var(--wt-ink-3);
+    flex-shrink: 0;
+}
+
+.wt-pc-value {
+    color: var(--wt-ink-2);
+    text-align: right;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ── Card Foot ── */
+.wt-pc-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-top: 1px solid var(--wt-line-soft);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--wt-primary);
+}
+
+.wt-pc-foot i {
+    font-size: 12px;
+}
+
+/* ============================================================
+   Detail Card (.wt-detail-card)
+   ============================================================ */
+.wt-detail-card {
+    background: var(--wt-surface);
+    border: 1px solid var(--wt-line);
+    border-radius: var(--r-lg);
+    box-shadow: var(--sh-1);
+    overflow: hidden;
+}
+
+/* ── Detail Header (gradient) ── */
+.wt-detail-header {
+    padding: 16px 20px;
+    background: linear-gradient(135deg, var(--wt-primary-50), var(--wt-surface));
+    border-bottom: 1px solid var(--wt-line-soft);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--wt-ink);
+}
+
+.wt-detail-header .wt-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.wt-dot-primary { background: var(--wt-primary); }
+.wt-dot-cyan    { background: var(--wt-tone-cyan); }
+.wt-dot-green   { background: var(--wt-tone-green); }
+.wt-dot-lilac   { background: var(--wt-tone-lilac); }
+
+/* ── Detail Body ── */
+.wt-detail-body {
+    padding: 16px 20px;
+}
+
+.wt-detail-row {
+    display: flex;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--wt-line-soft);
+    gap: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.wt-detail-row:last-child {
+    border-bottom: none;
+}
+
+.wt-detail-label {
+    width: 40%;
+    flex-shrink: 0;
+    color: var(--wt-ink-3);
+    font-weight: 500;
+}
+
+.wt-detail-value {
+    flex: 1;
+    color: var(--wt-ink);
+    min-width: 0;
+    word-break: break-word;
+}
+
+.wt-detail-value a {
+    color: var(--wt-primary);
+    text-decoration: none;
+}
+
+.wt-detail-value a:hover {
+    color: var(--wt-primary-700);
+}
+
+/* ============================================================
+   Progress Bar (.wt-progress)
+   ============================================================ */
+.wt-progress-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.wt-progress {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    padding: 16px 20px 12px;
+}
+
+.wt-progress::before {
+    content: '';
+    position: absolute;
+    top: 36px;
+    left: 15%;
+    right: 15%;
+    height: 2px;
+    background: var(--wt-line);
+    z-index: 0;
+}
+
+.wt-progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    z-index: 1;
+    gap: 6px;
+}
+
+.wt-step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    border: 2px solid transparent;
+    transition: all .18s;
+}
+
+.wt-step-circle.is-done {
+    background: var(--wt-tone-green);
+    border-color: var(--wt-tone-green);
+    color: var(--wt-surface);
+}
+
+.wt-step-circle.is-active {
+    background: var(--wt-primary);
+    border-color: var(--wt-primary);
+    color: var(--wt-surface);
+}
+
+.wt-step-circle.is-pending {
+    background: var(--wt-canvas);
+    border-color: var(--wt-line);
+    color: var(--wt-ink-3);
+}
+
+.wt-step-label {
+    font-size: 12px;
+    text-align: center;
+    max-width: 80px;
+    line-height: 1.3;
+}
+
+.wt-step-label.is-active {
+    font-weight: 600;
+    color: var(--wt-primary);
+}
+
+.wt-step-label.is-done {
+    color: var(--wt-ink-2);
+}
+
+.wt-step-label.is-pending {
+    color: var(--wt-ink-4);
+}
+
+/* ============================================================
+   Badge System (.wt-badge)
+   ============================================================ */
+.wt-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.5;
+    border: 1px solid;
+    white-space: nowrap;
+}
+
+.wt-badge-draft {
+    background: var(--wt-line-soft);
+    color: var(--wt-ink-2);
+    border-color: var(--wt-line);
+}
+
+.wt-badge-working {
+    background: var(--tint-cyan);
+    color: #0e7490;
+    border-color: #a5e8ec;
+}
+
+.wt-badge-done {
+    background: var(--tint-green);
+    color: #1b8a4d;
+    border-color: #b8e0c4;
+}
+
+.wt-badge-pending {
+    background: var(--tint-yellow);
+    color: #92660c;
+    border-color: #f0d88a;
+}
+
+.wt-badge-category {
+    background: var(--tint-lilac);
+    color: #6d4a8a;
+    border-color: #d4bee8;
+}
+
+.wt-badge-confirmed {
+    background: var(--tint-green);
+    color: #1b8a4d;
+    border-color: #b8e0c4;
+}
+
+.wt-badge-cancelled {
+    background: var(--tint-coral);
+    color: #c53030;
+    border-color: #f5b3b8;
+}
+
+.wt-badge-payment {
+    background: var(--tint-yellow);
+    color: #92660c;
+    border-color: #f0d88a;
+}
+
+/* ============================================================
+   Navigation Bar (prev/next)
+   ============================================================ */
+.wt-nav-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wt-nav-bar a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--wt-line);
+    background: var(--wt-surface);
+    color: var(--wt-ink-3);
+    text-decoration: none !important;
+    font-size: 14px;
+    transition: all .15s;
+}
+
+.wt-nav-bar a:hover {
+    background: var(--wt-canvas);
+    color: var(--wt-ink);
+    border-color: var(--wt-ink-4);
+}
+
+.wt-nav-bar a.disabled {
+    opacity: .35;
+    pointer-events: none;
+}
+
+/* ============================================================
+   Meeting Card (for online appointments)
+   ============================================================ */
+.wt-meeting-card {
+    background: var(--tint-green);
+    border: 1px solid #b8e0c4;
+    border-radius: var(--r-lg);
+    padding: 20px;
+    text-align: center;
+}
+
+.wt-meeting-card .wt-btn-meeting {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #1b8a4d;
+    color: var(--wt-surface);
+    border: none;
+    border-radius: var(--r-md);
+    padding: 10px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none !important;
+    transition: all .15s;
+}
+
+.wt-meeting-card .wt-btn-meeting:hover {
+    background: #157a3e;
+    color: var(--wt-surface);
+}
+
+/* ============================================================
+   Cancel Button
+   ============================================================ */
+.wt-btn-cancel {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    color: var(--wt-tone-coral);
+    border: 1px solid var(--wt-tone-coral);
+    border-radius: var(--r-md);
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none !important;
+    transition: all .15s;
+}
+
+.wt-btn-cancel:hover {
+    background: var(--tint-coral);
+    color: #c53030;
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.wt-btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    color: var(--wt-ink-3);
+    border: 1px solid var(--wt-line);
+    border-radius: var(--r-md);
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none !important;
+    transition: all .15s;
+}
+
+.wt-btn-ghost:hover, .wt-btn-ghost:focus {
+    background: var(--wt-canvas);
+    color: var(--wt-ink);
+    border-color: var(--wt-ink-4);
+}
+
+.wt-btn-start {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--wt-tone-orange);
+    border: 1px solid var(--wt-tone-orange);
+    color: var(--wt-surface);
+    border-radius: var(--r-md);
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    width: 100%;
+    justify-content: center;
+    transition: all .15s;
+}
+
+.wt-btn-start:hover, .wt-btn-start:focus {
+    background: #c75a2e;
+    border-color: #c75a2e;
+    color: var(--wt-surface);
+}
+
+.wt-btn-done {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--wt-tone-green);
+    border: 1px solid var(--wt-tone-green);
+    color: var(--wt-ink);
+    border-radius: var(--r-md);
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    width: 100%;
+    justify-content: center;
+    transition: all .15s;
+}
+
+.wt-btn-done:hover, .wt-btn-done:focus {
+    background: #72b866;
+    border-color: #72b866;
+    color: var(--wt-ink);
+}
+
+/* ============================================================
+   Alert — Completed State
+   ============================================================ */
+.wt-alert-completed {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    background: var(--tint-green);
+    border: 1px solid #b8e0c4;
+    border-radius: var(--r-md);
+    color: #1b8a4d;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.wt-alert-completed i {
+    font-size: 18px;
+}
+
+/* ============================================================
+   Empty State
+   ============================================================ */
+.wt-empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.wt-empty-state i {
+    font-size: 3rem;
+    color: var(--wt-ink-4);
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.wt-empty-state p {
+    color: var(--wt-ink-3);
+    font-size: 14px;
+    margin: 0;
+}
+
+/* ============================================================
+   Page Header
+   ============================================================ */
+.wt-page-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--wt-line-soft);
+    padding-bottom: 14px;
+    margin-bottom: 20px;
+}
+
+.wt-page-header h3 {
+    font-family: var(--wt-font);
+    font-weight: 600;
+    color: var(--wt-ink);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.wt-page-header h3 i {
+    color: var(--wt-primary);
+}
+
+/* ============================================================
+   Chatter Section
+   ============================================================ */
+.wt-chatter-section {
+    margin-top: 28px;
+}
+
+.wt-chatter-section > .wt-detail-card {
+    border: 1px solid var(--wt-line);
+}
+
+/* ============================================================
+   Portal Home / Dashboard Cards
+   ============================================================ */
+.o_portal_index_card a {
+    border: 1px solid transparent;
+    transition: transform .18s, border-color .18s, box-shadow .18s !important;
+}
+
+.o_portal_index_card a:hover {
+    transform: translateY(-2px);
+    border-color: var(--wt-primary-100) !important;
+    box-shadow: var(--sh-2) !important;
+    background: var(--wt-surface) !important;
+}
+
+#wrapwrap .o_portal_wrap .o_portal_my_home .o_portal_index_card a {
+    color: inherit !important;
+}
+
+/* ============================================================
+   Form Controls (scoped to detail cards)
+   ============================================================ */
+.wt-detail-card .form-control:focus {
+    border-color: var(--wt-primary);
+    box-shadow: 0 0 0 3px rgba(113, 75, 103, .12);
+}
+
+/* ============================================================
+   Pre-formatted text
+   ============================================================ */
+.wt-detail-value pre {
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--wt-ink-2);
+    background: var(--wt-canvas);
+    padding: 12px;
+    border-radius: var(--r-md);
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+/* ============================================================
+   Responsive: Tablet (<=768px)
+   ============================================================ */
+@media (max-width: 768px) {
+    .wt-progress {
+        padding: 12px 8px 8px;
+        min-width: 400px;
+    }
+
+    .wt-progress::before {
+        top: 32px;
+        left: 10%;
+        right: 10%;
+    }
+
+    .wt-step-circle {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+
+    .wt-step-label {
+        font-size: 11px;
+    }
+
+    .wt-detail-label {
+        width: auto;
+        min-width: 100px;
+    }
+
+    .wt-detail-body {
+        padding: 12px 16px;
+    }
+
+    .wt-detail-header {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+
+    .wt-pc-head {
+        padding: 12px 14px 0;
+    }
+
+    .wt-pc-meta {
+        padding: 8px 14px;
+    }
+
+    .wt-pc-foot {
+        padding: 8px 14px;
+    }
+}
+
+/* ============================================================
+   Responsive: Mobile (<=576px)
+   ============================================================ */
+@media (max-width: 576px) {
+    .wt-progress {
+        min-width: 320px;
+        padding: 8px 4px 4px;
+    }
+
+    .wt-progress::before {
+        top: 22px;
+        left: 8%;
+        right: 8%;
+    }
+
+    .wt-step-circle {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+    }
+
+    .wt-step-label {
+        font-size: 10px;
+        max-width: 60px;
+    }
+
+    .wt-detail-row {
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .wt-detail-label {
+        width: 100%;
+        font-size: 12px;
+    }
+
+    .wt-detail-value {
+        font-size: 14px;
+    }
+
+    .wt-page-header h3 {
+        font-size: 1.1rem;
+    }
+
+    .wt-page-header h3 i {
+        display: none;
+    }
+}

@@ -140,6 +140,12 @@ class AppointmentController(http.Controller):
             'status_draft': '草稿',
             'status_pending_payment': '待付款',
             'incl_tax': '（含稅）',
+            # Portal detail page (wt-* card design)
+            'booking_info': '預約資訊',
+            'meeting_info': '會議',
+            'notes_label': '備註',
+            'payment_paid': '已付款',
+            'comments': '留言與討論',
         }
 
         # English translations (en_US) - default
@@ -229,6 +235,12 @@ class AppointmentController(http.Controller):
             'status_draft': 'Draft',
             'status_pending_payment': 'Pending Payment',
             'incl_tax': '(incl. tax)',
+            # Portal detail page (wt-* card design)
+            'booking_info': 'Booking Information',
+            'meeting_info': 'Meeting',
+            'notes_label': 'Notes',
+            'payment_paid': 'Paid',
+            'comments': 'Comments & Discussion',
         }
 
         # Return appropriate translation based on language
@@ -1113,6 +1125,9 @@ class AppointmentPortal(CustomerPortal):
             domain, order=order, limit=10, offset=pager_values['offset']
         )
 
+        # Store record IDs for prev/next navigation on detail pages
+        request.session['my_booking_ids'] = bookings.ids
+
         # Get translations
         t = AppointmentController()._get_translations()
 
@@ -1138,11 +1153,23 @@ class AppointmentPortal(CustomerPortal):
         if not booking.exists() or booking.partner_id != partner:
             return request.redirect('/my/bookings')
 
+        # Prev/next navigation
+        ids = request.session.get('my_booking_ids', [])
+        prev_url = next_url = False
+        if booking_id in ids:
+            idx = ids.index(booking_id)
+            if idx > 0:
+                prev_url = '/my/bookings/%d' % ids[idx - 1]
+            if idx < len(ids) - 1:
+                next_url = '/my/bookings/%d' % ids[idx + 1]
+
         t = AppointmentController()._get_translations()
 
         values = {
             'booking': booking,
             'page_name': 'my_booking_detail',
+            'prev_url': prev_url,
+            'next_url': next_url,
             't': t,
             # Portal chatter support
             'token': booking.access_token,

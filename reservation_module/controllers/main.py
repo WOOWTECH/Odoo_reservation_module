@@ -1149,11 +1149,39 @@ class AppointmentPortal(CustomerPortal):
         if not booking.exists() or booking.partner_id != partner:
             return request.redirect('/my/bookings')
 
+        # Compute prev/next record URLs using same domain as list page
+        BookingSudo = request.env['appointment.booking'].sudo()
+        domain = [
+            ('partner_id', '=', partner.id),
+            ('state', 'not in', ('cancelled',)),
+        ]
+        all_ids = BookingSudo.search(domain, order='start_datetime desc').ids
+        current_idx = all_ids.index(booking.id) if booking.id in all_ids else -1
+        prev_url = '/my/bookings/%d' % all_ids[current_idx - 1] if current_idx > 0 else None
+        next_url = '/my/bookings/%d' % all_ids[current_idx + 1] if 0 <= current_idx < len(all_ids) - 1 else None
+
         values = {
             'booking': booking,
             'page_name': 'my_booking_detail',
+            'prev_url': prev_url,
+            'next_url': next_url,
             # Portal chatter support
             'token': booking.access_token,
             'allow_composer': booking.state not in ('cancelled', 'done'),
         }
         return request.render('reservation_module.portal_my_booking_detail', values)
+
+    @http.route('/my/bookings/<int:booking_id>/cancel', type='http',
+                auth='user', website=True, methods=['POST'], csrf=True)
+    def portal_my_booking_cancel(self, booking_id, **kw):
+        """Cancel a booking from the portal detail page"""
+        booking = request.env['appointment.booking'].sudo().browse(booking_id)
+        partner = request.env.user.partner_id
+
+        if not booking.exists() or booking.partner_id != partner:
+            return request.redirect('/my/bookings')
+
+        if booking.state in ('draft', 'pending_payment', 'confirmed'):
+            booking.action_cancel()
+
+        return request.redirect('/my/bookings/%d' % booking_id)

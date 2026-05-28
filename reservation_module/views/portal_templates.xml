@@ -120,6 +120,10 @@
                         </t>
                     </tbody>
                 </t>
+                <!-- Pagination -->
+                <div class="text-center mt-3">
+                    <t t-call="portal.pager"/>
+                </div>
             </t>
         </t>
     </template>
@@ -144,7 +148,21 @@
 
                     <t t-set="entries">
                         <div class="d-flex flex-wrap flex-column gap-4">
-                            <!-- Navigation -->
+                            <!-- Prev / Next Navigation -->
+                            <div class="d-flex justify-content-between">
+                                <a t-if="prev_url" t-att-href="prev_url"
+                                   class="btn btn-sm btn-outline-secondary" title="Previous">
+                                    <i class="fa fa-chevron-left"/>
+                                </a>
+                                <span t-else=""/>
+                                <a t-if="next_url" t-att-href="next_url"
+                                   class="btn btn-sm btn-outline-secondary" title="Next">
+                                    <i class="fa fa-chevron-right"/>
+                                </a>
+                                <span t-else=""/>
+                            </div>
+
+                            <!-- Sidebar Navigation -->
                             <div class="d-flex align-items-center flex-grow-1 p-0" t-ignore="true" role="complementary">
                                 <ul class="nav flex-column">
                                     <li class="nav-item">
@@ -161,7 +179,7 @@
                             </div>
 
                             <!-- Status -->
-                            <div class="d-flex flex-column gap-2 mt-3">
+                            <div class="d-flex flex-column gap-2">
                                 <h6><small class="text-muted">Status</small></h6>
                                 <span t-if="booking.state == 'confirmed'"
                                       class="badge rounded-pill text-bg-success">
@@ -217,10 +235,13 @@
                             <!-- Cancel Action -->
                             <div t-if="booking.state in ('draft', 'pending_payment', 'confirmed')"
                                  class="d-flex flex-column gap-2">
-                                <a t-attf-href="/appointment/booking/#{booking.id}/cancel?token=#{booking.access_token}"
-                                   class="btn btn-outline-danger btn-sm">
-                                    <i class="fa fa-times me-1"/>Cancel Booking
-                                </a>
+                                <form t-attf-action="/my/bookings/#{booking.id}/cancel" method="POST" class="d-inline">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100"
+                                            onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                        <i class="fa fa-times me-1"/>Cancel Booking
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </t>

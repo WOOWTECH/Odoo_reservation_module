@@ -1128,9 +1128,6 @@ class AppointmentPortal(CustomerPortal):
         # Store record IDs for prev/next navigation on detail pages
         request.session['my_booking_ids'] = bookings.ids
 
-        # Get translations
-        t = AppointmentController()._get_translations()
-
         values = {
             'bookings': bookings,
             'page_name': 'my_bookings',
@@ -1140,7 +1137,6 @@ class AppointmentPortal(CustomerPortal):
             'sortby': sortby,
             'searchbar_filters': searchbar_filters,
             'filterby': filterby,
-            't': t,
         }
         return request.render('reservation_module.portal_my_bookings', values)
 
@@ -1153,24 +1149,9 @@ class AppointmentPortal(CustomerPortal):
         if not booking.exists() or booking.partner_id != partner:
             return request.redirect('/my/bookings')
 
-        # Prev/next navigation
-        ids = request.session.get('my_booking_ids', [])
-        prev_url = next_url = False
-        if booking_id in ids:
-            idx = ids.index(booking_id)
-            if idx > 0:
-                prev_url = '/my/bookings/%d' % ids[idx - 1]
-            if idx < len(ids) - 1:
-                next_url = '/my/bookings/%d' % ids[idx + 1]
-
-        t = AppointmentController()._get_translations()
-
         values = {
             'booking': booking,
             'page_name': 'my_booking_detail',
-            'prev_url': prev_url,
-            'next_url': next_url,
-            't': t,
             # Portal chatter support
             'token': booking.access_token,
             'allow_composer': booking.state not in ('cancelled', 'done'),

@@ -58,7 +58,6 @@
         ],
         "web.assets_frontend": [
             "reservation_module/static/src/css/appointment_frontend.css",
-            "reservation_module/static/src/css/portal.css",
             "reservation_module/static/src/js/appointment_booking.js",
         ],
     },

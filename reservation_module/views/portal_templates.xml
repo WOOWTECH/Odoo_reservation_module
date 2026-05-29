@@ -120,10 +120,6 @@
                         </t>
                     </tbody>
                 </t>
-                <!-- Pagination -->
-                <div class="text-center mt-3">
-                    <t t-call="portal.pager"/>
-                </div>
             </t>
         </t>
     </template>

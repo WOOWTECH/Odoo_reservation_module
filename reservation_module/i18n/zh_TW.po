@@ -1280,6 +1280,12 @@ msgid "Active"
 msgstr "啟用"
 
 #. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:1095
+msgid "Active Bookings"
+msgstr "有效預約"
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_ids
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_ids
 #: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_ids

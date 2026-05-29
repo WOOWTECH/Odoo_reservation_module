@@ -653,6 +653,12 @@ msgid "Active"
 msgstr ""
 
 #. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:1095
+msgid "Active Bookings"
+msgstr ""
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_ids
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_ids
 msgid "Activities"

@@ -1092,7 +1092,7 @@ class AppointmentPortal(CustomerPortal):
         # Filtering
         now = fields.Datetime.now()
         searchbar_filters = {
-            'all': {'label': _('Active'), 'domain': [('state', 'not in', ('cancelled',))]},
+            'all': {'label': _('Active Bookings'), 'domain': [('state', 'not in', ('cancelled',))]},
             'pending_payment': {'label': _('Pending Payment'), 'domain': [
                 ('state', '=', 'pending_payment'),
             ]},

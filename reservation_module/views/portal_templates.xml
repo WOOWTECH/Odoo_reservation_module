@@ -148,20 +148,6 @@
 
                     <t t-set="entries">
                         <div class="d-flex flex-wrap flex-column gap-4">
-                            <!-- Prev / Next Navigation -->
-                            <div class="d-flex justify-content-between">
-                                <a t-if="prev_url" t-att-href="prev_url"
-                                   class="btn btn-sm btn-outline-secondary" title="Previous">
-                                    <i class="fa fa-chevron-left"/>
-                                </a>
-                                <span t-else=""/>
-                                <a t-if="next_url" t-att-href="next_url"
-                                   class="btn btn-sm btn-outline-secondary" title="Next">
-                                    <i class="fa fa-chevron-right"/>
-                                </a>
-                                <span t-else=""/>
-                            </div>
-
                             <!-- Sidebar Navigation -->
                             <div class="d-flex align-items-center flex-grow-1 p-0" t-ignore="true" role="complementary">
                                 <ul class="nav flex-column">

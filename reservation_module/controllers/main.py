@@ -1157,14 +1157,14 @@ class AppointmentPortal(CustomerPortal):
         ]
         all_ids = BookingSudo.search(domain, order='start_datetime desc').ids
         current_idx = all_ids.index(booking.id) if booking.id in all_ids else -1
-        prev_url = '/my/bookings/%d' % all_ids[current_idx - 1] if current_idx > 0 else None
-        next_url = '/my/bookings/%d' % all_ids[current_idx + 1] if 0 <= current_idx < len(all_ids) - 1 else None
+        prev_record = '/my/bookings/%d' % all_ids[current_idx - 1] if current_idx > 0 else None
+        next_record = '/my/bookings/%d' % all_ids[current_idx + 1] if 0 <= current_idx < len(all_ids) - 1 else None
 
         values = {
             'booking': booking,
             'page_name': 'my_booking_detail',
-            'prev_url': prev_url,
-            'next_url': next_url,
+            'prev_record': prev_record,
+            'next_record': next_record,
             # Portal chatter support
             'token': booking.access_token,
             'allow_composer': booking.state not in ('cancelled', 'done'),

@@ -6,15 +6,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0-20260119\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-20 23:44+0000\n"
-"PO-Revision-Date: 2026-04-21 00:00+0000\n"
+"POT-Creation-Date: 2026-05-29 04:39+0000\n"
+"PO-Revision-Date: 2026-05-29 04:39+0000\n"
 "Last-Translator: \n"
-"Language-Team: Chinese (Traditional)\n"
-"Language: zh_TW\n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
 
 #. module: reservation_module
 #. odoo-python
@@ -22,7 +21,210 @@ msgstr ""
 msgid ""
 "\n"
 "Error: %s"
-msgstr "\n錯誤：%s"
+msgstr ""
+"\n"
+"錯誤：%s"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/wizard/appointment_closing_day_wizard.py:0
+msgid "%d closing day(s) added."
+msgstr "%d 個休息日已新增。"
+
+#. module: reservation_module
+#: model:mail.template,body_html:reservation_module.email_template_booking_reminder
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;\">\n"
+"    <!-- Header -->\n"
+"    <div style=\"background-color: #17a2b8; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;\">\n"
+"        <h2 style=\"color: #ffffff; margin: 0; font-size: 22px;\">⏰ Appointment Reminder</h2>\n"
+"    </div>\n"
+"\n"
+"    <!-- Body -->\n"
+"    <div style=\"background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;\">\n"
+"        <p style=\"font-size: 15px; margin-top: 0;\">\n"
+"            Dear <t t-out=\"object.guest_name\"/>,\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px;\">\n"
+"            This is a friendly reminder about your upcoming appointment:\n"
+"        </p>\n"
+"\n"
+"        <!-- Booking details card -->\n"
+"        <table style=\"width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;\">\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;\">\n"
+"                    📋 Booking Reference\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    🏷️ Appointment Type\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.appointment_type_id.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    🗓️ Date &amp; Time\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <t t-if=\"object.staff_user_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        👤 Staff\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.staff_user_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"            <t t-if=\"object.resource_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        📍 Location / Resource\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.resource_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"        </table>\n"
+"\n"
+"        <!-- Meeting URL button -->\n"
+"        <t t-if=\"object.meeting_url\">\n"
+"            <div style=\"text-align: center; margin: 24px 0; padding: 20px; background-color: #f0faf0; border: 1px solid #c3e6c3; border-radius: 8px;\">\n"
+"                <p style=\"margin: 0 0 12px 0; font-size: 14px; color: #555;\">\n"
+"                    🎥 Join your online meeting using the link below:\n"
+"                </p>\n"
+"                <a t-att-href=\"object.meeting_url\" style=\"display: inline-block; background-color: #28a745; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
+"                    Join Meeting\n"
+"                </a>\n"
+"                <p style=\"margin: 12px 0 0 0; font-size: 12px; color: #888;\">\n"
+"                    <t t-out=\"object.meeting_url\"/>\n"
+"                </p>\n"
+"            </div>\n"
+"        </t>\n"
+"\n"
+"        <!-- View booking link -->\n"
+"        <div style=\"text-align: center; margin: 20px 0;\">\n"
+"            <a t-att-href=\"object.get_portal_url()\" style=\"display: inline-block; background-color: #17a2b8; color: #ffffff; padding: 10px 28px; text-decoration: none; border-radius: 6px; font-size: 14px;\">\n"
+"                View Booking Details\n"
+"            </a>\n"
+"        </div>\n"
+"\n"
+"        <p style=\"font-size: 14px; color: #555; margin-bottom: 0;\">\n"
+"            We look forward to seeing you!\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px; color: #555; margin-top: 8px;\">\n"
+"            Best regards,<br/>\n"
+"            <strong><t t-out=\"object.company_id.name\"/></strong>\n"
+"        </p>\n"
+"    </div>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;\">\n"
+"    <!-- Header -->\n"
+"    <div style=\"background-color: #17a2b8; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;\">\n"
+"        <h2 style=\"color: #ffffff; margin: 0; font-size: 22px;\">⏰ 預約提醒</h2>\n"
+"    </div>\n"
+"\n"
+"    <!-- Body -->\n"
+"    <div style=\"background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;\">\n"
+"        <p style=\"font-size: 15px; margin-top: 0;\">\n"
+"            親愛的 <t t-out=\"object.guest_name\"/>,\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px;\">\n"
+"            這是關於您即將到來的預約的友善提醒：\n"
+"        </p>\n"
+"\n"
+"        <!-- Booking details card -->\n"
+"        <table style=\"width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;\">\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;\">\n"
+"                    📋 預約編號\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    🏷️ 預約類型\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.appointment_type_id.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    🗓️ 日期與時間\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <t t-if=\"object.staff_user_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        👤 Staff\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.staff_user_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"            <t t-if=\"object.resource_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        📍 地點 / 場地\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.resource_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"        </table>\n"
+"\n"
+"        <!-- Meeting URL button -->\n"
+"        <t t-if=\"object.meeting_url\">\n"
+"            <div style=\"text-align: center; margin: 24px 0; padding: 20px; background-color: #f0faf0; border: 1px solid #c3e6c3; border-radius: 8px;\">\n"
+"                <p style=\"margin: 0 0 12px 0; font-size: 14px; color: #555;\">\n"
+"                    🎥 請使用以下連結加入您的線上會議：\n"
+"                </p>\n"
+"                <a t-att-href=\"object.meeting_url\" style=\"display: inline-block; background-color: #28a745; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
+"                    加入會議\n"
+"                </a>\n"
+"                <p style=\"margin: 12px 0 0 0; font-size: 12px; color: #888;\">\n"
+"                    <t t-out=\"object.meeting_url\"/>\n"
+"                </p>\n"
+"            </div>\n"
+"        </t>\n"
+"\n"
+"        <!-- View booking link -->\n"
+"        <div style=\"text-align: center; margin: 20px 0;\">\n"
+"            <a t-att-href=\"object.get_portal_url()\" style=\"display: inline-block; background-color: #17a2b8; color: #ffffff; padding: 10px 28px; text-decoration: none; border-radius: 6px; font-size: 14px;\">\n"
+"                查看預約詳情\n"
+"            </a>\n"
+"        </div>\n"
+"\n"
+"        <p style=\"font-size: 14px; color: #555; margin-bottom: 0;\">\n"
+"            我們期待您的到來！\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px; color: #555; margin-top: 8px;\">\n"
+"            此致敬禮，<br/>\n"
+"            <strong><t t-out=\"object.company_id.name\"/></strong>\n"
+"        </p>\n"
+"    </div>\n"
+"</div>\n"
+"            "
 
 #. module: reservation_module
 #: model:mail.template,body_html:reservation_module.email_template_booking_done
@@ -98,6 +300,76 @@ msgid ""
 "</div>\n"
 "            "
 msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;\">\n"
+"    <!-- Header -->\n"
+"    <div style=\"background-color: #28a745; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;\">\n"
+"        <h2 style=\"color: #ffffff; margin: 0; font-size: 22px;\">✔ 預約已完成</h2>\n"
+"    </div>\n"
+"\n"
+"    <!-- Body -->\n"
+"    <div style=\"background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;\">\n"
+"        <p style=\"font-size: 15px; margin-top: 0;\">\n"
+"            親愛的 <t t-out=\"object.guest_name\"/>,\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px;\">\n"
+"            您的預約已完成。感謝您的蒞臨！\n"
+"        </p>\n"
+"\n"
+"        <!-- Booking details card -->\n"
+"        <table style=\"width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;\">\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;\">\n"
+"                    📋 預約編號\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    🏷️ 預約類型\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.appointment_type_id.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    🗓️ 日期與時間\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <t t-if=\"object.staff_user_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        👤 Staff\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.staff_user_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"        </table>\n"
+"\n"
+"        <!-- Book again -->\n"
+"        <div style=\"text-align: center; margin: 24px 0;\">\n"
+"            <p style=\"font-size: 14px; color: #555;\">\n"
+"                我們希望您有美好的體驗，期待再次見到您！\n"
+"            </p>\n"
+"            <a t-att-href=\"'/appointment/' + str(object.appointment_type_id.id)\" style=\"display: inline-block; background-color: #875A7B; color: #ffffff; padding: 10px 28px; text-decoration: none; border-radius: 6px; font-size: 14px;\">\n"
+"                再次預約\n"
+"            </a>\n"
+"        </div>\n"
+"\n"
+"        <p style=\"font-size: 14px; color: #555; margin-top: 8px;\">\n"
+"            此致敬禮，<br/>\n"
+"            <strong><t t-out=\"object.company_id.name\"/></strong>\n"
+"        </p>\n"
+"    </div>\n"
+"</div>\n"
+"            "
 
 #. module: reservation_module
 #: model:mail.template,body_html:reservation_module.email_template_booking_confirmed
@@ -214,6 +486,117 @@ msgid ""
 "</div>\n"
 "            "
 msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;\">\n"
+"    <!-- Header -->\n"
+"    <div style=\"background-color: #875A7B; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;\">\n"
+"        <h2 style=\"color: #ffffff; margin: 0; font-size: 22px;\">✓ 預約已確認</h2>\n"
+"    </div>\n"
+"\n"
+"    <!-- Body -->\n"
+"    <div style=\"background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;\">\n"
+"        <p style=\"font-size: 15px; margin-top: 0;\">\n"
+"            親愛的 <t t-out=\"object.guest_name\"/>,\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px;\">\n"
+"            您的預約已確認。以下是詳細資訊：\n"
+"        </p>\n"
+"\n"
+"        <!-- Booking details card -->\n"
+"        <table style=\"width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;\">\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;\">\n"
+"                    預約編號\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    Status\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <span style=\"display: inline-block; padding: 3px 10px; background-color: #d4edda; color: #155724; border-radius: 4px; font-size: 12px; font-weight: bold;\">已確認</span>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    預約類型\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.appointment_type_id.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    日期與時間\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <t t-if=\"object.staff_user_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        Staff\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.staff_user_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"            <t t-if=\"object.resource_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        地點 / 場地\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.resource_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    Guests\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.guest_count\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"        </table>\n"
+"\n"
+"        <!-- Meeting URL button -->\n"
+"        <t t-if=\"object.meeting_url\">\n"
+"            <div style=\"text-align: center; margin: 24px 0; padding: 20px; background-color: #f0faf0; border: 1px solid #c3e6c3; border-radius: 8px;\">\n"
+"                <p style=\"margin: 0 0 12px 0; font-size: 14px; color: #555;\">\n"
+"                    這是一場線上會議。請使用以下連結在預定時間加入：\n"
+"                </p>\n"
+"                <a t-att-href=\"object.meeting_url\" style=\"display: inline-block; background-color: #28a745; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
+"                    加入會議\n"
+"                </a>\n"
+"                <p style=\"margin: 12px 0 0 0; font-size: 12px; color: #888;\">\n"
+"                    <t t-out=\"object.meeting_url\"/>\n"
+"                </p>\n"
+"            </div>\n"
+"        </t>\n"
+"\n"
+"        <!-- View booking link -->\n"
+"        <div style=\"text-align: center; margin: 20px 0;\">\n"
+"            <a t-att-href=\"object.get_portal_url()\" style=\"display: inline-block; background-color: #875A7B; color: #ffffff; padding: 10px 28px; text-decoration: none; border-radius: 6px; font-size: 14px;\">\n"
+"                查看預約詳情\n"
+"            </a>\n"
+"        </div>\n"
+"\n"
+"        <p style=\"font-size: 14px; color: #555; margin-bottom: 0;\">\n"
+"            感謝您的預約！\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px; color: #555; margin-top: 8px;\">\n"
+"            此致敬禮，<br/>\n"
+"            <strong><t t-out=\"object.company_id.name\"/></strong>\n"
+"        </p>\n"
+"    </div>\n"
+"</div>\n"
+"            "
 
 #. module: reservation_module
 #: model:mail.template,body_html:reservation_module.email_template_booking_cancelled
@@ -297,6 +680,84 @@ msgid ""
 "</div>\n"
 "            "
 msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;\">\n"
+"    <!-- Header -->\n"
+"    <div style=\"background-color: #dc3545; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;\">\n"
+"        <h2 style=\"color: #ffffff; margin: 0; font-size: 22px;\">預約已取消</h2>\n"
+"    </div>\n"
+"\n"
+"    <!-- Body -->\n"
+"    <div style=\"background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;\">\n"
+"        <p style=\"font-size: 15px; margin-top: 0;\">\n"
+"            親愛的 <t t-out=\"object.guest_name\"/>,\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px;\">\n"
+"            您的預約已取消。以下是原先的詳細資訊：\n"
+"        </p>\n"
+"\n"
+"        <!-- Booking details card -->\n"
+"        <table style=\"width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;\">\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;\">\n"
+"                    預約編號\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    Status\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <span style=\"display: inline-block; padding: 3px 10px; background-color: #f8d7da; color: #721c24; border-radius: 4px; font-size: 12px; font-weight: bold;\">已取消</span>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    預約類型\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.appointment_type_id.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    日期與時間\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <t t-if=\"object.staff_user_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        Staff\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.staff_user_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"        </table>\n"
+"\n"
+"        <!-- Book again button -->\n"
+"        <div style=\"text-align: center; margin: 24px 0;\">\n"
+"            <p style=\"font-size: 14px; color: #555;\">\n"
+"                如果您想重新預約：\n"
+"            </p>\n"
+"            <a t-att-href=\"'/appointment/' + str(object.appointment_type_id.id)\" style=\"display: inline-block; background-color: #875A7B; color: #ffffff; padding: 10px 28px; text-decoration: none; border-radius: 6px; font-size: 14px;\">\n"
+"                再次預約\n"
+"            </a>\n"
+"        </div>\n"
+"\n"
+"        <p style=\"font-size: 14px; color: #555; margin-top: 8px;\">\n"
+"            此致敬禮，<br/>\n"
+"            <strong><t t-out=\"object.company_id.name\"/></strong>\n"
+"        </p>\n"
+"    </div>\n"
+"</div>\n"
+"            "
 
 #. module: reservation_module
 #: model:mail.template,body_html:reservation_module.email_template_booking_created
@@ -389,9 +850,9 @@ msgid ""
 "                <p style=\"margin: 0 0 12px 0; font-size: 14px; color: #856404;\">\n"
 "                    Your booking requires payment before it can be confirmed. Please complete your payment to secure your reservation.\n"
 "                </p>\n"
-"                <t t-if=\"object.payment_amount\">\n"
+"                <t t-if=\"object.sale_order_id\">\n"
 "                    <p style=\"margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #856404;\">\n"
-"                        Amount Due: <t t-out=\"object.payment_amount\" t-options=\"{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: object.currency_id}\"/>\n"
+"                        Amount Due: <t t-out=\"object.sale_order_id.amount_total\" t-options=\"{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: object.currency_id}\"/>\n"
 "                    </p>\n"
 "                </t>\n"
 "                <t t-if=\"object.sale_order_id\">\n"
@@ -431,6 +892,135 @@ msgid ""
 "</div>\n"
 "            "
 msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;\">\n"
+"    <!-- Header -->\n"
+"    <div style=\"background-color: #f0ad4e; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;\">\n"
+"        <h2 style=\"color: #ffffff; margin: 0; font-size: 22px;\">📋 預約已收到</h2>\n"
+"    </div>\n"
+"\n"
+"    <!-- Body -->\n"
+"    <div style=\"background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;\">\n"
+"        <p style=\"font-size: 15px; margin-top: 0;\">\n"
+"            親愛的 <t t-out=\"object.guest_name\"/>,\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px;\">\n"
+"            感謝您的預約。您的預約已收到，正在處理中。\n"
+"        </p>\n"
+"\n"
+"        <!-- Booking details card -->\n"
+"        <table style=\"width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;\">\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;\">\n"
+"                    📋 預約編號\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    📊 Status\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <span style=\"display: inline-block; padding: 3px 10px; background-color: #ffeeba; color: #856404; border-radius: 4px; font-size: 12px; font-weight: bold;\">草稿 / 待處理</span>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    🏷️ 預約類型\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.appointment_type_id.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    🗓️ 日期與時間\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <t t-if=\"object.staff_user_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        👤 Staff\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.staff_user_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"            <t t-if=\"object.resource_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        📍 地點 / 場地\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.resource_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    👥 Guests\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.guest_count\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"        </table>\n"
+"\n"
+"        <!-- Payment pending notice -->\n"
+"        <t t-if=\"object.payment_status == 'pending'\">\n"
+"            <div style=\"margin: 20px 0; padding: 16px; background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 8px;\">\n"
+"                <p style=\"margin: 0 0 8px 0; font-size: 15px; font-weight: bold; color: #856404;\">\n"
+"                    💳 需要付款\n"
+"                </p>\n"
+"                <p style=\"margin: 0 0 12px 0; font-size: 14px; color: #856404;\">\n"
+"                    您的預約需要在確認前完成付款。請完成付款以確保您的預約。\n"
+"                </p>\n"
+"                <t t-if=\"object.sale_order_id\">\n"
+"                    <p style=\"margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #856404;\">\n"
+"                        應付金額： <t t-out=\"object.sale_order_id.amount_total\" t-options=\"{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: object.currency_id}\"/>\n"
+"                    </p>\n"
+"                </t>\n"
+"                <t t-if=\"object.sale_order_id\">\n"
+"                    <div style=\"text-align: center;\">\n"
+"                        <a t-attf-href=\"{{ object.sale_order_id.get_portal_url() }}\" style=\"display: inline-block; background-color: #ffc107; color: #212529; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
+"                            前往付款\n"
+"                        </a>\n"
+"                    </div>\n"
+"                </t>\n"
+"            </div>\n"
+"        </t>\n"
+"\n"
+"        <!-- No payment required notice -->\n"
+"        <t t-if=\"object.payment_status == 'not_required'\">\n"
+"            <div style=\"margin: 20px 0; padding: 16px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px;\">\n"
+"                <p style=\"margin: 0; font-size: 14px; color: #155724;\">\n"
+"                    ✓ 您的預約正在處理中，即將確認。\n"
+"                </p>\n"
+"            </div>\n"
+"        </t>\n"
+"\n"
+"        <!-- View booking link -->\n"
+"        <div style=\"text-align: center; margin: 20px 0;\">\n"
+"            <a t-att-href=\"object.get_portal_url()\" style=\"display: inline-block; background-color: #875A7B; color: #ffffff; padding: 10px 28px; text-decoration: none; border-radius: 6px; font-size: 14px;\">\n"
+"                查看預約詳情\n"
+"            </a>\n"
+"        </div>\n"
+"\n"
+"        <p style=\"font-size: 14px; color: #555; margin-bottom: 0;\">\n"
+"            感謝您的選擇！\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px; color: #555; margin-top: 8px;\">\n"
+"            此致敬禮，<br/>\n"
+"            <strong><t t-out=\"object.company_id.name\"/></strong>\n"
+"        </p>\n"
+"    </div>\n"
+"</div>\n"
+"            "
 
 #. module: reservation_module
 #: model:mail.template,body_html:reservation_module.email_template_payment_failure
@@ -460,7 +1050,7 @@ msgid ""
 "                    Amount Due\n"
 "                </td>\n"
 "                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
-"                    <t t-out=\"object.payment_amount\" t-options=\"{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: object.currency_id}\"/>\n"
+"                    <t t-out=\"object.sale_order_id.amount_total if object.sale_order_id else 0\" t-options=\"{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: object.currency_id}\"/>\n"
 "                </td>\n"
 "            </tr>\n"
 "        </table>\n"
@@ -488,38 +1078,58 @@ msgid ""
 "</div>\n"
 "            "
 msgstr ""
-
-#. module: reservation_module
-#: model:mail.template,body_html:reservation_module.email_template_booking_reminder
-msgid ""
-"<div style=\"margin: 0px; padding: 0px;\">\n"
-"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"        Dear <t t-out=\"object.guest_name\"/>,\n"
-"        <br/><br/>\n"
-"        This is a friendly reminder about your upcoming appointment:\n"
-"        <br/><br/>\n"
-"        <strong>Appointment Type:</strong> <t t-out=\"object.appointment_type_id.name\"/><br/>\n"
-"        <strong>Date &amp; Time:</strong> <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> - <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/><br/>\n"
-"        <t t-if=\"object.resource_id\">\n"
-"            <strong>Resource:</strong> <t t-out=\"object.resource_id.name\"/><br/>\n"
-"        </t>\n"
-"        <t t-if=\"object.staff_user_id\">\n"
-"            <strong>Staff:</strong> <t t-out=\"object.staff_user_id.name\"/><br/>\n"
-"        </t>\n"
-"        <br/>\n"
-"        <strong>Booking Reference:</strong> <t t-out=\"object.name\"/><br/>\n"
-"        <br/>\n"
-"        You can view your booking here:<br/>\n"
-"        <a t-att-href=\"object.get_portal_url()\">View Booking</a>\n"
-"        <br/><br/>\n"
-"        We look forward to seeing you!\n"
-"        <br/><br/>\n"
-"        Best regards,<br/>\n"
-"        <t t-out=\"object.company_id.name\"/>\n"
-"    </p>\n"
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;\">\n"
+"    <div style=\"background-color: #dc3545; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;\">\n"
+"        <h2 style=\"color: #ffffff; margin: 0; font-size: 22px;\">付款失敗</h2>\n"
+"    </div>\n"
+"    <div style=\"background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;\">\n"
+"        <p style=\"font-size: 15px; margin-top: 0;\">\n"
+"            親愛的 <t t-out=\"object.guest_name\"/>,\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px;\">\n"
+"            我們無法處理您的預約付款。您的預約仍在待處理中。\n"
+"        </p>\n"
+"        <table style=\"width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;\">\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;\">\n"
+"                    預約編號\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    Amount Due\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.sale_order_id.amount_total if object.sale_order_id else 0\" t-options=\"{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: object.currency_id}\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"        </table>\n"
+"        <div style=\"text-align: center; margin: 24px 0;\">\n"
+"            <p style=\"font-size: 14px; color: #555;\">請使用以下連結重試：</p>\n"
+"            <t t-if=\"object.sale_order_id\">\n"
+"                <a t-attf-href=\"{{ object.sale_order_id.get_portal_url() }}\" style=\"display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
+"                    重試付款\n"
+"                </a>\n"
+"            </t>\n"
+"            <t t-else=\"\">\n"
+"                <a t-att-href=\"object.get_portal_url()\" style=\"display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
+"                    查看預約\n"
+"                </a>\n"
+"            </t>\n"
+"        </div>\n"
+"        <p style=\"font-size: 14px; color: #555;\">\n"
+"            如果您持續遇到問題，請與我們聯繫以獲得協助。\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px; color: #555; margin-top: 8px;\">\n"
+"            此致敬禮，<br/>\n"
+"            <strong><t t-out=\"object.company_id.name\"/></strong>\n"
+"        </p>\n"
+"    </div>\n"
 "</div>\n"
 "            "
-msgstr ""
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
@@ -527,9 +1137,9 @@ msgid "<i class=\"fa fa-calendar\"/> Bookings"
 msgstr "<i class=\"fa fa-calendar\"/> 預約"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "<i class=\"fa fa-download me-1\"/> Export My Data"
-msgstr "<i class=\"fa fa-download me-1\"/> 匯出我的資料"
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<i class=\"fa fa-credit-card me-1\"/>Go to Payment"
+msgstr "<i class=\"fa fa-credit-card me-1\"/>前往付款"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
@@ -544,19 +1154,34 @@ msgid "<i class=\"fa fa-share-alt\"/> Share"
 msgstr "<i class=\"fa fa-share-alt\"/> 分享"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_request
-msgid "<i class=\"fa fa-trash me-1\"/> Confirm Data Deletion"
-msgstr "<i class=\"fa fa-trash me-1\"/> 確認刪除資料"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "<i class=\"fa fa-trash me-1\"/> Delete My Data"
-msgstr "<i class=\"fa fa-trash me-1\"/> 刪除我的資料"
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<i class=\"fa fa-times me-1\"/>Cancel Booking"
+msgstr "<i class=\"fa fa-times me-1\"/>取消預約"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "<i class=\"fa fa-users text-muted\"/> Capacity:"
 msgstr "<i class=\"fa fa-users text-muted\"/> 容量："
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<small class=\"text-end\">Status:</small>"
+msgstr "<small class=\"text-end\">狀態：</small>"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<small class=\"text-muted\">Meeting</small>"
+msgstr "<small class=\"text-muted\">會議</small>"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<small class=\"text-muted\">Payment</small>"
+msgstr "<small class=\"text-muted\">付款</small>"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<small class=\"text-muted\">Status</small>"
+msgstr "<small class=\"text-muted\">狀態</small>"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
@@ -574,22 +1199,20 @@ msgid "<span class=\"badge bg-warning-light text-warning\">Unpublished</span>"
 msgstr "<span class=\"badge bg-warning-light text-warning\">未發布</span>"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
-msgid ""
-"<span class=\"badge text-bg-success\">\n"
-"                                                <i class=\"fa fa-check me-1\"/>Paid\n"
-"                                            </span>"
-msgstr "<span class=\"badge text-bg-success\">\n                                                <i class=\"fa fa-check me-1\"/>已付款\n                                            </span>"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "<span class=\"d-block d-md-none\">#</span>"
-msgstr "<span class=\"d-block d-md-none\">#</span>"
-
-#. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.sale_order_portal_booking_link
 msgid "<span class=\"ms-2\">|</span>"
 msgstr "<span class=\"ms-2\">|</span>"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid ""
+"<span class=\"text-success\">\n"
+"                                    <i class=\"fa fa-check-circle me-1\"/>Paid\n"
+"                                </span>"
+msgstr ""
+"<span class=\"text-success\">\n"
+"                                    <i class=\"fa fa-check-circle me-1\"/>已付款\n"
+"                                </span>"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
@@ -607,35 +1230,34 @@ msgid "<span>before start</span>"
 msgstr "<span>開始前</span>"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "<strong>Access:</strong> View all your booking data via the"
-msgstr "<strong>存取：</strong> 透過以下方式檢視您的所有預約資料"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.sale_order_portal_booking_link
-msgid "<strong>Booking:</strong>"
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<strong>Appointment:</strong>"
 msgstr "<strong>預約：</strong>"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "<strong>Deletion:</strong> Request deletion of your data via"
-msgstr "<strong>刪除：</strong> 透過以下方式申請刪除您的資料"
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<strong>Date &amp; Time:</strong>"
+msgstr "<strong>日期與時間：</strong>"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid ""
-"<strong>Export:</strong> Download your data in machine-readable format via"
-msgstr "<strong>匯出：</strong> 透過以下方式下載機器可讀格式的資料"
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<strong>Guests:</strong>"
+msgstr "<strong>賓客數：</strong>"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "<strong>Rectification:</strong> Contact us to correct inaccurate data"
-msgstr "<strong>更正：</strong> 聯繫我們以更正不正確的資料"
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<strong>Location:</strong>"
+msgstr "<strong>地點：</strong>"
 
 #. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
-msgid "Absolutely! Our kitchen can accommodate:"
-msgstr "當然可以！我們的廚房可以配合："
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<strong>Staff:</strong>"
+msgstr "<strong>服務人員：</strong>"
+
+#. module: reservation_module
+#: model:ir.model.constraint,message:reservation_module.constraint_appointment_closing_day_unique_closing_day
+msgid "A closing day already exists for this date."
+msgstr "此日期已存在休息日。"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__access_token
@@ -645,66 +1267,64 @@ msgstr "存取權杖"
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_needaction
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_needaction
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_needaction
 msgid "Action Needed"
 msgstr "需要處理"
 
 #. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__active
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__active
 msgid "Active"
 msgstr "啟用"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_ids
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_ids
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_ids
 msgid "Activities"
 msgstr "活動"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_exception_decoration
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_exception_decoration
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "活動異常裝飾"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_state
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_state
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_state
 msgid "Activity State"
 msgstr "活動狀態"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_type_icon
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_type_icon
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_type_icon
 msgid "Activity Type Icon"
 msgstr "活動類型圖示"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_type.py:0
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_closing_day_wizard_form
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Add Closing Days"
 msgstr "新增休息日"
 
 #. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_video_call
-msgid "After booking, our team will send you a meeting link."
-msgstr "預約後，我們的團隊會向您發送會議連結。"
-
-#. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/controllers/main.py:0
-msgid "All"
-msgstr "全部"
+#: model:ir.model,name:reservation_module.model_appointment_closing_day_wizard
+msgid "Add Closing Days Wizard"
+msgstr "新增休息日精靈"
 
 #. module: reservation_module
 #: model:ir.actions.act_window,name:reservation_module.appointment_booking_action
 #: model:ir.ui.menu,name:reservation_module.appointment_menu_bookings
 msgid "All Bookings"
 msgstr "所有預約"
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
-msgid "Allergy-specific menus"
-msgstr "過敏者專屬菜單"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__allow_customer_choose_location
@@ -717,14 +1337,9 @@ msgid "Allow Customer to Choose Staff"
 msgstr "允許客戶選擇服務人員"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_amount
-msgid "Amount to be paid for the booking"
-msgstr "預約需支付的金額"
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_occasion
-msgid "Anniversaries — romantic table setup with candles"
-msgstr "週年紀念 — 浪漫燭光桌位佈置"
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__amenities
+msgid "Amenities"
+msgstr "設施"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__answer
@@ -733,21 +1348,19 @@ msgid "Answer"
 msgstr "回答"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Any notes you provide"
-msgstr "您提供的任何備註"
-
-#. module: reservation_module
 #: model:ir.model,name:reservation_module.model_appointment_availability
 msgid "Appointment Availability"
 msgstr "預約可用時段"
 
 #. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/models/appointment_booking.py:0
 #: model:ir.model,name:reservation_module.model_appointment_booking
 msgid "Appointment Booking"
 msgstr "預約"
+
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_appointment_closing_day
+msgid "Appointment Closing Day"
+msgstr "預約休息日"
 
 #. module: reservation_module
 #: model:ir.model,name:reservation_module.model_appointment_question
@@ -763,17 +1376,20 @@ msgstr "預約時段"
 #: model:ir.model,name:reservation_module.model_appointment_type
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__appointment_type_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__appointment_type_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__appointment_type_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__appointment_type_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__appointment_type_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__appointment_type_id
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
 #: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_search_view
 msgid "Appointment Type"
 msgstr "預約類型"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_resource_resource__appointment_type_ids
-#: model:ir.ui.menu,name:reservation_module.appointment_menu_appointments
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_settings
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_list
 msgid "Appointment Types"
 msgstr "預約類型"
@@ -784,17 +1400,14 @@ msgid "Appointment calendar"
 msgstr "預約行事曆"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Appointment date, time, and preferences"
-msgstr "預約日期、時間和偏好設定"
-
-#. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_booking.py:0
 msgid ""
 "Appointment scheduled for %(date)s at %(time)s.\n"
 "Use the call button above to start your video meeting."
-msgstr "預約已排定於 %(date)s %(time)s。\n請使用上方的通話按鈕開始您的視訊會議。"
+msgstr ""
+"預約已排定於 %(date)s %(time)s。\n"
+"請使用上方的通話按鈕開始您的視訊會議。"
 
 #. module: reservation_module
 #: model:mail.template,name:reservation_module.email_template_booking_cancelled
@@ -851,6 +1464,11 @@ msgid "Archived"
 msgstr "已封存"
 
 #. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__area
+msgid "Area (m²)"
+msgstr "面積（m²）"
+
+#. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__assign_location
 msgid "Assign a location to bookings"
 msgstr "將場地指派至預約"
@@ -861,8 +1479,16 @@ msgid "Assign staff members to bookings"
 msgstr "將服務人員指派至預約"
 
 #. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_type.py:0
+msgid ""
+"At least one payment product must be selected when payment is required."
+msgstr "需要付款時，必須選擇至少一項付款產品。"
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_attachment_count
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_attachment_count
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_attachment_count
 msgid "Attachment Count"
 msgstr "附件數量"
 
@@ -919,24 +1545,9 @@ msgid "Available Count"
 msgstr "可用數量"
 
 #. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_experience
-msgid "Be ready to share your screen if needed"
-msgstr "需要時準備好分享螢幕"
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_occasion
-msgid "Birthdays — complimentary dessert and decoration"
-msgstr "生日 — 免費甜點與裝飾"
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_consultation
-msgid "Book a one-on-one consultation with an expert."
-msgstr "預約一對一專家諮詢。"
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_tennis
-msgid "Book our professional tennis court."
-msgstr "預約我們的專業網球場。"
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "Book Now"
+msgstr "立即預約"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__booked_count
@@ -944,14 +1555,18 @@ msgid "Booked Count"
 msgstr "已預約數量"
 
 #. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/sale_order.py:0
 #: model:ir.model.fields,field_description:reservation_module.field_payment_transaction__appointment_booking_id
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
 msgid "Booking"
 msgstr "預約"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__booking_count
 #: model:ir.model.fields,field_description:reservation_module.field_resource_resource__booking_count
+#: model:ir.model.fields,field_description:reservation_module.field_sale_order__booking_count
 msgid "Booking Count"
 msgstr "預約數量"
 
@@ -959,6 +1574,11 @@ msgstr "預約數量"
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Booking Details"
 msgstr "預約詳情"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "Booking Ref"
+msgstr "預約編號"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__name
@@ -974,14 +1594,17 @@ msgstr "預約設定"
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_type.py:0
 #: code:addons/reservation_module/models/resource_resource.py:0
+#: code:addons/reservation_module/models/sale_order.py:0
 #: model:ir.actions.act_window,name:reservation_module.appointment_booking_action_calendar
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__booking_ids
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__booking_ids
+#: model:ir.model.fields,field_description:reservation_module.field_sale_order__booking_ids
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_calendar
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_list
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 #: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
 #: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_list_view
+#: model_terms:ir.ui.view,arch_db:reservation_module.sale_order_view_form_booking
 msgid "Bookings"
 msgstr "預約"
 
@@ -991,38 +1614,13 @@ msgid "Bookings will appear here when customers make appointments."
 msgstr "當客戶進行預約時，預約將會顯示在這裡。"
 
 #. module: reservation_module
-#: model:appointment.type,name:reservation_module.appointment_type_meeting
-msgid "Business Meeting"
-msgstr "商務會議"
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_occasion
-msgid "Business dinners — presentation-ready private room"
-msgstr "商務晚宴 — 配備簡報設備的包廂"
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
-msgid "Business strategy and planning"
-msgstr "商業策略與規劃"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_book_page
-msgid "By booking, you agree to our"
-msgstr "預約即表示您同意我們的"
-
-#. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.appointment_menu_calendar
-msgid "Calendar"
-msgstr "行事曆"
-
-#. module: reservation_module
-#: model:appointment.question,name:reservation_module.question_table_occasion
-msgid "Can I request a special occasion setup?"
-msgstr "我可以要求特殊場合佈置嗎？"
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__location
+msgid "Building, floor, address, etc."
+msgstr "建築物、樓層、地址等"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_request
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_closing_day_wizard_form
 msgid "Cancel"
 msgstr "取消"
 
@@ -1052,6 +1650,8 @@ msgstr "僅允許在預約開始前 %s 小時取消。"
 #: code:addons/reservation_module/controllers/main.py:0
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__cancelled
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
 msgid "Cancelled"
 msgstr "已取消"
 
@@ -1086,24 +1686,39 @@ msgid "Charge per person instead of per booking"
 msgstr "按人數收費而非按預約收費"
 
 #. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_tennis
-msgid "Clay court surface"
-msgstr "紅土球場"
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_meeting
-msgid "Client consultations"
-msgstr "客戶諮詢"
-
-#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_slot__state__closed
 msgid "Closed"
 msgstr "已關閉"
 
 #. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__closing_day_ids
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Closing Days"
+msgstr "休息日"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/wizard/appointment_closing_day_wizard.py:0
+msgid "Closing Days Added"
+msgstr "休息日已新增"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_closing_day.py:0
+msgid "Closing day date cannot be in the past."
+msgstr "休息日日期不能是過去的日期。"
+
+#. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Communication"
 msgstr "通訊"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "Communication history"
+msgstr "溝通紀錄"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__company_id
@@ -1113,6 +1728,8 @@ msgstr "公司"
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
 msgid "Completed"
 msgstr "已完成"
 
@@ -1135,12 +1752,13 @@ msgstr "確認頁面"
 #. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__confirmed
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
 msgid "Confirmed"
 msgstr "已確認"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__partner_id
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
 msgid "Contact"
 msgstr "聯絡人"
 
@@ -1177,6 +1795,8 @@ msgstr "建立您的第一個預約類型"
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__create_uid
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__create_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__create_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__create_uid
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__create_uid
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__create_uid
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__create_uid
@@ -1186,6 +1806,8 @@ msgstr "建立者"
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__create_date
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__create_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__create_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__create_date
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__create_date
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__create_date
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__create_date
@@ -1204,36 +1826,17 @@ msgid "Custom Video Link (optional)"
 msgstr "自訂視訊連結（選填）"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_confirmed
-msgid "Data Deletion Complete"
-msgstr "資料刪除完成"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Data Deletion Request"
-msgstr "資料刪除請求"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Data Export"
-msgstr "資料匯出"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Data Retention"
-msgstr "資料保留"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Data We Collect"
-msgstr "我們收集的資料"
-
-#. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__date
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Date"
 msgstr "日期"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "Date &amp; Time"
+msgstr "日期與時間"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__dayofweek
@@ -1247,15 +1850,11 @@ msgid "December"
 msgstr "十二月"
 
 #. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/controllers/main.py:0
-msgid "Deleted User"
-msgstr "已刪除的使用者"
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__description
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__description
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
 msgid "Description"
-msgstr "說明"
+msgstr "敘述"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__discuss_channel_id
@@ -1268,18 +1867,20 @@ msgid "Display"
 msgstr "顯示"
 
 #. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_display_amount
+msgid "Display Amount"
+msgstr "顯示金額"
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__display_name
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__display_name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__display_name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__display_name
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__display_name
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__display_name
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__display_name
 msgid "Display Name"
 msgstr "顯示名稱"
-
-#. module: reservation_module
-#: model:appointment.question,name:reservation_module.question_table_dietary
-msgid "Do you accommodate dietary restrictions?"
-msgstr "你們能配合飲食限制嗎？"
 
 #. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__done
@@ -1290,6 +1891,8 @@ msgstr "已完成"
 #. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__draft
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
 msgid "Draft"
 msgstr "草稿"
 
@@ -1344,21 +1947,6 @@ msgid "End time must be between 0 and 24."
 msgstr "結束時間必須在 0 到 24 之間。"
 
 #. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_tennis
-msgid "Equipment rental available"
-msgstr "可租借器材"
-
-#. module: reservation_module
-#: model:appointment.type,name:reservation_module.appointment_type_consultation
-msgid "Expert Consultation"
-msgstr "專家諮詢"
-
-#. module: reservation_module
-#: model:product.template,name:reservation_module.product_expert_consultation_product_template
-msgid "Expert Consultation Service"
-msgstr "專家諮詢服務"
-
-#. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "FAQ"
 msgstr "常見問題"
@@ -1375,27 +1963,30 @@ msgid "February"
 msgstr "二月"
 
 #. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__floor
+msgid "Floor"
+msgstr "樓層"
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_follower_ids
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_follower_ids
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_follower_ids
 msgid "Followers"
 msgstr "關注者"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_partner_ids
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_partner_ids
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "關注者（合作夥伴）"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__activity_type_icon
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__activity_type_icon
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
 msgstr "Font awesome 圖示，例如 fa-tasks"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "For privacy-related inquiries, please contact us through our website."
-msgstr "如有隱私相關問題，請透過我們的網站聯繫我們。"
 
 #. module: reservation_module
 #. odoo-javascript
@@ -1414,19 +2005,20 @@ msgid "From"
 msgstr "從"
 
 #. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__date_from
+msgid "From Date"
+msgstr "起始日期"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/wizard/appointment_closing_day_wizard.py:0
+msgid "From Date must be before or equal to To Date."
+msgstr "起始日期必須早於或等於結束日期。"
+
+#. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_slot__state__full
 msgid "Fully Booked"
 msgstr "已額滿"
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_experience
-msgid "Gather any relevant documents or data"
-msgstr "準備好相關文件或資料"
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
-msgid "Gluten-free dishes"
-msgstr "無麩質菜餚"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
@@ -1465,20 +2057,21 @@ msgid "Guest: %s"
 msgstr "訪客：%s"
 
 #. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
-msgid "Halal preparations"
-msgstr "清真料理"
+#: model:ir.model,name:reservation_module.model_ir_http
+msgid "HTTP Routing"
+msgstr "HTTP 路由"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__has_message
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__has_message
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__has_message
 msgid "Has Message"
 msgstr "有訊息"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "How We Use Your Data"
-msgstr "我們如何使用您的資料"
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "History"
+msgstr "歷程"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__max_booking_days
@@ -1486,23 +2079,21 @@ msgid "How many days in advance bookings can be made"
 msgstr "可以提前多少天預約"
 
 #. module: reservation_module
-#: model:appointment.question,name:reservation_module.question_consultation_experience
-msgid "How should I prepare for my consultation?"
-msgstr "我應該如何為諮詢做準備？"
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__id
 msgid "ID"
-msgstr "ID"
+msgstr "編號"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_exception_icon
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_exception_icon
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__icon
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_exception_icon
 #: model:ir.model.fields,field_description:reservation_module.field_resource_resource__icon
 msgid "Icon"
 msgstr "圖示"
@@ -1510,6 +2101,7 @@ msgstr "圖示"
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__activity_exception_icon
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__activity_exception_icon
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__activity_exception_icon
 msgid "Icon to indicate an exception activity."
 msgstr "用於指示異常活動的圖示。"
 
@@ -1523,6 +2115,7 @@ msgstr "勾選後，可用時段視窗將細分為多個時段。未勾選時，
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_needaction
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__message_needaction
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "勾選後，新訊息需要您的關注。"
 
@@ -1531,8 +2124,17 @@ msgstr "勾選後，新訊息需要您的關注。"
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_has_sms_error
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__message_has_error
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__message_has_sms_error
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__message_has_error
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "勾選後，表示某些訊息有傳送錯誤。"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__active
+msgid ""
+"If the active field is set to False, it will allow you to hide the resource "
+"record without removing it."
+msgstr "如果啟用欄位設定為未啟用，它將允許您隱藏資源記錄而不刪除它."
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__image
@@ -1546,9 +2148,10 @@ msgid "Image URL"
 msgstr "圖片網址"
 
 #. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_table
-msgid "Indoor and outdoor seating available"
-msgstr "提供室內與室外座位"
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__internal_note
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
+msgid "Internal Note"
+msgstr "內部備註"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__internal_notes
@@ -1557,9 +2160,19 @@ msgid "Internal Notes"
 msgstr "內部備註"
 
 #. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
+msgid "Internal notes (not visible to customers)..."
+msgstr "內部備註（客戶不可見）..."
+
+#. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Internal notes (not visible to guests)..."
 msgstr "內部備註（訪客不可見）..."
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__internal_note
+msgid "Internal notes, not visible to customers"
+msgstr "內部備註，客戶不可見"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__introduction_page
@@ -1570,6 +2183,7 @@ msgstr "簡介頁面"
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_is_follower
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_is_follower
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_is_follower
 msgid "Is Follower"
 msgstr "是否為關注者"
 
@@ -1578,6 +2192,11 @@ msgstr "是否為關注者"
 #: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "January"
 msgstr "一月"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "Join Meeting"
+msgstr "加入會議"
 
 #. module: reservation_module
 #. odoo-javascript
@@ -1594,6 +2213,8 @@ msgstr "六月"
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__write_uid
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__write_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__write_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__write_uid
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__write_uid
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__write_uid
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__write_uid
@@ -1603,6 +2224,8 @@ msgstr "最後更新者"
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__write_date
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__write_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__write_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__write_date
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__write_date
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__write_date
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__write_date
@@ -1645,10 +2268,11 @@ msgstr "讓您的客戶可以線上預約。"
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__resource_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__assign_location
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__location_id
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__location
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Location"
-msgstr "場地"
+msgstr "位置"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__location_address
@@ -1726,7 +2350,7 @@ msgstr "最大同時預約數"
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
 msgid "Maximum %d guests allowed."
-msgstr "最多允許 %d 位訪客。"
+msgstr "最多允許 %d 位客人。"
 
 #. module: reservation_module
 #. odoo-python
@@ -1758,12 +2382,14 @@ msgstr "會議網址"
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_has_error
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_has_error
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_has_error
 msgid "Message Delivery error"
 msgstr "訊息傳送錯誤"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_ids
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_ids
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_ids
 msgid "Messages"
 msgstr "訊息"
 
@@ -1791,11 +2417,12 @@ msgstr "星期一"
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__my_activity_date_deadline
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__my_activity_date_deadline
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__my_activity_date_deadline
 msgid "My Activity Deadline"
 msgstr "我的活動截止日期"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
 #: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_home_booking
 #: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_home_menu_booking
 msgid "My Bookings"
@@ -1807,38 +2434,44 @@ msgid "Name"
 msgstr "姓名"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Name, email address, and phone number"
-msgstr "姓名、電子郵件地址及電話號碼"
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/views/booking_calendar_controller.xml:0
+msgid "New"
+msgstr "新增"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_calendar_event_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_calendar_event_id
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_calendar_event_id
 msgid "Next Activity Calendar Event"
 msgstr "下一個活動行事曆事件"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_date_deadline
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_date_deadline
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_date_deadline
 msgid "Next Activity Deadline"
 msgstr "下一個活動截止日期"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_summary
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_summary
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_summary
 msgid "Next Activity Summary"
 msgstr "下一個活動摘要"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_type_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_type_id
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_type_id
 msgid "Next Activity Type"
 msgstr "下一個活動類型"
 
 #. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_tennis
-msgid "Night lighting available"
-msgstr "提供夜間照明"
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "No availability on the selected day."
+msgstr "所選日期無可用時段。"
 
 #. module: reservation_module
 #: model_terms:ir.actions.act_window,help:reservation_module.appointment_booking_action
@@ -1853,6 +2486,7 @@ msgstr "不需要"
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__notes
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
 msgid "Notes"
 msgstr "備註"
 
@@ -1871,6 +2505,7 @@ msgstr "十一月"
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_needaction_counter
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_needaction_counter
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_needaction_counter
 msgid "Number of Actions"
 msgstr "動作數量"
 
@@ -1882,6 +2517,7 @@ msgstr "訪客人數"
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_has_error_counter
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_has_error_counter
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_has_error_counter
 msgid "Number of errors"
 msgstr "錯誤數量"
 
@@ -1900,12 +2536,14 @@ msgstr "訪客人數：%s"
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_needaction_counter
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__message_needaction_counter
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr "需要處理的訊息數量"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_has_error_counter
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__message_has_error_counter
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "傳送失敗的訊息數量"
 
@@ -1917,6 +2555,7 @@ msgstr "十月"
 
 #. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__location_type__online
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
 msgid "Online Meeting"
 msgstr "線上會議"
 
@@ -1929,11 +2568,6 @@ msgstr "開啟會議室"
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Options"
 msgstr "選項"
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
-msgid "Our expert consultations cover a wide range of topics including:"
-msgstr "我們的專家諮詢涵蓋廣泛的主題，包括："
 
 #. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__payment_status__paid
@@ -1952,19 +2586,13 @@ msgid "Payment"
 msgstr "付款"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_amount
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_amount
-msgid "Payment Amount"
-msgstr "付款金額"
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_failure_count
 msgid "Payment Failures"
 msgstr "付款失敗次數"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_product_id
-msgid "Payment Product"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_product_ids
+msgid "Payment Products"
 msgstr "付款產品"
 
 #. module: reservation_module
@@ -1977,12 +2605,6 @@ msgstr "付款狀態"
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_transaction_id
 msgid "Payment Transaction"
 msgstr "付款交易"
-
-#. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/models/appointment_type.py:0
-msgid "Payment amount must be set when payment is required."
-msgstr "需要付款時必須設定付款金額。"
 
 #. module: reservation_module
 #. odoo-python
@@ -2002,23 +2624,16 @@ msgid ""
 "Payment failure #%(count)s for booking %(booking)s.\n"
 "Customer: %(name)s (%(email)s)\n"
 "Amount: %(amount)s %(currency)s"
-msgstr "預約 %(booking)s 第 %(count)s 次付款失敗。\n客戶：%(name)s（%(email)s）\n金額：%(amount)s %(currency)s"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Payment information (processed securely by our payment provider)"
-msgstr "付款資訊（由我們的付款供應商安全處理）"
+msgstr ""
+"預約 %(booking)s 第 %(count)s 次付款失敗。\n"
+"客戶：%(name)s（%(email)s）\n"
+"金額：%(amount)s %(currency)s"
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_booking.py:0
 msgid "Payment is required before confirming this booking."
 msgstr "確認此預約前需要付款。"
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_consultation
-msgid "Payment is required to confirm your booking."
-msgstr "需要付款才能確認您的預約。"
 
 #. module: reservation_module
 #. odoo-python
@@ -2030,6 +2645,16 @@ msgstr "付款未完成，請重試。"
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__payment_status__pending
 msgid "Pending"
 msgstr "待處理"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__pending_payment
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "Pending Payment"
+msgstr "待付款"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_per_person
@@ -2051,13 +2676,6 @@ msgstr "實體地點"
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__location_id
 msgid "Physical location for the appointment"
 msgstr "預約的實體地點"
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
-msgid ""
-"Please describe your specific needs when booking so we can match you with "
-"the right expert."
-msgstr "預約時請描述您的具體需求，以便我們為您匹配合適的專家。"
 
 #. module: reservation_module
 #. odoo-python
@@ -2084,67 +2702,24 @@ msgid "Please fill in all required fields."
 msgstr "請填寫所有必填欄位。"
 
 #. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_occasion
-msgid "Please mention your occasion in the booking notes."
-msgstr "請在預約備註中註明您的場合。"
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
-msgid ""
-"Please note any dietary needs in the booking notes so we can prepare "
-"accordingly."
-msgstr "請在預約備註中註明任何飲食需求，以便我們做相應準備。"
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_experience
-msgid "Prepare a list of specific questions or topics"
-msgstr "準備具體的問題或主題清單"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_book_page
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Privacy Policy"
-msgstr "隱私權政策"
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_table
-msgid "Private room options"
-msgstr "包廂選擇"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Process and manage your appointment bookings"
-msgstr "處理與管理您的預約"
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
-msgid "Process optimization"
-msgstr "流程優化"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Process payments when required"
-msgstr "在需要時處理付款"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_product_id
-msgid "Product used for payment"
-msgstr "用於付款的產品"
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_meeting
-msgid "Project discussions"
-msgstr "專案討論"
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
-msgid "Project management guidance"
-msgstr "專案管理指導"
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_product_ids
+msgid "Products used for payment. Each product creates one SO line."
+msgstr "用於付款的產品。每項產品建立一筆銷售訂單明細。"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Provide a description for your customers..."
 msgstr "為您的客戶提供說明..."
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
+msgid "Public description of this resource..."
+msgstr "此場地的公開說明..."
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__description
+msgid "Public description visible to customers"
+msgstr "客戶可見的公開說明"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__is_published
@@ -2165,8 +2740,17 @@ msgstr "常見問題"
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__rating_ids
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__rating_ids
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__rating_ids
 msgid "Ratings"
 msgstr "評分"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__reason
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_closing_day_list
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Reason"
+msgstr "原因"
 
 #. module: reservation_module
 #. odoo-python
@@ -2205,11 +2789,6 @@ msgid "Reports"
 msgstr "報表"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_request
-msgid "Request Data Deletion"
-msgstr "請求刪除資料"
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__require_payment
 msgid "Require Payment"
 msgstr "需要付款"
@@ -2223,11 +2802,6 @@ msgstr "確認預約前需要付款"
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__calendar_event_id
 msgid "Reservation Event"
 msgstr "預約事件"
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_table
-msgid "Reserve a table at our restaurant."
-msgstr "在我們的餐廳預訂座位。"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
@@ -2261,29 +2835,35 @@ msgstr "此預約類型可用的場地"
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_user_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_user_id
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_user_id
 msgid "Responsible User"
 msgstr "負責人"
 
 #. module: reservation_module
-#: model:appointment.type,name:reservation_module.appointment_type_table
-msgid "Restaurant Reservation"
-msgstr "餐廳訂位"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_confirmed
-msgid "Return to Appointments"
-msgstr "返回預約"
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__room_number
+msgid "Room Number"
+msgstr "房號"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_has_sms_error
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_has_sms_error
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "簡訊傳送錯誤"
 
 #. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+#: model:ir.model,name:reservation_module.model_sale_order
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__sale_order_id
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Sales Order"
 msgstr "銷售訂單"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__sale_order_count
+msgid "Sales Order Count"
+msgstr "銷售訂單數量"
 
 #. module: reservation_module
 #. odoo-javascript
@@ -2295,16 +2875,6 @@ msgstr "六"
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__5
 msgid "Saturday"
 msgstr "星期六"
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_meeting
-msgid "Schedule a business meeting with our team, suitable for:"
-msgstr "預約與我們團隊的商務會議，適合："
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_video_call
-msgid "Schedule a video consultation from anywhere in the world."
-msgstr "從世界任何地方預約視訊諮詢。"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__is_scheduled
@@ -2327,9 +2897,10 @@ msgid "Search Bookings"
 msgstr "搜尋預約"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Send booking confirmations, reminders, and updates"
-msgstr "發送預約確認、提醒和更新通知"
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "Selected time is outside available hours."
+msgstr "所選時間不在可用時段內。"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__reminder_hours
@@ -2356,7 +2927,6 @@ msgstr "設為草稿"
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_type.py:0
-#: model:ir.ui.menu,name:reservation_module.appointment_menu_settings
 msgid "Settings"
 msgstr "設定"
 
@@ -2369,6 +2939,11 @@ msgstr "分享"
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__show_image
 msgid "Show Image"
 msgstr "顯示圖片"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__area
+msgid "Size of the space in square meters"
+msgstr "空間面積（平方公尺）"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
@@ -2385,11 +2960,6 @@ msgstr "時段"
 #: code:addons/reservation_module/models/appointment_type.py:0
 msgid "Slot duration must be greater than 0."
 msgstr "時段長度必須大於 0。"
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_table
-msgid "Special occasion arrangements"
-msgstr "特殊場合安排"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__user_id
@@ -2458,23 +3028,29 @@ msgstr "狀態"
 #: code:addons/reservation_module/controllers/main.py:0
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__state
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
 msgid "Status"
 msgstr "狀態"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__activity_state
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__activity_state
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__activity_state
 msgid ""
 "Status based on activities\n"
 "Overdue: Due date is already passed\n"
 "Today: Activity date is today\n"
 "Planned: Future activities."
-msgstr "基於活動的狀態\n逾期：截止日期已過\n今天：活動日期為今天\n計劃中：未來的活動。"
+msgstr ""
+"基於活動的狀態\n"
+"逾期：截止日期已過\n"
+"今天：活動日期為今天\n"
+"計劃中：未來的活動。"
 
 #. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_meeting
-msgid "Strategic planning"
-msgstr "策略規劃"
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_display_amount
+msgid "Sum of selected product prices (for display only)"
+msgstr "所選產品價格總和（僅供顯示）"
 
 #. module: reservation_module
 #. odoo-javascript
@@ -2493,14 +3069,9 @@ msgid "Technical"
 msgstr "技術"
 
 #. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
-msgid "Technical architecture reviews"
-msgstr "技術架構審查"
-
-#. module: reservation_module
-#: model:appointment.type,name:reservation_module.appointment_type_tennis
-msgid "Tennis Court Booking"
-msgstr "網球場預約"
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "There are no bookings yet."
+msgstr "尚無預約紀錄。"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
@@ -2520,11 +3091,23 @@ msgid "This booking has been reopened."
 msgstr "此預約已重新開啟。"
 
 #. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "This date is closed: %s"
+msgstr "此日期為休息日：%s"
+
+#. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
 msgid ""
 "This is an online meeting. Open the meeting room below to chat and start a "
 "video call:"
 msgstr "這是一場線上會議。請開啟下方的會議室以聊天並開始視訊通話："
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid ""
+"This is an online meeting. Use the link below to join at the scheduled time:"
+msgstr "這是一場線上會議。請使用以下連結在預定時間加入："
 
 #. module: reservation_module
 #. odoo-python
@@ -2541,13 +3124,6 @@ msgid ""
 "This staff member is no longer available for the selected time. Please "
 "choose another time."
 msgstr "此服務人員在所選時間已無法服務。請選擇其他時間。"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_request
-msgid ""
-"This will cancel all your active bookings and anonymize your personal data.\n"
-"                                        This action cannot be undone."
-msgstr "這將取消您所有有效的預約並匿名化您的個人資料。\n                                        此操作無法撤銷。"
 
 #. module: reservation_module
 #. odoo-javascript
@@ -2586,9 +3162,9 @@ msgid "To"
 msgstr "至"
 
 #. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_experience
-msgid "To get the most out of your session:"
-msgstr "為了充分利用您的諮詢時段："
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__date_to
+msgid "To Date"
+msgstr "結束日期"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
@@ -2630,13 +3206,9 @@ msgstr "星期二"
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__activity_exception_decoration
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__activity_exception_decoration
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr "記錄上的異常活動類型。"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Under applicable data protection regulations, you have the right to:"
-msgstr "根據適用的資料保護法規，您有權："
 
 #. module: reservation_module
 #. odoo-python
@@ -2659,16 +3231,6 @@ msgid "User"
 msgstr "使用者"
 
 #. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
-msgid "Vegetarian and vegan options"
-msgstr "素食與純素選擇"
-
-#. module: reservation_module
-#: model:appointment.type,name:reservation_module.appointment_type_video_call
-msgid "Video Consultation"
-msgstr "視訊諮詢"
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__video_link
 msgid "Video Link"
 msgstr "視訊連結"
@@ -2679,25 +3241,14 @@ msgid "Video conference link"
 msgstr "視訊會議連結"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.sale_order_portal_booking_link
-msgid "View Booking Details"
-msgstr "查看預約詳情"
-
-#. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_home_booking
 msgid "View and manage your appointments"
 msgstr "查看與管理您的預約"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid ""
-"We retain booking data for the period required by applicable laws.\n"
-"                               Cancelled bookings are kept for record-keeping purposes but can be anonymized on request."
-msgstr "我們會在適用法律要求的期限內保留預約資料。\n                               已取消的預約會保留作為記錄用途，但可應要求進行匿名化處理。"
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__website_message_ids
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__website_message_ids
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__website_message_ids
 msgid "Website Messages"
 msgstr "網站訊息"
 
@@ -2709,6 +3260,7 @@ msgstr "網站網址"
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__website_message_ids
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__website_message_ids
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__website_message_ids
 msgid "Website communication history"
 msgstr "網站通訊紀錄"
 
@@ -2719,54 +3271,6 @@ msgid "Wed"
 msgstr "三"
 
 #. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-msgid "Error loading available times. Please try again."
-msgstr "載入可用時段時發生錯誤，請重試。"
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-msgid "Loading available times..."
-msgstr "正在載入可用時段..."
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-msgid "Next month"
-msgstr "下個月"
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-msgid "No available times for this date."
-msgstr "此日期沒有可用時段。"
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-msgid "Previous month"
-msgstr "上個月"
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-msgid "available"
-msgstr "可用"
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-msgid "selected"
-msgstr "已選取"
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-msgid "unavailable"
-msgstr "不可用"
-
-#. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__2
 msgid "Wednesday"
 msgstr "星期三"
@@ -2775,26 +3279,6 @@ msgstr "星期三"
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Weekly Schedule"
 msgstr "每週排程"
-
-#. module: reservation_module
-#: model:appointment.question,name:reservation_module.question_consultation_topic
-msgid "What topics can I discuss during a consultation?"
-msgstr "諮詢時我可以討論哪些主題？"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "When you make an appointment booking, we collect:"
-msgstr "當您進行預約時，我們會收集以下資訊："
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_occasion
-msgid "Yes! We offer special arrangements for:"
-msgstr "有的！我們提供以下特殊場合安排："
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Your Rights"
-msgstr "您的權利"
 
 #. module: reservation_module
 #: model:mail.template,subject:reservation_module.email_template_booking_cancelled
@@ -2812,21 +3296,9 @@ msgid "Your appointment has been confirmed - {{ object.name }}"
 msgstr "您的預約已確認 - {{ object.name }}"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_confirmed
-msgid ""
-"Your booking data has been anonymized and all active bookings have been "
-"cancelled."
-msgstr "您的預約資料已匿名化處理，所有有效預約均已取消。"
-
-#. module: reservation_module
 #: model:mail.template,subject:reservation_module.email_template_booking_created
 msgid "Your booking has been received - {{ object.name }}"
 msgstr "您的預約已收到 - {{ object.name }}"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Your personal data is used to:"
-msgstr "您的個人資料用於："
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_book_page
@@ -2841,168 +3313,24 @@ msgid "duration"
 msgstr "時長"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
-msgid "e.g. Meeting, Table Booking"
-msgstr "例如：會議、訂位"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-msgid "locations"
-msgstr "個場地"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "portal"
-msgstr "入口網站"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
-msgid "staff members"
-msgstr "位服務人員"
-
-#. module: reservation_module
-#: model:ir.model,name:reservation_module.model_appointment_closing_day
-msgid "Appointment Closing Day"
-msgstr "預約休息日"
-
-#. module: reservation_module
-#: model:ir.model,name:reservation_module.model_appointment_closing_day_wizard
-msgid "Add Closing Days Wizard"
-msgstr "新增休息日精靈"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__date
-msgid "Date"
-msgstr "日期"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__name
-msgid "Reason"
-msgstr "原因"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__date_from
-msgid "From Date"
-msgstr "起始日期"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__date_to
-msgid "To Date"
-msgstr "結束日期"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__reason
-msgid "Reason"
-msgstr "原因"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__closing_day_ids
-msgid "Closing Days"
-msgstr "休息日"
-
-#. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/wizard/appointment_closing_day_wizard.py:0
-msgid "Closing Days Added"
-msgstr "已新增休息日"
-
-#. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/wizard/appointment_closing_day_wizard.py:0
-msgid "%d closing day(s) added."
-msgstr "已新增 %d 個休息日。"
-
-#. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/wizard/appointment_closing_day_wizard.py:0
-msgid "From Date must be before or equal to To Date."
-msgstr "起始日期必須在結束日期之前或相同。"
-
-#. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/models/appointment_closing_day.py:0
-msgid "Closing day date cannot be in the past."
-msgstr "休息日日期不可為過去的日期。"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_closing_day_wizard_form
-msgid "Cancel"
-msgstr "取消"
-
-#. module: reservation_module
-#: model:ir.ui.view,arch_db:reservation_module.appointment_closing_day_wizard_form
-msgid "e.g. National Holiday, Maintenance..."
-msgstr "例如：國定假日、維護..."
-
-#. module: reservation_module
-#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__pending_payment
-msgid "Pending Payment"
-msgstr "待付款"
-
-#. module: reservation_module
-#: code:addons/reservation_module/controllers/main.py:0
-msgid "This date is closed: %s"
-msgstr "此日期已關閉：%s"
-
-#. module: reservation_module
-#: code:addons/reservation_module/controllers/main.py:0
-msgid "No availability on the selected day."
-msgstr "所選日期無可用時段。"
-
-#. module: reservation_module
-#: code:addons/reservation_module/controllers/main.py:0
-msgid "Selected time is outside available hours."
-msgstr "所選時間不在營業時間內。"
-
-#. module: reservation_module
-#: code:addons/reservation_module/controllers/main.py:0
-msgid "Maximum %d guests allowed."
-msgstr "最多允許 %d 位客人。"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__location
-msgid "Location"
-msgstr "位置"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_resource_resource__location
-msgid "Building, floor, address, etc."
-msgstr "建築物、樓層、地址等"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__area
-msgid "Area (m²)"
-msgstr "面積 (m²)"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_resource_resource__area
-msgid "Size of the space in square meters"
-msgstr "空間面積（平方公尺）"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__floor
-msgid "Floor"
-msgstr "樓層"
-
-#. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_resource_resource__floor
 msgid "e.g. 1F, B1, 3rd Floor"
 msgstr "例如：1F、B1、3樓"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__room_number
-msgid "Room Number"
-msgstr "房間編號"
-
-#. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_resource_resource__room_number
 msgid "e.g. A101, Suite 5"
-msgstr "例如：A101、Suite 5"
+msgstr "例如：A101、5號套房"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__amenities
-msgid "Amenities"
-msgstr "設備設施"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "e.g. Meeting, Table Booking"
+msgstr "例如：會議、訂位"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_closing_day_wizard_form
+msgid "e.g. National Holiday, Maintenance..."
+msgstr "例如：國定假日、維護..."
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_resource_resource__amenities
@@ -3010,52 +3338,17 @@ msgid "e.g. Projector, Whiteboard, WiFi, TV"
 msgstr "例如：投影機、白板、WiFi、電視"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__description
-msgid "Description"
-msgstr "敘述"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "locations"
+msgstr "個場地"
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_resource_resource__description
-msgid "Public description visible to customers"
-msgstr "對外公開的場地說明"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_list
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_page
+msgid "min"
+msgstr "分鐘"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__internal_note
-msgid "Internal Note"
-msgstr "內部備註"
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_resource_resource__internal_note
-msgid "Internal notes, not visible to customers"
-msgstr "內部備註，不對客戶顯示"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
-msgid "Public description of this resource..."
-msgstr "場地的公開說明..."
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
-msgid "Internal notes (not visible to customers)..."
-msgstr "內部備註（客戶不可見）..."
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
-msgid "Resource Name"
-msgstr "場地名稱"
-
-#. module: reservation_module
-#: model:ir.actions.act_window,name:reservation_module.resource_resource_action
-#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_list_view
-msgid "Resources"
-msgstr "場地"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_action
-msgid "Create a new resource"
-msgstr "建立新場地"
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_action
-msgid "Resources are bookable items like rooms, tables, courts, or equipment."
-msgstr "場地是可預約的項目，例如房間、桌位、場地或設備。"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
+msgid "staff members"
+msgstr "位服務人員"

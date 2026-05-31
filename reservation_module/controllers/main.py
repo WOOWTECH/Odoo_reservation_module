@@ -1130,7 +1130,7 @@ class AppointmentPortal(CustomerPortal):
 
         values = {
             'bookings': bookings,
-            'page_name': 'my_bookings',
+            'page_name': 'ext_bookings',
             'pager': pager_values,
             'default_url': '/my/bookings',
             'searchbar_sortings': searchbar_sortings,
@@ -1162,7 +1162,7 @@ class AppointmentPortal(CustomerPortal):
 
         values = {
             'booking': booking,
-            'page_name': 'my_booking_detail',
+            'page_name': 'ext_booking_detail',
             'prev_record': prev_record,
             'next_record': next_record,
             # Portal chatter support

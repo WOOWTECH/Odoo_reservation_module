@@ -31,15 +31,15 @@
               inherit_id="portal.portal_breadcrumbs"
               priority="40">
         <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
-            <li t-if="page_name == 'my_bookings'"
+            <li t-if="page_name == 'ext_bookings'"
                 class="breadcrumb-item active">
                 My Bookings
             </li>
-            <li t-if="page_name == 'my_booking_detail'"
+            <li t-if="page_name == 'ext_booking_detail'"
                 t-attf-class="breadcrumb-item">
                 <a href="/my/bookings">My Bookings</a>
             </li>
-            <li t-if="page_name == 'my_booking_detail' and booking"
+            <li t-if="page_name == 'ext_booking_detail' and booking"
                 class="breadcrumb-item active">
                 <t t-out="booking.name"/>
             </li>

@@ -190,7 +190,7 @@
                                  class="d-flex flex-column gap-2">
                                 <h6><small class="text-muted">Meeting</small></h6>
                                 <a t-att-href="booking.meeting_url" target="_blank"
-                                   class="btn btn-primary btn-sm">
+                                   class="btn btn-light btn-sm">
                                     <i class="fa fa-video-camera me-1"/>
                                     <t t-if="booking.discuss_channel_id">Open Meeting Room</t>
                                     <t t-else="">Join Meeting</t>
@@ -294,7 +294,7 @@
                                     </t>
                                 </p>
                                 <a t-att-href="booking.meeting_url" target="_blank"
-                                   class="btn btn-primary btn-sm">
+                                   class="btn btn-light btn-sm">
                                     <i class="fa fa-video-camera me-1"/>
                                     <t t-if="booking.discuss_channel_id">Open Meeting Room</t>
                                     <t t-else="">Join Meeting</t>

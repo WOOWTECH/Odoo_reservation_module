@@ -518,7 +518,7 @@
 
                                         <!-- View My Bookings button -->
                                         <div class="my-4">
-                                            <a href="/my/bookings"
+                                            <a href="/my/ext-bookings"
                                                class="btn btn-primary btn-lg w-100">
                                                 <i class="fa fa-list me-2"/>
                                                 <t t-esc="t.get('view_my_bookings', 'View My Bookings')"/>

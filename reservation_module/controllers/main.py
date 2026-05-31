@@ -1057,7 +1057,7 @@ class AppointmentController(http.Controller):
 
 
 class AppointmentPortal(CustomerPortal):
-    """Portal controller for /my/bookings pages"""
+    """Portal controller for /my/ext-bookings pages (external appointments)"""
 
     def _prepare_home_portal_values(self, counters):
         """Add booking count to the portal home page"""
@@ -1070,10 +1070,10 @@ class AppointmentPortal(CustomerPortal):
             ])
         return values
 
-    @http.route(['/my/bookings', '/my/bookings/page/<int:page>'],
+    @http.route(['/my/ext-bookings', '/my/ext-bookings/page/<int:page>'],
                 type='http', auth='user', website=True)
-    def portal_my_bookings(self, page=1, sortby=None, filterby=None, **kw):
-        """Portal page listing user's bookings"""
+    def portal_ext_bookings(self, page=1, sortby=None, filterby=None, **kw):
+        """Portal page listing user's external appointment bookings"""
         partner = request.env.user.partner_id
         BookingSudo = request.env['appointment.booking'].sudo()
 
@@ -1114,7 +1114,7 @@ class AppointmentPortal(CustomerPortal):
         # Count and pagination
         booking_count = BookingSudo.search_count(domain)
         pager_values = portal_pager(
-            url="/my/bookings",
+            url="/my/ext-bookings",
             total=booking_count,
             page=page,
             step=10,
@@ -1132,7 +1132,7 @@ class AppointmentPortal(CustomerPortal):
             'bookings': bookings,
             'page_name': 'ext_bookings',
             'pager': pager_values,
-            'default_url': '/my/bookings',
+            'default_url': '/my/ext-bookings',
             'searchbar_sortings': searchbar_sortings,
             'sortby': sortby,
             'searchbar_filters': searchbar_filters,
@@ -1140,14 +1140,14 @@ class AppointmentPortal(CustomerPortal):
         }
         return request.render('reservation_module.portal_my_bookings', values)
 
-    @http.route('/my/bookings/<int:booking_id>', type='http', auth='user', website=True)
-    def portal_my_booking_detail(self, booking_id, **kw):
-        """Portal page showing single booking details"""
+    @http.route('/my/ext-bookings/<int:booking_id>', type='http', auth='user', website=True)
+    def portal_ext_booking_detail(self, booking_id, **kw):
+        """Portal page showing single external appointment booking details"""
         booking = request.env['appointment.booking'].sudo().browse(booking_id)
         partner = request.env.user.partner_id
 
         if not booking.exists() or booking.partner_id != partner:
-            return request.redirect('/my/bookings')
+            return request.redirect('/my/ext-bookings')
 
         # Compute prev/next record URLs using same domain as list page
         BookingSudo = request.env['appointment.booking'].sudo()
@@ -1157,8 +1157,8 @@ class AppointmentPortal(CustomerPortal):
         ]
         all_ids = BookingSudo.search(domain, order='start_datetime desc').ids
         current_idx = all_ids.index(booking.id) if booking.id in all_ids else -1
-        prev_record = '/my/bookings/%d' % all_ids[current_idx - 1] if current_idx > 0 else None
-        next_record = '/my/bookings/%d' % all_ids[current_idx + 1] if 0 <= current_idx < len(all_ids) - 1 else None
+        prev_record = '/my/ext-bookings/%d' % all_ids[current_idx - 1] if current_idx > 0 else None
+        next_record = '/my/ext-bookings/%d' % all_ids[current_idx + 1] if 0 <= current_idx < len(all_ids) - 1 else None
 
         values = {
             'booking': booking,
@@ -1171,17 +1171,17 @@ class AppointmentPortal(CustomerPortal):
         }
         return request.render('reservation_module.portal_my_booking_detail', values)
 
-    @http.route('/my/bookings/<int:booking_id>/cancel', type='http',
+    @http.route('/my/ext-bookings/<int:booking_id>/cancel', type='http',
                 auth='user', website=True, methods=['POST'], csrf=True)
-    def portal_my_booking_cancel(self, booking_id, **kw):
-        """Cancel a booking from the portal detail page"""
+    def portal_ext_booking_cancel(self, booking_id, **kw):
+        """Cancel an external appointment booking from the portal detail page"""
         booking = request.env['appointment.booking'].sudo().browse(booking_id)
         partner = request.env.user.partner_id
 
         if not booking.exists() or booking.partner_id != partner:
-            return request.redirect('/my/bookings')
+            return request.redirect('/my/ext-bookings')
 
         if booking.state in ('draft', 'pending_payment', 'confirmed'):
             booking.action_cancel()
 
-        return request.redirect('/my/bookings/%d' % booking_id)
+        return request.redirect('/my/ext-bookings/%d' % booking_id)

@@ -16,7 +16,7 @@
             <t t-call="portal.portal_docs_entry">
                 <t t-set="icon" t-value="'/reservation_module/static/src/img/booking.svg'"/>
                 <t t-set="title">My Bookings</t>
-                <t t-set="url" t-value="'/my/bookings'"/>
+                <t t-set="url" t-value="'/my/ext-bookings'"/>
                 <t t-set="text">View and manage your appointments</t>
                 <t t-set="placeholder_count" t-value="'booking_count'"/>
             </t>
@@ -37,7 +37,7 @@
             </li>
             <li t-if="page_name == 'ext_booking_detail'"
                 t-attf-class="breadcrumb-item">
-                <a href="/my/bookings">My Bookings</a>
+                <a href="/my/ext-bookings">My Bookings</a>
             </li>
             <li t-if="page_name == 'ext_booking_detail' and booking"
                 class="breadcrumb-item active">
@@ -79,12 +79,12 @@
                         <t t-foreach="bookings" t-as="bk">
                             <tr>
                                 <td class="text-start">
-                                    <a t-attf-href="/my/bookings/#{bk.id}">
+                                    <a t-attf-href="/my/ext-bookings/#{bk.id}">
                                         #<span t-out="bk.id"/>
                                     </a>
                                 </td>
                                 <td>
-                                    <a t-attf-href="/my/bookings/#{bk.id}">
+                                    <a t-attf-href="/my/ext-bookings/#{bk.id}">
                                         <span t-out="bk.name"/>
                                     </a>
                                 </td>
@@ -217,7 +217,7 @@
                             <!-- Cancel Action -->
                             <div t-if="booking.state in ('draft', 'pending_payment', 'confirmed')"
                                  class="d-flex flex-column gap-2">
-                                <form t-attf-action="/my/bookings/#{booking.id}/cancel" method="POST" class="d-inline">
+                                <form t-attf-action="/my/ext-bookings/#{booking.id}/cancel" method="POST" class="d-inline">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                     <button type="submit" class="btn btn-outline-danger btn-sm w-100"
                                             onclick="return confirm('Are you sure you want to cancel this booking?');">

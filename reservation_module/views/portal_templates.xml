@@ -209,7 +209,7 @@
                                  class="d-flex flex-column gap-2">
                                 <h6><small class="text-muted">Payment</small></h6>
                                 <a t-attf-href="/my/orders/#{booking.sale_order_id.id}?access_token=#{booking.sale_order_id.access_token}"
-                                   class="btn btn-warning btn-sm">
+                                   class="btn btn-secondary btn-sm">
                                     <i class="fa fa-credit-card me-1"/>Go to Payment
                                 </a>
                             </div>

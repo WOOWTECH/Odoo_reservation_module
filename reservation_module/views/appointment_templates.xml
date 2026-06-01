@@ -58,7 +58,7 @@
                                     </div>
                                     <div class="card-footer bg-transparent">
                                         <a t-attf-href="/appointment/#{appointment_type.id}"
-                                           class="btn btn-light w-100">
+                                           class="btn btn-secondary w-100">
                                             <t t-esc="t['book_now']"/>
                                         </a>
                                     </div>
@@ -141,7 +141,7 @@
                                     </t>
 
                                     <a t-attf-href="/appointment/#{appointment_type.id}/schedule"
-                                       class="btn btn-light btn-lg">
+                                       class="btn btn-secondary btn-lg">
                                         <i class="fa fa-calendar"/> <t t-esc="t['select_date_time']"/>
                                     </a>
                                 </div>
@@ -412,7 +412,7 @@
                                             </div>
                                         </t>
 
-                                        <button type="submit" class="btn btn-light btn-lg w-100">
+                                        <button type="submit" class="btn btn-secondary btn-lg w-100">
                                             <t t-if="appointment_type.require_payment">
                                                 <t t-esc="t['continue_to_payment']"/>
                                             </t>
@@ -465,7 +465,7 @@
 
                                         <div class="my-4">
                                             <a t-attf-href="/my/orders/#{booking.sale_order_id.id}?access_token=#{booking.sale_order_id.access_token}"
-                                               class="btn btn-light btn-lg w-100">
+                                               class="btn btn-secondary btn-lg w-100">
                                                 <i class="fa fa-credit-card me-2"/>
                                                 <t t-esc="t.get('go_to_payment', 'Go to Payment')"/>
                                             </a>
@@ -616,7 +616,7 @@
                                             </div>
                                         </div>
                                         <a t-attf-href="/my/orders/#{booking.sale_order_id.id}?access_token=#{booking.sale_order_id.access_token}"
-                                           class="btn btn-light">
+                                           class="btn btn-secondary">
                                             <i class="fa fa-credit-card me-2"/>
                                             <t t-esc="t.get('go_to_payment', 'Go to Payment')"/>
                                             — <t t-esc="'%.2f' % booking.sale_order_id.amount_total"/>
@@ -788,8 +788,8 @@
                                     <!-- Back button -->
                                     <div class="mt-4 text-center">
                                         <a t-attf-href="/appointment/booking/#{booking.id}/cancel?token=#{access_token}"
-                                           class="btn btn-link text-muted">
-                                            <i class="fa fa-arrow-left me-2"/><t t-esc="t.get('cancel_booking', 'Cancel Booking')"/>
+                                           class="btn btn-outline-danger btn-sm">
+                                            <i class="fa fa-times me-1"/><t t-esc="t.get('cancel_booking', 'Cancel Booking')"/>
                                         </a>
                                     </div>
                                 </div>

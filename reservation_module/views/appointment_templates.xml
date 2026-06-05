@@ -398,7 +398,7 @@
                                         <div class="mb-3">
                                             <label for="notes" class="form-label" t-esc="t['notes']"/>
                                             <textarea class="form-control" id="notes" name="notes" rows="3"
-                                                      t-att-placeholder="'Any additional information...'"><t t-if="notes" t-esc="notes"/></textarea>
+                                                      t-att-placeholder="'請填寫其他需要告知的資訊...'"><t t-if="notes" t-esc="notes"/></textarea>
                                         </div>
 
                                         <t t-if="appointment_type.require_payment">

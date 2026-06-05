@@ -15,9 +15,9 @@
         <div id="portal_client_category" position="inside">
             <t t-call="portal.portal_docs_entry">
                 <t t-set="icon" t-value="'/reservation_module/static/src/img/booking.svg'"/>
-                <t t-set="title">My Bookings</t>
+                <t t-set="title">我的預約</t>
                 <t t-set="url" t-value="'/my/ext-bookings'"/>
-                <t t-set="text">View and manage your appointments</t>
+                <t t-set="text">查看與管理您的預約</t>
                 <t t-set="placeholder_count" t-value="'booking_count'"/>
             </t>
         </div>
@@ -33,11 +33,11 @@
         <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
             <li t-if="page_name == 'ext_bookings'"
                 class="breadcrumb-item active">
-                My Bookings
+                我的預約
             </li>
             <li t-if="page_name == 'ext_booking_detail'"
                 t-attf-class="breadcrumb-item">
-                <a href="/my/ext-bookings">My Bookings</a>
+                <a href="/my/ext-bookings">我的預約</a>
             </li>
             <li t-if="page_name == 'ext_booking_detail' and booking"
                 class="breadcrumb-item active">
@@ -47,20 +47,20 @@
     </template>
 
     <!-- ============================================================ -->
-    <!-- Portal: Booking List Page (/my/bookings)                     -->
+    <!-- Portal: Booking List Page (/my/ext-bookings)                 -->
     <!-- ============================================================ -->
     <template id="portal_my_bookings" name="My Bookings">
         <t t-call="portal.portal_layout">
             <t t-set="breadcrumbs_searchbar" t-value="True"/>
 
             <t t-call="portal.portal_searchbar">
-                <t t-set="title">My Bookings</t>
+                <t t-set="title">我的預約</t>
             </t>
 
             <t t-if="not bookings">
                 <div class="alert alert-warning" role="alert">
-                    There are no bookings yet.
-                    <a href="/appointment" class="alert-link">Book Now</a>
+                    目前還沒有預約紀錄。
+                    <a href="/appointment" class="alert-link">立即預約</a>
                 </div>
             </t>
 
@@ -69,10 +69,10 @@
                     <thead>
                         <tr>
                             <th class="text-start">#</th>
-                            <th>Booking Ref</th>
-                            <th>Appointment Type</th>
-                            <th>Date &amp; Time</th>
-                            <th class="text-end">Status</th>
+                            <th>預約編號</th>
+                            <th>服務項目</th>
+                            <th>預約時間</th>
+                            <th class="text-end">狀態</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -97,23 +97,23 @@
                                 <td class="text-end">
                                     <span t-if="bk.state == 'confirmed'"
                                           class="badge rounded-pill text-bg-success">
-                                        Confirmed
+                                        已確認
                                     </span>
                                     <span t-if="bk.state == 'done'"
                                           class="badge rounded-pill text-bg-info">
-                                        Completed
+                                        已完成
                                     </span>
                                     <span t-if="bk.state == 'cancelled'"
                                           class="badge rounded-pill text-bg-danger">
-                                        Cancelled
+                                        已取消
                                     </span>
                                     <span t-if="bk.state == 'pending_payment'"
                                           class="badge rounded-pill text-bg-warning">
-                                        Pending Payment
+                                        待付款
                                     </span>
                                     <span t-if="bk.state == 'draft'"
                                           class="badge rounded-pill text-bg-secondary">
-                                        Draft
+                                        草稿
                                     </span>
                                 </td>
                             </tr>
@@ -125,7 +125,7 @@
     </template>
 
     <!-- ============================================================ -->
-    <!-- Portal: Booking Detail Page (/my/bookings/<id>)              -->
+    <!-- Portal: Booking Detail Page (/my/ext-bookings/<id>)          -->
     <!-- ============================================================ -->
     <template id="portal_my_booking_detail" name="My Booking Detail"
               inherit_id="portal.portal_sidebar" primary="True">
@@ -149,12 +149,12 @@
                                 <ul class="nav flex-column">
                                     <li class="nav-item">
                                         <a class="nav-link p-0" href="#card_header">
-                                            Booking
+                                            預約資訊
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link p-0" href="#booking_chat">
-                                            History
+                                            歷史紀錄
                                         </a>
                                     </li>
                                 </ul>
@@ -162,55 +162,55 @@
 
                             <!-- Status -->
                             <div class="d-flex flex-column gap-2">
-                                <h6><small class="text-muted">Status</small></h6>
+                                <h6><small class="text-muted">狀態</small></h6>
                                 <span t-if="booking.state == 'confirmed'"
                                       class="badge rounded-pill text-bg-success">
-                                    Confirmed
+                                    已確認
                                 </span>
                                 <span t-if="booking.state == 'done'"
                                       class="badge rounded-pill text-bg-info">
-                                    Completed
+                                    已完成
                                 </span>
                                 <span t-if="booking.state == 'cancelled'"
                                       class="badge rounded-pill text-bg-danger">
-                                    Cancelled
+                                    已取消
                                 </span>
                                 <span t-if="booking.state == 'pending_payment'"
                                       class="badge rounded-pill text-bg-warning">
-                                    Pending Payment
+                                    待付款
                                 </span>
                                 <span t-if="booking.state == 'draft'"
                                       class="badge rounded-pill text-bg-secondary">
-                                    Draft
+                                    草稿
                                 </span>
                             </div>
 
                             <!-- Meeting Link -->
                             <div t-if="booking.meeting_url and booking.state in ('draft', 'pending_payment', 'confirmed')"
                                  class="d-flex flex-column gap-2">
-                                <h6><small class="text-muted">Meeting</small></h6>
+                                <h6><small class="text-muted">線上會議</small></h6>
                                 <a t-att-href="booking.meeting_url" target="_blank"
                                    class="btn btn-light btn-sm">
                                     <i class="fa fa-video-camera me-1"/>
-                                    <t t-if="booking.discuss_channel_id">Open Meeting Room</t>
-                                    <t t-else="">Join Meeting</t>
+                                    <t t-if="booking.discuss_channel_id">開啟會議室</t>
+                                    <t t-else="">加入會議</t>
                                 </a>
                             </div>
 
                             <!-- Payment -->
                             <div t-if="booking.payment_status == 'paid'"
                                  class="d-flex flex-column gap-2">
-                                <h6><small class="text-muted">Payment</small></h6>
+                                <h6><small class="text-muted">付款</small></h6>
                                 <span class="text-success">
-                                    <i class="fa fa-check-circle me-1"/>Paid
+                                    <i class="fa fa-check-circle me-1"/>已付款
                                 </span>
                             </div>
                             <div t-if="booking.payment_status == 'pending' and booking.sale_order_id"
                                  class="d-flex flex-column gap-2">
-                                <h6><small class="text-muted">Payment</small></h6>
+                                <h6><small class="text-muted">付款</small></h6>
                                 <a t-attf-href="/my/orders/#{booking.sale_order_id.id}?access_token=#{booking.sale_order_id.access_token}"
                                    class="btn btn-secondary btn-sm">
-                                    <i class="fa fa-credit-card me-1"/>Go to Payment
+                                    <i class="fa fa-credit-card me-1"/>前往付款
                                 </a>
                             </div>
 
@@ -220,8 +220,8 @@
                                 <form t-attf-action="/my/ext-bookings/#{booking.id}/cancel" method="POST" class="d-inline">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                     <button type="submit" class="btn btn-outline-danger btn-sm w-100"
-                                            onclick="return confirm('Are you sure you want to cancel this booking?');">
-                                        <i class="fa fa-times me-1"/>Cancel Booking
+                                            onclick="return confirm('確定要取消此預約嗎？');">
+                                        <i class="fa fa-times me-1"/>取消預約
                                     </button>
                                 </form>
                             </div>
@@ -242,12 +242,12 @@
                                     </h3>
                                 </div>
                                 <div class="col-auto">
-                                    <small class="text-end">Status:</small>
-                                    <span t-if="booking.state == 'confirmed'" class="badge rounded-pill text-bg-success">Confirmed</span>
-                                    <span t-if="booking.state == 'done'" class="badge rounded-pill text-bg-info">Completed</span>
-                                    <span t-if="booking.state == 'cancelled'" class="badge rounded-pill text-bg-danger">Cancelled</span>
-                                    <span t-if="booking.state == 'pending_payment'" class="badge rounded-pill text-bg-warning">Pending Payment</span>
-                                    <span t-if="booking.state == 'draft'" class="badge rounded-pill text-bg-secondary">Draft</span>
+                                    <small class="text-end">狀態：</small>
+                                    <span t-if="booking.state == 'confirmed'" class="badge rounded-pill text-bg-success">已確認</span>
+                                    <span t-if="booking.state == 'done'" class="badge rounded-pill text-bg-info">已完成</span>
+                                    <span t-if="booking.state == 'cancelled'" class="badge rounded-pill text-bg-danger">已取消</span>
+                                    <span t-if="booking.state == 'pending_payment'" class="badge rounded-pill text-bg-warning">待付款</span>
+                                    <span t-if="booking.state == 'draft'" class="badge rounded-pill text-bg-secondary">草稿</span>
                                 </div>
                             </div>
                         </div>
@@ -255,26 +255,26 @@
                         <div id="card_body">
                             <div class="row mb-4">
                                 <div class="col-12 col-md-6">
-                                    <div><strong>Appointment:</strong> <span t-out="booking.appointment_type_id.name"/></div>
+                                    <div><strong>服務項目：</strong> <span t-out="booking.appointment_type_id.name"/></div>
                                     <div>
-                                        <strong>Date &amp; Time:</strong>
+                                        <strong>預約時間：</strong>
                                         <span t-field="booking.start_datetime"/> -
                                         <span t-field="booking.end_datetime" t-options="{'time_only': True}"/>
                                     </div>
-                                    <div><strong>Guests:</strong> <span t-out="booking.guest_count"/></div>
+                                    <div><strong>人數：</strong> <span t-out="booking.guest_count"/></div>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div t-if="booking.staff_user_id">
-                                        <strong>Staff:</strong> <span t-out="booking.staff_user_id.name"/>
+                                        <strong>服務人員：</strong> <span t-out="booking.staff_user_id.name"/>
                                     </div>
                                     <div t-if="booking.resource_id">
-                                        <strong>Location:</strong> <span t-out="booking.resource_id.name"/>
+                                        <strong>地點：</strong> <span t-out="booking.resource_id.name"/>
                                     </div>
                                 </div>
                             </div>
 
                             <div t-if="booking.notes" class="mb-4">
-                                <h5 class="mb-1">Notes</h5>
+                                <h5 class="mb-1">備註</h5>
                                 <hr class="mt-1 mb-2"/>
                                 <div class="py-1 px-2 bg-100 small" t-out="booking.notes"/>
                             </div>
@@ -282,22 +282,22 @@
                             <!-- Meeting info for online meetings -->
                             <div t-if="booking.meeting_url and booking.state in ('draft', 'pending_payment', 'confirmed')"
                                  class="mb-4">
-                                <h5 class="mb-1">Online Meeting</h5>
+                                <h5 class="mb-1">線上會議</h5>
                                 <hr class="mt-1 mb-2"/>
                                 <p class="text-muted small">
                                     <i class="fa fa-video-camera me-1"/>
                                     <t t-if="booking.discuss_channel_id">
-                                        This is an online meeting. Open the meeting room below to chat and start a video call:
+                                        這是一場線上會議。請點擊下方按鈕開啟會議室進行視訊通話：
                                     </t>
                                     <t t-else="">
-                                        This is an online meeting. Use the link below to join at the scheduled time:
+                                        這是一場線上會議。請在預約時間使用以下連結加入：
                                     </t>
                                 </p>
                                 <a t-att-href="booking.meeting_url" target="_blank"
                                    class="btn btn-light btn-sm">
                                     <i class="fa fa-video-camera me-1"/>
-                                    <t t-if="booking.discuss_channel_id">Open Meeting Room</t>
-                                    <t t-else="">Join Meeting</t>
+                                    <t t-if="booking.discuss_channel_id">開啟會議室</t>
+                                    <t t-else="">加入會議</t>
                                 </a>
                                 <p class="mt-2 small text-muted">
                                     <t t-out="booking.meeting_url"/>
@@ -309,7 +309,7 @@
                     <hr/>
                     <!-- Communication history / Chatter -->
                     <div id="booking_chat" data-anchor="true">
-                        <h3>Communication history</h3>
+                        <h3>溝通紀錄</h3>
                         <t t-call="portal.message_thread">
                             <t t-set="object" t-value="booking"/>
                             <t t-set="token" t-value="token"/>

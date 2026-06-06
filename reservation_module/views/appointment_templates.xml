@@ -810,17 +810,15 @@
                t-value="request.env['appointment.booking'].sudo().search(
                    [('sale_order_id', '=', sale_order.id)], limit=1)"/>
             <t t-if="linked_booking">
-                <t t-set="t_so" t-value="request.env['ir.http']._get_translation_for_template() if hasattr(request.env['ir.http'], '_get_translation_for_template') else {}"/>
                 <div class="alert alert-info d-flex align-items-center mb-3">
                     <i class="fa fa-calendar fa-lg me-3"/>
                     <div>
-                        <strong><t t-esc="t_so.get('booking', 'Booking') if t_so else _('Booking')"/>:</strong>
+                        <strong>預約:</strong>
                         <t t-esc="linked_booking.name"/> —
                         <t t-esc="linked_booking.appointment_type_id.name"/>
                         <span class="ms-2">|</span>
-                        <a t-attf-href="/appointment/booking/#{linked_booking.id}?token=#{linked_booking.access_token}"
-                           class="ms-2 fw-bold">
-                            <t t-esc="t_so.get('view_details', 'View Booking Details') if t_so else _('View Booking Details')"/>
+                        <a t-attf-href="/my/ext-bookings/#{linked_booking.id}"
+                           class="ms-2 fw-bold">查看預約詳情
                         </a>
                     </div>
                 </div>

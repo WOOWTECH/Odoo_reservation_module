@@ -480,8 +480,8 @@
                                         </div>
                                     </t>
 
-                                    <!-- Confirmed State -->
-                                    <t t-if="booking.state != 'pending_payment'">
+                                    <!-- Confirmed / Pending (no SO) State -->
+                                    <t t-if="booking.state != 'pending_payment' or not booking.sale_order_id">
                                         <i class="fa fa-check-circle text-success fa-5x mb-4"/>
                                         <h2 t-esc="t['booking_confirmed']"/>
                                         <p class="text-muted" t-esc="t['booking_reference']"/>

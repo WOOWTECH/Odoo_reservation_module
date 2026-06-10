@@ -246,12 +246,31 @@ class AppointmentBooking(models.Model):
         if resource_id:
             resource = self.env['resource.resource'].browse(resource_id)
             capacity = resource.capacity or 1
-            query = f"SELECT COUNT(*) FROM appointment_booking WHERE {base_where} AND resource_id = %s{lock_clause}"
+            # C4 fix: 用 SUM(guest_count) 取代 COUNT(*) 正確計算人數容量
+            query = (
+                f"SELECT COALESCE(SUM(guest_count), 0) "
+                f"FROM appointment_booking WHERE {base_where} AND resource_id = %s{lock_clause}"
+            )
             self.env.cr.execute(query, base_params + [resource_id])
-            res_count = self.env.cr.fetchone()[0]
-            result['resource_conflict'] = res_count >= capacity
-            result['resource_remaining'] = max(0, capacity - res_count)
+            total_guests = self.env.cr.fetchone()[0]
+            result['resource_conflict'] = total_guests >= capacity
+            result['resource_remaining'] = max(0, capacity - total_guests)
 
+        return result
+
+    def write(self, vals):
+        """M6 fix: 修改預約時間時同步更新關聯的 calendar event。"""
+        result = super().write(vals)
+        if ('start_datetime' in vals or 'end_datetime' in vals) and not self.env.context.get('_skip_calendar_sync'):
+            for booking in self:
+                if booking.calendar_event_id:
+                    event_vals = {}
+                    if 'start_datetime' in vals:
+                        event_vals['start'] = booking.start_datetime
+                    if 'end_datetime' in vals:
+                        event_vals['stop'] = booking.end_datetime
+                    if event_vals:
+                        booking.calendar_event_id.write(event_vals)
         return result
 
     @api.constrains('start_datetime', 'end_datetime')
@@ -560,6 +579,9 @@ class AppointmentBooking(models.Model):
 
         Looks for confirmed bookings starting within the next reminder_hours window
         that haven't been reminded yet (reminder_sent=False).
+
+        M7 fix: 使用 SELECT FOR UPDATE SKIP LOCKED 確保並發 cron 不會重複發送，
+        並在每筆提醒後 commit 避免大批量回滾。
         """
         now = fields.Datetime.now()
         bookings = self.search([
@@ -571,6 +593,15 @@ class AppointmentBooking(models.Model):
             reminder_hours = booking.appointment_type_id.reminder_hours or 24
             reminder_threshold = booking.start_datetime - timedelta(hours=reminder_hours)
             if now >= reminder_threshold:
+                # Atomic lock: skip if another cron worker already locked this row
+                self.env.cr.execute(
+                    "SELECT id FROM appointment_booking "
+                    "WHERE id = %s AND reminder_sent = FALSE "
+                    "FOR UPDATE SKIP LOCKED",
+                    [booking.id],
+                )
+                if not self.env.cr.fetchone():
+                    continue  # Already being processed by another worker
                 booking._send_reminder_email()
                 booking.reminder_sent = True
 

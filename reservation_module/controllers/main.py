@@ -647,8 +647,9 @@ class AppointmentController(http.Controller):
                 return self._render_booking_form_error(
                     appointment_type, data, _('Please fill in all required fields.'))
 
-        # Validate & sanitize guest_name (strip HTML tags)
-        guest_name = re.sub(r'<[^>]+>', '', data.get('guest_name', '')).strip()
+        # H7 fix: 用 markupsafe.escape 取代不完整的正則過濾，防 XSS
+        from markupsafe import escape as _escape
+        guest_name = str(_escape(data.get('guest_name', '').strip()))
         if not guest_name or len(guest_name) > 256:
             return self._render_booking_form_error(
                 appointment_type, data, _('Please enter a valid name.'))
@@ -739,6 +740,16 @@ class AppointmentController(http.Controller):
             return self._render_booking_form_error(
                 appointment_type, data, _('Cannot book a time slot in the past.'))
 
+        # H6 fix: 伺服器端驗證最小提前預約時間
+        min_hours = appointment_type.min_booking_hours or 0
+        if min_hours > 0:
+            from datetime import timedelta as _td
+            min_time = datetime.now() + _td(hours=min_hours)
+            if start_dt < min_time:
+                return self._render_booking_form_error(
+                    appointment_type, data,
+                    _('Bookings must be made at least %s hours in advance.') % int(min_hours))
+
         # Safe int() casts for resource_id and staff_id (H3)
         resource_id = None
         if data.get('resource_id'):
@@ -801,23 +812,23 @@ class AppointmentController(http.Controller):
 
         # Payment status is computed automatically from SO state
 
-        # C4: Atomic conflict check + create with row-level locking to prevent race conditions
-        # SELECT FOR UPDATE locks conflicting rows so concurrent requests serialize
-        conflict = Booking._check_booking_conflict(
-            start_dt=start_dt,
-            end_dt=end_dt,
-            staff_user_id=staff_id or False,
-            resource_id=resource_id or False,
-            lock=True,
-        )
-        if conflict.get('staff_conflict'):
-            return self._render_booking_form_error(
-                appointment_type, data, _('This staff member is no longer available for the selected time. Please choose another time.'))
-        if conflict.get('resource_conflict'):
-            return self._render_booking_form_error(
-                appointment_type, data, _('This location is no longer available for the selected time. Please choose another time.'))
+        # C3 fix: 衝突檢查 + 建立在同一 savepoint 內，確保鎖定不會提前釋放
+        with request.env.cr.savepoint():
+            conflict = Booking._check_booking_conflict(
+                start_dt=start_dt,
+                end_dt=end_dt,
+                staff_user_id=staff_id or False,
+                resource_id=resource_id or False,
+                lock=True,
+            )
+            if conflict.get('staff_conflict'):
+                return self._render_booking_form_error(
+                    appointment_type, data, _('This staff member is no longer available for the selected time. Please choose another time.'))
+            if conflict.get('resource_conflict'):
+                return self._render_booking_form_error(
+                    appointment_type, data, _('This location is no longer available for the selected time. Please choose another time.'))
 
-        booking = Booking.create(booking_vals)
+            booking = Booking.create(booking_vals)
 
         # Auto-assign staff/location if not customer-chosen
         if appointment_type.assign_staff and not booking.staff_user_id:

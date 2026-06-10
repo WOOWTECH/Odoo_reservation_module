@@ -301,6 +301,19 @@ class AppointmentType(models.Model):
             if record.is_scheduled and record.slot_duration <= 0:
                 raise ValidationError(_('Slot duration must be greater than 0.'))
 
+    @api.constrains('slot_interval', 'slot_duration', 'is_scheduled')
+    def _check_slot_interval(self):
+        """M8 fix: slot_interval 不可大於 slot_duration，否則時段間會出現空白。"""
+        for record in self:
+            if record.is_scheduled and record.slot_interval:
+                if record.slot_interval <= 0:
+                    raise ValidationError(_('Slot interval must be greater than 0.'))
+                if record.slot_interval > record.slot_duration:
+                    raise ValidationError(
+                        _('Slot interval (%(interval)s h) cannot exceed slot duration (%(duration)s h).',
+                          interval=record.slot_interval, duration=record.slot_duration)
+                    )
+
     @api.constrains('max_booking_days')
     def _check_max_booking_days(self):
         for record in self:

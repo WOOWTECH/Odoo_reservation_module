@@ -14,6 +14,7 @@ class AppointmentBooking(models.Model):
     _name = 'appointment.booking'
     _description = 'Appointment Booking'
     _order = 'start_datetime desc'
+    _rec_name = 'appointment_type_id'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(

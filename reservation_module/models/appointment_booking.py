@@ -112,7 +112,7 @@ class AppointmentBooking(models.Model):
     # State
     state = fields.Selection([
         ('draft', 'Draft'),
-        ('pending_payment', 'Pending Payment'),
+        ('pending_payment', 'Pending'),
         ('confirmed', 'Confirmed'),
         ('done', 'Done'),
         ('cancelled', 'Cancelled'),
@@ -185,13 +185,11 @@ class AppointmentBooking(models.Model):
                 booking.payment_status = 'pending'
             elif booking.sale_order_id.state == 'cancel':
                 booking.payment_status = 'refunded'
-            elif booking.sale_order_id.state == 'sale':
-                # SO confirmed (customer signed quotation) → treat as paid
-                booking.payment_status = 'paid'
             elif any(inv.payment_state in ('paid', 'in_payment')
                      for inv in booking.sale_order_id.invoice_ids):
                 booking.payment_status = 'paid'
             else:
+                # SO signed but not yet paid → still pending
                 booking.payment_status = 'pending'
 
     @api.depends('sale_order_id')

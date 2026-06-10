@@ -26,26 +26,12 @@ class SaleOrder(models.Model):
             order.booking_count = len(order.booking_ids)
 
     def action_confirm(self):
-        """Override to auto-confirm linked bookings when SO is confirmed.
+        """Override: SO 簽回不自動確認預約。
 
-        When a customer signs the quotation (SO → sale), linked bookings
-        with auto_confirm enabled are automatically confirmed. The
-        payment_status compute field already treats SO state='sale' as
-        'paid', so action_confirm's payment gate will pass.
+        預約只在實際付款後才確認（由 payment_transaction._post_process 處理）。
+        SO 簽回只代表客戶同意報價，不代表已付款。
         """
-        res = super().action_confirm()
-        for order in self:
-            for booking in order.booking_ids:
-                if booking.state in ('draft', 'pending_payment') \
-                        and booking.appointment_type_id.auto_confirm:
-                    try:
-                        booking.action_confirm()
-                    except Exception:
-                        _logger.warning(
-                            "Failed to auto-confirm booking %s on SO %s confirm",
-                            booking.name, order.name,
-                        )
-        return res
+        return super().action_confirm()
 
     def action_view_bookings(self):
         """Open bookings linked to this sales order"""

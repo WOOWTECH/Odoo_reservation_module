@@ -342,27 +342,35 @@
    The SVGs are vendored under this module's own static/src/img.
    Buttons carry no label at any breakpoint -> render them as squares that
    always clear the 44x44 touch target, on every device and not only under the
-   <=768px media query. */
-.wt-reservation-action.o_wevent_add_to_ical i.fa {
-    font-size: 22px;                      /* same box as the SVGs, independent of .btn-sm */
-    line-height: 1;
-    width: auto;                          /* override .wt-reservation-action i.fa { width: 1em } */
-    scale: 1;                             /* neutralise upstream .o_wevent_add_to_ical scaling */
-}
-.wt-reservation-action.o_wevent_add_to_outlook img,
-.wt-reservation-action.o_wevent_add_to_google_calendar img {
-    display: block;
-    height: 22px;                         /* explicit box => no layout shift before the SVG loads */
-    width: auto;
-    max-width: 100%;
-}
-.wt-reservation-action.o_wevent_add_to_ical,
-.wt-reservation-action.o_wevent_add_to_outlook,
-.wt-reservation-action.o_wevent_add_to_google_calendar {
+   <=768px media query.
+   `.wt-cal-btn` is the single hook the template puts on all three links, so
+   this block never depends on the `event` module's class names. */
+.wt-cal-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     min-width: 44px;                      /* WCAG 2.5.5 / 2.5.8 touch target, all breakpoints */
     min-height: 44px;
     padding: .5rem;                       /* padding (not a fixed width) keeps the square */
-    gap: 0;
+}
+.wt-cal-btn i.fa {
+    font-size: 22px;                      /* same box as the SVGs, independent of .btn-sm */
+    line-height: 1;
+    width: auto;                          /* override .wt-reservation-action i.fa { width: 1em } */
+}
+.wt-cal-btn img {
+    height: 22px;                         /* explicit box => no layout shift before the SVG loads */
+    width: auto;
+    max-width: 100%;
+    display: block;
+}
+.wt-cal-btn:focus-visible {
+    outline: 3px solid var(--o-color-primary, #714b67);
+    outline-offset: 2px;
+    box-shadow: none;                     /* the solid outline is the only indicator here */
+}
+.wt-cal-btn:hover img {
+    filter: brightness(.92);
 }
 
 /* Icon-only calendar row: this label is the only text cue left in the block,

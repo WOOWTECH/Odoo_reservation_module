@@ -319,8 +319,12 @@
                                     <!-- Booking Summary -->
                                     <div class="alert alert-info">
                                         <strong><t t-esc="appointment_type.name"/></strong><br/>
-                                        <i class="fa fa-calendar"/> <t t-esc="start_datetime" t-options='{"widget": "datetime"}'/> -
-                                        <t t-esc="end_datetime" t-options='{"widget": "datetime"}'/>
+                                        <!-- 時區顯示修正：本模組的 start_datetime / end_datetime 是以
+                                             「預約類型時區的牆上時間」直接存進 Datetime 欄位（不是標準 UTC），
+                                             因此固定 tz_name UTC，讓 QWeb 不再做第二次時區轉換、原樣輸出。
+                                             待模組改為標準 UTC 儲存後，這些 tz_name 要一併移除。 -->
+                                        <i class="fa fa-calendar"/> <t t-esc="start_datetime" t-options='{"widget": "datetime", "tz_name": "UTC"}'/> -
+                                        <t t-esc="end_datetime" t-options='{"widget": "datetime", "tz_name": "UTC"}'/>
                                         <small class="text-muted">(<t t-esc="appointment_type.timezone or 'UTC'"/>)</small>
                                         <t t-if="resource">
                                             <br/><i class="fa fa-map-marker"/> <t t-esc="resource.name"/>
@@ -451,8 +455,8 @@
                                         <div class="text-start">
                                             <p><strong><t t-esc="t['appointment_label']"/></strong> <t t-esc="booking.appointment_type_id.name"/></p>
                                             <p><strong><t t-esc="t['date_time']"/></strong>
-                                               <t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/> -
-                                               <t t-esc="booking.end_datetime" t-options='{"widget": "datetime"}'/>
+                                               <t t-esc="booking.start_datetime" t-options='{"widget": "datetime", "tz_name": "UTC"}'/> -
+                                               <t t-esc="booking.end_datetime" t-options='{"widget": "datetime", "tz_name": "UTC"}'/>
                                             </p>
                                             <p><strong><t t-esc="t.get('amount_due', 'Amount Due:')"/></strong>
                                                <span class="fs-4 fw-bold text-primary">
@@ -492,8 +496,8 @@
                                         <div class="text-start">
                                             <p><strong><t t-esc="t['appointment_label']"/></strong> <t t-esc="booking.appointment_type_id.name"/></p>
                                             <p><strong><t t-esc="t['date_time']"/></strong>
-                                               <t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/> -
-                                               <t t-esc="booking.end_datetime" t-options='{"widget": "datetime"}'/>
+                                               <t t-esc="booking.start_datetime" t-options='{"widget": "datetime", "tz_name": "UTC"}'/> -
+                                               <t t-esc="booking.end_datetime" t-options='{"widget": "datetime", "tz_name": "UTC"}'/>
                                             </p>
                                             <t t-if="booking.resource_id">
                                                 <p><strong><t t-esc="t['location_label']"/></strong> <t t-esc="booking.resource_id.name"/></p>
@@ -569,8 +573,8 @@
                                             <h5 t-esc="t['appointment_details']"/>
                                             <p><strong><t t-esc="t['type_label']"/></strong> <t t-esc="booking.appointment_type_id.name"/></p>
                                             <p><strong><t t-esc="t['date_time']"/></strong><br/>
-                                               <t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/> -
-                                               <t t-esc="booking.end_datetime" t-options='{"widget": "datetime"}'/>
+                                               <t t-esc="booking.start_datetime" t-options='{"widget": "datetime", "tz_name": "UTC"}'/> -
+                                               <t t-esc="booking.end_datetime" t-options='{"widget": "datetime", "tz_name": "UTC"}'/>
                                             </p>
                                             <t t-if="booking.resource_id">
                                                 <p><strong><t t-esc="t['location_label']"/></strong> <t t-esc="booking.resource_id.name"/></p>
@@ -663,7 +667,7 @@
 
                                     <div class="alert alert-light text-start">
                                         <p><strong><t t-esc="booking.appointment_type_id.name"/></strong></p>
-                                        <p><t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/></p>
+                                        <p><t t-esc="booking.start_datetime" t-options='{"widget": "datetime", "tz_name": "UTC"}'/></p>
                                         <p><t t-esc="t['booking_reference_label']"/> <t t-esc="booking.name"/></p>
                                     </div>
 
@@ -738,7 +742,7 @@
                                     <div class="alert alert-info mb-4">
                                         <h5 t-esc="t['booking_summary']"/>
                                         <p class="mb-1"><strong><t t-esc="booking.appointment_type_id.name"/></strong></p>
-                                        <p class="mb-1"><i class="fa fa-calendar me-2"/><t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/></p>
+                                        <p class="mb-1"><i class="fa fa-calendar me-2"/><t t-esc="booking.start_datetime" t-options='{"widget": "datetime", "tz_name": "UTC"}'/></p>
                                         <p class="mb-0"><i class="fa fa-users me-2"/><t t-esc="t['guests_label']"/> <t t-esc="booking.guest_count"/></p>
                                     </div>
 

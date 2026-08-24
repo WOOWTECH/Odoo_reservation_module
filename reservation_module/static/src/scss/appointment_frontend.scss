@@ -298,3 +298,22 @@
         line-height: 44px;
     }
 }
+
+/* ── Fix #3: Portal /my/ext-bookings/<id> button sizes unified ── */
+/* All action buttons on the booking detail page should match the cancel
+   button's height + padding so the visual layout stays coherent regardless
+   of button text length or attached FA icon.
+   Width is controlled by the template (`w-100` on sidebar buttons only). */
+.wt-reservation-action {
+    min-height: 38px;                     /* consistent height (Bootstrap default .btn) */
+    padding: .375rem .75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .25rem;
+    line-height: 1.5;
+}
+.wt-reservation-action i.fa {
+    width: 1em;
+    text-align: center;                   /* stabilise icon spacing across fa-video/times/credit-card */
+}

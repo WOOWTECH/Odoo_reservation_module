@@ -190,7 +190,7 @@
                                  class="d-flex flex-column gap-2">
                                 <h6><small class="text-muted">線上會議</small></h6>
                                 <a t-att-href="booking.meeting_url" target="_blank"
-                                   class="btn btn-light btn-sm">
+                                   class="btn btn-light btn-sm w-100 wt-reservation-action">
                                     <i class="fa fa-video-camera me-1"/>
                                     <t t-if="booking.discuss_channel_id">開啟會議室</t>
                                     <t t-else="">加入會議</t>
@@ -209,7 +209,7 @@
                                  class="d-flex flex-column gap-2">
                                 <h6><small class="text-muted">付款</small></h6>
                                 <a t-attf-href="/my/orders/#{booking.sale_order_id.id}?access_token=#{booking.sale_order_id.access_token}"
-                                   class="btn btn-secondary btn-sm">
+                                   class="btn btn-primary btn-sm w-100 wt-reservation-action">
                                     <i class="fa fa-credit-card me-1"/>前往付款
                                 </a>
                             </div>
@@ -217,9 +217,9 @@
                             <!-- Cancel Action -->
                             <div t-if="booking.state in ('draft', 'pending_payment', 'confirmed')"
                                  class="d-flex flex-column gap-2">
-                                <form t-attf-action="/my/ext-bookings/#{booking.id}/cancel" method="POST" class="d-inline">
+                                <form t-attf-action="/my/ext-bookings/#{booking.id}/cancel" method="POST" class="d-block">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100"
+                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100 wt-reservation-action"
                                             onclick="return confirm('確定要取消此預約嗎？');">
                                         <i class="fa fa-times me-1"/>取消預約
                                     </button>
@@ -294,7 +294,7 @@
                                     </t>
                                 </p>
                                 <a t-att-href="booking.meeting_url" target="_blank"
-                                   class="btn btn-light btn-sm">
+                                   class="btn btn-light btn-sm wt-reservation-action">
                                     <i class="fa fa-video-camera me-1"/>
                                     <t t-if="booking.discuss_channel_id">開啟會議室</t>
                                     <t t-else="">加入會議</t>

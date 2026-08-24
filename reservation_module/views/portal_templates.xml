@@ -203,7 +203,7 @@
                                 <div class="o_wevent_dates_block d-flex flex-column gap-2">
                                     <div t-if="is_one_day" class="card border p-2 p-md-3" style="background:transparent;color:inherit;font-family:inherit;">
                                         <div class="d-flex align-items-end gap-2">
-                                            <time t-field="booking.start_datetime" class="o_wevent_day_header_number lh-1" style="color:var(--o-color-1, currentColor);font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
+                                            <time t-field="booking.start_datetime" class="o_wevent_day_header_number lh-1" style="color:currentColor;font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
                                             <div class="small" style="font-family:inherit;">
                                                 <time t-field="booking.start_datetime" class="d-block lh-1" t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
                                                 <span class="fw-bold lh-1 d-inline-flex align-items-center flex-wrap gap-1">
@@ -218,7 +218,7 @@
                                         <div class="card border p-2 p-md-3" style="background:transparent;color:inherit;font-family:inherit;">
                                             <small class="text-muted text-uppercase">開始</small>
                                             <div class="d-flex align-items-end gap-2">
-                                                <time t-field="booking.start_datetime" class="o_wevent_day_header_number lh-1" style="color:var(--o-color-1, currentColor);font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
+                                                <time t-field="booking.start_datetime" class="o_wevent_day_header_number lh-1" style="color:currentColor;font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
                                                 <div class="small" style="font-family:inherit;">
                                                     <time t-field="booking.start_datetime" class="d-block lh-1" t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
                                                     <time t-out="booking.start_datetime" class="fw-bold lh-1" t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
@@ -228,7 +228,7 @@
                                         <div class="card border p-2 p-md-3" style="background:transparent;color:inherit;font-family:inherit;">
                                             <small class="text-muted text-uppercase">結束</small>
                                             <div class="d-flex align-items-end gap-2">
-                                                <time t-field="booking.end_datetime" class="o_wevent_day_header_number lh-1" style="color:var(--o-color-1, currentColor);font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
+                                                <time t-field="booking.end_datetime" class="o_wevent_day_header_number lh-1" style="color:currentColor;font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
                                                 <div class="small" style="font-family:inherit;">
                                                     <time t-field="booking.end_datetime" class="d-block lh-1" t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
                                                     <time t-out="booking.end_datetime" class="fw-bold lh-1" t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
@@ -245,17 +245,20 @@
                                      own static/src/img so the module does not depend on `event`.
                                      alt="" makes sure a missing asset can never render the words
                                      "Outlook" / "Google"; the accessible name comes from the
-                                     aria-label on each link. Sizing lives in
-                                     static/src/scss/appointment_frontend.scss (.wt-cal-btn). -->
+                                     aria-label on each link. Rendered frameless (no .btn
+                                     classes) so they read as standalone icons like the native
+                                     widget; sizing, the 44x44 touch target and the focus ring
+                                     live in static/src/scss/appointment_frontend.scss
+                                     (.wt-cal-btn). -->
                                 <div t-if="booking.state != 'cancelled'" class="d-flex align-items-center flex-wrap gap-2">
                                     <small class="text-muted d-block w-100">加入日曆</small>
-                                    <a t-att-href="ics_url" class="btn btn-light btn-sm wt-reservation-action wt-cal-btn" title="加入 Apple 行事曆" aria-label="加入 Apple 行事曆">
+                                    <a t-att-href="ics_url" class="wt-reservation-action wt-cal-btn" title="加入 Apple 行事曆" aria-label="加入 Apple 行事曆">
                                         <i class="fa fa-apple" aria-hidden="true"/>
                                     </a>
-                                    <a t-att-href="ics_url" class="btn btn-light btn-sm wt-reservation-action wt-cal-btn" title="加入 Outlook 行事曆" aria-label="加入 Outlook 行事曆">
+                                    <a t-att-href="ics_url" class="wt-reservation-action wt-cal-btn" title="加入 Outlook 行事曆" aria-label="加入 Outlook 行事曆">
                                         <img src="/reservation_module/static/src/img/outlook-calendar.svg" alt=""/>
                                     </a>
-                                    <a t-att-href="google_url" target="_blank" rel="noopener" class="btn btn-light btn-sm wt-reservation-action wt-cal-btn" title="加入 Google 行事曆" aria-label="加入 Google 行事曆（另開新視窗）">
+                                    <a t-att-href="google_url" target="_blank" rel="noopener" class="wt-reservation-action wt-cal-btn" title="加入 Google 行事曆" aria-label="加入 Google 行事曆（另開新視窗）">
                                         <img src="/reservation_module/static/src/img/google-calendar.svg" alt=""/>
                                     </a>
                                 </div>
@@ -297,7 +300,7 @@
                             <!-- ─── Date card (event-style), mobile ─── -->
                             <div class="o_wevent_dates_block mb-4 d-lg-none d-flex flex-wrap gap-3">
                                 <div t-if="is_one_day" class="card border d-inline-flex align-items-end flex-row gap-2 p-2 p-md-3" style="background:transparent;color:inherit;font-family:inherit;">
-                                    <time t-field="booking.start_datetime" class="o_wevent_day_header_number lh-1" style="color:var(--o-color-1, currentColor);font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
+                                    <time t-field="booking.start_datetime" class="o_wevent_day_header_number lh-1" style="color:currentColor;font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
                                     <div class="small" style="font-family:inherit;">
                                         <time t-field="booking.start_datetime" class="d-block lh-1" t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
                                         <span class="fw-bold lh-1">
@@ -312,7 +315,7 @@
                                     <div class="card border d-inline-flex align-items-end flex-column gap-1 p-2 p-md-3" style="background:transparent;color:inherit;font-family:inherit;">
                                         <small class="text-muted text-uppercase">開始</small>
                                         <div class="d-flex align-items-end gap-2">
-                                            <time t-field="booking.start_datetime" class="o_wevent_day_header_number lh-1" style="color:var(--o-color-1, currentColor);font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
+                                            <time t-field="booking.start_datetime" class="o_wevent_day_header_number lh-1" style="color:currentColor;font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
                                             <div class="small" style="font-family:inherit;">
                                                 <time t-field="booking.start_datetime" class="d-block lh-1" t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
                                                 <time t-out="booking.start_datetime" class="fw-bold lh-1" t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
@@ -322,7 +325,7 @@
                                     <div class="card border d-inline-flex align-items-end flex-column gap-1 p-2 p-md-3" style="background:transparent;color:inherit;font-family:inherit;">
                                         <small class="text-muted text-uppercase">結束</small>
                                         <div class="d-flex align-items-end gap-2">
-                                            <time t-field="booking.end_datetime" class="o_wevent_day_header_number lh-1" style="color:var(--o-color-1, currentColor);font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
+                                            <time t-field="booking.end_datetime" class="o_wevent_day_header_number lh-1" style="color:currentColor;font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
                                             <div class="small" style="font-family:inherit;">
                                                 <time t-field="booking.end_datetime" class="d-block lh-1" t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
                                                 <time t-out="booking.end_datetime" class="fw-bold lh-1" t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
@@ -335,13 +338,13 @@
                             <!-- ─── Add to Calendar (Apple / Outlook / Google), mobile ─── -->
                             <div t-if="booking.state != 'cancelled'" class="mb-4 d-lg-none d-flex align-items-center flex-wrap gap-2">
                                 <small class="text-muted">加入日曆：</small>
-                                <a t-att-href="ics_url" class="btn btn-light btn-sm wt-reservation-action wt-cal-btn" title="加入 Apple 行事曆" aria-label="加入 Apple 行事曆">
+                                <a t-att-href="ics_url" class="wt-reservation-action wt-cal-btn" title="加入 Apple 行事曆" aria-label="加入 Apple 行事曆">
                                     <i class="fa fa-apple" aria-hidden="true"/>
                                 </a>
-                                <a t-att-href="ics_url" class="btn btn-light btn-sm wt-reservation-action wt-cal-btn" title="加入 Outlook 行事曆" aria-label="加入 Outlook 行事曆">
+                                <a t-att-href="ics_url" class="wt-reservation-action wt-cal-btn" title="加入 Outlook 行事曆" aria-label="加入 Outlook 行事曆">
                                     <img src="/reservation_module/static/src/img/outlook-calendar.svg" alt=""/>
                                 </a>
-                                <a t-att-href="google_url" target="_blank" rel="noopener" class="btn btn-light btn-sm wt-reservation-action wt-cal-btn" title="加入 Google 行事曆" aria-label="加入 Google 行事曆（另開新視窗）">
+                                <a t-att-href="google_url" target="_blank" rel="noopener" class="wt-reservation-action wt-cal-btn" title="加入 Google 行事曆" aria-label="加入 Google 行事曆（另開新視窗）">
                                     <img src="/reservation_module/static/src/img/google-calendar.svg" alt=""/>
                                 </a>
                             </div>

@@ -344,7 +344,10 @@
    always clear the 44x44 touch target, on every device and not only under the
    <=768px media query.
    `.wt-cal-btn` is the single hook the template puts on all three links, so
-   this block never depends on the `event` module's class names. */
+   this block never depends on the `event` module's class names.
+   The links deliberately carry no .btn/.btn-light/.btn-sm: like the native
+   widget these are standalone icons, not framed buttons. The chrome is reset
+   here rather than in the template so the 44x44 hit area survives untouched. */
 .wt-cal-btn {
     display: inline-flex;
     align-items: center;
@@ -352,6 +355,12 @@
     min-width: 44px;                      /* WCAG 2.5.5 / 2.5.8 touch target, all breakpoints */
     min-height: 44px;
     padding: .5rem;                       /* padding (not a fixed width) keeps the square */
+    background: transparent;              /* no frame: hit area stays, the box disappears */
+    border: 0;
+    box-shadow: none;
+    text-decoration: none;
+    color: currentColor;                  /* fa-apple inherits the theme's text colour:
+                                             black on light themes, white on dark ones */
 }
 .wt-cal-btn i.fa {
     font-size: 22px;                      /* same box as the SVGs, independent of .btn-sm */
@@ -368,6 +377,9 @@
     outline: 3px solid var(--o-color-primary, #714b67);
     outline-offset: 2px;
     box-shadow: none;                     /* the solid outline is the only indicator here */
+}
+.wt-cal-btn:hover {
+    box-shadow: none;                     /* beat .wt-reservation-action:hover, stay frameless */
 }
 .wt-cal-btn:hover img {
     filter: brightness(.92);

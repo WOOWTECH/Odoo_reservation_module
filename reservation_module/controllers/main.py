@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from odoo import http, fields, _
-from odoo.http import request
+from odoo.http import request, content_disposition
+from odoo.tools import consteq
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
 from datetime import datetime, timedelta
 import calendar
@@ -1171,6 +1172,7 @@ class AppointmentPortal(CustomerPortal):
         prev_record = '/my/ext-bookings/%d' % all_ids[current_idx - 1] if current_idx > 0 else None
         next_record = '/my/ext-bookings/%d' % all_ids[current_idx + 1] if 0 <= current_idx < len(all_ids) - 1 else None
 
+        cal_urls = booking._get_calendar_urls()
         values = {
             'booking': booking,
             'page_name': 'ext_booking_detail',
@@ -1179,8 +1181,37 @@ class AppointmentPortal(CustomerPortal):
             # Portal chatter support
             'token': booking.access_token,
             'allow_composer': booking.state not in ('cancelled', 'done'),
+            # Fix #4: add-to-calendar URLs
+            'google_url': cal_urls['google_url'],
+            'ics_url': cal_urls['ics_url'],
         }
         return request.render('reservation_module.portal_my_booking_detail', values)
+
+    @http.route('/my/ext-bookings/<int:booking_id>/ics', type='http',
+                auth='public', website=False)
+    def portal_ext_booking_ics(self, booking_id, access_token=None, **kw):
+        """Fix #4: token-protected .ics download for calendar clients.
+
+        auth='public' + access_token check so iOS Mail / desktop calendar
+        clients (which don't carry the portal session cookie when opening
+        an .ics attachment) can still fetch the file.
+        """
+        booking = request.env['appointment.booking'].sudo().browse(booking_id)
+        if (not booking.exists()
+                or not access_token
+                or not booking.access_token
+                or not consteq(booking.access_token, access_token)):
+            return request.not_found()
+        files = booking._get_ics_file()
+        if booking.id not in files:
+            return request.not_found()
+        content = files[booking.id]
+        fname = (booking.appointment_type_id.name or 'booking') + '.ics'
+        return request.make_response(content, [
+            ('Content-Type', 'text/calendar; charset=utf-8'),
+            ('Content-Length', len(content)),
+            ('Content-Disposition', content_disposition(fname)),
+        ])
 
     @http.route('/my/ext-bookings/<int:booking_id>/cancel', type='http',
                 auth='user', website=True, methods=['POST'], csrf=True)

@@ -4,10 +4,20 @@ from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import timedelta, datetime
 import logging
+import pytz
 import secrets
+import textwrap
 import uuid
+import werkzeug.urls
+
+try:
+    import vobject
+except ImportError:
+    vobject = None
 
 _logger = logging.getLogger(__name__)
+
+GOOGLE_CALENDAR_URL = 'https://www.google.com/calendar/render?'
 
 
 class AppointmentBooking(models.Model):
@@ -750,3 +760,135 @@ class AppointmentBooking(models.Model):
         if self.state == 'draft':
             self.state = 'pending_payment'
         return sale_order
+
+    # ------------------------------------------------------------------
+    # Fix #4: Add-to-calendar (Apple / Outlook / Google) — aligned with
+    # event.event._get_ics_file + website_event._get_event_resource_urls
+    # ------------------------------------------------------------------
+
+    def _get_calendar_tz(self):
+        """Timezone fallback chain for calendar exports.
+
+        Order: partner → staff user → current env user → company → UTC.
+        Rationale: partner is who owns the calendar; if unset, fall back to
+        the staff assigned; otherwise take a best guess from context.
+        """
+        self.ensure_one()
+        return (
+            (self.partner_id and self.partner_id.tz)
+            or (self.staff_user_id and self.staff_user_id.tz)
+            or self.env.user.tz
+            or (self.env.company.partner_id and self.env.company.partner_id.tz)
+            or 'UTC'
+        )
+
+    def _get_calendar_location(self):
+        """Location string for VEVENT LOCATION / Google URL location param."""
+        self.ensure_one()
+        at = self.appointment_type_id
+        if self.resource_id:
+            return self.resource_id.name or ''
+        if at.location_id:
+            return at.location_id.contact_address or at.location_id.name or ''
+        return at.location_address or ''
+
+    def _get_calendar_description(self):
+        """Plain-text description with a link back to the portal detail page.
+
+        Matches event._get_external_description shape (plain text, ≤1900 chars).
+        """
+        self.ensure_one()
+        from odoo.tools.mail import html_to_inner_content
+        at = self.appointment_type_id
+        url = f'{self.get_base_url()}/my/ext-bookings/{self.id}'
+        parts = [at.name or _('Booking'), url]
+        if at.description:
+            parts.append(html_to_inner_content(at.description))
+        if self.notes:
+            parts.append(self.notes)
+        text = '\n\n'.join(p for p in parts if p)
+        return textwrap.shorten(text, 1900, placeholder='...')
+
+    def _get_calendar_urls(self):
+        """Return {'google_url': str, 'ics_url': str} used by portal template.
+
+        Google URL: encoded query params on GOOGLE_CALENDAR_URL, includes tz
+        (ctz) so Google interprets the times in local timezone rather than UTC.
+        ICS URL: token-protected route so users on iOS Mail (which cannot send
+        the portal session cookie for attachment downloads) can still open it.
+        """
+        self.ensure_one()
+        tz = self._get_calendar_tz()
+        start = self.start_datetime.astimezone(pytz.timezone(tz)).strftime('%Y%m%dT%H%M%S')
+        end = self.end_datetime.astimezone(pytz.timezone(tz)).strftime('%Y%m%dT%H%M%S')
+        params = {
+            'action': 'TEMPLATE',
+            'text': self.appointment_type_id.name or _('Booking'),
+            'dates': f'{start}/{end}',
+            'ctz': tz,
+            'details': self._get_calendar_description(),
+        }
+        loc = self._get_calendar_location()
+        if loc:
+            params['location'] = loc
+        encoded = werkzeug.urls.url_encode(params)
+        return {
+            'google_url': GOOGLE_CALENDAR_URL + encoded,
+            'ics_url': f'/my/ext-bookings/{self.id}/ics?access_token={self.access_token or ""}',
+        }
+
+    def _get_ics_file(self):
+        """Generate iCalendar (.ics) content per booking.
+
+        Uses stable UID `ext-booking-<id>@<host>` + SEQUENCE derived from
+        write_date so reschedules (which bump write_date) trigger an update
+        on the calendar client instead of a duplicate event.
+
+        Cancelled bookings include STATUS:CANCELLED so clients will remove
+        the event from the calendar.
+
+        VALARM (-15 min DISPLAY) is honoured by Apple / Outlook clients;
+        Google Calendar ignores VALARM from imported .ics but uses its own
+        default reminders.
+        """
+        result = {}
+        if not vobject:
+            _logger.warning('vobject not installed — cannot generate .ics')
+            return result
+
+        for booking in self:
+            tz = pytz.timezone(booking._get_calendar_tz())
+            cal = vobject.iCalendar()
+            cal.add('prodid').value = '-//WoowTech//Reservation Booking//EN'
+            cal.add('method').value = 'CANCEL' if booking.state == 'cancelled' else 'REQUEST'
+            cal_event = cal.add('vevent')
+
+            host = booking.get_base_url().split('//', 1)[-1] or 'reservation'
+            cal_event.add('uid').value = f'ext-booking-{booking.id}@{host}'
+            cal_event.add('sequence').value = str(int(booking.write_date.timestamp()))
+            now_utc = fields.Datetime.now().replace(tzinfo=pytz.UTC)
+            cal_event.add('created').value = now_utc
+            cal_event.add('dtstamp').value = now_utc
+            cal_event.add('last-modified').value = (
+                booking.write_date.replace(tzinfo=pytz.UTC) if booking.write_date else now_utc
+            )
+            cal_event.add('dtstart').value = booking.start_datetime.astimezone(tz)
+            cal_event.add('dtend').value = booking.end_datetime.astimezone(tz)
+            cal_event.add('summary').value = booking.appointment_type_id.name or _('Booking')
+            cal_event.add('description').value = booking._get_calendar_description()
+
+            loc = booking._get_calendar_location()
+            if loc:
+                cal_event.add('location').value = loc
+
+            if booking.state == 'cancelled':
+                cal_event.add('status').value = 'CANCELLED'
+            else:
+                cal_event.add('status').value = 'CONFIRMED'
+                alarm = cal_event.add('valarm')
+                alarm.add('action').value = 'DISPLAY'
+                alarm.add('trigger').value = timedelta(minutes=-15)
+                alarm.add('description').value = booking.appointment_type_id.name or _('Booking')
+
+            result[booking.id] = cal.serialize().encode('utf-8')
+        return result

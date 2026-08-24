@@ -306,6 +306,29 @@
                                 </t>
                             </div>
 
+                            <!-- ─── Fix #4: Add to Calendar (Apple / Outlook / Google) ─── -->
+                            <div t-if="booking.state != 'cancelled'"
+                                 class="mb-4 d-flex align-items-center flex-wrap gap-2">
+                                <small class="text-muted">加入日曆：</small>
+                                <a t-att-href="ics_url"
+                                   class="btn btn-light btn-sm wt-reservation-action"
+                                   title="Apple 行事曆" aria-label="加入 Apple 行事曆">
+                                    <i class="fa fa-apple"/>
+                                </a>
+                                <a t-att-href="ics_url"
+                                   class="btn btn-light btn-sm wt-reservation-action"
+                                   title="Outlook" aria-label="加入 Outlook">
+                                    <i class="fa fa-envelope-o"/>
+                                    <span class="ms-1 d-none d-md-inline">Outlook</span>
+                                </a>
+                                <a t-att-href="google_url" target="_blank" rel="noopener"
+                                   class="btn btn-light btn-sm wt-reservation-action"
+                                   title="Google 行事曆" aria-label="加入 Google 行事曆">
+                                    <i class="fa fa-google"/>
+                                    <span class="ms-1 d-none d-md-inline">Google</span>
+                                </a>
+                            </div>
+
                             <!-- ─── Basic info (service, staff, guest count) ─── -->
                             <div class="row mb-4">
                                 <div class="col-12 col-md-6">

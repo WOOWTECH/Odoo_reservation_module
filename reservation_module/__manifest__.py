@@ -60,6 +60,9 @@
             "reservation_module/static/src/scss/appointment_frontend.scss",
             "reservation_module/static/src/js/appointment_booking.js",
         ],
+        "portal.assets_chatter": [
+            "reservation_module/static/src/js/chatter_theme_patch.js",
+        ],
     },
     "demo": [
         "demo/appointment_demo.xml",

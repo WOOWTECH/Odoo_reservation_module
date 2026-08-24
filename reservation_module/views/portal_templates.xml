@@ -306,26 +306,31 @@
                                 </t>
                             </div>
 
-                            <!-- ─── Fix #4: Add to Calendar (Apple / Outlook / Google) ─── -->
+                            <!-- ─── Fix #4: Add to Calendar (Apple / Outlook / Google) ───
+                                 Icon-only buttons, mirroring the native website_event
+                                 `event_description_dates` markup: fa-apple for iCal plus the
+                                 stock Outlook / Google Calendar SVGs shipped by `event`.
+                                 No visible label at any breakpoint; title + aria-label keep
+                                 the accessible name. -->
                             <div t-if="booking.state != 'cancelled'"
                                  class="mb-4 d-flex align-items-center flex-wrap gap-2">
                                 <small class="text-muted">加入日曆：</small>
                                 <a t-att-href="ics_url"
-                                   class="btn btn-light btn-sm wt-reservation-action"
+                                   class="btn btn-light btn-sm wt-reservation-action o_wevent_add_to_ical"
                                    title="Apple 行事曆" aria-label="加入 Apple 行事曆">
-                                    <i class="fa fa-apple"/>
+                                    <i role="img" class="fa fa-apple"/>
                                 </a>
                                 <a t-att-href="ics_url"
-                                   class="btn btn-light btn-sm wt-reservation-action"
+                                   class="btn btn-light btn-sm wt-reservation-action o_wevent_add_to_outlook"
                                    title="Outlook" aria-label="加入 Outlook">
-                                    <i class="fa fa-envelope-o"/>
-                                    <span class="ms-1 d-none d-md-inline">Outlook</span>
+                                    <img src="/event/static/src/img/outlook-calendar.svg"
+                                         alt="Outlook" loading="lazy"/>
                                 </a>
                                 <a t-att-href="google_url" target="_blank" rel="noopener"
-                                   class="btn btn-light btn-sm wt-reservation-action"
+                                   class="btn btn-light btn-sm wt-reservation-action o_wevent_add_to_google_calendar"
                                    title="Google 行事曆" aria-label="加入 Google 行事曆">
-                                    <i class="fa fa-google"/>
-                                    <span class="ms-1 d-none d-md-inline">Google</span>
+                                    <img src="/event/static/src/img/google-calendar.svg"
+                                         alt="Google" loading="lazy"/>
                                 </a>
                             </div>
 

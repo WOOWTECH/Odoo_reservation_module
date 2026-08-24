@@ -318,6 +318,29 @@
     text-align: center;                   /* stabilise icon spacing across fa-video/times/credit-card */
 }
 
+/* ── Add-to-Calendar buttons: native website_event icon set, icon-only ──
+   Apple keeps the FA glyph and is scaled exactly like upstream
+   `.o_wevent_add_to_ical i { scale: 1.4 }`; Outlook / Google use the stock
+   SVGs shipped by the `event` addon, so they need their own box because
+   `.wt-reservation-action i.fa` only normalises <i class="fa">.
+   Buttons carry no label at any breakpoint -> render them as squares. */
+.wt-reservation-action.o_wevent_add_to_ical i.fa {
+    scale: 1.4;                           /* same optical size as native website_event */
+}
+.wt-reservation-action.o_wevent_add_to_outlook img,
+.wt-reservation-action.o_wevent_add_to_google_calendar img {
+    display: block;
+    height: 22px;                         /* explicit box => no layout shift before the SVG loads */
+    width: auto;
+}
+.wt-reservation-action.o_wevent_add_to_ical,
+.wt-reservation-action.o_wevent_add_to_outlook,
+.wt-reservation-action.o_wevent_add_to_google_calendar {
+    width: 38px;                          /* square: matches .wt-reservation-action min-height */
+    padding-left: .25rem;
+    padding-right: .25rem;
+}
+
 /* ── Fix #5: Portal booking detail — event-style info blocks ── */
 .o_wevent_day_header_number {
     font-size: 3rem;

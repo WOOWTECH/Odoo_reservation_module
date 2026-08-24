@@ -6,6 +6,17 @@ from datetime import timedelta
 
 
 class AppointmentSlot(models.Model):
+    """DEPRECATED — not used by any controller or view.
+
+    Slots are generated on the fly by
+    AppointmentController._get_scheduled_slots(); nothing reads or writes this
+    model (appointment.booking.slot_id is never populated). It was left in
+    place during the UTC storage refactor (18.0.3.0.0) rather than reworked:
+    generate_slots() below still passes naive datetimes to
+    resource.calendar._work_intervals_batch(), which requires tz-aware ones,
+    so it would raise if it were ever called. Fix or drop it before use.
+    """
+
     _name = 'appointment.slot'
     _description = 'Appointment Slot'
     _order = 'start_datetime'

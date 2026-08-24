@@ -57,7 +57,7 @@
             "reservation_module/static/src/views/booking_calendar_controller.xml",
         ],
         "web.assets_frontend": [
-            "reservation_module/static/src/css/appointment_frontend.css",
+            "reservation_module/static/src/scss/appointment_frontend.scss",
             "reservation_module/static/src/js/appointment_booking.js",
         ],
     },

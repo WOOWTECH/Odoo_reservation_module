@@ -29,22 +29,22 @@
     cursor: pointer;
     padding: 10px;
     text-align: center;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--bs-border-color, #dee2e6);
     border-radius: 4px;
     transition: background-color 0.2s;
 }
 
 #appointment-reservation .reservation-day:hover {
-    background-color: #e9ecef;
+    background-color: var(--bs-gray-200, #e9ecef);
 }
 
 #appointment-reservation .reservation-day.selected {
-    background-color: #007bff;
+    background-color: var(--o-color-primary, #714b67);
     color: white;
 }
 
 #appointment-reservation .reservation-day.disabled {
-    color: #adb5bd;
+    color: var(--bs-gray-500, #adb5bd);
     cursor: not-allowed;
 }
 
@@ -54,7 +54,7 @@
 
 #appointment-reservation .reservation-day.has-event {
     font-weight: bold;
-    border-color: #17a2b8;
+    border-color: var(--bs-info, #17a2b8);
     background-color: rgba(23, 162, 184, 0.1);
 }
 
@@ -63,7 +63,7 @@
 }
 
 #appointment-reservation .reservation-day.no-slots {
-    color: #adb5bd;
+    color: var(--bs-gray-500, #adb5bd);
 }
 
 /* Time Slots */
@@ -71,25 +71,25 @@
     display: inline-block;
     padding: 10px 20px;
     margin: 5px;
-    border: 2px solid #007bff;
+    border: 2px solid var(--o-color-primary, #714b67);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .time-slot:hover {
-    background-color: #007bff;
+    background-color: var(--o-color-primary, #714b67);
     color: white;
 }
 
 .time-slot.selected {
-    background-color: #007bff;
+    background-color: var(--o-color-primary, #714b67);
     color: white;
 }
 
 .time-slot.unavailable {
-    border-color: #dee2e6;
-    color: #adb5bd;
+    border-color: var(--bs-border-color, #dee2e6);
+    color: var(--bs-gray-500, #adb5bd);
     cursor: not-allowed;
 }
 
@@ -100,7 +100,7 @@
 
 .time-slot .slot-availability {
     font-size: 0.85rem;
-    color: #6c757d;
+    color: var(--bs-secondary, #6c757d);
 }
 
 .time-slot:hover .slot-availability {
@@ -113,30 +113,30 @@
 }
 
 .resource-list .list-group-item:hover {
-    background-color: #f8f9fa;
+    background-color: var(--bs-gray-100, #f8f9fa);
 }
 
 .resource-list .list-group-item.active {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: var(--o-color-primary, #714b67);
+    border-color: var(--o-color-primary, #714b67);
 }
 
 /* Booking Form */
 .booking-form .form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+    border-color: var(--o-color-primary, #714b67);
+    box-shadow: 0 0 0 0.2rem rgba(113, 75, 103, 0.25);
 }
 
 /* Confirmation Page */
 .confirmation-icon {
     font-size: 5rem;
-    color: #28a745;
+    color: var(--bs-success, #28a745);
 }
 
 .booking-reference {
     font-size: 2rem;
     font-weight: bold;
-    color: #007bff;
+    color: var(--o-color-primary, #714b67);
     letter-spacing: 2px;
 }
 
@@ -151,7 +151,7 @@
 
 .appointment-loading .fa-spinner {
     font-size: 2rem;
-    color: #007bff;
+    color: var(--o-color-primary, #714b67);
 }
 
 /* Breadcrumb */
@@ -167,26 +167,26 @@
 }
 
 .appointment-alert.alert-info {
-    border-left-color: #17a2b8;
+    border-left-color: var(--bs-info, #17a2b8);
 }
 
 .appointment-alert.alert-warning {
-    border-left-color: #ffc107;
+    border-left-color: var(--bs-warning, #ffc107);
 }
 
 .appointment-alert.alert-success {
-    border-left-color: #28a745;
+    border-left-color: var(--bs-success, #28a745);
 }
 
 .appointment-alert.alert-danger {
-    border-left-color: #dc3545;
+    border-left-color: var(--bs-danger, #dc3545);
 }
 
 /* Payment Page */
 .payment-amount {
     font-size: 3rem;
     font-weight: bold;
-    color: #007bff;
+    color: var(--o-color-primary, #714b67);
 }
 
 .payment-method-btn {
@@ -194,14 +194,14 @@
     align-items: center;
     justify-content: center;
     padding: 15px 30px;
-    border: 2px solid #dee2e6;
+    border: 2px solid var(--bs-border-color, #dee2e6);
     border-radius: 8px;
     transition: all 0.2s;
 }
 
 .payment-method-btn:hover {
-    border-color: #007bff;
-    background-color: #f8f9fa;
+    border-color: var(--o-color-primary, #714b67);
+    background-color: var(--bs-gray-100, #f8f9fa);
 }
 
 .payment-method-btn img {
@@ -211,20 +211,20 @@
 
 /* ===== WCAG 2.1 AA: Focus Indicators ===== */
 #appointment-reservation .reservation-day:focus {
-    outline: 3px solid #007bff;
+    outline: 3px solid var(--o-color-primary, #714b67);
     outline-offset: 2px;
-    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25);
+    box-shadow: 0 0 0 4px rgba(113, 75, 103, 0.25);
 }
 
 .time-slot:focus {
-    outline: 3px solid #007bff;
+    outline: 3px solid var(--o-color-primary, #714b67);
     outline-offset: 2px;
-    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25);
+    box-shadow: 0 0 0 4px rgba(113, 75, 103, 0.25);
 }
 
 .reservation-prev:focus,
 .reservation-next:focus {
-    outline: 3px solid #007bff;
+    outline: 3px solid var(--o-color-primary, #714b67);
     outline-offset: 2px;
 }
 
@@ -234,7 +234,7 @@
     top: -100%;
     left: 50%;
     transform: translateX(-50%);
-    background: #007bff;
+    background: var(--o-color-primary, #714b67);
     color: #fff;
     padding: 8px 24px;
     z-index: 10000;

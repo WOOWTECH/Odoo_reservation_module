@@ -92,10 +92,11 @@
                                     <span t-out="bk.appointment_type_id.name"/>
                                 </td>
                                 <td>
-                                    <!-- 時區顯示修正：start_datetime 存的是「預約類型時區的牆上時間」，
-                                         固定 tz_name UTC 讓 QWeb 不做二次時區轉換、原樣輸出；
-                                         模組改為標準 UTC 儲存後要一併移除。 -->
-                                    <span t-field="bk.start_datetime" t-options='{"widget": "datetime", "tz_name": "UTC", "format": "yyyy-MM-dd HH:mm"}'/>
+                                    <!-- 時區顯示：start_datetime 依 Odoo 慣例存 UTC，
+                                         以 tz_name 指定顯示時區（使用者時區優先，
+                                         否則退回預約類型時區）轉成當地時間。 -->
+                                    <t t-set="row_tz" t-value="request.env.user.tz or bk.appointment_type_id.timezone or 'Asia/Taipei'"/>
+                                    <span t-field="bk.start_datetime" t-options='{"widget": "datetime", "tz_name": row_tz, "format": "yyyy-MM-dd HH:mm"}'/>
                                 </td>
                                 <td class="text-end">
                                     <span t-if="bk.state == 'confirmed'"
@@ -190,13 +191,13 @@
                                 </form>
                             </div>
 
-                            <!-- 時區顯示修正：本模組的 start_datetime / end_datetime 是以
-                                 「預約類型時區的牆上時間」直接存進 Datetime 欄位的（不是標準 UTC），
-                                 因此這裡固定 tz_name: 'UTC'，讓 QWeb 不要再做第二次時區轉換，
-                                 而是把已經是在地時間的值原樣輸出。
-                                 待模組改為標準 UTC 儲存後，這個設定要一併移除。 -->
-                            <t t-set="tz" t-value="'UTC'"/>
-                            <t t-set="is_one_day" t-value="booking.start_datetime and booking.end_datetime and booking.start_datetime.date() == booking.end_datetime.date()"/>
+                            <!-- 時區顯示：start_datetime / end_datetime 依 Odoo 慣例存 UTC，
+                                 這裡以 tz_name 指定顯示時區，讓 QWeb 轉成當地時間。
+                                 順序為「使用者時區 → 預約類型時區 → Asia/Taipei」，
+                                 portal 使用者若未設時區也不會退回顯示 UTC。 -->
+                            <t t-set="tz" t-value="request.env.user.tz or booking.appointment_type_id.timezone or 'Asia/Taipei'"/>
+                            <!-- 跨日判斷必須用當地日期：UTC 下 07:00 台北會落在前一天。 -->
+                            <t t-set="is_one_day" t-value="booking.is_one_local_day"/>
 
                             <!-- ─── Date card (event-style), desktop sidebar ─── -->
                             <div class="d-none d-lg-flex flex-column gap-3">
@@ -291,11 +292,11 @@
                         </div>
 
                         <div id="card_body">
-                            <!-- 時區顯示修正：同上，start_datetime / end_datetime 存的是
-                                 「預約類型時區的牆上時間」，固定 tz_name: 'UTC' 讓 QWeb 不做
-                                 二次時區轉換、原樣輸出。模組改為標準 UTC 儲存後要一併移除。 -->
-                            <t t-set="tz" t-value="'UTC'"/>
-                            <t t-set="is_one_day" t-value="booking.start_datetime and booking.end_datetime and booking.start_datetime.date() == booking.end_datetime.date()"/>
+                            <!-- 時區顯示：同上，start_datetime / end_datetime 存 UTC，
+                                 以 tz_name 指定顯示時區轉成當地時間；
+                                 跨日判斷同樣改用當地日期。 -->
+                            <t t-set="tz" t-value="request.env.user.tz or booking.appointment_type_id.timezone or 'Asia/Taipei'"/>
+                            <t t-set="is_one_day" t-value="booking.is_one_local_day"/>
 
                             <!-- ─── Date card (event-style), mobile ─── -->
                             <div class="o_wevent_dates_block mb-4 d-lg-none d-flex flex-wrap gap-3">

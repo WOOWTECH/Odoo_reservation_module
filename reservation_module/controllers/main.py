@@ -849,10 +849,16 @@ class AppointmentController(http.Controller):
 
         # Redirect to appropriate page
         if appointment_type.require_payment:
-            # Create Sales Order and redirect to Odoo's native SO portal payment page
+            # Create Sales Order (cart mode when website_sale is installed,
+            # fresh SO otherwise). Redirect follows the mode:
+            #  - cart mode → /shop/cart so the visitor can add coupons,
+            #    combine multiple bookings, then checkout normally
+            #  - fresh SO → /my/orders/<id> as before (Odoo standard SO portal)
             sale_order = booking._create_sale_order()
             if sale_order:
-                # Use access_token so public/anonymous users can view the SO portal page
+                if hasattr(request.website, 'sale_get_order'):
+                    # Cart mode active (website_sale installed)
+                    return request.redirect('/shop/cart')
                 return request.redirect(
                     f'/my/orders/{sale_order.id}?access_token={sale_order.access_token}'
                 )

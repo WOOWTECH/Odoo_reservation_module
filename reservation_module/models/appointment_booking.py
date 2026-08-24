@@ -719,7 +719,13 @@ class AppointmentBooking(models.Model):
         return f'{base_url}/appointment/booking/{self.id}?token={self.access_token}'
 
     def _create_sale_order(self):
-        """Create a sale order for paid bookings using multiple products from appointment type."""
+        """Create a sale order for paid bookings, using the website cart when
+        website_sale is installed so multiple bookings can share a cart and
+        promo codes / loyalty rewards work via /shop/cart.
+
+        Falls back to a fresh SO (directly opened via /my/orders/<id>) when
+        website_sale is not installed.
+        """
         self.ensure_one()
         if self.sale_order_id:
             return self.sale_order_id
@@ -731,30 +737,58 @@ class AppointmentBooking(models.Model):
             return False
 
         qty = self.guest_count if apt.payment_per_person else 1
-        order_lines = [
-            # Section header with appointment type name
-            (0, 0, {
+
+        # ---- Cart mode: append to visitor's cart if website_sale is installed ----
+        # website.sale_get_order is provided by website_sale; feature-detect so
+        # this code path works even if website_sale is uninstalled.
+        try:
+            from odoo.http import request as _req
+            website = getattr(_req, 'website', None) if _req else None
+        except Exception:
+            website = None
+
+        if website and hasattr(website, 'sale_get_order'):
+            sale_order = website.sudo().sale_get_order(force_create=True)
+            # Ensure cart is bound to the booking's partner
+            if sale_order.partner_id.id != self.partner_id.id:
+                sale_order.sudo().partner_id = self.partner_id.id
+            # Section header — helps identify each booking's lines in cart
+            self.env['sale.order.line'].sudo().create({
+                'order_id': sale_order.id,
                 'display_type': 'line_section',
-                'name': apt.name,
-            }),
-        ]
-        for product in apt.payment_product_ids:
-            order_lines.append((0, 0, {
-                'product_id': product.id,
-                'name': product.name,
-                'product_uom_qty': qty,
-                'price_unit': product.list_price,
-            }))
-
-        sale_order = self.env['sale.order'].sudo().create({
-            'partner_id': self.partner_id.id,
-            'company_id': self.company_id.id or self.env.company.id,
-            'origin': self.name,
-            'order_line': order_lines,
-        })
-
-        sale_order.action_quotation_sent()
-        sale_order._portal_ensure_token()
+                'name': f'{apt.name} — {self.name}',
+                'sequence': 999,
+            })
+            # Add each product via _cart_update so promo/loyalty rules run
+            for product in apt.payment_product_ids:
+                sale_order.sudo()._cart_update(
+                    product_id=product.id,
+                    add_qty=qty,
+                )
+            sale_order.sudo()._portal_ensure_token()
+        else:
+            # ---- Fallback: create a fresh SO opened directly via SO portal ----
+            order_lines = [
+                (0, 0, {
+                    'display_type': 'line_section',
+                    'name': apt.name,
+                }),
+            ]
+            for product in apt.payment_product_ids:
+                order_lines.append((0, 0, {
+                    'product_id': product.id,
+                    'name': product.name,
+                    'product_uom_qty': qty,
+                    'price_unit': product.list_price,
+                }))
+            sale_order = self.env['sale.order'].sudo().create({
+                'partner_id': self.partner_id.id,
+                'company_id': self.company_id.id or self.env.company.id,
+                'origin': self.name,
+                'order_line': order_lines,
+            })
+            sale_order.action_quotation_sent()
+            sale_order._portal_ensure_token()
 
         self.sale_order_id = sale_order
         if self.state == 'draft':

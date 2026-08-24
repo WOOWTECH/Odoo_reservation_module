@@ -312,10 +312,90 @@
     justify-content: center;
     gap: .25rem;
     line-height: 1.5;
+    transition: filter .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+/* ===== WCAG 2.1 AA: visible focus + hover feedback on booking actions =====
+   The add-to-calendar buttons are icon-only and visually identical, so the
+   Bootstrap default light-grey focus glow is not reliably perceivable on dark
+   site themes. Reuse exactly the indicator already used by .reservation-day
+   and .time-slot. Hover uses filter/shadow only, so it stays theme-agnostic
+   (this is a generic module, it must not hard-code a site palette). */
+.wt-reservation-action:focus-visible {
+    outline: 3px solid var(--o-color-primary, #714b67);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(113, 75, 103, 0.25);
+}
+.wt-reservation-action:hover {
+    filter: brightness(.92);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .2);
 }
 .wt-reservation-action i.fa {
     width: 1em;
     text-align: center;                   /* stabilise icon spacing across fa-video/times/credit-card */
+}
+
+/* ── Add-to-Calendar buttons: native website_event icon set, icon-only ──
+   The three icons are sized to match each other optically rather than
+   numerically: the fa-apple glyph fills its em box, while the Outlook and
+   Google SVGs carry internal padding, so the SVGs are set slightly taller
+   (30px vs 28px) to land on the same apparent size.
+   The SVGs are vendored under this module's own static/src/img.
+   Buttons carry no label at any breakpoint -> render them as squares that
+   always clear the 44x44 touch target, on every device and not only under the
+   <=768px media query.
+   `.wt-cal-btn` is the single hook the template puts on all three links, so
+   this block never depends on the `event` module's class names.
+   The links deliberately carry no .btn/.btn-light/.btn-sm: like the native
+   widget these are standalone icons, not framed buttons. The chrome is reset
+   here rather than in the template so the 44x44 hit area survives untouched. */
+.wt-cal-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;                      /* WCAG 2.5.5 / 2.5.8 touch target, all breakpoints */
+    min-height: 44px;
+    padding: .5rem;                       /* padding (not a fixed width) keeps the square */
+    background: transparent;              /* no frame: hit area stays, the box disappears */
+    border: 0;
+    box-shadow: none;
+    text-decoration: none;
+    color: currentColor;                  /* fa-apple inherits the theme's text colour:
+                                             black on light themes, white on dark ones */
+}
+.wt-cal-btn i.fa {
+    font-size: 28px;                      /* glyph fills its box, so it needs less height */
+    line-height: 1;
+    width: auto;                          /* override .wt-reservation-action i.fa { width: 1em } */
+}
+.wt-cal-btn img {
+    height: 30px;                         /* explicit box => no layout shift before the SVG loads.
+                                             2px taller than the glyph: both SVGs carry internal
+                                             padding, so matching the raw heights would render
+                                             them visibly smaller than fa-apple. */
+    width: auto;
+    max-width: 100%;
+    display: block;
+}
+.wt-cal-btn:focus-visible {
+    outline: 3px solid var(--o-color-primary, #714b67);
+    outline-offset: 2px;
+    box-shadow: none;                     /* the solid outline is the only indicator here */
+}
+.wt-cal-btn:hover {
+    box-shadow: none;                     /* beat .wt-reservation-action:hover, stay frameless */
+}
+.wt-cal-btn:hover img {
+    filter: brightness(.92);
+}
+
+/* Icon-only calendar row: this label is the only text cue left in the block,
+   so it must not use Bootstrap's .text-muted (#6c757d, ~4.19:1 on a dark
+   background — below the 4.5:1 AA threshold). Inheriting the surrounding
+   colour keeps it readable in both light and dark site themes. */
+.wt-reservation-calendar-label {
+    color: inherit;
+    opacity: .75;
 }
 
 /* ── Fix #5: Portal booking detail — event-style info blocks ── */

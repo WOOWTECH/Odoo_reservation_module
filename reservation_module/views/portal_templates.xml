@@ -253,30 +253,115 @@
                         </div>
 
                         <div id="card_body">
+                            <!-- ─── Fix #5: Date card (event-style) ─── -->
+                            <t t-set="tz" t-value="request.env.user.tz or 'Asia/Taipei'"/>
+                            <t t-set="is_one_day" t-value="booking.start_datetime and booking.end_datetime and booking.start_datetime.date() == booking.end_datetime.date()"/>
+                            <div class="o_wevent_dates_block mb-4 d-flex flex-wrap gap-3">
+                                <div t-if="is_one_day" class="card border d-inline-flex align-items-end flex-row gap-2 p-2 p-md-3">
+                                    <time t-field="booking.start_datetime"
+                                          class="o_wevent_day_header_number lh-1"
+                                          t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
+                                    <div class="small">
+                                        <time t-field="booking.start_datetime" class="d-block lh-1"
+                                              t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
+                                        <span class="fw-bold lh-1">
+                                            <time t-out="booking.start_datetime"
+                                                  t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
+                                            <i class="fa fa-long-arrow-right mx-1 text-muted"/>
+                                            <time t-out="booking.end_datetime"
+                                                  t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
+                                        </span>
+                                    </div>
+                                </div>
+                                <t t-else="">
+                                    <!-- Cross-day: two separate cards (Starts / Ends) -->
+                                    <div class="card border d-inline-flex align-items-end flex-column gap-1 p-2 p-md-3">
+                                        <small class="text-muted text-uppercase">開始</small>
+                                        <div class="d-flex align-items-end gap-2">
+                                            <time t-field="booking.start_datetime"
+                                                  class="o_wevent_day_header_number lh-1"
+                                                  t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
+                                            <div class="small">
+                                                <time t-field="booking.start_datetime" class="d-block lh-1"
+                                                      t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
+                                                <time t-out="booking.start_datetime" class="fw-bold lh-1"
+                                                      t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card border d-inline-flex align-items-end flex-column gap-1 p-2 p-md-3">
+                                        <small class="text-muted text-uppercase">結束</small>
+                                        <div class="d-flex align-items-end gap-2">
+                                            <time t-field="booking.end_datetime"
+                                                  class="o_wevent_day_header_number lh-1"
+                                                  t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
+                                            <div class="small">
+                                                <time t-field="booking.end_datetime" class="d-block lh-1"
+                                                      t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
+                                                <time t-out="booking.end_datetime" class="fw-bold lh-1"
+                                                      t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- ─── Basic info (service, staff, guest count) ─── -->
                             <div class="row mb-4">
                                 <div class="col-12 col-md-6">
                                     <div><strong>服務項目：</strong> <span t-out="booking.appointment_type_id.name"/></div>
-                                    <div>
-                                        <strong>預約時間：</strong>
-                                        <span t-field="booking.start_datetime"/> -
-                                        <span t-field="booking.end_datetime" t-options="{'time_only': True}"/>
-                                    </div>
                                     <div><strong>人數：</strong> <span t-out="booking.guest_count"/></div>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div t-if="booking.staff_user_id">
                                         <strong>服務人員：</strong> <span t-out="booking.staff_user_id.name"/>
                                     </div>
-                                    <div t-if="booking.resource_id">
-                                        <strong>地點：</strong> <span t-out="booking.resource_id.name"/>
-                                    </div>
                                 </div>
                             </div>
 
-                            <div t-if="booking.notes" class="mb-4">
-                                <h5 class="mb-1">備註</h5>
-                                <hr class="mt-1 mb-2"/>
-                                <div class="py-1 px-2 bg-100 small" t-out="booking.notes"/>
+                            <!-- ─── Fix #5: Location block (event-style) ─── -->
+                            <div t-if="booking.resource_id or booking.appointment_type_id.location_id or booking.appointment_type_id.location_address"
+                                 class="o_wevent_sidebar_block border-top pt-3 mt-3 mb-4">
+                                <h6 class="o_wevent_sidebar_title text-uppercase text-muted mb-2">
+                                    <i class="fa fa-map-marker me-1"/>地點
+                                </h6>
+                                <div t-if="booking.resource_id" class="mb-1 fw-bold" t-out="booking.resource_id.name"/>
+                                <small t-if="booking.resource_id and booking.resource_id.location"
+                                       class="d-block mb-2 text-muted"
+                                       t-out="booking.resource_id.location"/>
+                                <div t-if="booking.appointment_type_id.location_id"
+                                     class="mb-1 fw-bold"
+                                     t-out="booking.appointment_type_id.location_id.name"/>
+                                <small t-if="booking.appointment_type_id.location_id"
+                                       class="d-block mb-2"
+                                       t-field="booking.appointment_type_id.location_id"
+                                       t-options='{"widget":"contact","fields":["address"],"no_marker":true}'/>
+                                <div t-if="not booking.appointment_type_id.location_id and booking.appointment_type_id.location_address"
+                                     class="mb-2 text-muted"
+                                     t-out="booking.appointment_type_id.location_address"/>
+                                <t t-set="map_query" t-value="booking.appointment_type_id.location_id.contact_address or booking.appointment_type_id.location_address or ''"/>
+                                <a t-if="map_query"
+                                   t-attf-href="https://www.google.com/maps/search/?api=1&amp;query=#{map_query}"
+                                   target="_blank" rel="noopener"
+                                   class="btn btn-light btn-sm wt-reservation-action">
+                                    <i class="fa fa-location-arrow me-1"/>取得路線
+                                </a>
+                            </div>
+
+                            <!-- ─── Fix #5: Service description (Html rich text) ─── -->
+                            <div t-if="booking.appointment_type_id.description" class="card border-0 bg-light mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-2">服務說明</h5>
+                                    <div t-field="booking.appointment_type_id.description"/>
+                                </div>
+                            </div>
+
+                            <!-- ─── Fix #5: Notes (preserve line breaks) ─── -->
+                            <div t-if="booking.notes" class="card border-0 bg-light mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-2">備註</h5>
+                                    <div class="small" style="white-space: pre-wrap;" t-out="booking.notes"/>
+                                </div>
                             </div>
 
                             <!-- Meeting info for online meetings -->

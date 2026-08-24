@@ -317,3 +317,22 @@
     width: 1em;
     text-align: center;                   /* stabilise icon spacing across fa-video/times/credit-card */
 }
+
+/* ── Fix #5: Portal booking detail — event-style info blocks ── */
+.o_wevent_day_header_number {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--o-color-primary, #714b67);
+}
+.o_wevent_sidebar_title {
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+}
+.o_wevent_dates_block .card {
+    border-color: var(--bs-border-color, #dee2e6);
+    border-radius: .5rem;
+}
+@media (max-width: 576px) {
+    .o_wevent_day_header_number { font-size: 2.25rem; }
+    .o_wevent_dates_block { flex-direction: column; }
+}

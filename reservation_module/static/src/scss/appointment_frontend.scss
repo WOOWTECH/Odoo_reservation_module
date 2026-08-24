@@ -312,6 +312,23 @@
     justify-content: center;
     gap: .25rem;
     line-height: 1.5;
+    transition: filter .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+/* ===== WCAG 2.1 AA: visible focus + hover feedback on booking actions =====
+   The add-to-calendar buttons are icon-only and visually identical, so the
+   Bootstrap default light-grey focus glow is not reliably perceivable on dark
+   site themes. Reuse exactly the indicator already used by .reservation-day
+   and .time-slot. Hover uses filter/shadow only, so it stays theme-agnostic
+   (this is a generic module, it must not hard-code a site palette). */
+.wt-reservation-action:focus-visible {
+    outline: 3px solid var(--o-color-primary, #714b67);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(113, 75, 103, 0.25);
+}
+.wt-reservation-action:hover {
+    filter: brightness(.92);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .2);
 }
 .wt-reservation-action i.fa {
     width: 1em;
@@ -319,26 +336,42 @@
 }
 
 /* ── Add-to-Calendar buttons: native website_event icon set, icon-only ──
-   Apple keeps the FA glyph and is scaled exactly like upstream
-   `.o_wevent_add_to_ical i { scale: 1.4 }`; Outlook / Google use the stock
-   SVGs shipped by the `event` addon, so they need their own box because
-   `.wt-reservation-action i.fa` only normalises <i class="fa">.
-   Buttons carry no label at any breakpoint -> render them as squares. */
+   All three icons are driven by a single 22px box so the FA glyph and the two
+   SVGs render at the same optical size (upstream `scale: 1.4` was tuned for a
+   full-size .btn; these buttons are .btn-sm, so it came out ~11% too small).
+   The SVGs are vendored under this module's own static/src/img.
+   Buttons carry no label at any breakpoint -> render them as squares that
+   always clear the 44x44 touch target, on every device and not only under the
+   <=768px media query. */
 .wt-reservation-action.o_wevent_add_to_ical i.fa {
-    scale: 1.4;                           /* same optical size as native website_event */
+    font-size: 22px;                      /* same box as the SVGs, independent of .btn-sm */
+    line-height: 1;
+    width: auto;                          /* override .wt-reservation-action i.fa { width: 1em } */
+    scale: 1;                             /* neutralise upstream .o_wevent_add_to_ical scaling */
 }
 .wt-reservation-action.o_wevent_add_to_outlook img,
 .wt-reservation-action.o_wevent_add_to_google_calendar img {
     display: block;
     height: 22px;                         /* explicit box => no layout shift before the SVG loads */
     width: auto;
+    max-width: 100%;
 }
 .wt-reservation-action.o_wevent_add_to_ical,
 .wt-reservation-action.o_wevent_add_to_outlook,
 .wt-reservation-action.o_wevent_add_to_google_calendar {
-    width: 38px;                          /* square: matches .wt-reservation-action min-height */
-    padding-left: .25rem;
-    padding-right: .25rem;
+    min-width: 44px;                      /* WCAG 2.5.5 / 2.5.8 touch target, all breakpoints */
+    min-height: 44px;
+    padding: .5rem;                       /* padding (not a fixed width) keeps the square */
+    gap: 0;
+}
+
+/* Icon-only calendar row: this label is the only text cue left in the block,
+   so it must not use Bootstrap's .text-muted (#6c757d, ~4.19:1 on a dark
+   background — below the 4.5:1 AA threshold). Inheriting the surrounding
+   colour keeps it readable in both light and dark site themes. */
+.wt-reservation-calendar-label {
+    color: inherit;
+    opacity: .75;
 }
 
 /* ── Fix #5: Portal booking detail — event-style info blocks ── */

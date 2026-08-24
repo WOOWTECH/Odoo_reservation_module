@@ -41,6 +41,7 @@ patch(PortalChatterService.prototype, {
     --o-mail-Chatter-primary-border: var(--o-cc1-btn-primary-border, var(--o-color-primary, #714b67));
     --o-mail-Chatter-link: var(--o-cc1-link, var(--o-color-primary, #714b67));
     color: var(--o-mail-Chatter-body-color);
+    background-color: transparent;
 }
 .o-mail-Chatter,
 .o-portal-Chatter,
@@ -49,6 +50,36 @@ patch(PortalChatterService.prototype, {
 .o-mail-Thread {
     font-family: var(--o-mail-Chatter-font-family) !important;
     color: var(--o-mail-Chatter-body-color);
+}
+/* ── Transparent surfaces so the surrounding page theme shows through ──
+   The chatter shadow root is a WHITE island when embedded on dark theme
+   sections (e.g. theme_nano). Force chatter surfaces to inherit from the
+   parent page instead of forcing white. */
+.o-mail-Chatter,
+.o-mail-Chatter-top,
+.o-portal-Chatter,
+.o-mail-Thread,
+.o-mail-Thread-empty,
+.o-mail-Composer,
+.o-mail-Composer-coreMain,
+.o-mail-Composer-coreHeader,
+.o-mail-Composer-bg,
+.o-mail-Message,
+.o-mail-Message-body,
+.o-mail-Message-content {
+    background-color: transparent !important;
+}
+.o-mail-Composer-input,
+.o-mail-Composer textarea,
+.o-mail-Composer .form-control {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: var(--o-mail-Chatter-body-color) !important;
+    border-color: rgba(128, 128, 128, 0.3) !important;
+}
+.o-mail-Composer-input::placeholder,
+.o-mail-Composer textarea::placeholder {
+    color: var(--o-mail-Chatter-body-color);
+    opacity: 0.55;
 }
 /* Primary CTA button — align with website theme */
 .o-mail-Chatter .btn-primary,

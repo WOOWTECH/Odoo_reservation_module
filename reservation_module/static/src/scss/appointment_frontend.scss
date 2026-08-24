@@ -336,9 +336,10 @@
 }
 
 /* ── Add-to-Calendar buttons: native website_event icon set, icon-only ──
-   All three icons are driven by a single 22px box so the FA glyph and the two
-   SVGs render at the same optical size (upstream `scale: 1.4` was tuned for a
-   full-size .btn; these buttons are .btn-sm, so it came out ~11% too small).
+   The three icons are sized to match each other optically rather than
+   numerically: the fa-apple glyph fills its em box, while the Outlook and
+   Google SVGs carry internal padding, so the SVGs are set slightly taller
+   (30px vs 28px) to land on the same apparent size.
    The SVGs are vendored under this module's own static/src/img.
    Buttons carry no label at any breakpoint -> render them as squares that
    always clear the 44x44 touch target, on every device and not only under the
@@ -363,12 +364,15 @@
                                              black on light themes, white on dark ones */
 }
 .wt-cal-btn i.fa {
-    font-size: 22px;                      /* same box as the SVGs, independent of .btn-sm */
+    font-size: 28px;                      /* glyph fills its box, so it needs less height */
     line-height: 1;
     width: auto;                          /* override .wt-reservation-action i.fa { width: 1em } */
 }
 .wt-cal-btn img {
-    height: 22px;                         /* explicit box => no layout shift before the SVG loads */
+    height: 30px;                         /* explicit box => no layout shift before the SVG loads.
+                                             2px taller than the glyph: both SVGs carry internal
+                                             padding, so matching the raw heights would render
+                                             them visibly smaller than fa-apple. */
     width: auto;
     max-width: 100%;
     display: block;

@@ -2,6 +2,7 @@
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
+from .. import tz_utils
 from datetime import timedelta, datetime
 import logging
 import pytz
@@ -73,9 +74,30 @@ class AppointmentBooking(models.Model):
     )
 
     # Date/Time
+    # Storage contract (Odoo standard): naive datetimes expressed in UTC.
+    # Anything that needs wall-clock time (availability windows, closing days,
+    # emails, .ics) converts through appointment_type_id.timezone.
     start_datetime = fields.Datetime('Start Time', required=True, tracking=True)
     end_datetime = fields.Datetime('End Time', required=True, tracking=True)
     duration = fields.Float('Duration (hours)', compute='_compute_duration', store=True)
+    start_date_local = fields.Date(
+        'Booking Date',
+        compute='_compute_start_date_local',
+        store=True,
+        index=True,
+        help='Local (appointment type timezone) date of the booking. '
+             'Stored so backend "Today"/"This Week" filters stay timezone-correct.',
+    )
+    display_tz = fields.Char(
+        'Display Timezone',
+        compute='_compute_display_tz',
+        help='Timezone used to render this booking to the customer.',
+    )
+    is_one_local_day = fields.Boolean(
+        'Same Local Day',
+        compute='_compute_display_tz',
+        help='True when start and end fall on the same calendar day in display_tz.',
+    )
 
     # Calendar Integration
     calendar_event_id = fields.Many2one(
@@ -153,6 +175,61 @@ class AppointmentBooking(models.Model):
         string='Company',
         default=lambda self: self.env.company,
     )
+
+    # ------------------------------------------------------------------
+    # Timezone helpers
+    # ------------------------------------------------------------------
+
+    def _tz(self):
+        """pytz timezone the booking should be displayed in."""
+        self.ensure_one()
+        return tz_utils.get_tz(self._get_calendar_tz())
+
+    def _to_local(self, value):
+        """Naive UTC (as stored) -> aware datetime in the booking's timezone."""
+        self.ensure_one()
+        if not value:
+            return False
+        return pytz.utc.localize(value).astimezone(self._tz())
+
+    def _local_month_bounds_utc(self):
+        """[start, end) UTC bounds of the booking's *local* calendar month.
+
+        Used for the "fewest bookings this month" balancing: a UTC month edge
+        would put the first/last 8 hours of a month in the wrong bucket.
+        """
+        self.ensure_one()
+        return tz_utils.local_month_bounds_utc(self._tz(), self.start_datetime)
+
+    @api.depends('start_datetime', 'appointment_type_id.timezone')
+    def _compute_start_date_local(self):
+        """Local booking date, always in the *appointment type's* timezone.
+
+        Deliberately not _get_calendar_tz(): this one is stored, so its value
+        must be a pure function of the declared depends. It also has to match
+        the 18.0.3.0.0 migration, which fills the column with
+        `(start_datetime AT TIME ZONE 'UTC') AT TIME ZONE appointment_type.timezone`.
+        """
+        for booking in self:
+            if not booking.start_datetime:
+                booking.start_date_local = False
+                continue
+            tz = tz_utils.get_tz(booking.appointment_type_id.timezone)
+            booking.start_date_local = tz_utils.utc_to_local(
+                tz, booking.start_datetime).date()
+
+    @api.depends('start_datetime', 'end_datetime', 'appointment_type_id.timezone',
+                 'partner_id.tz', 'staff_user_id.tz')
+    def _compute_display_tz(self):
+        for booking in self:
+            booking.display_tz = booking._get_calendar_tz()
+            if booking.start_datetime and booking.end_datetime:
+                booking.is_one_local_day = (
+                    booking._to_local(booking.start_datetime).date()
+                    == booking._to_local(booking.end_datetime).date()
+                )
+            else:
+                booking.is_one_local_day = False
 
     @api.depends('start_datetime', 'end_datetime')
     def _compute_duration(self):
@@ -442,8 +519,10 @@ class AppointmentBooking(models.Model):
             channel_vals['group_public_id'] = portal_group.id
         channel = self.env['discuss.channel'].sudo().create(channel_vals)
 
-        # Post welcome message
-        start_dt = fields.Datetime.context_timestamp(self, self.start_datetime)
+        # Post welcome message.
+        # Explicit tz: action_confirm often runs sudo()/public, where
+        # env.user.tz is empty and context_timestamp would fall back to UTC.
+        start_dt = self._to_local(self.start_datetime)
         channel.message_post(
             body=_(
                 "Appointment scheduled for %(date)s at %(time)s.\n"
@@ -645,11 +724,7 @@ class AppointmentBooking(models.Model):
             return
 
         # Among available staff, pick the one with fewest bookings this month
-        month_start = self.start_datetime.replace(day=1, hour=0, minute=0, second=0)
-        if month_start.month == 12:
-            month_end = month_start.replace(year=month_start.year + 1, month=1)
-        else:
-            month_end = month_start.replace(month=month_start.month + 1)
+        month_start, month_end = self._local_month_bounds_utc()
 
         bookings = self.env['appointment.booking'].search([
             ('start_datetime', '>=', month_start),
@@ -690,11 +765,7 @@ class AppointmentBooking(models.Model):
             return  # No available locations for this time slot
 
         # Among available resources, pick the one with fewest bookings this month
-        month_start = self.start_datetime.replace(day=1, hour=0, minute=0, second=0)
-        if month_start.month == 12:
-            month_end = month_start.replace(year=month_start.year + 1, month=1)
-        else:
-            month_end = month_start.replace(month=month_start.month + 1)
+        month_start, month_end = self._local_month_bounds_utc()
 
         bookings = self.env['appointment.booking'].search([
             ('start_datetime', '>=', month_start),
@@ -801,15 +872,22 @@ class AppointmentBooking(models.Model):
     # ------------------------------------------------------------------
 
     def _get_calendar_tz(self):
-        """Timezone fallback chain for calendar exports.
+        """Timezone fallback chain for display and calendar exports.
 
-        Order: partner → staff user → current env user → company → UTC.
-        Rationale: partner is who owns the calendar; if unset, fall back to
-        the staff assigned; otherwise take a best guess from context.
+        Order: appointment type → partner → staff user → current env user →
+        company → UTC.
+
+        The appointment type comes first on purpose: it is the timezone the
+        availability windows are authored in, i.e. the timezone the booking
+        was actually agreed in, and it is the only link in the chain that is
+        guaranteed to be set (the field is required). The env user is a poor
+        source on the frontend — the public user has no tz at all — and would
+        otherwise silently degrade to UTC.
         """
         self.ensure_one()
         return (
-            (self.partner_id and self.partner_id.tz)
+            (self.appointment_type_id and self.appointment_type_id.timezone)
+            or (self.partner_id and self.partner_id.tz)
             or (self.staff_user_id and self.staff_user_id.tz)
             or self.env.user.tz
             or (self.env.company.partner_id and self.env.company.partner_id.tz)
@@ -853,8 +931,11 @@ class AppointmentBooking(models.Model):
         """
         self.ensure_one()
         tz = self._get_calendar_tz()
-        start = self.start_datetime.astimezone(pytz.timezone(tz)).strftime('%Y%m%dT%H%M%S')
-        end = self.end_datetime.astimezone(pytz.timezone(tz)).strftime('%Y%m%dT%H%M%S')
+        # start_datetime is a *naive* UTC value. datetime.astimezone() on a
+        # naive value assumes the server's local clock (usually UTC in a
+        # container, but never guaranteed), so localize explicitly first.
+        start = self._to_local(self.start_datetime).strftime('%Y%m%dT%H%M%S')
+        end = self._to_local(self.end_datetime).strftime('%Y%m%dT%H%M%S')
         params = {
             'action': 'TEMPLATE',
             'text': self.appointment_type_id.name or _('Booking'),
@@ -906,8 +987,10 @@ class AppointmentBooking(models.Model):
             cal_event.add('last-modified').value = (
                 booking.write_date.replace(tzinfo=pytz.UTC) if booking.write_date else now_utc
             )
-            cal_event.add('dtstart').value = booking.start_datetime.astimezone(tz)
-            cal_event.add('dtend').value = booking.end_datetime.astimezone(tz)
+            # Same as _get_calendar_urls: localize the naive UTC value instead
+            # of calling .astimezone() on it (which would assume server-local).
+            cal_event.add('dtstart').value = pytz.utc.localize(booking.start_datetime).astimezone(tz)
+            cal_event.add('dtend').value = pytz.utc.localize(booking.end_datetime).astimezone(tz)
             cal_event.add('summary').value = booking.appointment_type_id.name or _('Booking')
             cal_event.add('description').value = booking._get_calendar_description()
 

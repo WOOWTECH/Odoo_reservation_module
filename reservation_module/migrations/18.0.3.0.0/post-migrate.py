@@ -18,8 +18,16 @@ timestamptz，第二個再轉回 naive UTC。台北無日光節約，但寫成�
   * start_date_local（3.0.0 新增的預存欄位，ORM 會在本腳本之前用「換算前」
     的值算好，必須在位移之後重算）
 
+換算範圍只涵蓋「有預約的」appointment_type：沒有預約的類型不可能產生錯誤資料，
+不應該有能力擋下升級。時區沒設（NULL）會中止升級（無從得知牆上時間的意義）；
+時區有設但 Postgres 不認得（通常是 pytz 與 Postgres 的 tzdata 版本落差，
+例如 Europe/Kyiv vs Europe/Kiev）則只警告並跳過該類型，並把 id 記在
+ir_config_parameter，讓維運人員事後手動換算。
+
 冪等保護：完成後寫入 ir_config_parameter 旗標，重跑會直接跳過——這點很重要，
 重複執行會再減 8 小時。
+
+另有同目錄的 pre-migrate.py，負責解除提醒信範本的 noupdate 鎖。
 """
 
 import logging
@@ -46,30 +54,89 @@ def _mark_migrated(cr, version):
     )
 
 
-def _check_timezones(cr):
-    """所有 appointment_type.timezone 必須是 Postgres 認得的時區名稱。
+SKIPPED_PARAM = 'reservation_module.utc_migration_skipped_types'
 
-    換算的正確性完全建立在這個欄位上；有任何一筆是空的或拼錯，
-    寧可中止整個升級，也不要產生一批偏移錯誤且無法分辨的資料。
+
+def _classify_timezones(cr):
+    """Split the appointment types that actually have bookings into
+    convertible and non-convertible.
+
+    Only types referenced by at least one booking matter: an archived or
+    never-used type cannot produce wrong data, so it must not be able to
+    block an upgrade.
+
+    Two failure modes, deliberately treated differently:
+
+    * **timezone is NULL/empty** — there is no way to know what the stored
+      wall-clock time meant. Abort: a wrong shift is invisible afterwards and
+      unrecoverable without a backup.
+    * **timezone is set but Postgres does not recognise it** — almost always
+      a tzdata skew between pytz (which validated the value in the UI) and
+      the server's Postgres, e.g. pytz's `Europe/Kyiv` on a Postgres that
+      still only ships `Europe/Kiev`. The configuration is legitimate, so
+      refusing the whole upgrade would be wrong. Warn loudly, skip those
+      types, and record them so the operator can convert them by hand.
+
+    Returns (ok_type_ids, skipped).
     """
-    cr.execute("SELECT id, name, timezone FROM appointment_type")
+    cr.execute(
+        """
+        SELECT t.id, t.name, t.timezone
+        FROM appointment_type t
+        WHERE t.id IN (
+            SELECT DISTINCT appointment_type_id
+            FROM appointment_booking
+            WHERE appointment_type_id IS NOT NULL
+        )
+        """
+    )
     rows = cr.fetchall()
     if not rows:
-        return
+        return [], []
+
+    missing = [(r[0], r[1]) for r in rows if not r[2]]
+    if missing:
+        raise ValueError(
+            "reservation_module 18.0.3.0.0 migration aborted: these "
+            "appointment_type records have bookings but no Timezone set, so "
+            "their stored times cannot be interpreted: %s. Set the Timezone "
+            "field on them, then re-run the update." % (missing,)
+        )
 
     cr.execute("SELECT name FROM pg_timezone_names")
     known = {r[0] for r in cr.fetchall()}
 
-    bad = [(r[0], r[1], r[2]) for r in rows if not r[2] or r[2] not in known]
-    if bad:
-        raise ValueError(
-            "reservation_module 18.0.3.0.0 migration aborted: appointment_type "
-            "records with a missing or unknown timezone: %s. Fix the Timezone "
-            "field on those records, then re-run the update." % (bad,)
+    ok, skipped = [], []
+    for type_id, name, tz in rows:
+        if tz in known:
+            ok.append(type_id)
+            _logger.info(
+                "Migration 18.0.3.0.0: appointment.type %s (%s) -> tz %s", type_id, name, tz)
+        else:
+            skipped.append((type_id, name, tz))
+
+    if skipped:
+        _logger.warning(
+            "Migration 18.0.3.0.0: Postgres does not know these timezones, so the "
+            "bookings of these appointment types were LEFT UNCONVERTED (still "
+            "wall-clock, not UTC): %s. This is usually a tzdata version skew "
+            "between Python and Postgres. Convert them manually, e.g. "
+            "UPDATE appointment_booking SET start_datetime = (start_datetime AT TIME "
+            "ZONE '<name Postgres knows>') AT TIME ZONE 'UTC' ... , then recompute "
+            "start_date_local. The affected type ids are also stored in the system "
+            "parameter %s.",
+            skipped, SKIPPED_PARAM,
+        )
+        cr.execute(
+            """
+            INSERT INTO ir_config_parameter (key, value, create_uid, write_uid, create_date, write_date)
+            VALUES (%s, %s, 1, 1, now() AT TIME ZONE 'UTC', now() AT TIME ZONE 'UTC')
+            ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, write_date = EXCLUDED.write_date
+            """,
+            (SKIPPED_PARAM, ','.join(str(s[0]) for s in skipped)),
         )
 
-    for type_id, name, tz in rows:
-        _logger.info("Migration 18.0.3.0.0: appointment.type %s (%s) -> tz %s", type_id, name, tz)
+    return ok, skipped
 
 
 def _table_exists(cr, table):
@@ -88,7 +155,14 @@ def migrate(cr, version):
         _logger.info("Migration 18.0.3.0.0: already applied (flag %s set), skipping", FLAG)
         return
 
-    _check_timezones(cr)
+    ok_type_ids, _skipped = _classify_timezones(cr)
+    if not ok_type_ids:
+        # 沒有任何帶預約的類型可以換算（空資料庫，或全部被跳過）
+        _mark_migrated(cr, version)
+        _logger.info("Migration 18.0.3.0.0: nothing to convert")
+        return
+
+    ok_ids = tuple(ok_type_ids)
 
     # ---- 1. appointment_booking：牆上時間 -> UTC ----
     cr.execute(
@@ -98,8 +172,10 @@ def migrate(cr, version):
             end_datetime   = (b.end_datetime   AT TIME ZONE t.timezone) AT TIME ZONE 'UTC'
         FROM appointment_type t
         WHERE b.appointment_type_id = t.id
+          AND t.id IN %s
           AND (b.start_datetime IS NOT NULL OR b.end_datetime IS NOT NULL)
-        """
+        """,
+        (ok_ids,),
     )
     _logger.info("Migration 18.0.3.0.0: converted %s bookings to UTC", cr.rowcount)
 
@@ -113,7 +189,9 @@ def migrate(cr, version):
         FROM appointment_booking b
         JOIN appointment_type t ON t.id = b.appointment_type_id
         WHERE b.calendar_event_id = e.id
-        """
+          AND t.id IN %s
+        """,
+        (ok_ids,),
     )
     _logger.info("Migration 18.0.3.0.0: converted %s calendar events to UTC", cr.rowcount)
 
@@ -129,7 +207,9 @@ def migrate(cr, version):
                 end_datetime   = (s.end_datetime   AT TIME ZONE t.timezone) AT TIME ZONE 'UTC'
             FROM appointment_type t
             WHERE s.appointment_type_id = t.id
-            """
+              AND t.id IN %s
+            """,
+            (ok_ids,),
         )
         if cr.rowcount:
             _logger.info("Migration 18.0.3.0.0: converted %s slots to UTC", cr.rowcount)
@@ -142,8 +222,10 @@ def migrate(cr, version):
         SET start_date_local = ((b.start_datetime AT TIME ZONE 'UTC') AT TIME ZONE t.timezone)::date
         FROM appointment_type t
         WHERE b.appointment_type_id = t.id
+          AND t.id IN %s
           AND b.start_datetime IS NOT NULL
-        """
+        """,
+        (ok_ids,),
     )
     _logger.info("Migration 18.0.3.0.0: recomputed start_date_local for %s bookings", cr.rowcount)
 

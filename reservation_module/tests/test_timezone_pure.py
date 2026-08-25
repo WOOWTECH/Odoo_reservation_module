@@ -6,7 +6,7 @@
 
     python -m pytest reservation_module/tests/test_timezone_pure.py
 
-同一支檔案也會被 Odoo 的 test loader 殬kup到（unittest.TestCase），
+同一支檔案也會被 Odoo 的 test loader 撿到（unittest.TestCase），
 在 `-u reservation_module --test-enable` 時一併執行。
 """
 

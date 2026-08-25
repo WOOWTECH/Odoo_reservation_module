@@ -85,6 +85,87 @@ class TestLocalToUtc(unittest.TestCase):
         self.assertEqual(winter, datetime(2026, 1, 1, 17, 0, 0))  # EST -5
 
 
+class TestDstGapAndOverlap(unittest.TestCase):
+    """DST 轉換當天的兩個退化情況（America/New_York）。
+
+    2026-03-08 spring-forward：02:00 EST 直接跳到 03:00 EDT，
+                               02:00~02:59 這一小時「不存在」。
+    2026-11-01 fall-back：     02:00 EDT 退回 01:00 EST，
+                               01:00~01:59 這一小時出現「兩次」。
+    """
+
+    NYC = pytz.timezone('America/New_York')
+
+    # ---- 不存在的時間（spring-forward 空洞）----
+
+    def test_nonexistent_time_raises(self):
+        with self.assertRaises(tz_utils.NonExistentLocalTime):
+            tz_utils.local_to_utc(self.NYC, datetime(2026, 3, 8, 2, 30, 0))
+
+    def test_times_around_the_gap_still_work(self):
+        self.assertEqual(
+            tz_utils.local_to_utc(self.NYC, datetime(2026, 3, 8, 1, 0, 0)),
+            datetime(2026, 3, 8, 6, 0, 0),   # EST -5
+        )
+        self.assertEqual(
+            tz_utils.local_to_utc(self.NYC, datetime(2026, 3, 8, 3, 0, 0)),
+            datetime(2026, 3, 8, 7, 0, 0),   # EDT -4
+        )
+
+    def test_old_behaviour_would_collide_with_the_next_hour(self):
+        """舊實作（localize 預設 is_dst=False）會讓 02:00 與 03:00 歸到同一個 UTC。
+
+        這就是本次修正要防的重複時段；這裡把舊行為釘起來作為對照。
+        """
+        collided = self.NYC.localize(
+            datetime(2026, 3, 8, 2, 0, 0), is_dst=False
+        ).astimezone(pytz.utc).replace(tzinfo=None)
+        three_am = tz_utils.local_to_utc(self.NYC, datetime(2026, 3, 8, 3, 0, 0))
+        self.assertEqual(collided, three_am)
+
+    def test_lenient_never_raises_in_the_gap(self):
+        self.assertEqual(
+            tz_utils.local_to_utc_lenient(self.NYC, datetime(2026, 3, 8, 2, 30, 0)),
+            datetime(2026, 3, 8, 7, 30, 0),
+        )
+
+    # ---- 重複的時間（fall-back 重疊）----
+
+    def test_ambiguous_time_resolves_to_standard_time(self):
+        """重複的那一小時固定選 is_dst=False（標準時間，即第二次）。"""
+        self.assertEqual(
+            tz_utils.local_to_utc(self.NYC, datetime(2026, 11, 1, 1, 30, 0)),
+            datetime(2026, 11, 1, 6, 30, 0),   # EST -5
+        )
+
+    def test_ambiguous_choice_is_deterministic(self):
+        first = tz_utils.local_to_utc(self.NYC, datetime(2026, 11, 1, 1, 30, 0))
+        second = tz_utils.local_to_utc(self.NYC, datetime(2026, 11, 1, 1, 30, 0))
+        self.assertEqual(first, second)
+
+    def test_fall_back_day_slots_stay_strictly_increasing(self):
+        """fall-back 當天逐小時遞增，UTC 必須單調遞增且無重複。"""
+        utc_starts = [
+            tz_utils.local_to_utc(self.NYC, datetime(2026, 11, 1, h, 0, 0))
+            for h in range(0, 6)
+        ]
+        self.assertEqual(len(set(utc_starts)), len(utc_starts), '不可有重複的 UTC 起點')
+        self.assertEqual(utc_starts, sorted(utc_starts))
+
+    def test_spring_forward_day_slot_loop_skips_the_gap(self):
+        """複刻 slot 迴圈：跳過不存在的時段，剩下的 UTC 起點不重複。"""
+        kept, skipped = [], []
+        for hour in range(0, 6):
+            wall = datetime(2026, 3, 8, hour, 0, 0)
+            try:
+                kept.append(tz_utils.local_to_utc(self.NYC, wall))
+            except tz_utils.NonExistentLocalTime:
+                skipped.append(hour)
+        self.assertEqual(skipped, [2], '只有 02:00 這一格不存在')
+        self.assertEqual(len(set(kept)), len(kept), '剩下的時段不可有重複 UTC 起點')
+        self.assertEqual(kept, sorted(kept))
+
+
 class TestUtcToLocal(unittest.TestCase):
     """儲存用的 naive UTC -> 顯示用的本地牆上時間。"""
 

@@ -248,10 +248,30 @@
     color: #fff;
 }
 
+/* ===== Reservation grid: keep 7 columns per row (fix mobile 6+1 fold) =====
+   `.reservation-day` used to force `min-width: 44px/48px`, which combined
+   with 7 columns in `.reservation-grid .row` exceeded the mobile card
+   width (~343px on 375px viewport). `.row`'s default `flex-wrap: wrap`
+   then folded the 7th column (Saturday) to a new line where its `.col`
+   `flex-grow` stretched it across the whole width. Force `nowrap` and let
+   each `.col` be exactly 1/7 of the container; drop the `.reservation-day`
+   `min-width` and rely on the col width for horizontal touch target. The
+   44px `min-height` is preserved for WCAG 2.5.5 vertical touch target. */
+#appointment-reservation .reservation-grid .row {
+    flex-wrap: nowrap;
+    margin-left: -2px;
+    margin-right: -2px;
+}
+#appointment-reservation .reservation-grid .row .col {
+    flex: 1 1 0%;
+    min-width: 0;
+    padding: 2px !important;
+}
+
 /* ===== Mobile Touch Targets (min 44x44px) ===== */
 #appointment-reservation .reservation-day {
-    min-width: 44px;
     min-height: 44px;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -279,10 +299,11 @@
         font-size: 2rem;
     }
 
-    /* Ensure all interactive elements meet 44px touch target */
+    /* Ensure all interactive elements meet 44px touch target.
+       Only `min-height` here; horizontal size comes from the 1/7 col so we
+       must not re-introduce `min-width` (see grid rule above). */
     #appointment-reservation .reservation-day {
         min-height: 48px;
-        min-width: 48px;
         font-size: 1rem;
     }
 

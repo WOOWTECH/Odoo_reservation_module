@@ -4,16 +4,50 @@ from odoo import http, fields, _
 from odoo.http import request, content_disposition
 from odoo.tools import consteq
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
+from .. import tz_utils
 from datetime import datetime, timedelta
 import calendar
 import logging
-import pytz
 import re
 
 _logger = logging.getLogger(__name__)
 
 
 class AppointmentController(http.Controller):
+
+    # ------------------------------------------------------------------
+    # Timezone helpers
+    #
+    # Storage contract (Odoo standard): appointment.booking.start_datetime /
+    # end_datetime are naive datetimes expressed in **UTC**.
+    #
+    # Configuration is expressed in local wall time instead:
+    #   * appointment.availability.hour_from / hour_to are wall-clock hours in
+    #     appointment_type.timezone;
+    #   * the date the visitor picks in the calendar widget is a local date.
+    #
+    # Every conversion between those two worlds goes through the helpers below.
+    # Rule of thumb used across this controller: iterate/compare *wall clock*
+    # values in local time, then convert to UTC right before touching the ORM.
+    #
+    # The arithmetic itself lives in ../tz_utils.py, which imports no Odoo at
+    # all so it can be unit-tested standalone (tests/test_timezone_pure.py).
+    # The thin wrappers here just unpack the recordset.
+    # ------------------------------------------------------------------
+
+    _local_to_utc = staticmethod(tz_utils.local_to_utc)
+    _utc_to_local = staticmethod(tz_utils.utc_to_local)
+    _hour_to_local_dt = staticmethod(tz_utils.hour_to_local_dt)
+
+    @staticmethod
+    def _get_tz(appointment_type):
+        """Return the pytz timezone the appointment type's hours are expressed in."""
+        return tz_utils.get_tz(appointment_type.timezone)
+
+    @classmethod
+    def _today_local(cls, appointment_type):
+        """Today's date in the appointment type's timezone."""
+        return tz_utils.today_local(cls._get_tz(appointment_type))
 
     def _get_translations(self):
         """Get translated labels for templates
@@ -306,8 +340,8 @@ class AppointmentController(http.Controller):
         resources = appointment_type.resource_ids if show_location_panel else appointment_type.resource_ids.browse()
         staff = appointment_type.staff_user_ids if show_staff_panel else appointment_type.staff_user_ids.browse()
 
-        # Calculate date range
-        start_date = fields.Date.context_today(request.env['appointment.type'])
+        # Calculate date range (in the appointment type's timezone, not UTC)
+        start_date = self._today_local(appointment_type)
         end_date = start_date + timedelta(days=appointment_type.max_booking_days)
 
         return request.render('reservation_module.appointment_schedule_page', {
@@ -352,16 +386,17 @@ class AppointmentController(http.Controller):
     def _get_availability_and_bookings(self, appointment_type, selected_date, resource_id, staff_id):
         """Common setup for both scheduled and event slot generation.
 
-        Availability hours (hour_from/hour_to) are in the appointment type's timezone.
-        We convert them to UTC for conflict checking against stored datetimes.
+        Availability hours (hour_from/hour_to) are in the appointment type's
+        timezone; stored booking datetimes are UTC. We convert the selected
+        local day to a UTC window before querying so both sides of every
+        comparison are UTC.
         """
-        tz_name = appointment_type.timezone or 'UTC'
-        try:
-            tz = pytz.timezone(tz_name)
-        except pytz.UnknownTimeZoneError:
-            tz = pytz.UTC
-        start_datetime = datetime.combine(selected_date, datetime.min.time())
-        end_datetime = datetime.combine(selected_date, datetime.max.time())
+        tz = self._get_tz(appointment_type)
+
+        # Boundaries of the *local* day, expressed in UTC
+        day_start_local = datetime.combine(selected_date, datetime.min.time())
+        day_start_utc = self._local_to_utc(tz, day_start_local)
+        day_end_utc = self._local_to_utc(tz, day_start_local + timedelta(days=1))
 
         # Query weekly schedule availability for this day of week
         day_of_week = str(selected_date.weekday())
@@ -385,13 +420,17 @@ class AppointmentController(http.Controller):
 
         min_booking_time = fields.Datetime.now() + timedelta(hours=appointment_type.min_booking_hours)
 
-        # Batch fetch bookings for conflict detection
-        Booking = request.env['appointment.booking'].sudo()
+        # Batch fetch bookings for conflict detection.
+        # The window is widened by one day on each side: a local day never
+        # aligns with a UTC day, and an availability window may legitimately
+        # spill over midnight, so a strict [day_start_utc, day_end_utc) filter
+        # would drop bookings that actually overlap the generated slots.
         day_conflict_domain = [
             ('state', 'in', ['confirmed', 'done']),
-            ('start_datetime', '<', end_datetime),
-            ('end_datetime', '>', start_datetime),
+            ('start_datetime', '<', day_end_utc + timedelta(days=1)),
+            ('end_datetime', '>', day_start_utc - timedelta(days=1)),
         ]
+        Booking = request.env['appointment.booking'].sudo()
         staff_bookings = Booking.search(day_conflict_domain + [('staff_user_id', '=', int(staff_id))]) if staff_id else Booking
         resource_bookings = Booking.search(day_conflict_domain + [('resource_id', '=', int(resource_id))]) if resource_id else Booking
 
@@ -401,8 +440,10 @@ class AppointmentController(http.Controller):
             capacity = resource.capacity or 1
 
         return {
-            'start_datetime': start_datetime,
+            'tz': tz,
+            'day_start_local': day_start_local,
             'availabilities': availabilities,
+            # naive UTC, same basis as the stored datetimes
             'min_booking_time': min_booking_time,
             'staff_bookings': staff_bookings,
             'resource_bookings': resource_bookings,
@@ -410,7 +451,11 @@ class AppointmentController(http.Controller):
         }
 
     def _get_scheduled_slots(self, appointment_type, selected_date, resource_id, staff_id):
-        """Generate subdivided time slots from availability windows"""
+        """Generate subdivided time slots from availability windows.
+
+        Wire format: 'start'/'end' are naive **UTC** strings (what gets stored),
+        'start_time'/'end_time' are the **local** strings shown to the visitor.
+        """
         ctx = self._get_availability_and_bookings(appointment_type, selected_date, resource_id, staff_id)
 
         if not ctx['availabilities']:
@@ -419,62 +464,65 @@ class AppointmentController(http.Controller):
         slots = []
         slot_duration = timedelta(hours=appointment_type.slot_duration)
         slot_interval = timedelta(hours=appointment_type.slot_interval or appointment_type.slot_duration)
-        start_datetime = ctx['start_datetime']
+        tz = ctx['tz']
+        day_start_local = ctx['day_start_local']
 
         for avail in ctx['availabilities']:
-            hour_from_int = int(avail.hour_from)
-            min_from = int(round((avail.hour_from % 1) * 60))
-            hour_to_int = int(avail.hour_to)
-            min_to = int(round((avail.hour_to % 1) * 60))
+            # Walk the window in local wall time so slots keep landing on the
+            # same clock times even across a DST transition...
+            current_local = self._hour_to_local_dt(day_start_local, avail.hour_from)
+            end_local = self._hour_to_local_dt(day_start_local, avail.hour_to)
 
-            current_time = start_datetime.replace(hour=hour_from_int, minute=min_from, second=0, microsecond=0)
-            end_time = start_datetime.replace(hour=hour_to_int, minute=min_to, second=0, microsecond=0)
+            while current_local + slot_duration <= end_local:
+                slot_end_local = current_local + slot_duration
+                # ...and compare in UTC, the basis of every stored datetime.
+                current_utc = self._local_to_utc(tz, current_local)
+                slot_end_utc = self._local_to_utc(tz, slot_end_local)
 
-            while current_time + slot_duration <= end_time:
-                if current_time >= ctx['min_booking_time']:
-                    slot_end = current_time + slot_duration
-
+                if current_utc >= ctx['min_booking_time']:
                     staff_conflict = staff_id and any(
-                        b.start_datetime < slot_end and b.end_datetime > current_time
+                        b.start_datetime < slot_end_utc and b.end_datetime > current_utc
                         for b in ctx['staff_bookings']
                     )
                     resource_overlap = sum(
                         1 for b in ctx['resource_bookings']
-                        if b.start_datetime < slot_end and b.end_datetime > current_time
+                        if b.start_datetime < slot_end_utc and b.end_datetime > current_utc
                     ) if resource_id else 0
 
                     if not staff_conflict and resource_overlap < ctx['capacity']:
                         slots.append({
-                            'start': current_time.strftime('%Y-%m-%d %H:%M:%S'),
-                            'end': slot_end.strftime('%Y-%m-%d %H:%M:%S'),
-                            'start_time': current_time.strftime('%H:%M'),
-                            'end_time': slot_end.strftime('%H:%M'),
+                            'start': current_utc.strftime('%Y-%m-%d %H:%M:%S'),
+                            'end': slot_end_utc.strftime('%Y-%m-%d %H:%M:%S'),
+                            'start_time': current_local.strftime('%H:%M'),
+                            'end_time': slot_end_local.strftime('%H:%M'),
                             'available': ctx['capacity'] - resource_overlap if resource_id else 1,
                         })
 
-                current_time += slot_interval
+                current_local += slot_interval
 
         slots.sort(key=lambda s: s['start'])
         return {'slots': slots}
 
     def _get_event_slots(self, appointment_type, selected_date, resource_id, staff_id):
-        """Generate one slot per availability window (special event mode)"""
+        """Generate one slot per availability window (special event mode).
+
+        Same wire format as _get_scheduled_slots: UTC 'start'/'end',
+        local 'start_time'/'end_time'.
+        """
         ctx = self._get_availability_and_bookings(appointment_type, selected_date, resource_id, staff_id)
 
         if not ctx['availabilities']:
             return {'slots': []}
 
         slots = []
-        start_datetime = ctx['start_datetime']
+        tz = ctx['tz']
+        day_start_local = ctx['day_start_local']
 
         for avail in ctx['availabilities']:
-            hour_from_int = int(avail.hour_from)
-            min_from = int(round((avail.hour_from % 1) * 60))
-            hour_to_int = int(avail.hour_to)
-            min_to = int(round((avail.hour_to % 1) * 60))
-
-            slot_start = start_datetime.replace(hour=hour_from_int, minute=min_from, second=0, microsecond=0)
-            slot_end = start_datetime.replace(hour=hour_to_int, minute=min_to, second=0, microsecond=0)
+            slot_start_local = self._hour_to_local_dt(day_start_local, avail.hour_from)
+            slot_end_local = self._hour_to_local_dt(day_start_local, avail.hour_to)
+            slot_start = self._local_to_utc(tz, slot_start_local)
+            slot_end = self._local_to_utc(tz, slot_end_local)
 
             if slot_start < ctx['min_booking_time']:
                 continue
@@ -492,8 +540,8 @@ class AppointmentController(http.Controller):
                 slots.append({
                     'start': slot_start.strftime('%Y-%m-%d %H:%M:%S'),
                     'end': slot_end.strftime('%Y-%m-%d %H:%M:%S'),
-                    'start_time': slot_start.strftime('%H:%M'),
-                    'end_time': slot_end.strftime('%H:%M'),
+                    'start_time': slot_start_local.strftime('%H:%M'),
+                    'end_time': slot_end_local.strftime('%H:%M'),
                     'available': ctx['capacity'] - resource_overlap if resource_id else 1,
                 })
 
@@ -528,7 +576,7 @@ class AppointmentController(http.Controller):
         closed_dates = set(c.date for c in closing_days)
 
         dates = []
-        today = fields.Date.context_today(request.env['appointment.type'])
+        today = self._today_local(appointment_type)
         for day in range(1, num_days + 1):
             d = datetime(year, month, day).date()
             if d >= today and d.weekday() in available_days and d not in closed_dates:
@@ -587,8 +635,10 @@ class AppointmentController(http.Controller):
 
         return request.render('reservation_module.appointment_book_page', {
             'appointment_type': appointment_type,
+            # naive UTC — the template renders it with tz_name=timezone
             'start_datetime': start_dt,
             'end_datetime': end_dt,
+            'timezone': appointment_type.timezone or 'UTC',
             'resource': resource,
             'staff': staff,
             'portal_partner': portal_partner,
@@ -626,8 +676,10 @@ class AppointmentController(http.Controller):
 
         return request.render('reservation_module.appointment_book_page', {
             'appointment_type': appointment_type,
+            # naive UTC — the template renders it with tz_name=timezone
             'start_datetime': start_dt,
             'end_datetime': end_dt,
+            'timezone': appointment_type.timezone or 'UTC',
             'resource': resource,
             'staff': staff,
             'error': error_msg,
@@ -685,6 +737,8 @@ class AppointmentController(http.Controller):
             return self._render_booking_form_error(
                 appointment_type, data, _('Maximum %d guests allowed.', max_guests))
 
+        # Wire format is naive UTC (produced by _get_scheduled_slots), so the
+        # parsed value can be stored as-is.
         try:
             start_dt = datetime.strptime(data['start_datetime'], '%Y-%m-%d %H:%M:%S')
         except ValueError:
@@ -699,10 +753,17 @@ class AppointmentController(http.Controller):
         else:
             end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
 
+        # start_dt / end_dt are UTC; closing days, availability windows and
+        # max_booking_days are all expressed in local (appointment type) time,
+        # so every check below runs on the local projection.
+        tz = self._get_tz(appointment_type)
+        start_local = self._utc_to_local(tz, start_dt)
+        end_local = self._utc_to_local(tz, end_dt)
+
         # H6: Validate closing days server-side
         closing = request.env['appointment.closing.day'].sudo().search([
             ('appointment_type_id', '=', appointment_type.id),
-            ('date', '=', start_dt.date()),
+            ('date', '=', start_local.date()),
         ], limit=1)
         if closing:
             return self._render_booking_form_error(
@@ -710,13 +771,13 @@ class AppointmentController(http.Controller):
                 _('This date is closed: %s', closing.name or _('Closed')))
 
         # M8: Server-side max_booking_days validation
-        max_date = fields.Date.today() + timedelta(days=appointment_type.max_booking_days)
-        if start_dt.date() > max_date:
+        max_date = self._today_local(appointment_type) + timedelta(days=appointment_type.max_booking_days)
+        if start_local.date() > max_date:
             return self._render_booking_form_error(
                 appointment_type, data, _('Cannot book beyond %d days in advance.', appointment_type.max_booking_days))
 
         # L7: Validate selected time falls within an availability window
-        day_of_week = str(start_dt.weekday())
+        day_of_week = str(start_local.weekday())
         avail_domain = [
             ('appointment_type_id', '=', appointment_type.id),
             ('dayofweek', '=', day_of_week),
@@ -726,8 +787,10 @@ class AppointmentController(http.Controller):
             return self._render_booking_form_error(
                 appointment_type, data, _('No availability on the selected day.'))
 
-        slot_hour = start_dt.hour + start_dt.minute / 60.0
-        slot_end_hour = (end_dt.hour + end_dt.minute / 60.0) if end_dt.date() == start_dt.date() else 24.0
+        # hour_from / hour_to are local wall-clock hours -> compare against the
+        # local projection, never against the UTC value.
+        slot_hour = start_local.hour + start_local.minute / 60.0
+        slot_end_hour = (end_local.hour + end_local.minute / 60.0) if end_local.date() == start_local.date() else 24.0
         in_window = any(
             avail.hour_from <= slot_hour and slot_end_hour <= avail.hour_to
             for avail in availabilities
@@ -736,16 +799,17 @@ class AppointmentController(http.Controller):
             return self._render_booking_form_error(
                 appointment_type, data, _('Selected time is outside available hours.'))
 
-        # Prevent booking in the past
-        if start_dt < datetime.now():
+        # Prevent booking in the past.
+        # fields.Datetime.now() (UTC), not datetime.now() (server-local TZ):
+        # start_dt is UTC, so the naive server clock must not take part here.
+        if start_dt < fields.Datetime.now():
             return self._render_booking_form_error(
                 appointment_type, data, _('Cannot book a time slot in the past.'))
 
         # H6 fix: 伺服器端驗證最小提前預約時間
         min_hours = appointment_type.min_booking_hours or 0
         if min_hours > 0:
-            from datetime import timedelta as _td
-            min_time = datetime.now() + _td(hours=min_hours)
+            min_time = fields.Datetime.now() + timedelta(hours=min_hours)
             if start_dt < min_time:
                 return self._render_booking_form_error(
                     appointment_type, data,
@@ -778,7 +842,7 @@ class AppointmentController(http.Controller):
             return self._render_booking_form_error(
                 appointment_type, data, _('Too many booking attempts. Please try again later.'))
 
-        # Build booking values
+        # Build booking values (start/end are naive UTC — Odoo storage contract)
         booking_vals = {
             'appointment_type_id': appointment_type.id,
             'guest_name': guest_name,

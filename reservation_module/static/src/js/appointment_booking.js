@@ -10,6 +10,27 @@ import { _t } from "@web/core/l10n/translation";
 publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
     selector: '#appointment-reservation',
 
+    /**
+     * Parse a 'YYYY-MM-DD' string into local midnight.
+     *
+     * `new Date('2026-08-29')` is specified to parse as UTC midnight, while
+     * every other date in this widget is built with `new Date(y, m, d)` —
+     * local midnight — and formatted back with local getters (_formatDate).
+     * Mixing the two shifts the comparison by the browser's UTC offset, so
+     * the first or last day of the bookable range could be wrongly
+     * enabled/disabled for users east or west of UTC.
+     *
+     * Falls back to the native parser for anything that is not a plain date,
+     * so a datetime string keeps working.
+     */
+    _parseDate: function (value) {
+        const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec((value || '').trim());
+        if (!match) {
+            return new Date(value);
+        }
+        return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+    },
+
     _escapeHtml: function (str) {
         const div = document.createElement('div');
         div.textContent = str;
@@ -21,8 +42,8 @@ publicWidget.registry.AppointmentReservation = publicWidget.Widget.extend({
         this.appointmentTypeId = this.el.dataset.appointmentTypeId;
         this.resourceId = this.el.dataset.resourceId || null;
         this.staffId = this.el.dataset.staffId || null;
-        this.startDate = new Date(this.el.dataset.startDate);
-        this.endDate = new Date(this.el.dataset.endDate);
+        this.startDate = this._parseDate(this.el.dataset.startDate);
+        this.endDate = this._parseDate(this.el.dataset.endDate);
         this.currentDate = new Date(this.startDate);
         this.selectedDate = null;
         this.isScheduled = this.el.dataset.isScheduled !== '0';

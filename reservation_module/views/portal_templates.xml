@@ -93,10 +93,10 @@
                                 </td>
                                 <td>
                                     <!-- 時區顯示：start_datetime 依 Odoo 慣例存 UTC，
-                                         以 tz_name 指定顯示時區（使用者時區優先，
-                                         否則退回預約類型時區）轉成當地時間。 -->
-                                    <t t-set="row_tz" t-value="request.env.user.tz or bk.appointment_type_id.timezone or 'Asia/Taipei'"/>
-                                    <span t-field="bk.start_datetime" t-options='{"widget": "datetime", "tz_name": row_tz, "format": "yyyy-MM-dd HH:mm"}'/>
+                                         以 tz_name 指定顯示時區轉成當地時間。
+                                         基準統一用 bk.display_tz（＝預約類型時區），
+                                         與 start_date_local、郵件範本、ICS 匯出一致。 -->
+                                    <span t-field="bk.start_datetime" t-options='{"widget": "datetime", "tz_name": bk.display_tz, "format": "yyyy-MM-dd HH:mm"}'/>
                                 </td>
                                 <td class="text-end">
                                     <span t-if="bk.state == 'confirmed'"
@@ -193,9 +193,11 @@
 
                             <!-- 時區顯示：start_datetime / end_datetime 依 Odoo 慣例存 UTC，
                                  這裡以 tz_name 指定顯示時區，讓 QWeb 轉成當地時間。
-                                 順序為「使用者時區 → 預約類型時區 → Asia/Taipei」，
-                                 portal 使用者若未設時區也不會退回顯示 UTC。 -->
-                            <t t-set="tz" t-value="request.env.user.tz or booking.appointment_type_id.timezone or 'Asia/Taipei'"/>
+                                 基準必須跟 is_one_local_day 一致——後者一律以預約類型
+                                 時區計算，若這裡改用使用者時區，非該時區的 portal
+                                 使用者會看到跨日預約被畫成單日卡片、日期數字也不對。
+                                 因此統一用 booking.display_tz。 -->
+                            <t t-set="tz" t-value="booking.display_tz"/>
                             <!-- 跨日判斷必須用當地日期：UTC 下 07:00 台北會落在前一天。 -->
                             <t t-set="is_one_day" t-value="booking.is_one_local_day"/>
 
@@ -252,7 +254,7 @@
                                      live in static/src/scss/appointment_frontend.scss
                                      (.wt-cal-btn). -->
                                 <div t-if="booking.state != 'cancelled'" class="d-flex align-items-center flex-wrap gap-2">
-                                    <small class="text-muted d-block w-100">加入日曆</small>
+                                    <small class="wt-reservation-calendar-label d-block w-100">加入日曆</small>
                                     <a t-att-href="ics_url" class="wt-reservation-action wt-cal-btn" title="加入 Apple 行事曆" aria-label="加入 Apple 行事曆">
                                         <i class="fa fa-apple" aria-hidden="true"/>
                                     </a>
@@ -293,9 +295,9 @@
 
                         <div id="card_body">
                             <!-- 時區顯示：同上，start_datetime / end_datetime 存 UTC，
-                                 以 tz_name 指定顯示時區轉成當地時間；
-                                 跨日判斷同樣改用當地日期。 -->
-                            <t t-set="tz" t-value="request.env.user.tz or booking.appointment_type_id.timezone or 'Asia/Taipei'"/>
+                                 以 tz_name 指定顯示時區轉成當地時間；基準同樣是
+                                 booking.display_tz，跨日判斷改用當地日期。 -->
+                            <t t-set="tz" t-value="booking.display_tz"/>
                             <t t-set="is_one_day" t-value="booking.is_one_local_day"/>
 
                             <!-- ─── Date card (event-style), mobile ─── -->
@@ -338,7 +340,7 @@
 
                             <!-- ─── Add to Calendar (Apple / Outlook / Google), mobile ─── -->
                             <div t-if="booking.state != 'cancelled'" class="mb-4 d-lg-none d-flex align-items-center flex-wrap gap-2">
-                                <small class="text-muted">加入日曆：</small>
+                                <small class="wt-reservation-calendar-label">加入日曆：</small>
                                 <a t-att-href="ics_url" class="wt-reservation-action wt-cal-btn" title="加入 Apple 行事曆" aria-label="加入 Apple 行事曆">
                                     <i class="fa fa-apple" aria-hidden="true"/>
                                 </a>

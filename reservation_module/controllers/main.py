@@ -36,6 +36,7 @@ class AppointmentController(http.Controller):
     # ------------------------------------------------------------------
 
     _local_to_utc = staticmethod(tz_utils.local_to_utc)
+    _local_to_utc_lenient = staticmethod(tz_utils.local_to_utc_lenient)
     _utc_to_local = staticmethod(tz_utils.utc_to_local)
     _hour_to_local_dt = staticmethod(tz_utils.hour_to_local_dt)
 
@@ -393,10 +394,12 @@ class AppointmentController(http.Controller):
         """
         tz = self._get_tz(appointment_type)
 
-        # Boundaries of the *local* day, expressed in UTC
+        # Boundaries of the *local* day, expressed in UTC. Lenient conversion:
+        # a few zones switch DST at midnight, and a query edge must always
+        # produce a value (the window is widened by a day below anyway).
         day_start_local = datetime.combine(selected_date, datetime.min.time())
-        day_start_utc = self._local_to_utc(tz, day_start_local)
-        day_end_utc = self._local_to_utc(tz, day_start_local + timedelta(days=1))
+        day_start_utc = self._local_to_utc_lenient(tz, day_start_local)
+        day_end_utc = self._local_to_utc_lenient(tz, day_start_local + timedelta(days=1))
 
         # Query weekly schedule availability for this day of week
         day_of_week = str(selected_date.weekday())
@@ -466,6 +469,11 @@ class AppointmentController(http.Controller):
         slot_interval = timedelta(hours=appointment_type.slot_interval or appointment_type.slot_duration)
         tz = ctx['tz']
         day_start_local = ctx['day_start_local']
+        # Guards against two wall-clock slots collapsing onto the same UTC
+        # instant. Skipping the DST gap below already prevents that, but the
+        # wire format is keyed on 'start', so a duplicate would be a silently
+        # unbookable entry — cheap to rule out here.
+        seen_utc_starts = set()
 
         for avail in ctx['availabilities']:
             # Walk the window in local wall time so slots keep landing on the
@@ -476,8 +484,18 @@ class AppointmentController(http.Controller):
             while current_local + slot_duration <= end_local:
                 slot_end_local = current_local + slot_duration
                 # ...and compare in UTC, the basis of every stored datetime.
-                current_utc = self._local_to_utc(tz, current_local)
-                slot_end_utc = self._local_to_utc(tz, slot_end_local)
+                try:
+                    current_utc = self._local_to_utc(tz, current_local)
+                    slot_end_utc = self._local_to_utc(tz, slot_end_local)
+                except tz_utils.NonExistentLocalTime:
+                    # DST spring-forward: this wall clock never happens, so
+                    # there is no moment to book. Drop the slot.
+                    current_local += slot_interval
+                    continue
+
+                if current_utc in seen_utc_starts:
+                    current_local += slot_interval
+                    continue
 
                 if current_utc >= ctx['min_booking_time']:
                     staff_conflict = staff_id and any(
@@ -490,6 +508,7 @@ class AppointmentController(http.Controller):
                     ) if resource_id else 0
 
                     if not staff_conflict and resource_overlap < ctx['capacity']:
+                        seen_utc_starts.add(current_utc)
                         slots.append({
                             'start': current_utc.strftime('%Y-%m-%d %H:%M:%S'),
                             'end': slot_end_utc.strftime('%Y-%m-%d %H:%M:%S'),
@@ -521,8 +540,18 @@ class AppointmentController(http.Controller):
         for avail in ctx['availabilities']:
             slot_start_local = self._hour_to_local_dt(day_start_local, avail.hour_from)
             slot_end_local = self._hour_to_local_dt(day_start_local, avail.hour_to)
-            slot_start = self._local_to_utc(tz, slot_start_local)
-            slot_end = self._local_to_utc(tz, slot_end_local)
+            try:
+                slot_start = self._local_to_utc(tz, slot_start_local)
+                slot_end = self._local_to_utc(tz, slot_end_local)
+            except tz_utils.NonExistentLocalTime:
+                # The window starts or ends inside a DST spring-forward gap.
+                _logger.warning(
+                    "Appointment type %s: availability window %s-%s on %s falls in a "
+                    "DST gap for %s, skipping.",
+                    appointment_type.id, avail.hour_from, avail.hour_to,
+                    selected_date, tz,
+                )
+                continue
 
             if slot_start < ctx['min_booking_time']:
                 continue

@@ -27,7 +27,7 @@
                                             <t t-if="appointment_type.is_scheduled">
                                                 <i class="fa fa-clock-o"/>
                                                 <t t-set="dur" t-value="appointment_type.slot_duration"/>
-                                                <t t-if="dur and dur == int(dur) and int(dur) >= 1">
+                                                <t t-if="dur and dur == int(dur) and int(dur) &gt;= 1">
                                                     <t t-esc="int(dur)"/> <t t-esc="t['hours']"/>
                                                 </t>
                                                 <t t-elif="dur and dur &lt; 1">
@@ -105,7 +105,7 @@
                                             <span class="badge bg-secondary me-2">
                                                 <i class="fa fa-clock-o"/>
                                                 <t t-set="dur" t-value="appointment_type.slot_duration"/>
-                                                <t t-if="dur and dur == int(dur) and int(dur) >= 1">
+                                                <t t-if="dur and dur == int(dur) and int(dur) &gt;= 1">
                                                     <t t-esc="int(dur)"/> <t t-esc="t['hours']"/>
                                                 </t>
                                                 <t t-elif="dur and dur &lt; 1">
@@ -319,8 +319,12 @@
                                     <!-- Booking Summary -->
                                     <div class="alert alert-info">
                                         <strong><t t-esc="appointment_type.name"/></strong><br/>
-                                        <i class="fa fa-calendar"/> <t t-esc="start_datetime" t-options='{"widget": "datetime"}'/> -
-                                        <t t-esc="end_datetime" t-options='{"widget": "datetime"}'/>
+                                        <!-- 時區顯示：start_datetime / end_datetime 依 Odoo 慣例存 UTC，
+                                             這裡以 tz_name 指定預約類型時區，讓 QWeb 轉成當地時間顯示。
+                                             不能省略 tz_name：前台是公開使用者，env.user.tz 為空時
+                                             QWeb 會退回原樣輸出 UTC，畫面就會少 8 小時。 -->
+                                        <i class="fa fa-calendar"/> <t t-esc="start_datetime" t-options='{"widget": "datetime", "tz_name": timezone}'/> -
+                                        <t t-esc="end_datetime" t-options='{"widget": "datetime", "tz_name": timezone}'/>
                                         <small class="text-muted">(<t t-esc="appointment_type.timezone or 'UTC'"/>)</small>
                                         <t t-if="resource">
                                             <br/><i class="fa fa-map-marker"/> <t t-esc="resource.name"/>
@@ -451,8 +455,8 @@
                                         <div class="text-start">
                                             <p><strong><t t-esc="t['appointment_label']"/></strong> <t t-esc="booking.appointment_type_id.name"/></p>
                                             <p><strong><t t-esc="t['date_time']"/></strong>
-                                               <t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/> -
-                                               <t t-esc="booking.end_datetime" t-options='{"widget": "datetime"}'/>
+                                               <t t-esc="booking.start_datetime" t-options='{"widget": "datetime", "tz_name": booking.display_tz}'/> -
+                                               <t t-esc="booking.end_datetime" t-options='{"widget": "datetime", "tz_name": booking.display_tz}'/>
                                             </p>
                                             <p><strong><t t-esc="t.get('amount_due', 'Amount Due:')"/></strong>
                                                <span class="fs-4 fw-bold text-primary">
@@ -492,8 +496,8 @@
                                         <div class="text-start">
                                             <p><strong><t t-esc="t['appointment_label']"/></strong> <t t-esc="booking.appointment_type_id.name"/></p>
                                             <p><strong><t t-esc="t['date_time']"/></strong>
-                                               <t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/> -
-                                               <t t-esc="booking.end_datetime" t-options='{"widget": "datetime"}'/>
+                                               <t t-esc="booking.start_datetime" t-options='{"widget": "datetime", "tz_name": booking.display_tz}'/> -
+                                               <t t-esc="booking.end_datetime" t-options='{"widget": "datetime", "tz_name": booking.display_tz}'/>
                                             </p>
                                             <t t-if="booking.resource_id">
                                                 <p><strong><t t-esc="t['location_label']"/></strong> <t t-esc="booking.resource_id.name"/></p>
@@ -569,8 +573,8 @@
                                             <h5 t-esc="t['appointment_details']"/>
                                             <p><strong><t t-esc="t['type_label']"/></strong> <t t-esc="booking.appointment_type_id.name"/></p>
                                             <p><strong><t t-esc="t['date_time']"/></strong><br/>
-                                               <t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/> -
-                                               <t t-esc="booking.end_datetime" t-options='{"widget": "datetime"}'/>
+                                               <t t-esc="booking.start_datetime" t-options='{"widget": "datetime", "tz_name": booking.display_tz}'/> -
+                                               <t t-esc="booking.end_datetime" t-options='{"widget": "datetime", "tz_name": booking.display_tz}'/>
                                             </p>
                                             <t t-if="booking.resource_id">
                                                 <p><strong><t t-esc="t['location_label']"/></strong> <t t-esc="booking.resource_id.name"/></p>
@@ -663,7 +667,7 @@
 
                                     <div class="alert alert-light text-start">
                                         <p><strong><t t-esc="booking.appointment_type_id.name"/></strong></p>
-                                        <p><t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/></p>
+                                        <p><t t-esc="booking.start_datetime" t-options='{"widget": "datetime", "tz_name": booking.display_tz}'/></p>
                                         <p><t t-esc="t['booking_reference_label']"/> <t t-esc="booking.name"/></p>
                                     </div>
 
@@ -738,7 +742,7 @@
                                     <div class="alert alert-info mb-4">
                                         <h5 t-esc="t['booking_summary']"/>
                                         <p class="mb-1"><strong><t t-esc="booking.appointment_type_id.name"/></strong></p>
-                                        <p class="mb-1"><i class="fa fa-calendar me-2"/><t t-esc="booking.start_datetime" t-options='{"widget": "datetime"}'/></p>
+                                        <p class="mb-1"><i class="fa fa-calendar me-2"/><t t-esc="booking.start_datetime" t-options='{"widget": "datetime", "tz_name": booking.display_tz}'/></p>
                                         <p class="mb-0"><i class="fa fa-users me-2"/><t t-esc="t['guests_label']"/> <t t-esc="booking.guest_count"/></p>
                                     </div>
 

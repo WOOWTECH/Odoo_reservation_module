@@ -92,7 +92,11 @@
                                     <span t-out="bk.appointment_type_id.name"/>
                                 </td>
                                 <td>
-                                    <span t-field="bk.start_datetime" t-options='{"widget": "datetime", "format": "yyyy-MM-dd HH:mm"}'/>
+                                    <!-- 時區顯示：start_datetime 依 Odoo 慣例存 UTC，
+                                         以 tz_name 指定顯示時區（使用者時區優先，
+                                         否則退回預約類型時區）轉成當地時間。 -->
+                                    <t t-set="row_tz" t-value="request.env.user.tz or bk.appointment_type_id.timezone or 'Asia/Taipei'"/>
+                                    <span t-field="bk.start_datetime" t-options='{"widget": "datetime", "tz_name": row_tz, "format": "yyyy-MM-dd HH:mm"}'/>
                                 </td>
                                 <td class="text-end">
                                     <span t-if="bk.state == 'confirmed'"
@@ -132,8 +136,7 @@
         <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
             <t t-set="o_portal_fullwidth_alert" groups="base.group_user">
                 <t t-call="portal.portal_back_in_edit_mode">
-                    <t t-set="backend_url"
-                       t-value="'/odoo/appointments/bookings/%s' % booking.id"/>
+                    <t t-set="backend_url" t-value="'/odoo/appointments/bookings/%s' % booking.id"/>
                 </t>
             </t>
 
@@ -148,49 +151,18 @@
                             <div class="d-flex align-items-center flex-grow-1 p-0" t-ignore="true" role="complementary">
                                 <ul class="nav flex-column">
                                     <li class="nav-item">
-                                        <a class="nav-link p-0" href="#card_header">
-                                            預約資訊
-                                        </a>
+                                        <a class="nav-link p-0" href="#card_header">預約資訊</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link p-0" href="#booking_chat">
-                                            歷史紀錄
-                                        </a>
+                                        <a class="nav-link p-0" href="#booking_chat">歷史紀錄</a>
                                     </li>
                                 </ul>
                             </div>
 
-                            <!-- Status -->
-                            <div class="d-flex flex-column gap-2">
-                                <h6><small class="text-muted">狀態</small></h6>
-                                <span t-if="booking.state == 'confirmed'"
-                                      class="badge rounded-pill text-bg-success">
-                                    已確認
-                                </span>
-                                <span t-if="booking.state == 'done'"
-                                      class="badge rounded-pill text-bg-info">
-                                    已完成
-                                </span>
-                                <span t-if="booking.state == 'cancelled'"
-                                      class="badge rounded-pill text-bg-danger">
-                                    已取消
-                                </span>
-                                <span t-if="booking.state == 'pending_payment'"
-                                      class="badge rounded-pill text-bg-warning">
-                                    待付款
-                                </span>
-                                <span t-if="booking.state == 'draft'"
-                                      class="badge rounded-pill text-bg-secondary">
-                                    草稿
-                                </span>
-                            </div>
-
                             <!-- Meeting Link -->
-                            <div t-if="booking.meeting_url and booking.state in ('draft', 'pending_payment', 'confirmed')"
-                                 class="d-flex flex-column gap-2">
+                            <div t-if="booking.meeting_url and booking.state in ('draft', 'pending_payment', 'confirmed')" class="d-flex flex-column gap-2">
                                 <h6><small class="text-muted">線上會議</small></h6>
-                                <a t-att-href="booking.meeting_url" target="_blank"
-                                   class="btn btn-light btn-sm w-100 wt-reservation-action">
+                                <a t-att-href="booking.meeting_url" target="_blank" class="btn btn-light btn-sm w-100 wt-reservation-action">
                                     <i class="fa fa-video-camera me-1"/>
                                     <t t-if="booking.discuss_channel_id">開啟會議室</t>
                                     <t t-else="">加入會議</t>
@@ -198,32 +170,99 @@
                             </div>
 
                             <!-- Payment -->
-                            <div t-if="booking.payment_status == 'paid'"
-                                 class="d-flex flex-column gap-2">
+                            <div t-if="booking.payment_status == 'paid'" class="d-flex flex-column gap-2">
                                 <h6><small class="text-muted">付款</small></h6>
-                                <span class="text-success">
-                                    <i class="fa fa-check-circle me-1"/>已付款
-                                </span>
+                                <span class="text-success"><i class="fa fa-check-circle me-1"/>已付款</span>
                             </div>
-                            <div t-if="booking.payment_status == 'pending' and booking.sale_order_id"
-                                 class="d-flex flex-column gap-2">
+                            <div t-if="booking.payment_status == 'pending' and booking.sale_order_id" class="d-flex flex-column gap-2">
                                 <h6><small class="text-muted">付款</small></h6>
-                                <a t-attf-href="/my/orders/#{booking.sale_order_id.id}?access_token=#{booking.sale_order_id.access_token}"
-                                   class="btn btn-primary btn-sm w-100 wt-reservation-action">
+                                <a t-attf-href="/my/orders/#{booking.sale_order_id.id}?access_token=#{booking.sale_order_id.access_token}" class="btn btn-primary btn-sm w-100 wt-reservation-action">
                                     <i class="fa fa-credit-card me-1"/>前往付款
                                 </a>
                             </div>
 
                             <!-- Cancel Action -->
-                            <div t-if="booking.state in ('draft', 'pending_payment', 'confirmed')"
-                                 class="d-flex flex-column gap-2">
+                            <div t-if="booking.state in ('draft', 'pending_payment', 'confirmed')" class="d-flex flex-column gap-2">
                                 <form t-attf-action="/my/ext-bookings/#{booking.id}/cancel" method="POST" class="d-block">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100 wt-reservation-action"
-                                            onclick="return confirm('確定要取消此預約嗎？');">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100 wt-reservation-action" onclick="return confirm('確定要取消此預約嗎？');">
                                         <i class="fa fa-times me-1"/>取消預約
                                     </button>
                                 </form>
+                            </div>
+
+                            <!-- 時區顯示：start_datetime / end_datetime 依 Odoo 慣例存 UTC，
+                                 這裡以 tz_name 指定顯示時區，讓 QWeb 轉成當地時間。
+                                 順序為「使用者時區 → 預約類型時區 → Asia/Taipei」，
+                                 portal 使用者若未設時區也不會退回顯示 UTC。 -->
+                            <t t-set="tz" t-value="request.env.user.tz or booking.appointment_type_id.timezone or 'Asia/Taipei'"/>
+                            <!-- 跨日判斷必須用當地日期：UTC 下 07:00 台北會落在前一天。 -->
+                            <t t-set="is_one_day" t-value="booking.is_one_local_day"/>
+
+                            <!-- ─── Date card (event-style), desktop sidebar ─── -->
+                            <div class="d-none d-lg-flex flex-column gap-3">
+                                <div class="o_wevent_dates_block d-flex flex-column gap-2">
+                                    <div t-if="is_one_day" class="card border p-2 p-md-3" style="background:transparent;color:inherit;font-family:inherit;">
+                                        <div class="d-flex align-items-end gap-2">
+                                            <time t-field="booking.start_datetime" class="o_wevent_day_header_number lh-1" style="color:currentColor;font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
+                                            <div class="small" style="font-family:inherit;">
+                                                <time t-field="booking.start_datetime" class="d-block lh-1" t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
+                                                <span class="fw-bold lh-1 d-inline-flex align-items-center flex-wrap gap-1">
+                                                    <time t-out="booking.start_datetime" t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
+                                                    <i class="fa fa-long-arrow-right text-muted"/>
+                                                    <time t-out="booking.end_datetime" t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <t t-else="">
+                                        <div class="card border p-2 p-md-3" style="background:transparent;color:inherit;font-family:inherit;">
+                                            <small class="text-muted text-uppercase">開始</small>
+                                            <div class="d-flex align-items-end gap-2">
+                                                <time t-field="booking.start_datetime" class="o_wevent_day_header_number lh-1" style="color:currentColor;font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
+                                                <div class="small" style="font-family:inherit;">
+                                                    <time t-field="booking.start_datetime" class="d-block lh-1" t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
+                                                    <time t-out="booking.start_datetime" class="fw-bold lh-1" t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card border p-2 p-md-3" style="background:transparent;color:inherit;font-family:inherit;">
+                                            <small class="text-muted text-uppercase">結束</small>
+                                            <div class="d-flex align-items-end gap-2">
+                                                <time t-field="booking.end_datetime" class="o_wevent_day_header_number lh-1" style="color:currentColor;font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
+                                                <div class="small" style="font-family:inherit;">
+                                                    <time t-field="booking.end_datetime" class="d-block lh-1" t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
+                                                    <time t-out="booking.end_datetime" class="fw-bold lh-1" t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+
+                                <!-- ─── Add to Calendar (Apple / Outlook / Google), desktop ───
+                                     Icon-only buttons, mirroring the native website_event
+                                     `event_description_dates` markup: fa-apple for iCal plus the
+                                     Outlook / Google Calendar SVGs, vendored into this module's
+                                     own static/src/img so the module does not depend on `event`.
+                                     alt="" makes sure a missing asset can never render the words
+                                     "Outlook" / "Google"; the accessible name comes from the
+                                     aria-label on each link. Rendered frameless (no .btn
+                                     classes) so they read as standalone icons like the native
+                                     widget; sizing, the 44x44 touch target and the focus ring
+                                     live in static/src/scss/appointment_frontend.scss
+                                     (.wt-cal-btn). -->
+                                <div t-if="booking.state != 'cancelled'" class="d-flex align-items-center flex-wrap gap-2">
+                                    <small class="text-muted d-block w-100">加入日曆</small>
+                                    <a t-att-href="ics_url" class="wt-reservation-action wt-cal-btn" title="加入 Apple 行事曆" aria-label="加入 Apple 行事曆">
+                                        <i class="fa fa-apple" aria-hidden="true"/>
+                                    </a>
+                                    <a t-att-href="ics_url" class="wt-reservation-action wt-cal-btn" title="加入 Outlook 行事曆" aria-label="加入 Outlook 行事曆">
+                                        <img src="/reservation_module/static/src/img/outlook-calendar.svg" alt=""/>
+                                    </a>
+                                    <a t-att-href="google_url" target="_blank" rel="noopener" class="wt-reservation-action wt-cal-btn" title="加入 Google 行事曆" aria-label="加入 Google 行事曆（另開新視窗）">
+                                        <img src="/reservation_module/static/src/img/google-calendar.svg" alt=""/>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </t>
@@ -253,79 +292,61 @@
                         </div>
 
                         <div id="card_body">
-                            <!-- ─── Fix #5: Date card (event-style) ─── -->
-                            <t t-set="tz" t-value="request.env.user.tz or 'Asia/Taipei'"/>
-                            <t t-set="is_one_day" t-value="booking.start_datetime and booking.end_datetime and booking.start_datetime.date() == booking.end_datetime.date()"/>
-                            <div class="o_wevent_dates_block mb-4 d-flex flex-wrap gap-3">
-                                <div t-if="is_one_day" class="card border d-inline-flex align-items-end flex-row gap-2 p-2 p-md-3">
-                                    <time t-field="booking.start_datetime"
-                                          class="o_wevent_day_header_number lh-1"
-                                          t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
-                                    <div class="small">
-                                        <time t-field="booking.start_datetime" class="d-block lh-1"
-                                              t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
+                            <!-- 時區顯示：同上，start_datetime / end_datetime 存 UTC，
+                                 以 tz_name 指定顯示時區轉成當地時間；
+                                 跨日判斷同樣改用當地日期。 -->
+                            <t t-set="tz" t-value="request.env.user.tz or booking.appointment_type_id.timezone or 'Asia/Taipei'"/>
+                            <t t-set="is_one_day" t-value="booking.is_one_local_day"/>
+
+                            <!-- ─── Date card (event-style), mobile ─── -->
+                            <div class="o_wevent_dates_block mb-4 d-lg-none d-flex flex-wrap gap-3">
+                                <div t-if="is_one_day" class="card border d-inline-flex align-items-end flex-row gap-2 p-2 p-md-3" style="background:transparent;color:inherit;font-family:inherit;">
+                                    <time t-field="booking.start_datetime" class="o_wevent_day_header_number lh-1" style="color:currentColor;font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
+                                    <div class="small" style="font-family:inherit;">
+                                        <time t-field="booking.start_datetime" class="d-block lh-1" t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
                                         <span class="fw-bold lh-1">
-                                            <time t-out="booking.start_datetime"
-                                                  t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
+                                            <time t-out="booking.start_datetime" t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
                                             <i class="fa fa-long-arrow-right mx-1 text-muted"/>
-                                            <time t-out="booking.end_datetime"
-                                                  t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
+                                            <time t-out="booking.end_datetime" t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
                                         </span>
                                     </div>
                                 </div>
                                 <t t-else="">
                                     <!-- Cross-day: two separate cards (Starts / Ends) -->
-                                    <div class="card border d-inline-flex align-items-end flex-column gap-1 p-2 p-md-3">
+                                    <div class="card border d-inline-flex align-items-end flex-column gap-1 p-2 p-md-3" style="background:transparent;color:inherit;font-family:inherit;">
                                         <small class="text-muted text-uppercase">開始</small>
                                         <div class="d-flex align-items-end gap-2">
-                                            <time t-field="booking.start_datetime"
-                                                  class="o_wevent_day_header_number lh-1"
-                                                  t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
-                                            <div class="small">
-                                                <time t-field="booking.start_datetime" class="d-block lh-1"
-                                                      t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
-                                                <time t-out="booking.start_datetime" class="fw-bold lh-1"
-                                                      t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
+                                            <time t-field="booking.start_datetime" class="o_wevent_day_header_number lh-1" style="color:currentColor;font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
+                                            <div class="small" style="font-family:inherit;">
+                                                <time t-field="booking.start_datetime" class="d-block lh-1" t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
+                                                <time t-out="booking.start_datetime" class="fw-bold lh-1" t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="card border d-inline-flex align-items-end flex-column gap-1 p-2 p-md-3">
+                                    <div class="card border d-inline-flex align-items-end flex-column gap-1 p-2 p-md-3" style="background:transparent;color:inherit;font-family:inherit;">
                                         <small class="text-muted text-uppercase">結束</small>
                                         <div class="d-flex align-items-end gap-2">
-                                            <time t-field="booking.end_datetime"
-                                                  class="o_wevent_day_header_number lh-1"
-                                                  t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
-                                            <div class="small">
-                                                <time t-field="booking.end_datetime" class="d-block lh-1"
-                                                      t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
-                                                <time t-out="booking.end_datetime" class="fw-bold lh-1"
-                                                      t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
+                                            <time t-field="booking.end_datetime" class="o_wevent_day_header_number lh-1" style="color:currentColor;font-family:inherit;" t-options="{'tz_name': tz, 'format': 'dd', 'date_only': 'true'}"/>
+                                            <div class="small" style="font-family:inherit;">
+                                                <time t-field="booking.end_datetime" class="d-block lh-1" t-options="{'tz_name': tz, 'format': 'MMMM Y', 'date_only': 'true'}"/>
+                                                <time t-out="booking.end_datetime" class="fw-bold lh-1" t-options="{'widget':'datetime','tz_name':tz,'time_only':'true','format':'short'}"/>
                                             </div>
                                         </div>
                                     </div>
                                 </t>
                             </div>
 
-                            <!-- ─── Fix #4: Add to Calendar (Apple / Outlook / Google) ─── -->
-                            <div t-if="booking.state != 'cancelled'"
-                                 class="mb-4 d-flex align-items-center flex-wrap gap-2">
+                            <!-- ─── Add to Calendar (Apple / Outlook / Google), mobile ─── -->
+                            <div t-if="booking.state != 'cancelled'" class="mb-4 d-lg-none d-flex align-items-center flex-wrap gap-2">
                                 <small class="text-muted">加入日曆：</small>
-                                <a t-att-href="ics_url"
-                                   class="btn btn-light btn-sm wt-reservation-action"
-                                   title="Apple 行事曆" aria-label="加入 Apple 行事曆">
-                                    <i class="fa fa-apple"/>
+                                <a t-att-href="ics_url" class="wt-reservation-action wt-cal-btn" title="加入 Apple 行事曆" aria-label="加入 Apple 行事曆">
+                                    <i class="fa fa-apple" aria-hidden="true"/>
                                 </a>
-                                <a t-att-href="ics_url"
-                                   class="btn btn-light btn-sm wt-reservation-action"
-                                   title="Outlook" aria-label="加入 Outlook">
-                                    <i class="fa fa-envelope-o"/>
-                                    <span class="ms-1 d-none d-md-inline">Outlook</span>
+                                <a t-att-href="ics_url" class="wt-reservation-action wt-cal-btn" title="加入 Outlook 行事曆" aria-label="加入 Outlook 行事曆">
+                                    <img src="/reservation_module/static/src/img/outlook-calendar.svg" alt=""/>
                                 </a>
-                                <a t-att-href="google_url" target="_blank" rel="noopener"
-                                   class="btn btn-light btn-sm wt-reservation-action"
-                                   title="Google 行事曆" aria-label="加入 Google 行事曆">
-                                    <i class="fa fa-google"/>
-                                    <span class="ms-1 d-none d-md-inline">Google</span>
+                                <a t-att-href="google_url" target="_blank" rel="noopener" class="wt-reservation-action wt-cal-btn" title="加入 Google 行事曆" aria-label="加入 Google 行事曆（另開新視窗）">
+                                    <img src="/reservation_module/static/src/img/google-calendar.svg" alt=""/>
                                 </a>
                             </div>
 
@@ -342,7 +363,7 @@
                                 </div>
                             </div>
 
-                            <!-- ─── Fix #5: Location block (event-style) ─── -->
+                            <!-- ─── Location block (event-style) ─── -->
                             <div t-if="booking.resource_id or booking.appointment_type_id.location_id or booking.appointment_type_id.location_address"
                                  class="o_wevent_sidebar_block border-top pt-3 mt-3 mb-4">
                                 <h6 class="o_wevent_sidebar_title text-uppercase text-muted mb-2">
@@ -371,7 +392,7 @@
                                 </a>
                             </div>
 
-                            <!-- ─── Fix #5: Service description (Html rich text) ─── -->
+                            <!-- ─── Service description (Html rich text) ─── -->
                             <div t-if="booking.appointment_type_id.description" class="card border-0 bg-light mb-4">
                                 <div class="card-body">
                                     <h5 class="card-title mb-2">服務說明</h5>
@@ -379,7 +400,7 @@
                                 </div>
                             </div>
 
-                            <!-- ─── Fix #5: Notes (preserve line breaks) ─── -->
+                            <!-- ─── Notes (preserve line breaks) ─── -->
                             <div t-if="booking.notes" class="card border-0 bg-light mb-4">
                                 <div class="card-body">
                                     <h5 class="card-title mb-2">備註</h5>
@@ -394,12 +415,8 @@
                                 <hr class="mt-1 mb-2"/>
                                 <p class="text-muted small">
                                     <i class="fa fa-video-camera me-1"/>
-                                    <t t-if="booking.discuss_channel_id">
-                                        這是一場線上會議。請點擊下方按鈕開啟會議室進行視訊通話：
-                                    </t>
-                                    <t t-else="">
-                                        這是一場線上會議。請在預約時間使用以下連結加入：
-                                    </t>
+                                    <t t-if="booking.discuss_channel_id">這是一場線上會議。請點擊下方按鈕開啟會議室進行視訊通話：</t>
+                                    <t t-else="">這是一場線上會議。請在預約時間使用以下連結加入：</t>
                                 </p>
                                 <a t-att-href="booking.meeting_url" target="_blank"
                                    class="btn btn-light btn-sm wt-reservation-action">
@@ -407,9 +424,7 @@
                                     <t t-if="booking.discuss_channel_id">開啟會議室</t>
                                     <t t-else="">加入會議</t>
                                 </a>
-                                <p class="mt-2 small text-muted">
-                                    <t t-out="booking.meeting_url"/>
-                                </p>
+                                <p class="mt-2 small text-muted"><t t-out="booking.meeting_url"/></p>
                             </div>
                         </div>
                     </div>

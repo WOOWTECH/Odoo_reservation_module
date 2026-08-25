@@ -65,7 +65,9 @@
                     🗓️ Date &amp; Time
                 </td>
                 <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;">
-                    <t t-out="object.start_datetime" t-options='{"widget": "datetime"}'/> — <t t-out="object.end_datetime" t-options='{"widget": "datetime"}'/>
+                    <!-- tz_name 必填：郵件由 cron / OdooBot 渲染，該使用者通常沒有時區，
+                         省略時 QWeb 會直接輸出 UTC，收件者看到的時間會少 8 小時。 -->
+                    <t t-out="object.start_datetime" t-options='{"widget": "datetime", "tz_name": object.display_tz}'/> — <t t-out="object.end_datetime" t-options='{"widget": "datetime", "tz_name": object.display_tz}'/>
                 </td>
             </tr>
             <t t-if="object.staff_user_id">
@@ -184,7 +186,9 @@
                     🗓️ Date &amp; Time
                 </td>
                 <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef;">
-                    <t t-out="object.start_datetime" t-options='{"widget": "datetime"}'/> — <t t-out="object.end_datetime" t-options='{"widget": "datetime"}'/>
+                    <!-- tz_name 必填：郵件由 cron / OdooBot 渲染，該使用者通常沒有時區，
+                         省略時 QWeb 會直接輸出 UTC，收件者看到的時間會少 8 小時。 -->
+                    <t t-out="object.start_datetime" t-options='{"widget": "datetime", "tz_name": object.display_tz}'/> — <t t-out="object.end_datetime" t-options='{"widget": "datetime", "tz_name": object.display_tz}'/>
                 </td>
             </tr>
             <t t-if="object.staff_user_id">
@@ -318,7 +322,9 @@
                     🗓️ Date &amp; Time
                 </td>
                 <td style="padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;">
-                    <t t-out="object.start_datetime" t-options='{"widget": "datetime"}'/> — <t t-out="object.end_datetime" t-options='{"widget": "datetime"}'/>
+                    <!-- tz_name 必填：郵件由 cron / OdooBot 渲染，該使用者通常沒有時區，
+                         省略時 QWeb 會直接輸出 UTC，收件者看到的時間會少 8 小時。 -->
+                    <t t-out="object.start_datetime" t-options='{"widget": "datetime", "tz_name": object.display_tz}'/> — <t t-out="object.end_datetime" t-options='{"widget": "datetime", "tz_name": object.display_tz}'/>
                 </td>
             </tr>
             <t t-if="object.staff_user_id">
@@ -408,7 +414,9 @@
                     Date &amp; Time
                 </td>
                 <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef;">
-                    <t t-out="object.start_datetime" t-options='{"widget": "datetime"}'/> — <t t-out="object.end_datetime" t-options='{"widget": "datetime"}'/>
+                    <!-- tz_name 必填：郵件由 cron / OdooBot 渲染，該使用者通常沒有時區，
+                         省略時 QWeb 會直接輸出 UTC，收件者看到的時間會少 8 小時。 -->
+                    <t t-out="object.start_datetime" t-options='{"widget": "datetime", "tz_name": object.display_tz}'/> — <t t-out="object.end_datetime" t-options='{"widget": "datetime", "tz_name": object.display_tz}'/>
                 </td>
             </tr>
             <t t-if="object.staff_user_id">
@@ -532,7 +540,9 @@
                     Date &amp; Time
                 </td>
                 <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef;">
-                    <t t-out="object.start_datetime" t-options='{"widget": "datetime"}'/> — <t t-out="object.end_datetime" t-options='{"widget": "datetime"}'/>
+                    <!-- tz_name 必填：郵件由 cron / OdooBot 渲染，該使用者通常沒有時區，
+                         省略時 QWeb 會直接輸出 UTC，收件者看到的時間會少 8 小時。 -->
+                    <t t-out="object.start_datetime" t-options='{"widget": "datetime", "tz_name": object.display_tz}'/> — <t t-out="object.end_datetime" t-options='{"widget": "datetime", "tz_name": object.display_tz}'/>
                 </td>
             </tr>
             <t t-if="object.staff_user_id">

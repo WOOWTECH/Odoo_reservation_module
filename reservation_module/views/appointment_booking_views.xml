@@ -157,14 +157,20 @@
                 <field name="resource_id"/>
                 <field name="staff_user_id"/>
                 <separator/>
+                <!-- These filter on start_date_local (a stored Date holding the
+                     booking's day in the appointment type's timezone) instead of
+                     start_datetime. start_datetime is UTC, and a domain cannot
+                     express a timezone offset: combining context_today() with
+                     time(0,0,0) yields a local midnight that the server then
+                     reads as UTC, which would shift every window by the tz
+                     offset (8h for Asia/Taipei). -->
                 <filter string="Today" name="today"
-                        domain="[('start_datetime', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))),
-                                 ('start_datetime', '&lt;', datetime.datetime.combine(context_today() + relativedelta(days=1), datetime.time(0,0,0)))]"/>
+                        domain="[('start_date_local', '=', context_today().strftime('%Y-%m-%d'))]"/>
                 <filter string="This Week" name="this_week"
-                        domain="[('start_datetime', '&gt;=', datetime.datetime.combine(context_today() - relativedelta(days=context_today().weekday()), datetime.time(0,0,0))),
-                                 ('start_datetime', '&lt;', datetime.datetime.combine(context_today() + relativedelta(days=7-context_today().weekday()), datetime.time(0,0,0)))]"/>
+                        domain="[('start_date_local', '&gt;=', (context_today() + relativedelta(weeks=-1, days=1, weekday=0)).strftime('%Y-%m-%d')),
+                                 ('start_date_local', '&lt;=', (context_today() + relativedelta(weekday=6)).strftime('%Y-%m-%d'))]"/>
                 <filter string="Upcoming" name="upcoming"
-                        domain="[('start_datetime', '&gt;=', context_today())]"/>
+                        domain="[('start_date_local', '&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
                 <separator/>
                 <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
                 <filter string="Pending Payment" name="pending_payment" domain="[('state', '=', 'pending_payment')]"/>

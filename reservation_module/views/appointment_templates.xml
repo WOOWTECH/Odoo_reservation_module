@@ -27,7 +27,7 @@
                                             <t t-if="appointment_type.is_scheduled">
                                                 <i class="fa fa-clock-o"/>
                                                 <t t-set="dur" t-value="appointment_type.slot_duration"/>
-                                                <t t-if="dur and dur == int(dur) and int(dur) &gt;= 1">
+                                                <t t-if="dur and dur == int(dur) and int(dur) >= 1">
                                                     <t t-esc="int(dur)"/> <t t-esc="t['hours']"/>
                                                 </t>
                                                 <t t-elif="dur and dur &lt; 1">
@@ -105,7 +105,7 @@
                                             <span class="badge bg-secondary me-2">
                                                 <i class="fa fa-clock-o"/>
                                                 <t t-set="dur" t-value="appointment_type.slot_duration"/>
-                                                <t t-if="dur and dur == int(dur) and int(dur) &gt;= 1">
+                                                <t t-if="dur and dur == int(dur) and int(dur) >= 1">
                                                     <t t-esc="int(dur)"/> <t t-esc="t['hours']"/>
                                                 </t>
                                                 <t t-elif="dur and dur &lt; 1">

@@ -203,11 +203,13 @@ class AppointmentBooking(models.Model):
 
     @api.depends('start_datetime', 'appointment_type_id.timezone')
     def _compute_start_date_local(self):
-        """Local booking date, always in the *appointment type's* timezone.
+        """Local booking date, in the appointment type's timezone.
 
-        Deliberately not _get_calendar_tz(): this one is stored, so its value
-        must be a pure function of the declared depends. It also has to match
-        the 18.0.3.0.0 migration, which fills the column with
+        Reads appointment_type_id.timezone directly rather than going through
+        _get_calendar_tz(): this field is stored, so its value must be a pure
+        function of the declared depends. The two resolve to the same timezone
+        by construction, and both have to match the 18.0.3.0.0 migration,
+        which fills the column with
         `(start_datetime AT TIME ZONE 'UTC') AT TIME ZONE appointment_type.timezone`.
         """
         for booking in self:
@@ -218,8 +220,7 @@ class AppointmentBooking(models.Model):
             booking.start_date_local = tz_utils.utc_to_local(
                 tz, booking.start_datetime).date()
 
-    @api.depends('start_datetime', 'end_datetime', 'appointment_type_id.timezone',
-                 'partner_id.tz', 'staff_user_id.tz')
+    @api.depends('start_datetime', 'end_datetime', 'appointment_type_id.timezone')
     def _compute_display_tz(self):
         for booking in self:
             booking.display_tz = booking._get_calendar_tz()
@@ -872,27 +873,22 @@ class AppointmentBooking(models.Model):
     # ------------------------------------------------------------------
 
     def _get_calendar_tz(self):
-        """Timezone fallback chain for display and calendar exports.
+        """The timezone this booking is displayed and exported in.
 
-        Order: appointment type → partner → staff user → current env user →
-        company → UTC.
+        Always the appointment type's timezone. That is the timezone the
+        availability windows are authored in — i.e. the one the booking was
+        actually agreed in — and both appointment_type_id and its `timezone`
+        field are required, so it is always set.
 
-        The appointment type comes first on purpose: it is the timezone the
-        availability windows are authored in, i.e. the timezone the booking
-        was actually agreed in, and it is the only link in the chain that is
-        guaranteed to be set (the field is required). The env user is a poor
-        source on the frontend — the public user has no tz at all — and would
-        otherwise silently degrade to UTC.
+        This used to be a fallback chain (type → partner → staff → env user →
+        company → UTC), but every link after the first was unreachable. Worse,
+        had one ever been reached it would have introduced a second, different
+        basis alongside start_date_local and the email templates, which are
+        both pinned to the appointment type — the same booking would then be
+        filtered on one timezone and rendered in another. One basis only.
         """
         self.ensure_one()
-        return (
-            (self.appointment_type_id and self.appointment_type_id.timezone)
-            or (self.partner_id and self.partner_id.tz)
-            or (self.staff_user_id and self.staff_user_id.tz)
-            or self.env.user.tz
-            or (self.env.company.partner_id and self.env.company.partner_id.tz)
-            or 'UTC'
-        )
+        return self.appointment_type_id.timezone or 'UTC'
 
     def _get_calendar_location(self):
         """Location string for VEVENT LOCATION / Google URL location param."""

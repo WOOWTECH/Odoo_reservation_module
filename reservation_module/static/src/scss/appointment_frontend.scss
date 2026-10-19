@@ -440,7 +440,7 @@
 
 /* ── Portal booking detail: keep the whole communication area light ──
    Odoo 18 portal chatter renders into a Shadow DOM. Parts of the native
-   chatter are intentionally transparent, so on Markstudio's dark website
+   chatter are intentionally transparent, so on a dark website theme
    background the composer appeared white while the empty conversation area
    stayed black. Make the booking chat wrapper itself a light surface so the
    title, composer and empty/message area read as one aligned panel. */

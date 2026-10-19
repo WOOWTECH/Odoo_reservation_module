@@ -129,6 +129,12 @@
                                     <field name="auto_confirm_capacity_percent" widget="percentage" invisible="not auto_confirm"/>
                                     <field name="show_image"/>
                                 </group>
+                                <group string="Booking Form">
+                                    <field name="require_guest_name"/>
+                                    <field name="require_guest_email"/>
+                                    <field name="require_guest_phone"/>
+                                    <field name="single_guest_booking"/>
+                                </group>
                                 <group string="Payment">
                                     <field name="require_payment"/>
                                     <field name="payment_product_ids" widget="many2many_tags" invisible="not require_payment"/>

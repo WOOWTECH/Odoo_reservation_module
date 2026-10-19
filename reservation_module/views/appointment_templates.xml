@@ -347,52 +347,67 @@
                                             <input type="hidden" name="staff_id" t-att-value="staff.id"/>
                                         </t>
 
+                                        <!-- 必填欄位與人數依預約類型設定（require_guest_*、single_guest_booking） -->
+                                        <t t-set="req_name" t-value="appointment_type.require_guest_name"/>
+                                        <t t-set="req_email" t-value="appointment_type.require_guest_email"/>
+                                        <t t-set="req_phone" t-value="appointment_type.require_guest_phone"/>
                                         <t t-if="portal_partner">
-                                            <!-- Portal user: hidden inputs carry values, disabled inputs show them -->
+                                            <!-- Portal user: name/email come from the account (hidden inputs carry values,
+                                                 disabled inputs show them); phone stays editable and is written back -->
                                             <input type="hidden" name="guest_name" t-att-value="portal_partner.name"/>
                                             <input type="hidden" name="guest_email" t-att-value="portal_partner.email"/>
                                             <div class="mb-3">
-                                                <label class="form-label" t-esc="t['name']"/>
+                                                <label class="form-label"><t t-esc="t['name']"/><t t-if="req_name"> *</t></label>
                                                 <input type="text" class="form-control bg-light" disabled="disabled"
                                                        t-att-value="portal_partner.name"/>
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label" t-esc="t['email']"/>
+                                                <label class="form-label"><t t-esc="t['email']"/><t t-if="req_email"> *</t></label>
                                                 <input type="email" class="form-control bg-light" disabled="disabled"
                                                        t-att-value="portal_partner.email"/>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="guest_phone" class="form-label"><t t-esc="t['phone']"/> *</label>
-                                                <input type="tel" class="form-control" id="guest_phone"
-                                                       name="guest_phone" required="required"
-                                                       aria-required="true"
-                                                       t-att-value="portal_partner.phone or ''"/>
+                                                <label for="guest_phone" class="form-label"><t t-esc="t['phone']"/><t t-if="req_phone"> *</t></label>
+                                                <input type="tel" class="form-control" id="guest_phone" name="guest_phone"
+                                                       t-att-required="'required' if req_phone else None"
+                                                       t-att-aria-required="'true' if req_phone else None"
+                                                       t-att-value="guest_phone or portal_partner.phone or ''"/>
                                             </div>
                                         </t>
                                         <t t-else="">
                                             <!-- Public visitor: editable inputs (preserve values on error) -->
                                             <div class="mb-3">
-                                                <label for="guest_name" class="form-label" t-esc="t['name']"/>
-                                                <input type="text" class="form-control" id="guest_name"
-                                                       name="guest_name"
+                                                <label for="guest_name" class="form-label"><t t-esc="t['name']"/><t t-if="req_name"> *</t></label>
+                                                <input type="text" class="form-control" id="guest_name" name="guest_name"
+                                                       t-att-required="'required' if req_name else None"
+                                                       t-att-aria-required="'true' if req_name else None"
                                                        t-att-value="guest_name if guest_name else ''"/>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="guest_email" class="form-label" t-esc="t['email']"/>
-                                                <input type="email" class="form-control" id="guest_email"
-                                                       name="guest_email"
+                                                <label for="guest_email" class="form-label"><t t-esc="t['email']"/><t t-if="req_email"> *</t></label>
+                                                <input type="email" class="form-control" id="guest_email" name="guest_email"
+                                                       t-att-required="'required' if req_email else None"
+                                                       t-att-aria-required="'true' if req_email else None"
                                                        t-att-value="guest_email if guest_email else ''"/>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="guest_phone" class="form-label"><t t-esc="t['phone']"/> *</label>
-                                                <input type="tel" class="form-control" id="guest_phone"
-                                                       name="guest_phone" required="required"
-                                                       aria-required="true"
+                                                <label for="guest_phone" class="form-label"><t t-esc="t['phone']"/><t t-if="req_phone"> *</t></label>
+                                                <input type="tel" class="form-control" id="guest_phone" name="guest_phone"
+                                                       t-att-required="'required' if req_phone else None"
+                                                       t-att-aria-required="'true' if req_phone else None"
                                                        t-att-value="guest_phone if guest_phone else ''"/>
                                             </div>
                                         </t>
 
-                                        <input type="hidden" name="guest_count" value="1"/>
+                                        <t t-if="appointment_type.single_guest_booking">
+                                            <input type="hidden" name="guest_count" value="1"/>
+                                        </t>
+                                        <div t-else="" class="mb-3">
+                                            <label for="guest_count" class="form-label" t-esc="t['number_of_guests']"/>
+                                            <input type="number" class="form-control" id="guest_count"
+                                                   name="guest_count" min="1"
+                                                   t-att-value="guest_count if guest_count else 1"/>
+                                        </div>
 
                                         <div class="mb-3">
                                             <label for="notes" class="form-label" t-esc="t['notes']"/>

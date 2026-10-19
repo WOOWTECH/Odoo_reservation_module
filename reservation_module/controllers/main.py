@@ -949,8 +949,14 @@ class AppointmentController(http.Controller):
 
     def _process_booking(self, appointment_type, data):
         """Process the booking form submission"""
-        # Validate required fields: Mark Studio only requires phone from the customer.
-        required_fields = ['guest_phone', 'start_datetime']
+        # 必填欄位依預約類型設定（require_guest_*）；開始時間一律必填
+        required_fields = ['start_datetime']
+        if appointment_type.require_guest_name:
+            required_fields.append('guest_name')
+        if appointment_type.require_guest_email:
+            required_fields.append('guest_email')
+        if appointment_type.require_guest_phone:
+            required_fields.append('guest_phone')
         for field in required_fields:
             if not data.get(field):
                 return self._render_booking_form_error(
@@ -969,15 +975,32 @@ class AppointmentController(http.Controller):
             return self._render_booking_form_error(
                 appointment_type, data, _('Please enter a valid email address.'))
 
-        # Require a real, country-aware phone number.  The stored E.164 value
-        # is also the rate-limit key, so formatting variants cannot bypass it.
-        guest_phone = self._normalize_booking_phone(data.get('guest_phone') or '')
-        if not guest_phone:
-            return self._render_booking_form_error(
-                appointment_type, data, _('Please enter a valid phone number.'))
+        # Phone, when provided, must be a real country-aware number. The stored
+        # E.164 value is also a rate-limit key, so formatting variants cannot
+        # bypass it.
+        raw_phone = (data.get('guest_phone') or '').strip()
+        guest_phone = False
+        if raw_phone:
+            guest_phone = self._normalize_booking_phone(raw_phone)
+            if not guest_phone:
+                return self._render_booking_form_error(
+                    appointment_type, data, _('Please enter a valid phone number.'))
 
-        # Mark Studio service bookings are always for one visitor.
-        guest_count = 1
+        # Rate limiting and contact need at least one of email / phone.
+        if not email and not guest_phone:
+            return self._render_booking_form_error(
+                appointment_type, data, _('Please enter an email address or a phone number.'))
+
+        if appointment_type.single_guest_booking:
+            guest_count = 1
+        else:
+            # Safe int() casts for guest_count (H2 + H3)
+            try:
+                guest_count = int(data.get('guest_count', 1))
+            except (ValueError, TypeError):
+                guest_count = 1
+            if guest_count < 1:
+                guest_count = 1
         # Enforce upper bound from resource capacity or appointment type default
         max_guests = appointment_type.max_guests_per_booking if hasattr(appointment_type, 'max_guests_per_booking') and appointment_type.max_guests_per_booking else 100
         rid = self._safe_int(data.get('resource_id'))
@@ -1091,10 +1114,15 @@ class AppointmentController(http.Controller):
 
         # M1: Basic rate limiting — max 5 bookings per normalized phone/email per hour
         one_hour_ago = fields.Datetime.now() - timedelta(hours=1)
-        if email:
+        if email and guest_phone:
             rate_domain = [
                 '&', ('create_date', '>=', one_hour_ago),
                 '|', ('guest_email', '=', email), ('guest_phone', '=', guest_phone),
+            ]
+        elif email:
+            rate_domain = [
+                ('create_date', '>=', one_hour_ago),
+                ('guest_email', '=', email),
             ]
         else:
             rate_domain = [
@@ -1153,10 +1181,9 @@ class AppointmentController(http.Controller):
                 # Public form input is not proof of account ownership. Always
                 # create a distinct guest contact; never search/merge by input.
                 booking_vals['guest_email'] = email
-                vals = {
-                    'name': guest_name or guest_phone,
-                    'phone': guest_phone,
-                }
+                vals = {'name': guest_name or guest_phone or email}
+                if guest_phone:
+                    vals['phone'] = guest_phone
                 if email:
                     vals['email'] = email
                 partner = request.env['res.partner'].sudo().create(vals)

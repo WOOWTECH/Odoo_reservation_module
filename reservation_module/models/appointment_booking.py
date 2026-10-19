@@ -54,9 +54,11 @@ class AppointmentBooking(models.Model):
         tracking=True,
         ondelete='set null',
     )
+    # 必填與否依預約類型的 require_guest_* 設定，由 controller 檢查；
+    # model 層不設 required，既有 DB 升級時才不會因舊資料加不上 NOT NULL。
     guest_name = fields.Char('Guest Name', tracking=True)
     guest_email = fields.Char('Guest Email')
-    guest_phone = fields.Char('Guest Phone', required=True)
+    guest_phone = fields.Char('Guest Phone')
     guest_count = fields.Integer('Number of Guests', default=1, required=True)
 
     # Resource/Staff Assignment

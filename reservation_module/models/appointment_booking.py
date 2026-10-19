@@ -54,8 +54,10 @@ class AppointmentBooking(models.Model):
         tracking=True,
         ondelete='set null',
     )
-    guest_name = fields.Char('Guest Name', required=True, tracking=True)
-    guest_email = fields.Char('Guest Email', required=True)
+    # 必填與否依預約類型的 require_guest_* 設定，由 controller 檢查；
+    # model 層不設 required，既有 DB 升級時才不會因舊資料加不上 NOT NULL。
+    guest_name = fields.Char('Guest Name', tracking=True)
+    guest_email = fields.Char('Guest Email')
     guest_phone = fields.Char('Guest Phone')
     guest_count = fields.Integer('Number of Guests', default=1, required=True)
 
@@ -307,15 +309,27 @@ class AppointmentBooking(models.Model):
 
     @api.model
     def _check_booking_conflict(self, start_dt, end_dt, staff_user_id=False, resource_id=False, exclude_booking_id=False, lock=False):
-        """Check if staff or resource has conflicting bookings across ALL appointment types.
+        """Check staff/resource conflicts across all appointment types.
 
-        Args:
-            lock: If True, uses SELECT FOR UPDATE to prevent race conditions
-                  during booking creation. Only use inside a write transaction.
+        With ``lock=True``, mutable technical guard rows are acquired before
+        the aggregates. PostgreSQL forbids ``FOR UPDATE`` with ``COUNT``/``SUM``;
+        more importantly, a guard *update* makes a stale REPEATABLE READ writer
+        fail with ``SerializationFailure`` so Odoo retries the whole request.
+        That exception must propagate—do not catch it here.
 
-        Returns dict: {'staff_conflict': bool, 'resource_conflict': bool, 'resource_remaining': int}
+        Returns ``staff_conflict``, ``resource_conflict``, and remaining
+        resource capacity. ``exclude_booking_id`` keeps edit/confirm semantics.
         """
         result = {'staff_conflict': False, 'resource_conflict': False, 'resource_remaining': 1}
+
+        if lock:
+            guard_keys = []
+            if staff_user_id:
+                guard_keys.append(f'staff:{int(staff_user_id)}')
+            if resource_id:
+                guard_keys.append(f'resource:{int(resource_id)}')
+            if guard_keys:
+                self.env['appointment.booking.conflict.guard'].sudo()._acquire_keys(guard_keys)
 
         base_where = "state IN ('confirmed', 'done') AND start_datetime < %s AND end_datetime > %s"
         base_params = [end_dt, start_dt]
@@ -323,10 +337,8 @@ class AppointmentBooking(models.Model):
             base_where += " AND id != %s"
             base_params.append(exclude_booking_id)
 
-        lock_clause = " FOR UPDATE" if lock else ""
-
         if staff_user_id:
-            query = f"SELECT COUNT(*) FROM appointment_booking WHERE {base_where} AND staff_user_id = %s{lock_clause}"
+            query = f"SELECT COUNT(*) FROM appointment_booking WHERE {base_where} AND staff_user_id = %s"
             self.env.cr.execute(query, base_params + [staff_user_id])
             staff_count = self.env.cr.fetchone()[0]
             result['staff_conflict'] = staff_count > 0
@@ -334,10 +346,10 @@ class AppointmentBooking(models.Model):
         if resource_id:
             resource = self.env['resource.resource'].browse(resource_id)
             capacity = resource.capacity or 1
-            # C4 fix: 用 SUM(guest_count) 取代 COUNT(*) 正確計算人數容量
+            # SUM preserves resource capacity semantics without invalid FOR UPDATE.
             query = (
                 f"SELECT COALESCE(SUM(guest_count), 0) "
-                f"FROM appointment_booking WHERE {base_where} AND resource_id = %s{lock_clause}"
+                f"FROM appointment_booking WHERE {base_where} AND resource_id = %s"
             )
             self.env.cr.execute(query, base_params + [resource_id])
             total_guests = self.env.cr.fetchone()[0]
@@ -391,6 +403,7 @@ class AppointmentBooking(models.Model):
                 staff_user_id=booking.staff_user_id.id if booking.staff_user_id else False,
                 resource_id=booking.resource_id.id if booking.resource_id else False,
                 exclude_booking_id=booking.id,
+                lock=True,
             )
             if conflict['staff_conflict']:
                 raise UserError(_('Staff member is already booked for this time slot.'))

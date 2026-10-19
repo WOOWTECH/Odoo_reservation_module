@@ -15,7 +15,7 @@
         - FAQ / Q&A for appointment types
         - Email notifications and reminders
     """,
-    "version": "18.0.3.1.0",
+    "version": "18.0.3.2.0",
     "category": "Services/Appointment",
     "author": "WoowTech",
     "website": "https://aiot.woowtech.io/",
@@ -29,6 +29,7 @@
         "product",
         "mail",
         "sale",
+        "phone_validation",
     ],
     "data": [
         # Security
@@ -60,9 +61,9 @@
             "reservation_module/static/src/scss/appointment_frontend.scss",
             "reservation_module/static/src/js/appointment_booking.js",
         ],
-        "portal.assets_chatter": [
-            "reservation_module/static/src/js/chatter_theme_patch.js",
-        ],
+        # Keep the portal chatter bundle on Odoo's standard implementation.
+        # A previous JS theme bridge in this bundle could prevent the chatter
+        # component from mounting, leaving only the "溝通紀錄" heading visible.
     },
     "demo": [
         "demo/appointment_demo.xml",

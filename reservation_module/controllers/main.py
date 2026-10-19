@@ -1,14 +1,24 @@
 # -*- coding: utf-8 -*-
 
 from odoo import http, fields, _
+from odoo.exceptions import UserError
 from odoo.http import request, content_disposition
 from odoo.tools import consteq
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
 from .. import tz_utils
 from datetime import datetime, timedelta
+from urllib.parse import urlencode
 import calendar
 import logging
 import re
+import secrets
+import time
+
+from odoo.addons.phone_validation.tools import phone_validation
+from ..models.booking_identity import (
+    normalize_booking_phone,
+    resolve_single_active_assignment,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -284,6 +294,10 @@ class AppointmentController(http.Controller):
             return zh_tw
         return en_us
 
+    _BOOKING_INTENT_SESSION_KEY = 'reservation_module.booking_intents'
+    _BOOKING_INTENT_TTL_SECONDS = 10 * 60
+    _BOOKING_INTENT_MAX_COUNT = 5
+
     @staticmethod
     def _safe_int(value, default=None):
         """Safely convert a value to int, returning default on failure."""
@@ -293,6 +307,189 @@ class AppointmentController(http.Controller):
             return int(value)
         except (ValueError, TypeError):
             return default
+
+    def _require_authenticated_booking(self):
+        """Whether the opt-in booking identity gate is enabled for this DB."""
+        value = request.env['ir.config_parameter'].sudo().get_param(
+            'reservation_module.require_authenticated_booking', 'False')
+        return str(value).strip().lower() in ('1', 'true', 'yes', 'on')
+
+    @staticmethod
+    def _is_public_user():
+        return request.env.user._is_public()
+
+    def _get_booking_phone_country(self):
+        """Use website country first, then its company, then request company."""
+        website = getattr(request, 'website', None)
+        if not website:
+            website = request.env['website'].get_current_website()
+        website_company = getattr(website, 'company_id', False)
+        return (
+            getattr(website, 'country_id', False)
+            or getattr(website_company, 'country_id', False)
+            or request.env.company.country_id
+        )
+
+    def _normalize_booking_phone(self, value):
+        """Adapt Odoo 18's phone_format signature to the booking input helper."""
+        country = self._get_booking_phone_country()
+        return normalize_booking_phone(
+            value,
+            country.code if country else False,
+            country.phone_code if country else False,
+            phone_validation.phone_format,
+            UserError,
+        )
+
+    def _booking_intent_from_data(self, appointment_type, data):
+        """Whitelist the non-PII selection state which may survive LIFF login."""
+        try:
+            start_datetime = datetime.strptime(
+                data.get('start_datetime') or '', '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            return None
+
+        end_value = data.get('end_datetime') or ''
+        if end_value:
+            try:
+                datetime.strptime(end_value, '%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                return None
+
+        intent = {
+            'appointment_type_id': appointment_type.id,
+            'start_datetime': start_datetime.strftime('%Y-%m-%d %H:%M:%S'),
+            'end_datetime': end_value,
+            'resource_id': False,
+            'staff_id': False,
+        }
+        for field in ('resource_id', 'staff_id'):
+            if data.get(field):
+                record_id = self._safe_int(data[field])
+                if not record_id or record_id < 1:
+                    return None
+                intent[field] = record_id
+        return intent
+
+    def _prune_booking_intents(self):
+        """Return only recent, structured intents and persist the bounded map."""
+        now = int(time.time())
+        stored = request.session.get(self._BOOKING_INTENT_SESSION_KEY, {})
+        valid = []
+        if isinstance(stored, dict):
+            for nonce, item in stored.items():
+                created_at = item.get('created_at') if isinstance(item, dict) else None
+                intent = item.get('intent') if isinstance(item, dict) else None
+                if (
+                    isinstance(nonce, str)
+                    and isinstance(created_at, int)
+                    and now - created_at <= self._BOOKING_INTENT_TTL_SECONDS
+                    and now >= created_at
+                    and isinstance(intent, dict)
+                ):
+                    valid.append((nonce, item))
+        valid.sort(key=lambda entry: entry[1]['created_at'], reverse=True)
+        pruned = dict(valid[:self._BOOKING_INTENT_MAX_COUNT])
+        request.session[self._BOOKING_INTENT_SESSION_KEY] = pruned
+        return pruned
+
+    def _store_booking_intent(self, appointment_type, data):
+        intent = self._booking_intent_from_data(appointment_type, data)
+        if not intent:
+            return None
+        intents = self._prune_booking_intents()
+        nonce = secrets.token_urlsafe(24)
+        intents[nonce] = {'created_at': int(time.time()), 'intent': intent}
+        if len(intents) > self._BOOKING_INTENT_MAX_COUNT:
+            oldest_nonce = min(intents, key=lambda key: intents[key]['created_at'])
+            intents.pop(oldest_nonce)
+        request.session[self._BOOKING_INTENT_SESSION_KEY] = intents
+        return nonce
+
+    def _pop_booking_intent(self, nonce):
+        if not isinstance(nonce, str):
+            return None
+        intents = self._prune_booking_intents()
+        item = intents.pop(nonce, None)
+        request.session[self._BOOKING_INTENT_SESSION_KEY] = intents
+        return item.get('intent') if item else None
+
+    def _default_unique_active_staff_id(self, appointment_type, staff_id):
+        """Default only a uniquely configured active staff member for public flow.
+
+        A supplied ID keeps the existing multi-staff behavior.  Only an omitted
+        ID for an assigned, one-active-member roster gains a default, so slot
+        conflict filtering and the booking form use the same staff member.
+        """
+        if staff_id:
+            return staff_id
+        active_staff_ids = appointment_type.staff_user_ids.filtered('active').ids
+        resolved_staff_id, _error = resolve_single_active_assignment(
+            appointment_type.assign_staff, None, active_staff_ids)
+        return resolved_staff_id
+
+    def _resolve_booking_selection(self, appointment_type, resource_id, staff_id):
+        """Validate roster IDs and pin an assigned one-member roster server-side.
+
+        ``allow_customer_choose_*`` controls presentation only. A slot may
+        legitimately carry an auto-assigned roster ID even when no picker is
+        rendered, so membership/active state—not that UI flag—is authoritative.
+        """
+        active_resource_ids = appointment_type.resource_ids.filtered('active').ids
+        if resource_id and not appointment_type.assign_location:
+            return None, None, _('The selected location is not available for this appointment.')
+        resource_id, resource_error = resolve_single_active_assignment(
+            appointment_type.assign_location, resource_id, active_resource_ids)
+        if resource_error:
+            return None, None, _('The selected location is not available for this appointment.')
+
+        active_staff_ids = appointment_type.staff_user_ids.filtered('active').ids
+        if staff_id and not appointment_type.assign_staff:
+            return None, None, _('The selected staff member is not available for this appointment.')
+        staff_id, staff_error = resolve_single_active_assignment(
+            appointment_type.assign_staff, staff_id, active_staff_ids)
+        if staff_error:
+            return None, None, _('The selected staff member is not available for this appointment.')
+        return resource_id, staff_id, None
+
+    def _validate_customer_selection(self, appointment_type, resource_id, staff_id):
+        """Compatibility wrapper for resume validation, which only needs errors."""
+        return self._resolve_booking_selection(appointment_type, resource_id, staff_id)[2]
+
+    def _booking_intent_redirect_url(self, intent):
+        """Revalidate an authenticated callback; never submit a booking here."""
+        appointment_type = request.env['appointment.type'].sudo().browse(
+            intent.get('appointment_type_id', 0))
+        if not appointment_type.exists() or not appointment_type.active or not appointment_type.is_published:
+            return '/appointment'
+        try:
+            start_dt = datetime.strptime(intent['start_datetime'], '%Y-%m-%d %H:%M:%S')
+            if intent.get('end_datetime'):
+                datetime.strptime(intent['end_datetime'], '%Y-%m-%d %H:%M:%S')
+        except (KeyError, TypeError, ValueError):
+            return f'/appointment/{appointment_type.id}/schedule'
+
+        start_local = self._utc_to_local(self._get_tz(appointment_type), start_dt)
+        max_date = self._today_local(appointment_type) + timedelta(days=appointment_type.max_booking_days)
+        if start_dt < fields.Datetime.now() or start_local.date() > max_date:
+            return f'/appointment/{appointment_type.id}/schedule'
+
+        selection_error = self._validate_customer_selection(
+            appointment_type, intent.get('resource_id'), intent.get('staff_id'))
+        if selection_error:
+            return f'/appointment/{appointment_type.id}/schedule'
+
+        query = {
+            key: value for key, value in intent.items()
+            if key in ('start_datetime', 'end_datetime', 'resource_id', 'staff_id') and value
+        }
+        return f'/appointment/{appointment_type.id}/book?{urlencode(query)}'
+
+    def _redirect_public_booking_to_liff(self, appointment_type, data):
+        nonce = self._store_booking_intent(appointment_type, data)
+        if not nonce:
+            return request.redirect(f'/appointment/{appointment_type.id}/schedule')
+        return request.redirect('/liff/redirect/book?' + urlencode({'booking_nonce': nonce}))
 
     @http.route('/appointment', type='http', auth='public', website=True)
     def appointment_list(self, **kwargs):
@@ -344,6 +541,8 @@ class AppointmentController(http.Controller):
         # Calculate date range (in the appointment type's timezone, not UTC)
         start_date = self._today_local(appointment_type)
         end_date = start_date + timedelta(days=appointment_type.max_booking_days)
+        selected_staff_id = self._default_unique_active_staff_id(
+            appointment_type, self._safe_int(staff_id))
 
         return request.render('reservation_module.appointment_schedule_page', {
             'appointment_type': appointment_type,
@@ -354,7 +553,7 @@ class AppointmentController(http.Controller):
             'start_date': start_date,
             'end_date': end_date,
             'selected_resource_id': self._safe_int(resource_id),
-            'selected_staff_id': self._safe_int(staff_id),
+            'selected_staff_id': selected_staff_id,
             'timezone': appointment_type.timezone or 'UTC',
             't': self._get_translations(),
         })
@@ -370,6 +569,11 @@ class AppointmentController(http.Controller):
             selected_date = datetime.strptime(date, '%Y-%m-%d').date()
         except ValueError:
             return {'error': 'Invalid date format'}
+
+        # A one-member assigned roster is not a customer choice, but it must
+        # still be present here so cross-service staff conflicts hide its slots.
+        staff_id = self._default_unique_active_staff_id(
+            appointment_type, self._safe_int(staff_id))
 
         # Check closing days — block slots on closed dates
         closing = request.env['appointment.closing.day'].sudo().search([
@@ -627,7 +831,18 @@ class AppointmentController(http.Controller):
             data['end_datetime'] = end_datetime
             data['resource_id'] = resource_id
             data['staff_id'] = staff_id
+            if self._require_authenticated_booking() and self._is_public_user():
+                # Do not carry form values (especially PII) through LIFF.
+                return self._redirect_public_booking_to_liff(appointment_type, data)
             return self._process_booking(appointment_type, data)
+
+        if self._require_authenticated_booking() and self._is_public_user():
+            return self._redirect_public_booking_to_liff(appointment_type, {
+                'start_datetime': start_datetime,
+                'end_datetime': end_datetime,
+                'resource_id': resource_id,
+                'staff_id': staff_id,
+            })
 
         # Validate start_datetime
         if not start_datetime:
@@ -653,7 +868,8 @@ class AppointmentController(http.Controller):
             resource = request.env['resource.resource'].sudo().browse(rid)
 
         staff = None
-        sid = self._safe_int(staff_id)
+        sid = self._default_unique_active_staff_id(
+            appointment_type, self._safe_int(staff_id))
         if sid:
             staff = request.env['res.users'].sudo().browse(sid)
 
@@ -673,6 +889,16 @@ class AppointmentController(http.Controller):
             'portal_partner': portal_partner,
             't': self._get_translations(),
         })
+
+    @http.route('/appointment/booking/resume', type='http', auth='public', website=True)
+    def appointment_booking_resume(self, booking_nonce=None, **kwargs):
+        """Consume a session-bound LIFF return intent after identity exists."""
+        if self._is_public_user():
+            return request.redirect('/appointment')
+        intent = self._pop_booking_intent(booking_nonce)
+        if not intent:
+            return request.redirect('/appointment')
+        return request.redirect(self._booking_intent_redirect_url(intent))
 
     def _render_booking_form_error(self, appointment_type, data, error_msg):
         """Re-render booking form with validation error, preserving all user input"""
@@ -711,6 +937,7 @@ class AppointmentController(http.Controller):
             'timezone': appointment_type.timezone or 'UTC',
             'resource': resource,
             'staff': staff,
+            'portal_partner': request.env.user.partner_id if not self._is_public_user() else None,
             'error': error_msg,
             'guest_name': data.get('guest_name', ''),
             'guest_email': data.get('guest_email', ''),
@@ -722,8 +949,14 @@ class AppointmentController(http.Controller):
 
     def _process_booking(self, appointment_type, data):
         """Process the booking form submission"""
-        # Validate required fields
-        required_fields = ['guest_name', 'guest_email', 'start_datetime']
+        # 必填欄位依預約類型設定（require_guest_*）；開始時間一律必填
+        required_fields = ['start_datetime']
+        if appointment_type.require_guest_name:
+            required_fields.append('guest_name')
+        if appointment_type.require_guest_email:
+            required_fields.append('guest_email')
+        if appointment_type.require_guest_phone:
+            required_fields.append('guest_phone')
         for field in required_fields:
             if not data.get(field):
                 return self._render_booking_form_error(
@@ -731,30 +964,43 @@ class AppointmentController(http.Controller):
 
         # H7 fix: 用 markupsafe.escape 取代不完整的正則過濾，防 XSS
         from markupsafe import escape as _escape
-        guest_name = str(_escape(data.get('guest_name', '').strip()))
-        if not guest_name or len(guest_name) > 256:
+        guest_name = str(_escape((data.get('guest_name') or '').strip()))
+        if len(guest_name) > 256:
             return self._render_booking_form_error(
                 appointment_type, data, _('Please enter a valid name.'))
 
-        # Validate email format
-        email = data.get('guest_email', '').strip()
-        if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+        # Validate email format only when provided.
+        email = (data.get('guest_email') or '').strip()
+        if email and not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
             return self._render_booking_form_error(
                 appointment_type, data, _('Please enter a valid email address.'))
 
-        # Validate phone (if provided): only digits, spaces, +, -, ()
-        guest_phone = (data.get('guest_phone') or '').strip()
-        if guest_phone and not re.match(r'^[0-9+\-() ]{0,30}$', guest_phone):
-            return self._render_booking_form_error(
-                appointment_type, data, _('Please enter a valid phone number.'))
+        # Phone, when provided, must be a real country-aware number. The stored
+        # E.164 value is also a rate-limit key, so formatting variants cannot
+        # bypass it.
+        raw_phone = (data.get('guest_phone') or '').strip()
+        guest_phone = False
+        if raw_phone:
+            guest_phone = self._normalize_booking_phone(raw_phone)
+            if not guest_phone:
+                return self._render_booking_form_error(
+                    appointment_type, data, _('Please enter a valid phone number.'))
 
-        # Safe int() casts for guest_count (H2 + H3)
-        try:
-            guest_count = int(data.get('guest_count', 1))
-        except (ValueError, TypeError):
+        # Rate limiting and contact need at least one of email / phone.
+        if not email and not guest_phone:
+            return self._render_booking_form_error(
+                appointment_type, data, _('Please enter an email address or a phone number.'))
+
+        if appointment_type.single_guest_booking:
             guest_count = 1
-        if guest_count < 1:
-            guest_count = 1
+        else:
+            # Safe int() casts for guest_count (H2 + H3)
+            try:
+                guest_count = int(data.get('guest_count', 1))
+            except (ValueError, TypeError):
+                guest_count = 1
+            if guest_count < 1:
+                guest_count = 1
         # Enforce upper bound from resource capacity or appointment type default
         max_guests = appointment_type.max_guests_per_booking if hasattr(appointment_type, 'max_guests_per_booking') and appointment_type.max_guests_per_booking else 100
         rid = self._safe_int(data.get('resource_id'))
@@ -859,14 +1105,31 @@ class AppointmentController(http.Controller):
             except (ValueError, TypeError):
                 staff_id = None
 
+        resource_id, staff_id, selection_error = self._resolve_booking_selection(
+            appointment_type, resource_id, staff_id)
+        if selection_error:
+            return self._render_booking_form_error(appointment_type, data, selection_error)
+
         Booking = request.env['appointment.booking'].sudo()
 
-        # M1: Basic rate limiting — max 5 bookings per email per hour
+        # M1: Basic rate limiting — max 5 bookings per normalized phone/email per hour
         one_hour_ago = fields.Datetime.now() - timedelta(hours=1)
-        recent_count = Booking.search_count([
-            ('guest_email', '=', email),
-            ('create_date', '>=', one_hour_ago),
-        ])
+        if email and guest_phone:
+            rate_domain = [
+                '&', ('create_date', '>=', one_hour_ago),
+                '|', ('guest_email', '=', email), ('guest_phone', '=', guest_phone),
+            ]
+        elif email:
+            rate_domain = [
+                ('create_date', '>=', one_hour_ago),
+                ('guest_email', '=', email),
+            ]
+        else:
+            rate_domain = [
+                ('create_date', '>=', one_hour_ago),
+                ('guest_phone', '=', guest_phone),
+            ]
+        recent_count = Booking.search_count(rate_domain)
         if recent_count >= 5:
             return self._render_booking_form_error(
                 appointment_type, data, _('Too many booking attempts. Please try again later.'))
@@ -887,26 +1150,11 @@ class AppointmentController(http.Controller):
         if staff_id:
             booking_vals['staff_user_id'] = staff_id
 
-        # M4: For logged-in users, always use partner email instead of form input
-        if not request.env.user._is_public():
-            partner = request.env.user.partner_id
-            booking_vals['guest_email'] = partner.email or email
-        else:
-            booking_vals['guest_email'] = email
-            partner = request.env['res.partner'].sudo().search([
-                ('email', '=', email)
-            ], limit=1)
-            if not partner:
-                partner = request.env['res.partner'].sudo().create({
-                    'name': guest_name,
-                    'email': email,
-                    'phone': guest_phone,
-                })
-        booking_vals['partner_id'] = partner.id
-
         # Payment status is computed automatically from SO state
 
-        # C3 fix: 衝突檢查 + 建立在同一 savepoint 內，確保鎖定不會提前釋放
+        # The guard mutation, aggregate conflict check, contact mutation, and
+        # booking creation share one savepoint. A rejected/serialized booking
+        # therefore cannot leave an anonymous contact or a profile phone update.
         with request.env.cr.savepoint():
             conflict = Booking._check_booking_conflict(
                 start_dt=start_dt,
@@ -922,6 +1170,24 @@ class AppointmentController(http.Controller):
                 return self._render_booking_form_error(
                     appointment_type, data, _('This location is no longer available for the selected time. Please choose another time.'))
 
+            # M4: authenticated identity is server-owned; guest writes happen
+            # only after the guarded conflict check succeeds.
+            if not request.env.user._is_public():
+                partner = request.env.user.partner_id
+                booking_vals['guest_email'] = partner.email or email
+                if guest_phone and partner.phone != guest_phone:
+                    partner.sudo().write({'phone': guest_phone})
+            else:
+                # Public form input is not proof of account ownership. Always
+                # create a distinct guest contact; never search/merge by input.
+                booking_vals['guest_email'] = email
+                vals = {'name': guest_name or guest_phone or email}
+                if guest_phone:
+                    vals['phone'] = guest_phone
+                if email:
+                    vals['email'] = email
+                partner = request.env['res.partner'].sudo().create(vals)
+            booking_vals['partner_id'] = partner.id
             booking = Booking.create(booking_vals)
 
         # Auto-assign staff/location if not customer-chosen

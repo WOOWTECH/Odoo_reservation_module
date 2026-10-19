@@ -438,7 +438,9 @@
                         <t t-call="portal.message_thread">
                             <t t-set="object" t-value="booking"/>
                             <t t-set="token" t-value="token"/>
-                            <t t-set="allow_composer" t-value="allow_composer"/>
+                            <t t-set="message_per_page" t-value="10"/>
+                            <t t-set="two_columns" t-value="False"/>
+                            <t t-set="disable_composer" t-value="not allow_composer"/>
                         </t>
                     </div>
                 </div>

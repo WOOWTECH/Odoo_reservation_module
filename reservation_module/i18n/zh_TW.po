@@ -3358,3 +3358,72 @@ msgstr "分鐘"
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "staff members"
 msgstr "位服務人員"
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Booking Form"
+msgstr "預約表單"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__require_guest_name
+msgid "Require Guest Name"
+msgstr "姓名必填"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__require_guest_email
+msgid "Require Guest Email"
+msgstr "Email 必填"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__require_guest_phone
+msgid "Require Guest Phone"
+msgstr "電話必填"
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__single_guest_booking
+msgid "One Guest per Booking"
+msgstr "每筆預約限 1 人"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__require_guest_name
+msgid "The public booking form requires the guest name"
+msgstr "公開預約表單要求填寫姓名"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__require_guest_email
+msgid "The public booking form requires the guest email"
+msgstr "公開預約表單要求填寫 Email"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__require_guest_phone
+msgid "The public booking form requires the guest phone number"
+msgstr "公開預約表單要求填寫電話"
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__single_guest_booking
+msgid "Hide the number of guests on the booking form; every booking is for one guest"
+msgstr "預約表單不顯示人數欄位，每筆預約固定 1 人"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "Please enter an email address or a phone number."
+msgstr "請輸入 Email 或電話號碼。"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "The selected location is not available for this appointment."
+msgstr "所選地點無法用於此預約。"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "The selected staff member is not available for this appointment."
+msgstr "所選服務人員無法用於此預約。"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_type.py:0
+msgid "The booking form must require at least the guest email or the guest phone."
+msgstr "預約表單至少要將 Email 或電話設為必填。"

@@ -3,7 +3,7 @@
 from . import models
 from . import wizard
 from . import controllers
-from . import tests
+# Odoo's test loader imports the tests package only when tests are requested.
 
 
 def _post_init_hook(env):

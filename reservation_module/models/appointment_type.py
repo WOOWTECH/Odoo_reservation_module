@@ -156,6 +156,28 @@ class AppointmentType(models.Model):
         help='Auto confirm until this capacity percentage is reached',
     )
 
+    # Booking Form（公開預約表單的必填欄位與人數）
+    require_guest_name = fields.Boolean(
+        'Require Guest Name',
+        default=True,
+        help='The public booking form requires the guest name',
+    )
+    require_guest_email = fields.Boolean(
+        'Require Guest Email',
+        default=True,
+        help='The public booking form requires the guest email',
+    )
+    require_guest_phone = fields.Boolean(
+        'Require Guest Phone',
+        default=False,
+        help='The public booking form requires the guest phone number',
+    )
+    single_guest_booking = fields.Boolean(
+        'One Guest per Booking',
+        default=False,
+        help='Hide the number of guests on the booking form; every booking is for one guest',
+    )
+
     # Payment Configuration
     require_payment = fields.Boolean(
         'Require Payment',
@@ -332,6 +354,14 @@ class AppointmentType(models.Model):
             if record.require_payment and not record.payment_product_ids:
                 raise ValidationError(
                     _('At least one payment product must be selected when payment is required.')
+                )
+
+    @api.constrains('require_guest_email', 'require_guest_phone')
+    def _check_guest_contact_required(self):
+        for record in self:
+            if not record.require_guest_email and not record.require_guest_phone:
+                raise ValidationError(
+                    _('The booking form must require at least the guest email or the guest phone.')
                 )
 
     def action_view_bookings(self):

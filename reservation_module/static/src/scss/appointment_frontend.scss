@@ -437,3 +437,52 @@
     .o_wevent_day_header_number { font-size: 2.25rem; }
     .o_wevent_dates_block { flex-direction: column; }
 }
+
+/* ── Portal booking detail: keep the whole communication area light ──
+   Odoo 18 portal chatter renders into a Shadow DOM. Parts of the native
+   chatter are intentionally transparent, so on Markstudio's dark website
+   background the composer appeared white while the empty conversation area
+   stayed black. Make the booking chat wrapper itself a light surface so the
+   title, composer and empty/message area read as one aligned panel. */
+#booking_chat {
+    background: #ffffff;
+    color: #212529;
+    border: 1px solid rgba(0, 0, 0, .08);
+    border-radius: 1rem;
+    padding: clamp(1rem, 3vw, 1.5rem);
+    margin-top: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 .75rem 2rem rgba(0, 0, 0, .10);
+    overflow: hidden;
+}
+#wrapwrap #booking_chat,
+#wrap #booking_chat {
+    color: #212529 !important;
+}
+#wrapwrap #booking_chat > h3,
+#wrap #booking_chat > h3,
+#booking_chat > h3 {
+    color: #212529 !important;
+    margin: 0 0 1rem;
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    line-height: 1.25;
+}
+#wrapwrap #booking_chat .o_portal_chatter,
+#wrap #booking_chat .o_portal_chatter,
+#booking_chat .o_portal_chatter {
+    background: #ffffff;
+    color: #212529 !important;
+    min-height: 360px;
+}
+@media (max-width: 576px) {
+    #booking_chat {
+        border-radius: .75rem;
+        padding: 1rem;
+        margin-left: 0;
+        margin-right: 0;
+    }
+    #booking_chat .o_portal_chatter {
+        min-height: 420px;
+    }
+}
+

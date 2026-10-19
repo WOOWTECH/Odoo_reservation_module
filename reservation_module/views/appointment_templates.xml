@@ -352,52 +352,47 @@
                                             <input type="hidden" name="guest_name" t-att-value="portal_partner.name"/>
                                             <input type="hidden" name="guest_email" t-att-value="portal_partner.email"/>
                                             <div class="mb-3">
-                                                <label class="form-label"><t t-esc="t['name']"/> *</label>
+                                                <label class="form-label" t-esc="t['name']"/>
                                                 <input type="text" class="form-control bg-light" disabled="disabled"
                                                        t-att-value="portal_partner.name"/>
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label"><t t-esc="t['email']"/> *</label>
+                                                <label class="form-label" t-esc="t['email']"/>
                                                 <input type="email" class="form-control bg-light" disabled="disabled"
                                                        t-att-value="portal_partner.email"/>
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label" t-esc="t['phone']"/>
-                                                <input type="tel" class="form-control bg-light" disabled="disabled"
-                                                       t-att-value="portal_partner.phone"/>
-                                                <input type="hidden" name="guest_phone" t-att-value="portal_partner.phone"/>
+                                                <label for="guest_phone" class="form-label"><t t-esc="t['phone']"/> *</label>
+                                                <input type="tel" class="form-control" id="guest_phone"
+                                                       name="guest_phone" required="required"
+                                                       aria-required="true"
+                                                       t-att-value="portal_partner.phone or ''"/>
                                             </div>
                                         </t>
                                         <t t-else="">
                                             <!-- Public visitor: editable inputs (preserve values on error) -->
                                             <div class="mb-3">
-                                                <label for="guest_name" class="form-label"><t t-esc="t['name']"/> *</label>
+                                                <label for="guest_name" class="form-label" t-esc="t['name']"/>
                                                 <input type="text" class="form-control" id="guest_name"
-                                                       name="guest_name" required="required"
-                                                       aria-required="true"
+                                                       name="guest_name"
                                                        t-att-value="guest_name if guest_name else ''"/>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="guest_email" class="form-label"><t t-esc="t['email']"/> *</label>
+                                                <label for="guest_email" class="form-label" t-esc="t['email']"/>
                                                 <input type="email" class="form-control" id="guest_email"
-                                                       name="guest_email" required="required"
-                                                       aria-required="true"
+                                                       name="guest_email"
                                                        t-att-value="guest_email if guest_email else ''"/>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="guest_phone" class="form-label" t-esc="t['phone']"/>
+                                                <label for="guest_phone" class="form-label"><t t-esc="t['phone']"/> *</label>
                                                 <input type="tel" class="form-control" id="guest_phone"
-                                                       name="guest_phone"
+                                                       name="guest_phone" required="required"
+                                                       aria-required="true"
                                                        t-att-value="guest_phone if guest_phone else ''"/>
                                             </div>
                                         </t>
 
-                                        <div class="mb-3">
-                                            <label for="guest_count" class="form-label" t-esc="t['number_of_guests']"/>
-                                            <input type="number" class="form-control" id="guest_count"
-                                                   name="guest_count" min="1"
-                                                   t-att-value="guest_count if guest_count else 1"/>
-                                        </div>
+                                        <input type="hidden" name="guest_count" value="1"/>
 
                                         <div class="mb-3">
                                             <label for="notes" class="form-label" t-esc="t['notes']"/>

@@ -2,6 +2,8 @@
 
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
+from .. import tz_utils
+from datetime import datetime
 import pytz
 
 
@@ -442,3 +444,55 @@ class AppointmentType(models.Model):
             },
         }
 
+    # ------------------------------------------------------------------
+    # Availability windows (shared by the booking form, slots and auto-assign)
+    # ------------------------------------------------------------------
+
+    def _get_availability_windows(self, local_date, resource_id=False, staff_id=False):
+        """Availability windows of one *local* day as naive-UTC intervals.
+
+        Returns ``[(start_utc, end_utc, availability), ...]``. A window row
+        limited to a location or staff member (``resource_id`` / ``user_id``)
+        only applies to that member; an empty value applies to everyone,
+        exactly like the slot generator. ``hour_to == 24`` ends at the next
+        local midnight. Windows that start or end inside a DST gap are
+        skipped (the slot generator skips them as well).
+        """
+        self.ensure_one()
+        tz = tz_utils.get_tz(self.timezone)
+        domain = [
+            ('appointment_type_id', '=', self.id),
+            ('dayofweek', '=', str(local_date.weekday())),
+        ]
+        if resource_id:
+            domain += ['|', ('resource_id', '=', int(resource_id)), ('resource_id', '=', False)]
+        if staff_id:
+            domain += ['|', ('user_id', '=', int(staff_id)), ('user_id', '=', False)]
+        day_start_local = datetime.combine(local_date, datetime.min.time())
+        windows = []
+        for avail in self.env['appointment.availability'].sudo().search(domain):
+            start_local = tz_utils.hour_to_local_dt(day_start_local, avail.hour_from)
+            end_local = tz_utils.hour_to_local_dt(day_start_local, avail.hour_to)
+            try:
+                start_utc = tz_utils.local_to_utc(tz, start_local)
+                end_utc = tz_utils.local_to_utc(tz, end_local)
+            except tz_utils.NonExistentLocalTime:
+                continue
+            windows.append((start_utc, end_utc, avail))
+        return windows
+
+    def _interval_in_availability(self, start_utc, end_utc, resource_id=False, staff_id=False):
+        """Whether ``[start_utc, end_utc)`` is bookable for the given member.
+
+        Scheduled types: the interval must lie inside one window. Event
+        types (one booking = one whole window): the interval must *be* a
+        window, so a request cannot shorten, stretch or split it.
+        """
+        self.ensure_one()
+        if not start_utc or not end_utc or end_utc <= start_utc:
+            return False
+        local_date = tz_utils.utc_to_local(tz_utils.get_tz(self.timezone), start_utc).date()
+        windows = self._get_availability_windows(local_date, resource_id=resource_id, staff_id=staff_id)
+        if self.is_scheduled:
+            return any(ws <= start_utc and end_utc <= we for ws, we, _avail in windows)
+        return any(ws == start_utc and we == end_utc for ws, we, _avail in windows)

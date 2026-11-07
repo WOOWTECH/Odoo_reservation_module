@@ -87,6 +87,16 @@
 - **Bookings are created through the booking form only** — portal/public users cannot create bookings over RPC; the website flows are unchanged.
 - **Staff-only fields** — internal notes, payment failure count, reminder flag and access token are readable by appointment users only.
 - **Roster-only names on the booking form** — staff_id / resource_id from the URL are shown only when they belong to the appointment type's active roster.
+
+### Booking Rules (since 18.0.3.2.2)
+
+- **Whole-party capacity** — a booking needs room for its whole party: seats already taken plus the requested guest count must fit the location's capacity, on the form, on confirmation and when a location is auto-assigned (a capacity of 0 counts as 1). Without a chosen location, the form limit is the largest location of the roster.
+- **No unassigned bookings** — when staff or a location is auto-assigned and nobody in the roster is free (or scheduled) at that time, the form refuses the booking instead of creating it unassigned.
+- **Event mode books whole windows** — an event booking must be exactly one availability window (for a window ending at 24:00, the next local midnight); shortened, stretched or split intervals are refused.
+- **Per-member availability** — availability rows limited to one staff member or location apply to that member only, on the form and in auto-assignment.
+- **Public routes check the type** — archived or unpublished appointment types are neither listed, schedulable nor bookable; /slots and /schedule accept only active roster members of the type.
+- **Payment hold** — a payment-required booking keeps its slot for the payment window (`reservation_module.payment_hold_minutes`, default 30; 0 disables), longer while a started payment is pending (`reservation_module.payment_pending_hold_hours`, default 48) and until staff confirms once paid. Before a payment transaction is created the slot is re-checked; a taken slot refuses the payment. If a paid booking cannot be confirmed automatically, it is flagged "Paid, Not Confirmed" with a note and a to-do activity for staff.
+- **Abuse limits** — besides 5 bookings per mailbox/phone per hour (`Foo@x.com` and `foo+1@x.com` count as one mailbox), the form limits bookings per client address (`reservation_module.booking_rate_limit_per_ip`, default 20/hour), per logged-in partner (5/hour) and per appointment type (`reservation_module.booking_rate_limit_per_type`, default 100/hour); 0 disables a limit. Guest e-mails of public bookings are capped per mailbox (`reservation_module.guest_mail_daily_limit`, default 10 bookings per 24 hours); further bookings still work but send no mail.
 ### Customer Portal
 
 - **My Bookings Dashboard** — Portal users see all their bookings with status, type, and date

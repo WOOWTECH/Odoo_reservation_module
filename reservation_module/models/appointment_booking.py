@@ -4,6 +4,7 @@ from odoo import api, fields, models, _
 from odoo.fields import Command
 from odoo.exceptions import AccessError, UserError, ValidationError
 from .. import tz_utils
+from .booking_identity import normalize_booking_email
 from datetime import timedelta, datetime
 import logging
 import pytz
@@ -23,6 +24,11 @@ GOOGLE_CALENDAR_URL = 'https://www.google.com/calendar/render?'
 
 BOOKING_STAFF_GROUP = 'reservation_module.group_appointment_user'
 BOOKING_MANAGER_GROUP = 'reservation_module.group_appointment_manager'
+
+# 佔用名額的狀態；draft／pending_payment 只有在付款保留期間
+# （payment_hold_until 未過）才佔位。
+OCCUPYING_STATES = ('confirmed', 'done')
+HOLDING_STATES = ('draft', 'pending_payment')
 
 # Discuss 會議室的軟耦合：舊名 cs_portal_discuss 與改名後的
 # woow_odoo_portal_discuss 都算（兩者互斥，只會裝其中一個）。
@@ -66,6 +72,10 @@ class AppointmentBooking(models.Model):
     # model 層不設 required，既有 DB 升級時才不會因舊資料加不上 NOT NULL。
     guest_name = fields.Char('Guest Name', tracking=True)
     guest_email = fields.Char('Guest Email')
+    # Rate-limit / mail-throttle key: Foo@x.com and foo+1@x.com are one inbox.
+    guest_email_normalized = fields.Char(
+        'Normalized Guest Email', compute='_compute_guest_email_normalized',
+        store=True, index=True)
     guest_phone = fields.Char('Guest Phone')
     guest_count = fields.Integer('Number of Guests', default=1, required=True)
 
@@ -180,6 +190,24 @@ class AppointmentBooking(models.Model):
     payment_failure_count = fields.Integer(
         'Payment Failures', default=0, copy=False, groups=BOOKING_STAFF_GROUP)
 
+    # Slot hold for a payment-required booking: while it waits for the
+    # payment (draft / pending_payment) it occupies its staff member and its
+    # seats until this time, so a second visitor cannot buy the same slot.
+    payment_hold_until = fields.Datetime(
+        'Slot Held Until', copy=False, readonly=True,
+        help='A booking waiting for payment keeps its slot until this time.')
+    # Paid, but the automatic confirmation failed (slot taken, payment not
+    # reconciled, ...): staff must confirm by hand or refund.
+    payment_confirm_failed = fields.Boolean(
+        'Paid, Not Confirmed', copy=False, readonly=True, tracking=True,
+        help='The payment was received but the booking could not be confirmed '
+             'automatically. Confirm it manually or refund the customer.')
+    # Keyed hash of the client address of a public booking-form submission
+    # (empty for backend bookings). Used for rate limits and mail throttling.
+    client_ip_hash = fields.Char(
+        'Booking Source', copy=False, index=True, readonly=True,
+        groups=BOOKING_STAFF_GROUP)
+
     # Discuss channel integration
     discuss_channel_id = fields.Many2one(
         'discuss.channel', string='Discussion Channel',
@@ -248,6 +276,11 @@ class AppointmentBooking(models.Model):
                 )
             else:
                 booking.is_one_local_day = False
+
+    @api.depends('guest_email')
+    def _compute_guest_email_normalized(self):
+        for booking in self:
+            booking.guest_email_normalized = normalize_booking_email(booking.guest_email)
 
     @api.depends('start_datetime', 'end_datetime')
     def _compute_duration(self):
@@ -341,6 +374,10 @@ class AppointmentBooking(models.Model):
 
         Returns ``staff_conflict``, ``resource_conflict``, and remaining
         resource capacity. ``exclude_booking_id`` keeps edit/confirm semantics.
+        Confirmed/done bookings occupy their slot; draft/pending-payment ones
+        only while their payment hold runs (``payment_hold_until``). A
+        resource capacity of 0/empty counts as 1. The requested party size is
+        not known here: use ``_check_booking_capacity`` to compare it.
         """
         result = {'staff_conflict': False, 'resource_conflict': False, 'resource_remaining': 1}
 
@@ -354,9 +391,13 @@ class AppointmentBooking(models.Model):
                 self.env['appointment.booking.conflict.guard'].sudo()._acquire_keys(guard_keys)
 
         # SQL must see state/guest changes still pending in the ORM cache.
-        self.flush_model(['state', 'start_datetime', 'end_datetime', 'staff_user_id', 'resource_id', 'guest_count'])
-        base_where = "state IN ('confirmed', 'done') AND start_datetime < %s AND end_datetime > %s"
-        base_params = [end_dt, start_dt]
+        self.flush_model(['state', 'start_datetime', 'end_datetime', 'staff_user_id',
+                          'resource_id', 'guest_count', 'payment_hold_until'])
+        base_where = (
+            "(state IN %s OR (state IN %s AND payment_hold_until > %s)) "
+            "AND start_datetime < %s AND end_datetime > %s"
+        )
+        base_params = [OCCUPYING_STATES, HOLDING_STATES, fields.Datetime.now(), end_dt, start_dt]
         if exclude_booking_id:
             base_where += " AND id != %s"
             base_params.append(exclude_booking_id)
@@ -368,8 +409,8 @@ class AppointmentBooking(models.Model):
             result['staff_conflict'] = staff_count > 0
 
         if resource_id:
-            resource = self.env['resource.resource'].browse(resource_id)
-            capacity = resource.capacity or 1
+            resource = self.env['resource.resource'].sudo().browse(resource_id)
+            capacity = resource._get_booking_capacity()
             # SUM preserves resource capacity semantics without invalid FOR UPDATE.
             query = (
                 f"SELECT COALESCE(SUM(guest_count), 0) "
@@ -381,6 +422,159 @@ class AppointmentBooking(models.Model):
             result['resource_remaining'] = max(0, capacity - total_guests)
 
         return result
+
+    @api.model
+    def _check_booking_capacity(self, start_dt, end_dt, staff_user_id=False, resource_id=False,
+                                guest_count=1, exclude_booking_id=False, lock=False):
+        """``_check_booking_conflict`` plus the requested party size.
+
+        Adds ``resource_full``: the resource cannot take ``guest_count`` more
+        guests (existing guests + requested > capacity). A wrapper rather than
+        a new parameter, so overrides of ``_check_booking_conflict`` (e.g.
+        wassa_reservation) keep working with their signature.
+        """
+        try:
+            guest_count = max(int(guest_count or 1), 1)
+        except (TypeError, ValueError):
+            guest_count = 1
+        result = self._check_booking_conflict(
+            start_dt, end_dt, staff_user_id=staff_user_id, resource_id=resource_id,
+            exclude_booking_id=exclude_booking_id, lock=lock)
+        result['resource_full'] = bool(resource_id) and (
+            bool(result.get('resource_conflict'))
+            or result.get('resource_remaining', 0) < guest_count)
+        return result
+
+    @api.model
+    def _occupying_domain(self):
+        """ORM twin of the SQL occupancy rule in _check_booking_conflict."""
+        return [
+            '|', ('state', 'in', list(OCCUPYING_STATES)),
+            '&', ('state', 'in', list(HOLDING_STATES)),
+            ('payment_hold_until', '>', fields.Datetime.now()),
+        ]
+
+    # ------------------------------------------------------------------
+    # Payment hold (slot kept while a payment-required booking is paid)
+    # ------------------------------------------------------------------
+
+    @api.model
+    def _get_int_param(self, key, default):
+        value = self.env['ir.config_parameter'].sudo().get_param(key, default)
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return default
+
+    def _payment_hold_deadline(self):
+        """End of a fresh payment window (``payment_hold_minutes``, 0 = no hold)."""
+        minutes = self._get_int_param('reservation_module.payment_hold_minutes', 30)
+        if minutes <= 0:
+            return False
+        return fields.Datetime.now() + timedelta(minutes=minutes)
+
+    def _extend_payment_hold(self, until):
+        """Hold the slot at least until ``until`` (never shortens a hold)."""
+        for booking in self.sudo():
+            if not until or booking.state not in HOLDING_STATES:
+                continue
+            if not booking.payment_hold_until or booking.payment_hold_until < until:
+                booking.payment_hold_until = until
+
+    def _ensure_payment_hold(self):
+        """Before money moves: the slot must still be free, then renew the hold.
+
+        A hold expires after the payment window; the slot may have been sold
+        meanwhile. Raises UserError then, so no payment is taken for a slot
+        that cannot be confirmed.
+        """
+        Booking = self.env['appointment.booking'].sudo()
+        for booking in self.sudo():
+            if booking.state not in HOLDING_STATES or not booking.appointment_type_id.require_payment:
+                continue
+            conflict = Booking._check_booking_capacity(
+                booking.start_datetime, booking.end_datetime,
+                staff_user_id=booking.staff_user_id.id or False,
+                resource_id=booking.resource_id.id or False,
+                guest_count=booking.guest_count,
+                exclude_booking_id=booking.id,
+                lock=True,
+            )
+            if conflict['staff_conflict'] or conflict['resource_full']:
+                raise UserError(_(
+                    'The time slot of booking %s is no longer available. '
+                    'Please choose another time.', booking.name))
+            booking._extend_payment_hold(booking._payment_hold_deadline())
+        return True
+
+    def _hold_for_pending_payment(self):
+        """A payment was started but is not settled (e.g. wire transfer)."""
+        hours = self._get_int_param('reservation_module.payment_pending_hold_hours', 48)
+        for booking in self:
+            if hours > 0:
+                booking._extend_payment_hold(
+                    min(fields.Datetime.now() + timedelta(hours=hours), booking.end_datetime))
+
+    def _confirm_after_payment(self, tx):
+        """Auto-confirm paid bookings; a failure is recorded, never swallowed.
+
+        Only business errors are caught: a SerializationFailure from the
+        conflict guard must reach Odoo's retry loop.
+        """
+        for booking in self.sudo():
+            if booking.state not in HOLDING_STATES:
+                continue
+            if not booking.appointment_type_id.auto_confirm:
+                # Paid; staff confirms by hand. Keep the slot meanwhile.
+                booking._extend_payment_hold(booking.end_datetime)
+                continue
+            try:
+                with self.env.cr.savepoint():
+                    booking.action_confirm()
+            except (UserError, ValidationError) as error:
+                _logger.warning(
+                    "Booking %s: automatic confirmation after payment tx %s failed: %s",
+                    booking.name, tx.reference if tx else '-', error)
+                booking._flag_payment_confirm_failure(tx, error)
+
+    def _get_payment_followup_user(self):
+        """Who gets the "paid but not confirmed" activity."""
+        self.ensure_one()
+        staff = self.staff_user_id
+        if staff and staff.active and staff._is_internal():
+            return staff
+        managers = self.env.ref(BOOKING_MANAGER_GROUP, raise_if_not_found=False)
+        for user in (managers.sudo().users if managers else self.env['res.users']):
+            if user.active and user._is_internal() and not user._is_superuser():
+                return user
+        return self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users']
+
+    def _flag_payment_confirm_failure(self, tx, error):
+        """Mark a paid booking that could not be confirmed, for staff to act on."""
+        for booking in self.sudo():
+            # Keep the seats: the customer has paid, staff decides.
+            booking.write({'payment_confirm_failed': True})
+            booking._extend_payment_hold(booking.end_datetime)
+            reason = (error.args[0] if getattr(error, 'args', None) else str(error)) or ''
+            body = _(
+                'Payment %(tx)s was received but the booking could not be confirmed '
+                'automatically: %(reason)s. Confirm it manually, move it, or refund the customer.',
+                tx=tx.reference if tx else '-', reason=reason)
+            booking.message_post(body=body, message_type='notification',
+                                 subtype_xmlid='mail.mt_note')
+            user = booking._get_payment_followup_user()
+            if user:
+                try:
+                    with self.env.cr.savepoint():
+                        booking.activity_schedule(
+                            'mail.mail_activity_data_todo',
+                            user_id=user.id,
+                            summary=_('Paid booking needs confirmation'),
+                            note=body,
+                        )
+                except (AccessError, UserError, ValidationError):
+                    _logger.warning("Booking %s: could not schedule the follow-up activity",
+                                    booking.name, exc_info=True)
 
     def write(self, vals):
         """M6 fix: 修改預約時間（或改派員工、改訪客）時同步更新關聯的 calendar event。"""
@@ -445,17 +639,18 @@ class AppointmentBooking(models.Model):
                 raise UserError(_('Payment is required before confirming this booking.'))
 
             # Cross-type conflict check (safety net for race conditions)
-            conflict = self.env['appointment.booking']._check_booking_conflict(
+            conflict = self.env['appointment.booking']._check_booking_capacity(
                 start_dt=booking.start_datetime,
                 end_dt=booking.end_datetime,
                 staff_user_id=booking.staff_user_id.id if booking.staff_user_id else False,
                 resource_id=booking.resource_id.id if booking.resource_id else False,
+                guest_count=booking.guest_count,
                 exclude_booking_id=booking.id,
                 lock=True,
             )
             if conflict['staff_conflict']:
                 raise UserError(_('Staff member is already booked for this time slot.'))
-            if conflict['resource_conflict'] or (booking.resource_id and conflict['resource_remaining'] < booking.guest_count):
+            if conflict['resource_full']:
                 raise UserError(_('Location is fully booked for this time slot.'))
 
             # Create Discuss channel (soft-coupled: only if a portal Discuss module is installed)
@@ -464,7 +659,7 @@ class AppointmentBooking(models.Model):
             # Create calendar event
             booking._create_calendar_event()
 
-            booking.write({'state': 'confirmed'})
+            booking.write({'state': 'confirmed', 'payment_confirm_failed': False})
 
             # Send confirmation email
             booking._send_confirmation_email()
@@ -715,40 +910,70 @@ class AppointmentBooking(models.Model):
             lines.append(_("Location: %s", self.resource_id.name))
         return '\n'.join(lines)
 
+    def _guest_mail_allowed(self):
+        """Bound the booking mails one inbox gets from public-form bookings.
+
+        The public form takes any address, so without a bound it relays the
+        tenant's mails to arbitrary third parties. Only the first
+        ``guest_mail_daily_limit`` public bookings per inbox (normalized
+        address) in 24 hours send mail; backend bookings are not limited.
+        """
+        self.ensure_one()
+        booking = self.sudo()
+        if not booking.guest_email:
+            return False
+        if not booking.client_ip_hash:
+            return True
+        limit = self._get_int_param('reservation_module.guest_mail_daily_limit', 10)
+        if limit <= 0:
+            return True
+        rank = self.env['appointment.booking'].sudo().search_count([
+            ('guest_email_normalized', '=', booking.guest_email_normalized),
+            ('client_ip_hash', '!=', False),
+            ('create_date', '>=', fields.Datetime.now() - timedelta(days=1)),
+            ('id', '<=', booking.id),
+        ])
+        return rank <= limit
+
+    def _send_guest_mail(self, template_xmlid):
+        self.ensure_one()
+        template = self.env.ref(template_xmlid, raise_if_not_found=False)
+        if not template or not self.guest_email:
+            return False
+        if not self._guest_mail_allowed():
+            _logger.warning("Booking %s: guest mail %s suppressed (per-address limit)",
+                            self.name, template_xmlid)
+            self.sudo().message_post(
+                body=_('The guest e-mail was not sent: too many bookings for this address today.'),
+                message_type='notification', subtype_xmlid='mail.mt_note')
+            return False
+        template.send_mail(self.id, force_send=False)
+        return True
+
     def _send_confirmation_email(self):
         """Send confirmation email to the guest"""
         self.ensure_one()
-        template = self.env.ref('reservation_module.email_template_booking_confirmed', raise_if_not_found=False)
-        if template and self.guest_email:
-            template.send_mail(self.id, force_send=False)
+        self._send_guest_mail('reservation_module.email_template_booking_confirmed')
 
     def _send_cancellation_email(self):
         """Send cancellation email to the guest"""
         self.ensure_one()
-        template = self.env.ref('reservation_module.email_template_booking_cancelled', raise_if_not_found=False)
-        if template and self.guest_email:
-            template.send_mail(self.id, force_send=False)
+        self._send_guest_mail('reservation_module.email_template_booking_cancelled')
 
     def _send_booking_created_email(self):
         """Send booking created email (draft state) with payment info if applicable"""
         self.ensure_one()
-        template = self.env.ref('reservation_module.email_template_booking_created', raise_if_not_found=False)
-        if template and self.guest_email:
-            template.send_mail(self.id, force_send=False)
+        self._send_guest_mail('reservation_module.email_template_booking_created')
 
     def _send_booking_done_email(self):
         """Send booking completed email to the guest"""
         self.ensure_one()
-        template = self.env.ref('reservation_module.email_template_booking_done', raise_if_not_found=False)
-        if template and self.guest_email:
-            template.send_mail(self.id, force_send=False)
+        self._send_guest_mail('reservation_module.email_template_booking_done')
 
     def _send_reminder_email(self):
         """Send reminder email to the guest"""
         self.ensure_one()
-        template = self.env.ref('reservation_module.email_template_booking_reminder', raise_if_not_found=False)
-        if template and self.guest_email:
-            template.send_mail(self.id, force_send=False)
+        self._send_guest_mail('reservation_module.email_template_booking_reminder')
 
     def _handle_payment_failure(self, error_message=''):
         """Track payment failure and send notifications to customer + admin."""
@@ -761,9 +986,7 @@ class AppointmentBooking(models.Model):
         self.invalidate_recordset(['payment_failure_count'])
 
         # Send failure notification to customer
-        template = self.env.ref('reservation_module.email_template_payment_failure', raise_if_not_found=False)
-        if template and self.guest_email:
-            template.send_mail(self.id, force_send=False)
+        self._send_guest_mail('reservation_module.email_template_payment_failure')
 
         # Send admin alert via internal note on booking chatter
         admin_msg = _(
@@ -819,20 +1042,32 @@ class AppointmentBooking(models.Model):
                 booking.reminder_sent = True
 
     def _auto_assign_staff(self):
-        """Auto-assign staff with least bookings this month, filtering out conflicting staff first"""
+        """Auto-assign staff with least bookings this month.
+
+        Candidates are the active roster members whose availability covers
+        the booking (rows for that member or for everyone) and who have no
+        conflicting booking. Returns the assigned user, or an empty recordset
+        when nobody fits (the caller decides whether that rejects the booking).
+        """
         self.ensure_one()
         appointment_type = self.appointment_type_id
         if not appointment_type.staff_user_ids:
-            return
+            return self.env['res.users']
 
-        # Filter to staff who are NOT conflicting at this exact time slot (cross-type check)
+        # Filter to staff who are scheduled and NOT conflicting at this exact
+        # time slot (cross-type check)
         available_staff_ids = []
-        for staff in appointment_type.staff_user_ids:
+        for staff in appointment_type.staff_user_ids.filtered('active'):
+            if not appointment_type._interval_in_availability(
+                    self.start_datetime, self.end_datetime,
+                    resource_id=self.resource_id.id or False, staff_id=staff.id):
+                continue
             conflict = self.env['appointment.booking']._check_booking_conflict(
                 start_dt=self.start_datetime,
                 end_dt=self.end_datetime,
                 staff_user_id=staff.id,
                 exclude_booking_id=self.id,
+                lock=True,
             )
             if not conflict['staff_conflict']:
                 available_staff_ids.append(staff.id)
@@ -845,7 +1080,7 @@ class AppointmentBooking(models.Model):
                 self.start_datetime, self.end_datetime,
                 len(appointment_type.staff_user_ids),
             )
-            return
+            return self.env['res.users']
 
         # Among available staff, pick the one with fewest bookings this month
         month_start, month_end = self._local_month_bounds_utc()
@@ -865,28 +1100,41 @@ class AppointmentBooking(models.Model):
         # Pick staff with fewest bookings
         best_staff_id = min(staff_counts, key=staff_counts.get)
         self.staff_user_id = best_staff_id
+        return self.staff_user_id
 
     def _auto_assign_location(self):
-        """Auto-assign location with least bookings this month, filtering out full locations first"""
+        """Auto-assign location with least bookings this month.
+
+        Candidates are the active roster locations whose availability covers
+        the booking and that still have room for this booking's whole party
+        (existing guests + guest_count <= capacity). Returns the assigned
+        resource, or an empty recordset when none fits.
+        """
         self.ensure_one()
         appointment_type = self.appointment_type_id
         if not appointment_type.resource_ids:
-            return
+            return self.env['resource.resource']
 
-        # Filter to resources with remaining capacity at this time slot (cross-type check)
+        # Filter to scheduled resources with room for the party (cross-type check)
         available_resource_ids = []
-        for resource in appointment_type.resource_ids:
-            conflict = self.env['appointment.booking']._check_booking_conflict(
+        for resource in appointment_type.resource_ids.filtered('active'):
+            if not appointment_type._interval_in_availability(
+                    self.start_datetime, self.end_datetime,
+                    resource_id=resource.id, staff_id=self.staff_user_id.id or False):
+                continue
+            conflict = self.env['appointment.booking']._check_booking_capacity(
                 start_dt=self.start_datetime,
                 end_dt=self.end_datetime,
                 resource_id=resource.id,
+                guest_count=self.guest_count,
                 exclude_booking_id=self.id,
+                lock=True,
             )
-            if not conflict['resource_conflict']:
+            if not conflict['resource_full']:
                 available_resource_ids.append(resource.id)
 
         if not available_resource_ids:
-            return  # No available locations for this time slot
+            return self.env['resource.resource']  # No location fits this party at this time
 
         # Among available resources, pick the one with fewest bookings this month
         month_start, month_end = self._local_month_bounds_utc()
@@ -906,6 +1154,7 @@ class AppointmentBooking(models.Model):
         # Pick resource with fewest bookings
         best_resource_id = min(resource_counts, key=resource_counts.get)
         self.resource_id = best_resource_id
+        return self.resource_id
 
     def get_portal_url(self):
         """Get the portal URL for this booking"""
@@ -988,6 +1237,8 @@ class AppointmentBooking(models.Model):
         self.sale_order_id = sale_order
         if self.state == 'draft':
             self.state = 'pending_payment'
+        # The slot stays reserved for the payment window.
+        self._extend_payment_hold(self._payment_hold_deadline())
         return sale_order
 
     # ------------------------------------------------------------------

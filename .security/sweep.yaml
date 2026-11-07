@@ -1,0 +1,25 @@
+version: 1
+repo:
+  full_name: WOOWTECH/Odoo_reservation_module
+  default_branch: main
+scan:
+  exclude:
+    - "**/__pycache__/"
+    - "**/*.pyc"
+  tools: {}
+always_human:
+  paths:
+    - reservation_module/security/
+    - reservation_module/models/payment_transaction.py
+    - reservation_module/models/appointment_booking.py
+  severities:
+    - critical
+    - high
+  topics: []
+autofix:
+  enabled: true
+verify:
+  regression_tests:
+    - reservation_module/tests/test_payment_money_gates.py
+    - reservation_module/tests/test_payment_integrity.py
+    - reservation_module/tests/test_booking_rules.py

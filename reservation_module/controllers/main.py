@@ -1347,6 +1347,14 @@ class AppointmentController(http.Controller):
                     raise _BookingRejected(_('No staff member is available for the selected time. Please choose another time.'))
                 if auto_resources and not booking.resource_id and not booking._auto_assign_location():
                     raise _BookingRejected(_('No location has room for your party at the selected time. Please choose another time.'))
+                # A payable booking and its order are one unit. If the cart
+                # rejects the payment product, roll back the booking (and the
+                # guest contact) before any booking email is queued.
+                sale_order = False
+                if appointment_type.require_payment:
+                    sale_order = self._try_create_sale_order(booking)
+                    if not sale_order:
+                        raise _BookingRejected(_('Payment configuration error. Please contact support.'))
         except _BookingRejected as rejection:
             return self._render_booking_form_error(appointment_type, data, str(rejection))
 
@@ -1367,19 +1375,11 @@ class AppointmentController(http.Controller):
             #  - cart mode → /shop/cart so the visitor can add coupons,
             #    combine multiple bookings, then checkout normally
             #  - fresh SO → /my/orders/<id> as before (Odoo standard SO portal)
-            sale_order = self._try_create_sale_order(booking)
-            if sale_order:
-                if hasattr(request.website, 'sale_get_order'):
-                    # Cart mode active (website_sale installed)
-                    return request.redirect('/shop/cart')
-                return request.redirect(
-                    f'/my/orders/{sale_order.id}?access_token={sale_order.access_token}'
-                )
-            # SO creation failed: release the slot, show error on booking form
-            booking.sudo().payment_hold_until = False
-            return self._render_booking_form_error(
-                appointment_type, data,
-                _('Payment configuration error. Please contact support.')
+            if hasattr(request.website, 'sale_get_order'):
+                # Cart mode active (website_sale installed)
+                return request.redirect('/shop/cart')
+            return request.redirect(
+                f'/my/orders/{sale_order.id}?access_token={sale_order.access_token}'
             )
 
         return request.redirect(f'/appointment/booking/{booking.id}/confirm?token={booking.access_token}')

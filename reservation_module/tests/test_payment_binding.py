@@ -348,8 +348,11 @@ class TestBookingLinesPayment(BindingCommon, TransactionCase):
 
     def test_booking_transaction_must_cover_its_lines(self):
         total = self.booking._get_payment_amount()
-        self._done_tx(self.booking, total - 1)
+        partial = self._done_tx(self.booking, total - 1)
         self.assertEqual(self.booking.payment_status, 'pending')
+        with self.assertRaises(UserError):
+            self._done_tx(self.booking, total)
+        partial._create_child_transaction(partial.amount, is_refund=True)._set_done()
         self._done_tx(self.booking, total)
         self.assertEqual(self.booking.payment_status, 'paid')
 
@@ -868,3 +871,42 @@ class TestPaymentLinkTranslations(LegacyLinkCommon, TransactionCase):
             self.assertNotIn(self.victim_order.access_token, self._render(xmlid, self.legacy, lang), lang)
         self.assertIn(self._own_link(self.own_order), self._render(xmlid, self.own, 'zh_TW'))
         self.assertFalse(mig._fix_payment_link_translations(self.env), 'safe to re-run')
+
+    def test_upgrade_rewrites_old_taiwan_mail_time_widgets(self):
+        """An existing zh_TW body is retained on -u, so repair its QWeb time."""
+        mig = _load_migration_3_2_2()
+        self.appointment_type.timezone = 'Asia/Taipei'
+        self.env.user.tz = 'UTC'
+        path = get_module_path('reservation_module') + '/i18n/zh_TW.po'
+        entries = polib.pofile(path)
+        xmlids = (
+            'reservation_module.email_template_booking_reminder',
+            'reservation_module.email_template_booking_confirmed',
+            'reservation_module.email_template_booking_created',
+            'reservation_module.email_template_booking_done',
+            'reservation_module.email_template_booking_cancelled',
+        )
+        before_render = {}
+        for xmlid in xmlids:
+            occurrence = 'model:mail.template,body_html:' + xmlid
+            entry = next(e for e in entries if any(loc == occurrence for loc, _ in e.occurrences))
+            old_body = entry.msgstr.replace(', &quot;tz_name&quot;: object.display_tz', '')
+            self.assertNotIn('tz_name', old_body)
+            self._store_translation(xmlid, 'zh_TW', old_body)
+            before_render[xmlid] = self._render(xmlid, self.own, 'zh_TW')
+        changed = mig._fix_payment_link_translations(self.env)
+        self.env.invalidate_all()
+        converter = self.env['ir.qweb.field.datetime'].with_context(lang='zh_TW')
+        local_time = converter.value_to_html(self.own.start_datetime, {'tz_name': 'Asia/Taipei'})
+        utc_time = converter.value_to_html(self.own.start_datetime, {'tz_name': 'UTC'})
+        self.assertNotEqual(local_time, utc_time)
+        for xmlid in xmlids:
+            self.assertIn(self.env.ref(xmlid).id, changed)
+            body = self.env.ref(xmlid).with_context(lang='zh_TW').body_html
+            self.assertEqual(body.count('&quot;tz_name&quot;: object.display_tz'), 2)
+            after = self._render(xmlid, self.own, 'zh_TW')
+            self.assertNotEqual(before_render[xmlid], after, xmlid)
+            self.assertIn(local_time, after, xmlid)
+            self.assertNotIn(utc_time, after, xmlid)
+            self.assertIn('tz_name', body)
+        self.assertFalse(mig._fix_payment_link_translations(self.env))

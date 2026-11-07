@@ -692,12 +692,11 @@ class TestPaymentHoldModel(PaymentHoldCommon, TransactionCase):
         self._take_slot()
         tx._set_done()
         Booking = type(self.env['appointment.booking'])
-
-        def paid(records):
-            for record in records:
-                record.payment_status = 'paid'
-        with patch.object(Booking, '_compute_payment_status', paid):
-            self.booking.invalidate_recordset(['payment_status'])
+        # The dummy provider makes no accounting payment, so the invoice stays
+        # open. The payment gate of action_confirm is judged at the moment of
+        # confirming (_is_fully_paid), not read from the stored status: let it
+        # see the booking as paid, the slot conflict is what this test is about.
+        with patch.object(Booking, '_is_fully_paid', return_value=True):
             self._post_process(tx)
         self.assertEqual(self.booking.state, 'pending_payment')
         self.assertTrue(self.booking.payment_confirm_failed)

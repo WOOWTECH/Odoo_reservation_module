@@ -71,13 +71,22 @@ class PaymentTransaction(models.Model):
         Covers every core payment route (/shop/payment/transaction,
         /my/orders/<id>/transaction, ...): the booking's slot is re-checked
         under the conflict guard and its hold renewed for the payment window.
+
+        The transaction and the checks are one savepoint. The checks run after
+        the row exists (they need it to find the bookings it pays), so a
+        refusal under a race (the slot sold, the booking paid, between the
+        page and this call) would otherwise leave a draft transaction behind
+        whenever the caller catches the refusal and goes on, as the pay
+        page's route does: an orphan that the booking's transaction list, the
+        provider reference and the cancel-time money search would all see.
         """
-        txs = super().create(vals_list)
-        for tx in txs:
-            if tx.operation in ('refund', 'validation'):
-                continue
-            tx._check_bookings_payable()
-            tx._get_held_bookings()._ensure_payment_hold()
+        with self.env.cr.savepoint():
+            txs = super().create(vals_list)
+            for tx in txs:
+                if tx.operation in ('refund', 'validation'):
+                    continue
+                tx._check_bookings_payable()
+                tx._get_held_bookings()._ensure_payment_hold()
         return txs
 
     def _post_process(self):
@@ -95,13 +104,14 @@ class PaymentTransaction(models.Model):
 
         # Handle payment failures (webhook-triggered). Only an order's own
         # booking: the failure mail goes to the guest's address and links to
-        # the order with its access token.
+        # the order with its access token. The one still to pay is found by
+        # the status worked out now, not the stored one.
         for tx in self.filtered(lambda t: t.state in ('error', 'cancel')):
             booking = tx.appointment_booking_id
             if not booking and hasattr(tx, 'sale_order_ids'):
                 for so in tx.sale_order_ids:
                     booking = so._get_own_bookings().filtered(
-                        lambda b: b.payment_status == 'pending')[:1]
+                        lambda b: b._get_live_payment_status() == 'pending')[:1]
                     if booking:
                         break
             if (booking and booking.state in ('draft', 'pending_payment')

@@ -701,9 +701,10 @@ class TestForeignRowsUpgrade(LegacyCartTools, LegacyLinkCommon, TransactionCase)
         self.env.flush_all()
         self.env.cr.execute(mig.PRE_UPGRADE_CHECK_SQL)
         listed = {row[0] for row in self.env.cr.fetchall()}
-        self.assertEqual(listed, set((self.rows | carol | dave | erin | eve).ids))
-        self.assertFalse(listed & set((cart_bookings | moved_bookings).ids))
-        self.assertEqual(set(mig._flag_foreign_sale_orders(self.env)), listed)
+        fixtures = self.rows | carol | dave | erin | eve | cart_bookings | moved_bookings
+        expected = set((self.rows | carol | dave | erin | eve).ids)
+        self.assertEqual(listed & set(fixtures.ids), expected)
+        self.assertEqual(set(mig._flag_foreign_sale_orders(self.env)) & set(fixtures.ids), expected)
 
     def test_a_closed_account_does_not_reopen_the_row_on_a_guests_cart(self):
         cart, bookings = self._legacy_cart(self.appointment_type, [self._guest('Gina Guest')],

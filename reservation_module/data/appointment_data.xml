@@ -17,6 +17,19 @@
             <field name="company_id" eval="False"/>
         </record>
 
+        <!-- The to-do that asks a manager to refund a cancelled booking that
+             was paid. One is open per booking at most, whatever language the
+             cancelling request was in (appointment.booking
+             _get_open_refund_activities looks it up by this type). -->
+        <record id="mail_activity_type_refund_due" model="mail.activity.type">
+            <field name="name">Refund Due</field>
+            <field name="summary">Cancelled booking was paid: refund it</field>
+            <field name="res_model">appointment.booking</field>
+            <field name="icon">fa-money</field>
+            <field name="decoration_type">warning</field>
+            <field name="delay_count">0</field>
+        </record>
+
     </data>
 
     <!-- Email templates. noupdate="0" so an upgrade actually re-applies them:

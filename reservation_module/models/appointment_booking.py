@@ -28,6 +28,11 @@ GOOGLE_CALENDAR_URL = 'https://www.google.com/calendar/render?'
 BOOKING_STAFF_GROUP = 'reservation_module.group_appointment_user'
 BOOKING_MANAGER_GROUP = 'reservation_module.group_appointment_manager'
 
+# Activity type of the "refund the customer" to-do of a cancelled booking that
+# was paid. Whether one is already open is told by this type, not by its
+# summary, which is written in the language of the request that cancelled.
+REFUND_ACTIVITY_TYPE_XMLID = 'reservation_module.mail_activity_type_refund_due'
+
 # 佔用名額的狀態；draft／pending_payment 只有在付款保留期間
 # （payment_hold_until 未過）才佔位。
 OCCUPYING_STATES = ('confirmed', 'done')
@@ -365,7 +370,11 @@ class AppointmentBooking(models.Model):
         'state',
         'guest_count',
         'payment_line_count',
+        # Whose order it is (_is_own_sale_order) decides whether the order's
+        # payments count at all.
+        'partner_id.commercial_partner_id',
         'sale_order_id',
+        'sale_order_id.partner_id.commercial_partner_id',
         'sale_order_id.state',
         'sale_order_id.currency_id',
         'sale_order_id.booking_ids',
@@ -393,7 +402,15 @@ class AppointmentBooking(models.Model):
         'sale_order_id.transaction_ids.child_transaction_ids.amount',
     )
     def _compute_payment_status(self):
-        """Paid only by money that covers this booking's own order lines.
+        """Store the payment status as it is now (_get_live_payment_status)."""
+        for booking in self:
+            booking.payment_status = booking._get_live_payment_status()
+
+    def _get_live_payment_status(self):
+        """The payment status worked out now, from the order, the invoices and
+        the transactions, whatever is stored in ``payment_status``.
+
+        Paid only by money that covers this booking's own order lines.
 
         The order may be a shared website cart (other products, other
         bookings): a paid invoice for something else in it, or a cart whose
@@ -403,30 +420,84 @@ class AppointmentBooking(models.Model):
             the booked quantity, and that quantity is on posted, paid
             customer invoices (credit notes deducted); or
           * a done transaction made for this booking (its own pay page) whose
-            amount covers those lines.
+            amount covers those lines
+        (_is_fully_paid).
 
         "Refunded" is only for a booking whose order was cancelled while no
         money was held for it. A cancelled booking (or a cancelled order)
         with a payment that nobody has given back (_holds_payment) stays
         "paid": cancelling does not return money, and calling it refunded
-        would hide that a refund is still due.
+        would hide that a refund is still due. That "paid" says that money
+        is held, not that the booking is covered: it can be a deposit or a
+        part-paid invoice. Nothing that lets the booking go ahead (confirming
+        it, treating a payment as its payment) takes it for payment in full
+        (_is_fully_paid).
+
+        The stored value follows its dependencies, which cannot see
+        everything (a user created for a guest contact, a section line
+        renamed): whatever decides to confirm, or to refuse a payment, asks
+        this method (or _is_fully_paid) instead of reading the stored value.
         """
-        for booking in self:
-            order = booking.sale_order_id
-            cancelled = booking.state == 'cancelled' or bool(order and order.state == 'cancel')
-            if not booking.appointment_type_id.require_payment:
-                booking.payment_status = 'not_required'
-            elif booking._is_paid_by_transaction() or (order and booking._is_paid_by_invoices()):
-                booking.payment_status = 'paid'
-            elif cancelled and booking._holds_payment():
-                booking.payment_status = 'paid'
-            elif order and order.state == 'cancel':
-                booking.payment_status = 'refunded'
-            elif booking.state == 'cancelled' and not order:
-                booking.payment_status = 'not_required'
-            else:
-                # SO signed but not yet paid → still pending
-                booking.payment_status = 'pending'
+        self.ensure_one()
+        booking = self.sudo()
+        order = booking.sale_order_id
+        cancelled = booking.state == 'cancelled' or bool(order and order.state == 'cancel')
+        if not booking.appointment_type_id.require_payment:
+            return 'not_required'
+        if booking._is_fully_paid():
+            return 'paid'
+        if cancelled and booking._holds_payment():
+            return 'paid'
+        if order and order.state == 'cancel':
+            return 'refunded'
+        if booking.state == 'cancelled' and not order:
+            return 'not_required'
+        # SO signed but not yet paid → still pending
+        return 'pending'
+
+    def _is_fully_paid(self):
+        """Whether the money for this booking's own lines is in, judged now.
+
+        The answer behind every decision that lets a booking go ahead
+        (``action_confirm``, a payment that confirms it, ...): never the
+        stored ``payment_status``, which keeps what an older rule or an
+        earlier state of the order gave it. A booking linked to an order that
+        is not its own (the row of the portal RPC create hole, a link made by
+        hand to another customer's order) may still carry the "paid" the old
+        rule stored from that order's invoice; the upgrade leaves such a
+        status alone (it only reports the row), and this check is what makes
+        sure it opens nothing.
+        """
+        self.ensure_one()
+        booking = self.sudo()
+        if not booking.appointment_type_id.require_payment:
+            return False
+        direct = booking.payment_transaction_id
+        order = booking._get_own_sale_order()
+        relevant = (order.transaction_ids if order else booking.env['payment.transaction'])
+        if direct:
+            relevant |= direct
+        if any(child.operation == 'refund' and child.state == 'done'
+               for tx in relevant for child in tx.child_transaction_ids):
+            # Invoice payment_state can stay paid after a provider refund.
+            # A later bank payment can replace that money, but it must itself
+            # be reconciled and together with the provider's net receipts
+            # cover the booking's price.
+            if order and booking._is_paid_by_invoices():
+                invoices = order.invoice_ids.filtered(
+                    lambda move: move.state == 'posted' and move.move_type == 'out_invoice')
+                invoiced = sum(move.currency_id._convert(
+                    move.amount_total, order.currency_id, order.company_id,
+                    move.date or fields.Date.context_today(booking)) for move in invoices)
+                required = max(order.amount_total, invoiced)
+                if order.currency_id.compare_amounts(
+                        booking._get_reconciled_cash_amount(), required) >= 0:
+                    return True
+            return booking._is_paid_by_transaction() or any(
+                booking._tx_covers_booking(tx) for tx in relevant
+                if tx.state in ('authorized', 'done'))
+        return bool(booking._is_paid_by_transaction()
+                    or (booking.sale_order_id and booking._is_paid_by_invoices()))
 
     # ------------------------------------------------------------------
     # The booking's own order and lines
@@ -707,8 +778,7 @@ class AppointmentBooking(models.Model):
         self.ensure_one()
         booking = self.sudo()
         tx = tx.sudo()
-        # A payment that was refunded in full pays nothing (a partial refund
-        # leaves the booking paid: the payment did cover it).
+        # A partial refund can leave money held without covering the price.
         if not tx or tx.operation in ('refund', 'validation') or booking._tx_net_amount(tx) <= 0:
             return False
         orders = tx.sale_order_ids if 'sale_order_ids' in tx._fields else self.env['sale.order']
@@ -723,7 +793,7 @@ class AppointmentBooking(models.Model):
             amount = booking._get_payment_amount()
             currency = booking._get_payment_currency()
             return bool(amount > 0 and tx.currency_id == currency
-                        and currency.compare_amounts(tx.amount, amount) >= 0)
+                        and currency.compare_amounts(booking._tx_net_amount(tx), amount) >= 0)
         order = booking._get_own_sale_order()
         if not order or order not in orders or order.state == 'cancel':
             return False
@@ -734,18 +804,22 @@ class AppointmentBooking(models.Model):
             return False
         if len(orders) > 1:
             # One payment for several orders: it must cover all of them.
-            return currency.compare_amounts(tx.amount, sum(orders.mapped('amount_total'))) >= 0
+            return currency.compare_amounts(
+                booking._tx_net_amount(tx), sum(orders.mapped('amount_total'))) >= 0
         paid = sum(
-            t.amount for t in (order.transaction_ids | tx)
+            booking._tx_net_amount(t) for t in (order.transaction_ids | tx)
             if t.sale_order_ids == order and t.currency_id == currency
             and t.operation != 'validation' and booking._tx_net_amount(t) > 0
             and (t == tx or t.state in ('authorized', 'done')))
         return order.amount_total > 0 and currency.compare_amounts(paid, order.amount_total) >= 0
 
     def _is_paid_by(self, tx):
-        """Paid for (payment_status), or ``tx`` itself pays this booking."""
+        """Paid for (judged now, _is_fully_paid), or ``tx`` itself pays this
+        booking. Not the stored payment_status: a row whose status was stored
+        from an order that is not its own must not let a payment (any
+        payment) go on to confirm it or hold its slot."""
         self.ensure_one()
-        return self.sudo().payment_status == 'paid' or self._tx_covers_booking(tx)
+        return self._is_fully_paid() or self._tx_covers_booking(tx)
 
     # ------------------------------------------------------------------
     # Money received for the booking
@@ -779,6 +853,39 @@ class AppointmentBooking(models.Model):
             return bool(order)
         return bool(booking._get_payment_lines())
 
+    def _get_credited_amount(self):
+        """Face value of posted credit notes for this booking (sudo, in the
+        order's currency). This is accounting information for staff; it is
+        not proof that any cash has reached the customer.
+
+        A posted credit note is how an invoiced order is refunded: the payment
+        itself stays "done" and the invoice "paid". A booking whose lines are
+        bound counts the credit note lines of its own lines only (the credit
+        note of another booking or of the cart's other items is not its
+        refund); a booking made before its lines were bound has the whole
+        order, so every credit note of the order is its own.
+        """
+        self.ensure_one()
+        booking = self.sudo()
+        order = booking._get_own_sale_order()
+        refunds = order.invoice_ids.filtered(
+            lambda move: move.state == 'posted' and move.move_type == 'out_refund')
+        if not refunds:
+            return 0.0
+        currency = order.currency_id
+
+        def in_order_currency(amount, move):
+            if move.currency_id == currency:
+                return amount
+            return move.currency_id._convert(
+                amount, currency, order.company_id, move.date or fields.Date.context_today(booking))
+
+        if booking.payment_line_count or booking.payment_line_ids:
+            lines = booking.payment_line_ids.invoice_lines.filtered(
+                lambda line: line.move_id in refunds and line.display_type == 'product')
+            return sum(in_order_currency(line.price_total, line.move_id) for line in lines)
+        return sum(in_order_currency(move.amount_total, move) for move in refunds)
+
     def _get_received_transactions(self):
         """Payments received for this booking that nobody has given back (sudo).
 
@@ -788,31 +895,35 @@ class AppointmentBooking(models.Model):
             still on it: the payment included them. A payment of an order
             the booking's lines have left (removed by staff, say) is not
             this booking's money unless the booking itself names it as the
-            one that paid it (payment_transaction_id). Neither is the payment
-            of an order that staff have since credited: a posted credit note
-            is how a refund of an invoiced order is made (the payment itself
-            stays "done"), and the invoices say what is left
-            (_get_paid_invoices).
+            one that paid it (payment_transaction_id).
+
+        A posted credit note is an accounting document, not proof that cash
+        was returned. Only a completed refund child transaction reduces the
+        payment here. An order payment is counted only when this booking's
+        lines remain on that order; a credit note for another cart item does
+        not erase it. Staff must verify bank refunds before closing the
+        refund activity.
         """
         self.ensure_one()
         booking = self.sudo()
-        transactions = booking.payment_transaction_ids
+        own_page = booking.payment_transaction_ids.filtered(self._tx_holds_money)
+        order_payments = booking.env['payment.transaction']
         order = booking._get_own_sale_order()
-        if (order and 'transaction_ids' in order._fields
-                and not order.invoice_ids.filtered(
-                    lambda move: move.state == 'posted' and move.move_type == 'out_refund')):
+        if order and 'transaction_ids' in order._fields:
             if booking._order_holds_booking_lines(order):
-                transactions |= order.transaction_ids
+                order_payments = order.transaction_ids
             else:
-                transactions |= order.transaction_ids & booking.payment_transaction_id
-        return transactions.filtered(self._tx_holds_money)
+                order_payments = order.transaction_ids & booking.payment_transaction_id
+            order_payments = order_payments.filtered(self._tx_holds_money) - own_page
+        received = own_page | order_payments
+        return received
 
     def _get_paid_invoices(self):
         """Posted customer invoices of the booking's own order that took
         money (paid, being paid, or partly paid) for the booking's lines (a
-        booking made before its lines were bound: for the order), unless
-        posted credit notes take all of it back (a reversed invoice is not
-        one that took money)."""
+        booking made before its lines were bound: for the order). A posted
+        credit note alone does not prove this money reached the customer;
+        staff reconcile actual refunds before closing the activity."""
         self.ensure_one()
         booking = self.sudo()
         order = booking._get_own_sale_order()
@@ -822,13 +933,58 @@ class AppointmentBooking(models.Model):
             and move.payment_state in ('paid', 'in_payment', 'partial'))
         if booking.payment_line_count or booking.payment_line_ids:
             invoices &= booking.payment_line_ids.invoice_lines.move_id
-        if not invoices:
-            return invoices
-        credited = sum(moves.filtered(lambda move: move.move_type == 'out_refund').mapped('amount_total'))
-        received = sum(invoice.amount_total - invoice.amount_residual for invoice in invoices)
-        if order.currency_id.compare_amounts(received, credited) <= 0:
-            return invoices.browse()
-        return invoices
+        return invoices.filtered(lambda invoice: booking._invoice_has_cash(invoice))
+
+    def _invoice_has_cash(self, invoice):
+        """A reconciled bank payment or the net of a provider payment is
+        evidence of money held. Reconciliation with a credit note alone is
+        not. The original invoice's payment_state is insufficient after a
+        provider refund."""
+        self.ensure_one()
+        for payment in invoice._get_reconciled_payments():
+            tx = payment.payment_transaction_id
+            if not tx or self._tx_net_amount(tx) > 0:
+                return True
+        return bool(invoice._get_reconciled_statement_lines())
+
+    def _get_reconciled_cash_amount(self):
+        """Net of unique payments reconciled to the order's posted invoices.
+
+        A payment on a shared invoice cannot safely be attributed to one
+        booking. After a provider refund the whole order must be covered;
+        this deliberately holds every booking until the missing amount is
+        paid or staff resolves the refund outside the booking flow.
+        """
+        self.ensure_one()
+        booking = self.sudo()
+        order = booking._get_own_sale_order()
+        if not order:
+            return 0.0
+        invoices = order.invoice_ids.filtered(
+            lambda move: move.state == 'posted' and move.move_type == 'out_invoice')
+        currency = order.currency_id
+        total = 0.0
+        seen = set()
+        for invoice in invoices:
+            for line in invoice.line_ids.filtered(
+                    lambda item: item.account_id.account_type == 'asset_receivable'):
+                for part in line.matched_debit_ids | line.matched_credit_ids:
+                    if part.id in seen:
+                        continue
+                    seen.add(part.id)
+                    counterpart = (part.credit_move_id if part.debit_move_id == line
+                                   else part.debit_move_id)
+                    payment = counterpart.move_id.origin_payment_id
+                    statement = counterpart.move_id.statement_line_id
+                    if not payment and not statement:
+                        continue  # A credit note or other journal entry is not cash.
+                    tx = payment.payment_transaction_id if payment else False
+                    ratio = min(1.0, max(0.0, booking._tx_net_amount(tx) / tx.amount)) if tx and tx.amount else 1.0
+                    total += order.company_id.currency_id._convert(
+                        part.amount * ratio, currency, order.company_id,
+                        part.max_date or (payment.date if payment else statement.date)
+                        or fields.Date.context_today(booking))
+        return total
 
     def _holds_payment(self):
         """Money was received for this booking and nobody has given it back."""
@@ -837,10 +993,19 @@ class AppointmentBooking(models.Model):
 
     def _is_covered_by_payment(self):
         """Paid, or a payment (done or authorized) that pays its lines is
-        there already: it must not be paid a second time."""
+        there already: it must not be paid a second time.
+
+        "Paid" is the status worked out now, in its wide sense (it also covers
+        money held for a cancelled order, whatever the amount): refusing a
+        second payment is the safe side, and a stored status that no longer
+        holds must neither refuse nor allow it."""
         self.ensure_one()
         booking = self.sudo()
-        if booking.payment_status == 'paid':
+        # The payment page charges the full price, not a remaining balance.
+        # Any retained money must be handled by staff before another charge.
+        if booking._get_received_transactions() or booking._get_paid_invoices():
+            return True
+        if booking._get_live_payment_status() == 'paid':
             return True
         return any(booking._tx_covers_booking(tx) for tx in booking._get_received_transactions())
 
@@ -1183,6 +1348,25 @@ class AppointmentBooking(models.Model):
                 return user
         return self._get_payment_followup_user()
 
+    def _get_open_refund_activities(self):
+        """The refund activities of this booking that are still open (sudo).
+
+        Found by their activity type, not by their summary: the summary is
+        written in the language of whoever (or whatever request) cancelled
+        the booking, so two cancellations in two languages made two
+        different summaries and so two activities for one refund.
+        """
+        self.ensure_one()
+        booking = self.sudo()
+        activity_type = self.env.ref(REFUND_ACTIVITY_TYPE_XMLID, raise_if_not_found=False)
+        todo_type = self.env.ref('mail.mail_activity_data_todo', raise_if_not_found=False)
+        summaries = {'Cancelled booking was paid: refund it'}
+        for lang in self.env['res.lang'].sudo().search([('active', '=', True)]).mapped('code'):
+            summaries.add(self.with_context(lang=lang).env._('Cancelled booking was paid: refund it'))
+        return booking.activity_ids.filtered(
+            lambda activity: activity.activity_type_id == activity_type
+            or (activity.activity_type_id == todo_type and activity.summary in summaries))
+
     def _flag_paid_cancellation(self, transactions, invoices=None):
         """A booking was cancelled (or its payment came in after it was) while
         the money it was paid with is still held.
@@ -1191,23 +1375,48 @@ class AppointmentBooking(models.Model):
         status stays "paid". A note says which payments are held and an
         activity asks an appointment manager to refund them by hand. Asked
         again while that activity is still open, it does nothing (a payment
-        reported twice, a booking cancelled, reopened and cancelled again).
+        reported twice, a booking cancelled, reopened and cancelled again,
+        in whatever language: _get_open_refund_activities).
+
+        The note says what credit notes already took back, and, for a booking
+        made before its lines were bound, that what was paid for it cannot be
+        told apart from the other items and bookings of its order.
         """
         self.ensure_one()
         booking = self.sudo()
-        summary = _('Cancelled booking was paid: refund it')
-        if booking.activity_ids.filtered(lambda activity: activity.summary == summary):
+        if booking._get_open_refund_activities():
             return
+        summary = _('Cancelled booking was paid: refund it')
         payments = ', '.join(sorted(
-            ['%s (%s)' % (tx.reference, format_amount(self.env, self._tx_net_amount(tx), tx.currency_id))
+            [tx.reference if tx.sale_order_ids else '%s (%s)' % (
+                tx.reference, format_amount(self.env, self._tx_net_amount(tx), tx.currency_id))
              for tx in (transactions or [])]
-            + ['%s (%s)' % (invoice.name, format_amount(
-                self.env, invoice.amount_total - invoice.amount_residual, invoice.currency_id))
-               for invoice in (invoices or [])]))
+            + [invoice.name for invoice in (invoices or [])]))
         body = _(
             'Booking %(booking)s was cancelled but it had been paid by %(payments)s. '
-            'Nothing was refunded and its order was kept: refund the customer by hand.',
+            'Cancelling this booking did not issue a refund, and its order was kept: '
+            'check any previous refunds before returning money to the customer.',
             booking=booking.name, payments=payments or '-')
+        credited = booking._get_credited_amount()
+        if credited:
+            body += ' ' + _(
+                'Credit notes already issued for it add up to %(credited)s. Issuing a credit note '
+                'does not prove the customer received a refund: check the payment and bank records '
+                'before refunding or closing this task.',
+                credited=format_amount(self.env, credited, booking._get_payment_currency()))
+        order = booking._get_own_sale_order()
+        if order and (invoices or any(tx.sale_order_ids for tx in (transactions or []))):
+            body += ' ' + _(
+                'The order payment and invoice references above are for the whole order %(order)s, '
+                'not the amount owed to this booking. Other bookings or products may share that money. '
+                'Check the whole order, previous refunds and bank records before deciding the amount '
+                'to return; do not refund each booking the full order balance.', order=order.name)
+        if order and not (booking.payment_line_count or booking.payment_line_ids):
+            body += ' ' + _(
+                'This booking was made before its order lines were tied to it, so what was paid '
+                'for it cannot be told apart from the other items and bookings of order %(order)s: '
+                'check the order before refunding, so '
+                'that nothing is refunded twice.', order=order.name)
         booking.message_post(body=body, message_type='notification',
                              subtype_xmlid='mail.mt_note')
         user = booking._get_refund_followup_user()
@@ -1215,7 +1424,7 @@ class AppointmentBooking(models.Model):
             try:
                 with self.env.cr.savepoint():
                     booking.activity_schedule(
-                        'mail.mail_activity_data_todo',
+                        REFUND_ACTIVITY_TYPE_XMLID,
                         user_id=user.id, summary=summary, note=body)
             except (AccessError, UserError, ValidationError):
                 _logger.warning("Booking %s: could not schedule the refund activity",
@@ -1278,9 +1487,18 @@ class AppointmentBooking(models.Model):
             if booking.state not in ('draft', 'pending_payment'):
                 continue
 
-            # Check payment if required
+            # Check payment if required. Judged now (_is_fully_paid), not by
+            # the stored status: a row kept by the upgrade whose order is not
+            # its own may still be stored as paid, and a booking that was
+            # cancelled with part of its price held reads "paid" too.
             appointment_type = booking.appointment_type_id
-            if appointment_type.require_payment and booking.payment_status != 'paid':
+            if appointment_type.require_payment and not booking._is_fully_paid():
+                order = booking.sudo().sale_order_id
+                if order and not booking._is_own_sale_order(order):
+                    raise UserError(_(
+                        'Payment is required before confirming this booking. Its sales order %(order)s '
+                        'is not an order of this booking or of its customer, so the payments on it do '
+                        'not count.', order=order.name))
                 raise UserError(_('Payment is required before confirming this booking.'))
 
             # Cross-type conflict check (safety net for race conditions)

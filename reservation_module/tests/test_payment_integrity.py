@@ -118,7 +118,13 @@ class TestPaidBookingCancellation(IntegrityCommon, TransactionCase):
         self.assertEqual(booking.payment_status, 'paid', 'the money was not given back')
         notes = self._refund_notes(booking, reference)
         self.assertTrue(notes, 'a note names the payment')
-        self.assertIn(self.env.company.currency_id.symbol, notes[0].body, 'and what it was')
+        if 'not the amount owed to this booking' in notes[0].body:
+            payment_clause = notes[0].body.split('Credit notes already issued')[0]
+            self.assertNotIn(self.env.company.currency_id.symbol, payment_clause,
+                             'a shared order balance must not be stated as this booking\'s refund')
+        else:
+            self.assertIn(self.env.company.currency_id.symbol, notes[0].body,
+                          'a booking-only payment can state its net amount')
         activities = self._refund_activities(booking)
         self.assertEqual(len(activities), 1, 'one activity asks for the refund')
         self.assertTrue(activities.user_id.has_group(MANAGER_GROUP))
@@ -209,24 +215,20 @@ class TestPaidBookingCancellation(IntegrityCommon, TransactionCase):
         self.assertNotEqual(order.state, 'cancel')
         self._assert_flagged(legacy, invoice.name)
 
-    def test_a_credit_note_takes_the_invoice_payment_back(self):
-        """The accounting way to refund an invoiced order: the money held is
-        what the paid invoices took minus the credit notes."""
+    def test_a_credit_note_alone_does_not_return_invoice_payment(self):
+        """Posting a credit note does not itself send cash to the customer."""
         invoice = self._invoice_and_pay(self.order)
         self.assertTrue(self.booking._holds_payment())
         refund = invoice._reverse_moves()
         refund.action_post()
         self.env.invalidate_all()
-        self.assertFalse(self.booking._get_paid_invoices())
-        self.assertFalse(self.booking._holds_payment())
+        self.assertEqual(self.booking._get_paid_invoices(), invoice)
+        self.assertTrue(self.booking._holds_payment())
         self.booking.action_cancel()
-        self.assertEqual(self.order.state, 'cancel')
-        self.assertEqual(self.booking.payment_status, 'refunded')
-        self.assertFalse(self._refund_activities(self.booking))
+        self._assert_flagged(self.booking, invoice.name)
 
-    def test_a_credit_note_takes_the_order_payment_back_too(self):
-        """An order paid by a transaction, invoiced, and credited: the
-        transaction stays "done" but the credit note is the refund."""
+    def test_a_credit_note_alone_does_not_return_order_payment(self):
+        """A posted credit note leaves an unreversed provider payment held."""
         tx = self._order_tx(self.order, 'INT-ORDER-3')
         tx._set_done()
         self._post_process(tx)
@@ -236,7 +238,7 @@ class TestPaidBookingCancellation(IntegrityCommon, TransactionCase):
         refund = invoice._reverse_moves()
         refund.action_post()
         self.env.invalidate_all()
-        self.assertFalse(self.booking._holds_payment())
+        self.assertTrue(self.booking._holds_payment())
 
     def test_staff_cancelling_the_order_does_not_make_a_paid_booking_refunded(self):
         self._own_tx(self.booking, 'INT-OWN-3')._set_done()
@@ -265,7 +267,7 @@ class TestPaidBookingCancellation(IntegrityCommon, TransactionCase):
         partial._set_done()
         self.env.invalidate_all()
         self.assertEqual(self.booking._get_received_transactions(), tx, 'a part refund leaves money held')
-        self.assertEqual(self.booking.payment_status, 'paid', 'and the booking stays paid')
+        self.assertEqual(self.booking.payment_status, 'pending', 'a partial refund no longer covers the price')
         rest = tx._create_child_transaction(tx.amount * 3 / 4, is_refund=True)
         rest._set_done()
         self.env.invalidate_all()
@@ -674,14 +676,19 @@ class TestCartRefusals(IntegrityHttpCommon, HttpCase):
 
     def test_unpublished_product_gives_the_error_on_the_booking_form(self):
         self.product.is_published = False
+        before = self._bookings(self.appointment_type, guest_email='int.unpub@example.com')
+        mails_before = self.env['mail.mail'].sudo().search_count([
+            ('email_to', 'ilike', 'int.unpub@example.com')])
         self.env.flush_all()
         response = self._post(self.appointment_type, self._wall(3, 10), guest_email='int.unpub@example.com')
         self.assertEqual(response.status_code, 200)
         self.assertIn('Payment configuration error', response.text)
         self.env.invalidate_all()
         booking = self._bookings(self.appointment_type, guest_email='int.unpub@example.com')
-        self.assertFalse(self._lines_of(booking), 'nothing is left in the cart')
-        self.assertFalse(booking.payment_hold_until, 'the slot is not held for a payment that cannot be made')
+        self.assertEqual(booking, before, 'a failed order must not leave a booking')
+        self.assertEqual(self.env['mail.mail'].sudo().search_count([
+            ('email_to', 'ilike', 'int.unpub@example.com')]), mails_before,
+            'a rejected booking must not queue a guest email')
 
     def test_clearing_a_cart_that_holds_a_booking_says_why_not(self):
         response = self._post(self.appointment_type, self._wall(3, 10), guest_email='int.clear@example.com')

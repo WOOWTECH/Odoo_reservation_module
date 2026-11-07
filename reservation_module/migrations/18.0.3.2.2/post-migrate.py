@@ -76,6 +76,9 @@ _PAYMENT_LINK_FIXES = (
     (re.compile(r'"\s*object\.payment_amount\s*"'), '"object._get_payment_amount()"'),
 )
 _RAW_ORDER_ACCESS = re.compile(r'\bsale_order_id\b')
+_OLD_DATETIME_WIDGET = re.compile(
+    r'(<t\s+t-out="object\.(?:start|end)_datetime"\s+t-options=")'
+    r'\{&quot;widget&quot;: &quot;datetime&quot;\}("/>)')
 
 _BOOKING_CHANNELS = """
     SELECT b.discuss_channel_id AS channel_id,
@@ -375,11 +378,14 @@ def _flag_foreign_sale_orders(env):
 def _fix_template_body(value):
     for pattern, replacement in _PAYMENT_LINK_FIXES:
         value = pattern.sub(replacement, value)
+    value = _OLD_DATETIME_WIDGET.sub(
+        r'\1{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\2',
+        value)
     return value
 
 
 def _fix_payment_link_translations(env):
-    """Rewrite the stored body_html translations of the module's templates."""
+    """Repair payment links and timezones in stored template translations."""
     cr = env.cr
     env['mail.template'].flush_model(['body_html'])
     cr.execute("""
@@ -407,9 +413,34 @@ def _fix_payment_link_translations(env):
             changed.append(template_id)
     if changed:
         env['mail.template'].invalidate_model(['body_html'])
-    _logger.info("reservation_module 18.0.3.2.2: payment links fixed in the stored translations "
+    _logger.info("reservation_module 18.0.3.2.2: payment links and date widgets fixed in stored translations "
                  "of %s template(s)", len(changed))
     return changed
+
+
+def _migrate_refund_activities(env):
+    """Keep an old open refund to-do from becoming a second refund request.
+
+    Older releases used the generic To Do activity type and a translated
+    summary. Move only known refund summaries on appointment bookings; other
+    staff to-dos must retain their type. The operation is idempotent.
+    """
+    todo = env.ref('mail.mail_activity_data_todo', raise_if_not_found=False)
+    refund = env.ref('reservation_module.mail_activity_type_refund_due', raise_if_not_found=False)
+    if not todo or not refund:
+        return 0
+    summaries = {'Cancelled booking was paid: refund it'}
+    for lang in env['res.lang'].sudo().search([('active', '=', True)]).mapped('code'):
+        summaries.add(env['appointment.booking'].with_context(lang=lang).env._(
+            'Cancelled booking was paid: refund it'))
+    activities = env['mail.activity'].sudo().search([
+        ('res_model', '=', 'appointment.booking'),
+        ('activity_type_id', '=', todo.id),
+        ('summary', 'in', list(summaries)),
+    ])
+    if activities:
+        activities.write({'activity_type_id': refund.id})
+    return len(activities)
 
 
 def migrate(cr, version):
@@ -428,3 +459,4 @@ def migrate(cr, version):
     env.invalidate_all()
     _migrate_calendar_events(env)
     _recompute_open_payment_status(env)
+    _migrate_refund_activities(env)

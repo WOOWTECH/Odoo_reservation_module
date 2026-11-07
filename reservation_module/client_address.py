@@ -45,8 +45,8 @@ public load balancer) is seen as the client; such a site should set
 ``reservation_module.booking_rate_limit_per_ip`` to 0. Behind a proxy that is
 not Cloudflare, the proxy should drop a client-sent ``CF-Connecting-IP``.
 ``X-Real-IP``, ``Forwarded`` and ``True-Client-IP`` are not read: the chart's
-nginx sidecar sets ``X-Real-IP`` to the previous hop, and the front proxies in
-use do not send the others. A /64 is shared by everyone behind it, and a
+nginx sidecar sets ``X-Real-IP`` to the previous hop, and Cloudflare sends
+neither of the others by default. A /64 is shared by everyone behind it, and a
 subscriber with a bigger prefix can rotate through /64s: this is a throttle
 next to the per-mailbox, per-partner and per-type limits, not an identity.
 """

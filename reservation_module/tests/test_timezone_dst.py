@@ -9,6 +9,11 @@ Asia/Taipei, which has no DST. These use the 2026 changes of two zones:
                     2026-10-25  03:00 CEST -> 02:00 CET   (02:xx happens twice)
   America/New_York  2026-03-08  02:00 EST  -> 03:00 EDT   (02:xx never happens)
                     2026-11-01  02:00 EDT  -> 01:00 EST   (01:xx happens twice)
+  Asia/Beirut       2026-03-29  00:00 EET  -> 01:00 EEST  (a zone that changes at midnight:
+                                                          00:xx never happens, and a window
+                                                          ending at 24:00 the day before ends
+                                                          at a wall time that does not exist)
+                    2026-10-25  00:00 EEST -> 23:00 EET   (23:xx of the 24th happens twice)
 
 Rules pinned here (tz_utils.py has the arithmetic):
 
@@ -52,6 +57,15 @@ CHANGE_DAYS = {
     'new_york_spring': ('America/New_York', date(2026, 3, 8), '2026-03-03 12:00:00'),
     'new_york_autumn': ('America/New_York', date(2026, 11, 1), '2026-10-27 12:00:00'),
 }
+# Zones whose clocks change at midnight: only the invariants are checked on
+# these (what the slot lists offer is what the booking form takes).
+MIDNIGHT_CHANGE_DAYS = {
+    'beirut_spring_eve': ('Asia/Beirut', date(2026, 3, 28), '2026-03-25 12:00:00'),
+    'beirut_spring': ('Asia/Beirut', date(2026, 3, 29), '2026-03-25 12:00:00'),
+    'beirut_autumn_eve': ('Asia/Beirut', date(2026, 10, 24), '2026-10-20 12:00:00'),
+    'beirut_autumn': ('Asia/Beirut', date(2026, 10, 25), '2026-10-20 12:00:00'),
+}
+CHANGE_DAYS_ALL = dict(CHANGE_DAYS, **MIDNIGHT_CHANGE_DAYS)
 
 
 def utc(text):
@@ -63,7 +77,7 @@ class DstCommon(RulesCommon):
     def _typed(self, case, windows, scheduled=False, **extra):
         """An appointment type in the zone of ``case`` whose every weekday has
         exactly ``windows`` ((hour_from, hour_to) pairs)."""
-        zone = CHANGE_DAYS[case][0]
+        zone = CHANGE_DAYS_ALL[case][0]
         vals = {'timezone': zone, 'is_scheduled': scheduled, 'max_booking_days': 400}
         vals.update(extra)
         appointment_type = self._setup_appointment_type(**vals)
@@ -73,7 +87,7 @@ class DstCommon(RulesCommon):
     def _frozen(self, case):
         if freeze_time is None:
             self.skipTest('freezegun not available')
-        return freeze_time(CHANGE_DAYS[case][2])
+        return freeze_time(CHANGE_DAYS_ALL[case][2])
 
 
 # ---------------------------------------------------------------------------
@@ -112,6 +126,19 @@ WINDOW_UTC = {
     ('new_york_autumn', (20, 24)): ('2026-11-02 01:00:00', '2026-11-02 05:00:00'),
     ('new_york_autumn', (0, 24)): ('2026-11-01 04:00:00', '2026-11-02 05:00:00'),
     ('new_york_autumn', (2, 5)): ('2026-11-01 07:00:00', '2026-11-01 10:00:00'),
+    # Zones that change at midnight: the missing wall time is 00:00 itself, so
+    # the evening window of the day before (ending at 24:00) and the night
+    # window of the day (starting at 00:00) are skipped like any other window
+    # with an edge that never happens.
+    ('beirut_spring_eve', (0, 6)): ('2026-03-27 22:00:00', '2026-03-28 04:00:00'),
+    ('beirut_spring_eve', (20, 24)): None,
+    ('beirut_spring_eve', (0, 24)): None,
+    ('beirut_spring', (0, 6)): None,
+    ('beirut_spring', (1, 4)): ('2026-03-28 22:00:00', '2026-03-29 01:00:00'),
+    ('beirut_spring', (20, 24)): ('2026-03-29 17:00:00', '2026-03-29 21:00:00'),
+    ('beirut_autumn_eve', (20, 24)): ('2026-10-24 17:00:00', '2026-10-24 22:00:00'),   # 5 real hours
+    ('beirut_autumn_eve', (0, 24)): ('2026-10-23 21:00:00', '2026-10-24 22:00:00'),    # 25 hours
+    ('beirut_autumn', (0, 24)): ('2026-10-24 22:00:00', '2026-10-25 22:00:00'),
 }
 
 
@@ -125,7 +152,7 @@ class TestDstWindows(DstCommon, TransactionCase):
     def test_window_hours_become_the_right_utc_instants(self):
         types = {}
         for (case, hours), expected in WINDOW_UTC.items():
-            day = CHANGE_DAYS[case][1]
+            day = CHANGE_DAYS_ALL[case][1]
             if case not in types:
                 types[case] = self._typed(case, [hours])
             appointment_type = types[case]
@@ -237,7 +264,7 @@ class TestDstSlotLists(DstCommon, TransactionCase):
     """The slot lists the booking page shows, on the days the clocks change."""
 
     def _slots(self, appointment_type, case):
-        day = CHANGE_DAYS[case][1]
+        day = CHANGE_DAYS_ALL[case][1]
         with self._frozen(case), MockRequest(self.env):
             controller = AppointmentController()
             make = controller._get_scheduled_slots if appointment_type.is_scheduled else controller._get_event_slots
@@ -282,7 +309,7 @@ class TestDstSlotLists(DstCommon, TransactionCase):
         for case, hours in (('berlin_spring', (2, 5)), ('berlin_spring', (0, 2.5)), ('new_york_spring', (2, 5)),
                             ('new_york_spring', (1, 2.5))):
             appointment_type = self._typed(case, [hours], scheduled=True)
-            day = CHANGE_DAYS[case][1]
+            day = CHANGE_DAYS_ALL[case][1]
             with self.subTest(case=case, hours=hours):
                 self.assertEqual(self._slots(appointment_type, case), [])
                 self.assertEqual(appointment_type._get_availability_windows(day), [])
@@ -298,7 +325,7 @@ class TestDstSlotLists(DstCommon, TransactionCase):
             appointment_type = self._typed(case, [(0, 6)], scheduled=True, assign_staff=True,
                                            staff_user_ids=[(6, 0, staff.ids)])
             self._booking(appointment_type, utc(booking_start), staff_user_id=staff.id)
-            day = CHANGE_DAYS[case][1]
+            day = CHANGE_DAYS_ALL[case][1]
             with self.subTest(case=case), self._frozen(case), MockRequest(self.env):
                 slots = AppointmentController()._get_scheduled_slots(appointment_type, day, None, staff.id)['slots']
                 self.assertEqual([slot['start'] for slot in slots],
@@ -311,17 +338,17 @@ class TestDstSlotLists(DstCommon, TransactionCase):
             appointment_type = self._typed(case, [(0, 6)], scheduled=True, assign_staff=True,
                                            staff_user_ids=[(6, 0, staff.ids)])
             self._booking(appointment_type, utc(booking_start), staff_user_id=staff.id)
-            day = CHANGE_DAYS[case][1]
+            day = CHANGE_DAYS_ALL[case][1]
             with self.subTest(case=case), self._frozen(case), MockRequest(self.env):
                 slots = AppointmentController()._get_scheduled_slots(appointment_type, day, None, staff.id)['slots']
                 self.assertEqual([slot['start'] for slot in slots],
                                  [row[0] for row in HOURLY_SLOTS[case] if row[0] != removed])
 
     def test_event_slots_are_the_windows_the_booking_form_accepts(self):
-        hours = [(1, 4), (10, 12), (20, 24), (2.5, 4)]
-        for case in CHANGE_DAYS:
+        hours = [(1, 4), (10, 12), (20, 24), (2.5, 4), (0, 6), (0, 24)]
+        for case in CHANGE_DAYS_ALL:
             appointment_type = self._typed(case, hours)
-            day = CHANGE_DAYS[case][1]
+            day = CHANGE_DAYS_ALL[case][1]
             slots = self._slots(appointment_type, case)
             windows = {(start.strftime(FMT), end.strftime(FMT))
                        for start, end, _avail in appointment_type._get_availability_windows(day)}
@@ -399,7 +426,7 @@ class TestDstSlotGridSweep(DstCommon, TransactionCase):
 
     def test_slot_grid_matches_the_oracle_and_the_booking_check(self):
         controller = AppointmentController()
-        for case, (zone, day, _now) in CHANGE_DAYS.items():
+        for case, (zone, day, _now) in CHANGE_DAYS_ALL.items():
             appointment_type = self._typed(case, [(0, 6)], scheduled=True)
             for hours in self.WINDOWS:
                 self._set_windows(appointment_type, [(hours[0], hours[1], {})])
@@ -440,7 +467,7 @@ class TestDstBookingForm(DstCommon, RulesHttpCommon, HttpCase):
         return super()._frozen(case)
 
     def _slots_of(self, appointment_type, case):
-        return self._slots(appointment_type, CHANGE_DAYS[case][1])['slots']
+        return self._slots(appointment_type, CHANGE_DAYS_ALL[case][1])['slots']
 
     def test_event_window_is_booked_exactly_across_the_change(self):
         for case, hours in (('berlin_autumn', (0, 24)), ('berlin_spring', (1, 4)), ('new_york_spring', (20, 24)),

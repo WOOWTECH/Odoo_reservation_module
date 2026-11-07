@@ -79,6 +79,14 @@
 - **Portal Access** — Customers join meeting rooms directly from their portal booking page
 - **Member Management** — Staff and customers auto-added to the channel with correct access rights
 
+
+### Access & Privacy (since 18.0.3.2.2)
+
+- **Members-only meeting rooms** — the Discuss room of an online booking is a `group` conversation whose members are the assigned staff and the booking's customer; other portal users can neither read nor join it. Rooms are created when `woow_odoo_portal_discuss` (or the former `cs_portal_discuss`) is installed and stay listed in the customer's "My Discussions". The upgrade migrates existing rooms and removes members who do not belong to the booking.
+- **Private calendar events** — booking events are `private`: the organizer (staff), attendees and appointment managers see the details; other employees see "Busy" on the shared calendar and cannot edit or delete them. The event description only carries the booking reference, guest count and location; guest email, phone and notes stay on the booking. Without assigned staff the public user is no longer made the organizer. Existing events are migrated.
+- **Bookings are created through the booking form only** — portal/public users cannot create bookings over RPC; the website flows are unchanged.
+- **Staff-only fields** — internal notes, payment failure count, reminder flag and access token are readable by appointment users only.
+- **Roster-only names on the booking form** — staff_id / resource_id from the URL are shown only when they belong to the appointment type's active roster.
 ### Customer Portal
 
 - **My Bookings Dashboard** — Portal users see all their bookings with status, type, and date

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import api, fields, models, _
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from .. import tz_utils
 from datetime import timedelta, datetime
 import logging
@@ -19,6 +19,13 @@ except ImportError:
 _logger = logging.getLogger(__name__)
 
 GOOGLE_CALENDAR_URL = 'https://www.google.com/calendar/render?'
+
+BOOKING_STAFF_GROUP = 'reservation_module.group_appointment_user'
+BOOKING_MANAGER_GROUP = 'reservation_module.group_appointment_manager'
+
+# Discuss 會議室的軟耦合：舊名 cs_portal_discuss 與改名後的
+# woow_odoo_portal_discuss 都算（兩者互斥，只會裝其中一個）。
+PORTAL_DISCUSS_MODULES = ('cs_portal_discuss', 'woow_odoo_portal_discuss')
 
 
 class AppointmentBooking(models.Model):
@@ -110,6 +117,9 @@ class AppointmentBooking(models.Model):
     meeting_url = fields.Char(
         'Meeting URL',
         compute='_compute_meeting_url',
+        # The linked event is private and the room members-only; whoever may
+        # read the booking still gets its meeting link.
+        compute_sudo=True,
     )
 
     # Sales Order Integration
@@ -154,16 +164,20 @@ class AppointmentBooking(models.Model):
 
     # Notes
     notes = fields.Text('Notes')
-    internal_notes = fields.Text('Internal Notes')
+    # 員工內部欄位：portal 對自己的預約有 read ACL，沒有 groups 的欄位
+    # 會經 RPC 原樣回傳。前台頁面都用 sudo 的預約渲染，不受 groups 影響。
+    internal_notes = fields.Text('Internal Notes', groups=BOOKING_STAFF_GROUP)
 
     # Access Token for website
-    access_token = fields.Char('Access Token', copy=False)
+    access_token = fields.Char('Access Token', copy=False, groups=BOOKING_STAFF_GROUP)
 
     # Reminder tracking
-    reminder_sent = fields.Boolean('Reminder Sent', default=False, copy=False)
+    reminder_sent = fields.Boolean(
+        'Reminder Sent', default=False, copy=False, groups=BOOKING_STAFF_GROUP)
 
     # Payment failure tracking
-    payment_failure_count = fields.Integer('Payment Failures', default=0, copy=False)
+    payment_failure_count = fields.Integer(
+        'Payment Failures', default=0, copy=False, groups=BOOKING_STAFF_GROUP)
 
     # Discuss channel integration
     discuss_channel_id = fields.Many2one(
@@ -301,6 +315,12 @@ class AppointmentBooking(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        # 前台流程（匿名、portal、付款回呼）都經 controller 以 sudo 建立，
+        # 那裡才有時段、名額、付款與人工核准的檢查。非 sudo 的直接建立只給
+        # 預約群組的員工；ACL 之外再擋一次，避免租戶另加 ACL 時重新打開
+        # portal 經 RPC 建出 confirmed 預約的路。
+        if not self.env.su and not self.env.user.has_group(BOOKING_STAFF_GROUP):
+            raise AccessError(_('Bookings can only be created through the booking form.'))
         for vals in vals_list:
             if vals.get('name', 'New') == 'New':
                 vals['name'] = self.env['ir.sequence'].next_by_code('appointment.booking') or 'New'
@@ -373,7 +393,9 @@ class AppointmentBooking(models.Model):
                     if 'end_datetime' in vals:
                         event_vals['stop'] = booking.end_datetime
                     if event_vals:
-                        booking.calendar_event_id.write(event_vals)
+                        # 預約的 event 是 private：非主辦人的員工（例如建立者）
+                        # 通過預約本身的權限後，由系統同步時間。
+                        booking.calendar_event_id.sudo().write(event_vals)
         return result
 
     @api.constrains('start_datetime', 'end_datetime')
@@ -413,7 +435,7 @@ class AppointmentBooking(models.Model):
             if conflict['resource_conflict'] or (booking.resource_id and conflict['resource_remaining'] < booking.guest_count):
                 raise UserError(_('Location is fully booked for this time slot.'))
 
-            # Create Discuss channel (soft-coupled: only if cs_portal_discuss installed)
+            # Create Discuss channel (soft-coupled: only if a portal Discuss module is installed)
             booking._create_discuss_channel()
 
             # Create calendar event
@@ -450,7 +472,7 @@ class AppointmentBooking(models.Model):
 
                 # Cancel calendar event
                 if booking.calendar_event_id:
-                    booking.calendar_event_id.unlink()
+                    booking.calendar_event_id.sudo().unlink()
 
                 # Cancel linked sale order (if no paid invoice)
                 if booking.sale_order_id and booking.sale_order_id.state in ('draft', 'sent', 'sale'):
@@ -462,13 +484,15 @@ class AppointmentBooking(models.Model):
                         booking.sale_order_id.sudo()._action_cancel()
 
                 # Archive Discuss channel
-                if booking.discuss_channel_id and booking.discuss_channel_id.active:
-                    booking.discuss_channel_id.message_post(
+                # 會議室只有成員可讀寫；取消通知與封存是系統動作。
+                channel_sudo = booking.discuss_channel_id.sudo()
+                if channel_sudo and channel_sudo.active:
+                    channel_sudo.message_post(
                         body=_("This booking has been cancelled. The discussion is now archived."),
                         message_type='notification',
                         subtype_xmlid='mail.mt_comment',
                     )
-                    booking.discuss_channel_id.sudo().write({'active': False})
+                    channel_sudo.write({'active': False})
 
                 booking.write({'state': 'cancelled'})
 
@@ -494,11 +518,43 @@ class AppointmentBooking(models.Model):
                 booking.write({'state': 'draft'})
         return True
 
+    @api.model
+    def _portal_discuss_installed(self):
+        """Whether a portal Discuss module (old or renamed) is installed."""
+        return bool(self.env['ir.module.module'].sudo().search_count([
+            ('name', 'in', PORTAL_DISCUSS_MODULES),
+            ('state', '=', 'installed'),
+        ], limit=1))
+
+    def _get_discuss_channel_partners(self):
+        """Partners allowed in this booking's meeting room: staff + guest.
+
+        Without assigned staff, the confirming user joins only when it is a
+        real internal user. The anonymous flow confirms as the shared public
+        user; making its partner a member would open the room to every
+        anonymous visitor.
+        """
+        self.ensure_one()
+        partners = self.env['res.partner']
+        if self.staff_user_id:
+            partners |= self.staff_user_id.partner_id
+        elif self.env.user._is_internal() and not self.env.user._is_superuser():
+            partners |= self.env.user.partner_id
+        if self.partner_id:
+            partners |= self.partner_id
+        return partners
+
     def _create_discuss_channel(self):
-        """Create a Discuss channel for this booking (if cs_portal_discuss is installed).
+        """Create a Discuss channel for this booking (if a portal Discuss module is installed).
 
         The channel serves as a unified meeting room: chat + video (via Discuss built-in call).
-        Soft-coupled — if cs_portal_discuss is not installed, falls back to videocall URL.
+        Soft-coupled — without cs_portal_discuss / woow_odoo_portal_discuss, falls back to
+        the videocall URL.
+
+        The room is a members-only ``group`` conversation (no ``group_public_id``):
+        a ``channel`` open to base.group_portal let every portal user read, join and
+        post in other customers' rooms. Members still see it in /my/discussions,
+        which lists their pinned chats and groups.
         """
         self.ensure_one()
         if self.discuss_channel_id:
@@ -508,33 +564,25 @@ class AppointmentBooking(models.Model):
         if self.appointment_type_id.location_type != 'online':
             return self.env['discuss.channel']
 
-        # Soft-couple: only create if cs_portal_discuss is installed
-        installed = self.env['ir.module.module'].sudo().search([
-            ('name', '=', 'cs_portal_discuss'),
-            ('state', '=', 'installed'),
-        ], limit=1)
-        if not installed:
+        if not self._portal_discuss_installed():
             return self.env['discuss.channel']
 
-        # Determine members: staff + guest
-        member_ids = []
-        staff_partner = self.staff_user_id.partner_id if self.staff_user_id else self.env.user.partner_id
-        member_ids.append(staff_partner.id)
-        if self.partner_id and self.partner_id.id != staff_partner.id:
-            member_ids.append(self.partner_id.id)
-
-        # group_public_id = portal group so cs_portal_discuss includes it in /my/discussions
-        portal_group = self.env.ref('base.group_portal', raise_if_not_found=False)
+        partners = self._get_discuss_channel_partners()
         channel_vals = {
             'name': f"{self.appointment_type_id.name} - {self.guest_name} ({self.name})",
-            'channel_type': 'channel',
+            'channel_type': 'group',
             'channel_member_ids': [
-                (0, 0, {'partner_id': pid}) for pid in member_ids
+                (0, 0, {'partner_id': pid}) for pid in partners.ids
             ],
         }
-        if portal_group:
-            channel_vals['group_public_id'] = portal_group.id
         channel = self.env['discuss.channel'].sudo().create(channel_vals)
+        # Core create always adds the current (non-public) user. Keep that for
+        # internal users (as before); drop any other outsider, e.g. a portal
+        # user who is not this booking's guest.
+        channel.channel_member_ids.filtered(
+            lambda m: m.partner_id not in partners
+            and not any(user._is_internal() for user in m.partner_id.user_ids)
+        ).unlink()
 
         # Post welcome message.
         # Explicit tz: action_confirm often runs sudo()/public, where
@@ -565,17 +613,32 @@ class AppointmentBooking(models.Model):
         if self.calendar_event_id:
             return self.calendar_event_id
 
+        # privacy='private': calendar.event is readable by every employee, while
+        # bookings are restricted to their staff/creator (and managers). Core
+        # masks private events (name 'Busy', other fields empty) for anyone
+        # who is neither organizer nor attendee; calendar_event.py lets
+        # appointment managers through for booking events. Guest contact
+        # details stay on the booking only (see _get_event_description).
+        if self.staff_user_id:
+            organizer = self.staff_user_id
+        elif self.env.user._is_internal() and not self.env.user._is_superuser():
+            organizer = self.env.user
+        else:
+            # Anonymous / payment-callback confirmation: never make the shared
+            # public user (or OdooBot) the organizer.
+            organizer = self.env['res.users']
         event_vals = {
             'name': f'{self.appointment_type_id.name} - {self.guest_name}',
             'start': self.start_datetime,
             'stop': self.end_datetime,
             'description': self._get_event_description(),
             'partner_ids': [(4, self.partner_id.id)] if self.partner_id else [],
-            'user_id': self.staff_user_id.id if self.staff_user_id else self.env.user.id,
+            'user_id': organizer.id,
+            'privacy': 'private',
         }
 
         # Online meeting: set videocall location only if no Discuss channel
-        # (when cs_portal_discuss is installed, the channel IS the meeting room)
+        # (when a portal Discuss module is installed, the channel IS the meeting room)
         appointment_type = self.appointment_type_id
         if appointment_type.location_type == 'online' and not self.discuss_channel_id:
             if appointment_type.video_link:
@@ -588,24 +651,27 @@ class AppointmentBooking(models.Model):
                 base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
                 event_vals['videocall_location'] = f"{base_url}/calendar/join_videocall/{access_token}"
 
-        event = self.env['calendar.event'].create(event_vals)
+        # sudo: the core "Private events" rule only lets the organizer or an
+        # attendee create a private event, and the confirming user (backend
+        # creator, payment callback) is often neither. Access to the booking
+        # itself was already checked by the caller.
+        event = self.env['calendar.event'].sudo().create(event_vals)
         self.calendar_event_id = event
         return event
 
     def _get_event_description(self):
-        """Generate event description"""
-        lines = []
-        lines.append(_("Guest: %s") % self.guest_name)
-        if self.guest_email:
-            lines.append(_("Email: %s") % self.guest_email)
-        if self.guest_phone:
-            lines.append(_("Phone: %s") % self.guest_phone)
+        """Minimal event description: no guest contact details or notes.
+
+        The guest's name, email, phone and free-text notes live on the
+        booking, which is protected by the booking ACL and record rules.
+        The event only points back to the booking.
+        """
+        self.ensure_one()
+        lines = [_("Booking: %s", self.name)]
         if self.guest_count > 1:
-            lines.append(_("Number of guests: %s") % self.guest_count)
+            lines.append(_("Number of guests: %s", self.guest_count))
         if self.resource_id:
-            lines.append(_("Location: %s") % self.resource_id.name)
-        if self.notes:
-            lines.append("\n" + _("Notes: %s") % self.notes)
+            lines.append(_("Location: %s", self.resource_id.name))
         return '\n'.join(lines)
 
     def _send_confirmation_email(self):

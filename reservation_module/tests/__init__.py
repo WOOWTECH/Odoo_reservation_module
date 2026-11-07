@@ -4,3 +4,4 @@ from . import test_booking_conflict_guard
 from . import test_timezone
 from . import test_timezone_pure
 from . import test_booking_form_settings
+from . import test_security_acl

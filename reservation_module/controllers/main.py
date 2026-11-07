@@ -428,6 +428,29 @@ class AppointmentController(http.Controller):
             appointment_type.assign_staff, None, active_staff_ids)
         return resolved_staff_id
 
+    def _roster_display_records(self, appointment_type, resource_id, staff_id):
+        """Resource / staff records the booking form may show by name.
+
+        The ids come from the query string or the posted form. Only active
+        members of this appointment type's roster (with the matching
+        ``assign_*`` enabled) are resolved; anything else is dropped, so the
+        page never prints the name of an arbitrary res.users or
+        resource.resource. ``_resolve_booking_selection`` still validates
+        the final submission.
+        """
+        resource = None
+        rid = self._safe_int(resource_id)
+        if (rid and appointment_type.assign_location
+                and rid in appointment_type.resource_ids.filtered('active').ids):
+            resource = request.env['resource.resource'].sudo().browse(rid)
+
+        staff = None
+        sid = self._safe_int(staff_id)
+        if (sid and appointment_type.assign_staff
+                and sid in appointment_type.staff_user_ids.filtered('active').ids):
+            staff = request.env['res.users'].sudo().browse(sid)
+        return resource, staff
+
     def _resolve_booking_selection(self, appointment_type, resource_id, staff_id):
         """Validate roster IDs and pin an assigned one-member roster server-side.
 
@@ -862,16 +885,12 @@ class AppointmentController(http.Controller):
         else:
             end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
 
-        resource = None
-        rid = self._safe_int(resource_id)
-        if rid:
-            resource = request.env['resource.resource'].sudo().browse(rid)
-
-        staff = None
-        sid = self._default_unique_active_staff_id(
-            appointment_type, self._safe_int(staff_id))
-        if sid:
-            staff = request.env['res.users'].sudo().browse(sid)
+        resource, staff = self._roster_display_records(
+            appointment_type,
+            resource_id,
+            self._default_unique_active_staff_id(
+                appointment_type, self._safe_int(staff_id)),
+        )
 
         # Pre-fill form for logged-in portal users
         portal_partner = None
@@ -919,15 +938,8 @@ class AppointmentController(http.Controller):
         if not end_dt and start_dt:
             end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
 
-        resource = None
-        rid = self._safe_int(data.get('resource_id'))
-        if rid:
-            resource = request.env['resource.resource'].sudo().browse(rid)
-
-        staff = None
-        sid = self._safe_int(data.get('staff_id'))
-        if sid:
-            staff = request.env['res.users'].sudo().browse(sid)
+        resource, staff = self._roster_display_records(
+            appointment_type, data.get('resource_id'), data.get('staff_id'))
 
         return request.render('reservation_module.appointment_book_page', {
             'appointment_type': appointment_type,

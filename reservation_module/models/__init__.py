@@ -6,6 +6,7 @@ from . import appointment_availability
 from . import appointment_slot
 from . import appointment_booking
 from . import appointment_booking_conflict_guard
+from . import calendar_event
 from . import appointment_question
 from . import resource_resource
 from . import payment_transaction

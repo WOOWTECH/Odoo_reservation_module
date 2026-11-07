@@ -7,6 +7,7 @@ from odoo.tools import consteq
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
 from odoo.addons.payment.controllers.portal import PaymentPortal
 from .. import tz_utils
+from ..client_address import SOURCE_UNKNOWN, address_group, client_address
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
 import calendar
@@ -1026,17 +1027,24 @@ class AppointmentController(http.Controller):
         return window_ends.pop() if len(window_ends) == 1 else None
 
     def _booking_client_key(self):
-        """Keyed hash of the submitting client address (no raw IP is stored).
+        """Keyed hash of the visitor's public address, or False if unknown.
 
-        ``remote_addr`` is the peer address, or the forwarded client address
-        when Odoo runs with ``proxy_mode`` behind a trusted proxy.
+        The address is the client behind the proxies in front of Odoo, not
+        ``remote_addr`` (a tunnel or proxy address, the same for every
+        visitor); see ``client_address`` for the rules. IPv6 visitors are
+        keyed by their /64. No raw address is stored. False means no public
+        address could be determined: the per-address limit is then not applied
+        (never one shared key for all such visitors).
         """
-        httprequest = getattr(request, 'httprequest', None)
-        address = getattr(httprequest, 'remote_addr', None)
-        if not isinstance(address, str) or not address:
-            address = 'unknown'
+        address = client_address(getattr(request.httprequest, 'environ', None) or {})
+        if address is None:
+            _logger.info(
+                "Booking form: no public client address in the request (check the "
+                "proxy headers CF-Connecting-IP / X-Forwarded-For); the per-address "
+                "booking limit is not applied to it")
+            return False
         secret = request.env['ir.config_parameter'].sudo().get_param('database.secret') or ''
-        return hmac.new(secret.encode(), ('booking-client:' + address).encode(),
+        return hmac.new(secret.encode(), ('booking-client:' + address_group(address)).encode(),
                         hashlib.sha256).hexdigest()[:40]
 
     def _booking_rate_limit_error(self, appointment_type, email, guest_phone, client_key):
@@ -1069,8 +1077,11 @@ class AppointmentController(http.Controller):
                 ('partner_id', '=', request.env.user.partner_id.id)]) >= 5:
             return too_many
 
+        # Per client address. Not applied without a known public address
+        # (client_key False / SOURCE_UNKNOWN): visitors of unknown origin
+        # must not share one key.
         per_client = Booking._get_int_param('reservation_module.booking_rate_limit_per_ip', 20)
-        if per_client > 0 and Booking.search_count([
+        if client_key and client_key != SOURCE_UNKNOWN and per_client > 0 and Booking.search_count([
                 ('create_date', '>=', one_hour_ago),
                 ('client_ip_hash', '=', client_key)]) >= per_client:
             return too_many
@@ -1246,7 +1257,9 @@ class AppointmentController(http.Controller):
             'start_datetime': start_dt,
             'end_datetime': end_dt,
             'notes': (data.get('notes') or '')[:2000],  # L3: limit notes length
-            'client_ip_hash': client_key,
+            # Marks a public-form booking (mail cap, per-type cap) even when
+            # the client address is unknown; SOURCE_UNKNOWN is never a limit key.
+            'client_ip_hash': client_key or SOURCE_UNKNOWN,
         }
         if appointment_type.require_payment:
             # Hold the slot for the payment window from the first moment, in

@@ -93,7 +93,7 @@ class RulesHttpCommon(RulesCommon):
             self._csrf_token = match.group(1)
         return self._csrf_token
 
-    def _post(self, appointment_type, start, end=None, **values):
+    def _post(self, appointment_type, start, end=None, headers=None, **values):
         data = {
             'csrf_token': self._csrf(),
             'start_datetime': self._fmt(start),
@@ -104,7 +104,7 @@ class RulesHttpCommon(RulesCommon):
         if end is not None:
             data['end_datetime'] = self._fmt(end)
         data.update({key: str(value) for key, value in values.items() if value is not None})
-        return self.url_open('/appointment/%d/book' % appointment_type.id, data=data)
+        return self.url_open('/appointment/%d/book' % appointment_type.id, data=data, headers=headers)
 
     def _bookings(self, appointment_type, **domain):
         self.env.invalidate_all()
@@ -385,9 +385,12 @@ class TestBookingRateLimits(RulesHttpCommon, HttpCase):
         return self._wall(3, 8 + index)
 
     def test_client_address_limit_ignores_changing_email(self):
+        # The test server is reached over loopback, a hop: the client is the
+        # address the Cloudflare edge reports (see test_booking_client_key).
         self.ICP.set_param('reservation_module.booking_rate_limit_per_ip', '2')
         for index in range(3):
             response = self._post(self.appointment_type, self._hour(index),
+                                  headers={'CF-Connecting-IP': '8.8.4.4'},
                                   guest_email='rotating%d@example.com' % index)
         self.assertIn('Too many booking attempts', response.text)
         self.assertEqual(len(self._bookings(self.appointment_type)), 2)

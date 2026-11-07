@@ -249,7 +249,10 @@ class AppointmentBooking(models.Model):
         help='The payment was received but the booking could not be confirmed '
              'automatically. Confirm it manually or refund the customer.')
     # Keyed hash of the client address of a public booking-form submission
-    # (empty for backend bookings). Used for rate limits and mail throttling.
+    # ('unknown' when the request showed no public address, see
+    # client_address.py; empty for backend bookings). Marks a booking as made
+    # through the public form (per-type cap, per-inbox mail cap) and keys the
+    # per-address rate limit, which skips 'unknown'.
     client_ip_hash = fields.Char(
         'Booking Source', copy=False, index=True, readonly=True,
         groups=BOOKING_STAFF_GROUP)

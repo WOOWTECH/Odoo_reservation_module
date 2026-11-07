@@ -96,6 +96,15 @@ class SaleOrderLine(models.Model):
     appointment_booking_qty = fields.Float(
         'Booking Quantity', copy=False, readonly=True, digits='Product Unit of Measure')
 
+    def _booking_lines_locked_error(self):
+        """The refusal a customer gets for touching the lines of a booking:
+        a cart that is cleared, merged into another one, or edited line by
+        line. It names the booking and says what to do instead."""
+        bookings = ', '.join(sorted(set(self.sudo().mapped('appointment_booking_id.name'))))
+        return UserError(_(
+            'This cart holds booking %(bookings)s: its items cannot be changed, moved or removed '
+            'here. To take them out of the cart, cancel the booking.', bookings=bookings))
+
     def _booking_line_edit_allowed(self):
         """Customers (public/portal visitors, even through the sudo website
         cart) cannot change the lines of a booking; staff and the booking code
@@ -121,8 +130,7 @@ class SaleOrderLine(models.Model):
                 # another line is deleted with it by the database cascade,
                 # which no ORM hook sees.
                 if BOOKING_LINE_LOCKED_FIELDS & set(vals):
-                    raise UserError(_(
-                        'This line belongs to a booking. Cancel the booking to remove it from the order.'))
+                    raise booking_lines._booking_lines_locked_error()
                 if 'product_uom_qty' in vals:
                     for line in booking_lines.filtered(lambda l: not l.display_type):
                         if float_compare(vals['product_uom_qty'] or 0.0, line.appointment_booking_qty,
@@ -148,7 +156,7 @@ class SaleOrderLine(models.Model):
             return
         # The cart page drops lines of archived products by itself: let it, the
         # booking simply stays unpaid then.
-        if self._with_linked_descendants().filtered(
-                lambda l: l.appointment_booking_id and (l.display_type or l.product_id.active)):
-            raise UserError(_(
-                'This line belongs to a booking. Cancel the booking to remove it from the order.'))
+        locked = self._with_linked_descendants().filtered(
+            lambda l: l.appointment_booking_id and (l.display_type or l.product_id.active))
+        if locked:
+            raise locked._booking_lines_locked_error()

@@ -1339,7 +1339,7 @@ class AppointmentController(http.Controller):
             #  - cart mode → /shop/cart so the visitor can add coupons,
             #    combine multiple bookings, then checkout normally
             #  - fresh SO → /my/orders/<id> as before (Odoo standard SO portal)
-            sale_order = booking._create_sale_order()
+            sale_order = self._try_create_sale_order(booking)
             if sale_order:
                 if hasattr(request.website, 'sale_get_order'):
                     # Cart mode active (website_sale installed)
@@ -1493,7 +1493,7 @@ class AppointmentController(http.Controller):
             return request.redirect(payment_url)
 
         # No SO yet — try to create one now (never next to a foreign one)
-        if not booking.sale_order_id and booking._create_sale_order():
+        if not booking.sale_order_id and self._try_create_sale_order(booking):
             payment_url = booking._get_payment_url()
             if payment_url:
                 return request.redirect(payment_url)
@@ -1504,6 +1504,25 @@ class AppointmentController(http.Controller):
             'error': _('Payment configuration error. Please contact support.'),
             't': self._get_translations(),
         })
+
+    @staticmethod
+    def _try_create_sale_order(booking):
+        """The booking's order, created now; False when it cannot be made.
+
+        The website cart refuses a payment product that is not for sale on the
+        website (unpublished, archived: "The given product does not exist
+        therefore it cannot be added to cart"). That is a payment
+        configuration error: the visitor gets the payment configuration error
+        page, not a bare 400. The savepoint takes back what was added before
+        the refusal (the section line the cart got for the booking).
+        """
+        try:
+            with request.env.cr.savepoint():
+                return booking._create_sale_order()
+        except UserError as error:
+            _logger.warning("Booking %s: its order could not be created: %s", booking.sudo().name,
+                            error.args[0] if error.args else error)
+            return False
 
     @http.route('/appointment/payment/transaction/<int:booking_id>', type='json', auth='public')
     def appointment_payment_transaction(self, booking_id, access_token=None, **kwargs):

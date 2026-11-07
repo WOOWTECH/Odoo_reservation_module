@@ -616,3 +616,88 @@ class TestPayPageRender(IntegrityHttpCommon, HttpCase):
         self.assertIn('o_payment_form', response.text)
         self.assertIn('Integrity Card', response.text)
         self.assertIn('Payment was not completed', response.text)
+
+
+@tagged('post_install', '-at_install')
+class TestCartRefusals(IntegrityHttpCommon, HttpCase):
+    """GAP 11 item 9."""
+
+    def setUp(self):
+        super().setUp()
+        self._skip_without_website_sale()
+        self.appointment_type = self._paid_type(auto_confirm=False)
+        self.product = self.appointment_type.payment_product_ids
+
+    def _pending_booking(self, days=3):
+        """A booking waiting for payment that has no order yet."""
+        booking = self._new_booking(self.appointment_type, days=days)
+        booking.write({'state': 'pending_payment'})
+        booking._start_payment_hold()
+        return booking
+
+    def _lines_of(self, booking):
+        return self.env['sale.order.line'].sudo().search([('appointment_booking_id', '=', booking.id)])
+
+    def test_unpublished_product_gives_the_configuration_error_page_on_the_pay_link(self):
+        booking = self._pending_booking()
+        self.product.is_published = False
+        self.env.flush_all()
+        response = self.url_open('/appointment/booking/%d/pay?token=%s' % (booking.id, booking.access_token))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Payment configuration error', response.text)
+        self.assertNotIn('cannot be added to cart', response.text)
+        self.env.invalidate_all()
+        self.assertFalse(self._lines_of(booking), 'nothing is left in the cart')
+        self.assertFalse(booking.sale_order_id)
+
+    def test_published_product_still_goes_to_the_cart(self):
+        booking = self._pending_booking()
+        response = self.url_open('/appointment/booking/%d/pay?token=%s' % (booking.id, booking.access_token))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('Payment configuration error', response.text)
+        self.env.invalidate_all()
+        self.assertTrue(booking.sale_order_id)
+        self.assertTrue(self._lines_of(booking))
+
+    def test_unpublished_product_gives_the_error_on_the_booking_form(self):
+        self.product.is_published = False
+        self.env.flush_all()
+        response = self._post(self.appointment_type, self._wall(3, 10), guest_email='int.unpub@example.com')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Payment configuration error', response.text)
+        self.env.invalidate_all()
+        booking = self._bookings(self.appointment_type, guest_email='int.unpub@example.com')
+        self.assertFalse(self._lines_of(booking), 'nothing is left in the cart')
+        self.assertFalse(booking.payment_hold_until, 'the slot is not held for a payment that cannot be made')
+
+    def test_clearing_a_cart_that_holds_a_booking_says_why_not(self):
+        response = self._post(self.appointment_type, self._wall(3, 10), guest_email='int.clear@example.com')
+        self.assertIn('/shop/cart', response.url)
+        booking = self._bookings(self.appointment_type, guest_email='int.clear@example.com')
+        result = self._json('/shop/cart/clear', {})
+        self.assertIn('error', result)
+        message = result['error']['data']['message']
+        self.assertIn(booking.name, message)
+        self.assertIn('cancel the booking', message)
+        self.env.invalidate_all()
+        self.assertTrue(booking.payment_line_ids)
+
+    def test_merging_a_cart_that_holds_a_booking_says_why_not(self):
+        self._post(self.appointment_type, self._wall(3, 10), guest_email='int.merge@example.com')
+        booking = self._bookings(self.appointment_type, guest_email='int.merge@example.com')
+        abandoned = booking.sale_order_id
+        self.assertTrue(abandoned.access_token)
+        # Another visitor, with a cart of his own, opens the first one's recovery link.
+        first = self.opener
+        self.opener = type(first)(self.cr)
+        self.opener.cookies.update({name: value for name, value in first.cookies.items()
+                                    if name != 'session_id'})
+        self._json('/shop/cart/update_json', {'product_id': self._product('Int Pen', 2.0).id, 'add_qty': 1})
+        response = self.url_open('/shop/cart?access_token=%s&revive=merge' % abandoned.access_token)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(booking.name, response.text)
+        self.assertIn('cancel the booking', response.text)
+        self.env.invalidate_all()
+        self.assertEqual(abandoned.state, 'draft', 'the cart is not cancelled')
+        self.assertEqual(booking.sale_order_id, abandoned)
+        self.assertTrue(booking.payment_line_ids)

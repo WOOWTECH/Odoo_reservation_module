@@ -528,10 +528,11 @@ class AppointmentBooking(models.Model):
 
     def _legacy_order_holds_booking(self, order):
         """A legacy booking's order still holds the booked quantity of every
-        payment product, for all the open bookings on it."""
+        payment product, for all the open bookings on it (its own bookings: a
+        row of another customer pointing at it does not count)."""
         self.ensure_one()
         order = order.sudo()
-        bookings = order.booking_ids.filtered(lambda b: b.state != 'cancelled') | self
+        bookings = order._get_own_bookings().filtered(lambda b: b.state != 'cancelled') | self
         for product in self.appointment_type_id.payment_product_ids:
             needed = sum(b._get_payment_qty() for b in bookings
                          if product in b.appointment_type_id.payment_product_ids)
@@ -610,6 +611,41 @@ class AppointmentBooking(models.Model):
                 raise ValidationError(_(
                     'Booking %(booking)s can only be linked to its own sales order '
                     '(an order of the same customer).', booking=booking.sudo().name))
+
+    def _detach_foreign_sale_order(self):
+        """Unlink an order that is not the booking's own (upgrade cleanup).
+
+        _check_sale_order_owner only stops new links. A row written before it
+        (the pre-18.0.3.2.2 portal RPC create hole, an old manual link) may
+        still point at another customer's order; the code already treats such
+        an order as foreign, this removes the link itself. The booking's
+        payment transaction goes too when it was that order's payment, not
+        one of the booking's own pay page. Returns the bookings unlinked.
+        """
+        detached = self.browse()
+        for booking in self.sudo():
+            order = booking.sale_order_id
+            if not order or booking._is_own_sale_order(order):
+                continue
+            vals = {'sale_order_id': False}
+            tx = booking.payment_transaction_id
+            if (tx and tx.appointment_booking_id != booking
+                    and 'sale_order_ids' in tx._fields and order in tx.sale_order_ids):
+                vals['payment_transaction_id'] = False
+            _logger.warning(
+                "Booking %s (id %s) pointed at sales order %s (id %s), which is not its own; "
+                "the link was removed.", booking.name, booking.id, order.name, order.id)
+            status = dict(self._fields['payment_status'].selection).get(
+                booking.payment_status, booking.payment_status)
+            booking.message_post(
+                body=_('Sales order %(order)s was unlinked from this booking: it is not an order '
+                       'of this booking or of its customer. Its payments no longer apply to this '
+                       'booking (payment status before: %(status)s).',
+                       order=order.name, status=status),
+                message_type='notification', subtype_xmlid='mail.mt_note')
+            booking.write(vals)
+            detached |= booking
+        return detached
 
     @api.depends('sale_order_id')
     def _compute_sale_order_count(self):
@@ -1080,7 +1116,7 @@ class AppointmentBooking(models.Model):
         if not own_lines and not booking.payment_line_count:
             # Booking made before its lines were bound: its lines are the
             # order's lines of its payment products.
-            other_bookings = order.booking_ids.filtered(
+            other_bookings = order._get_own_bookings().filtered(
                 lambda b: b != booking and b.state != 'cancelled')
             other_lines = other_lines.filtered(
                 lambda line: line.product_id not in booking.appointment_type_id.payment_product_ids)

@@ -37,6 +37,20 @@ class SaleOrder(models.Model):
         for order in self:
             order.booking_count = len(order.booking_ids)
 
+    def _get_own_bookings(self):
+        """Bookings whose own order this is (sudo).
+
+        booking_ids also lists rows that merely point here: a booking of
+        another customer linked before 18.0.3.2.2 (the portal RPC create
+        hole, an old manual link). Such a row is not this order's booking:
+        the order's payments must neither hold, fail nor confirm it, and its
+        guest must never get this order's link (appointment.booking
+        _is_own_sale_order).
+        """
+        self.ensure_one()
+        order = self.sudo()
+        return order.booking_ids.filtered(lambda booking: booking._is_own_sale_order(order))
+
     def action_confirm(self):
         """Override: SO 簽回不自動確認預約。
 

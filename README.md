@@ -88,6 +88,8 @@
 - **Staff-only fields** — internal notes, payment failure count, reminder flag and access token are readable by appointment users only.
 - **Roster-only names on the booking form** — staff_id / resource_id from the URL are shown only when they belong to the appointment type's active roster.
 - **Video room of a booking event** — without a portal Discuss module and without a video link on the type, the Discuss room Odoo creates on the first "join video call" of a booking event holds only the organizer (assigned staff) and the booking's guest, whoever else is listed as an attendee. Linking or unlinking a booking event from a contact's Meetings is checked whatever form the event id is sent in (`63`, `"63"`, `63.0`); values that are not ids are refused.
+- **A booking only uses its own order** — a booking may only point at its own sales order. The upgrade unlinks bookings left pointing at another customer's order (by the earlier portal create hole or an old manual link) and notes it on the booking. Such an order's payments never hold, fail or confirm a booking, and the "booking received" / "payment failed" mails take the payment link and amount from the booking's own order only, including translations already stored in the database.
+
 ### Booking Rules (since 18.0.3.2.2)
 
 - **Whole-party capacity** — a booking needs room for its whole party: seats already taken plus the requested guest count must fit the location's capacity, on the form, on confirmation and when a location is auto-assigned (a capacity of 0 counts as 1). Without a chosen location, the form limit is the largest location of the roster.

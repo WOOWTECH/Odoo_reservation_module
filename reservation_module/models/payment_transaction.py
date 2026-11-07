@@ -24,13 +24,18 @@ class PaymentTransaction(models.Model):
         'Booking Failure Handled', copy=False, readonly=True)
 
     def _get_held_bookings(self):
-        """Payment-required bookings still waiting for this transaction."""
-        Booking = self.env['appointment.booking'].sudo()
-        bookings = Booking.browse()
+        """Payment-required bookings still waiting for this transaction.
+
+        Only the orders' own bookings: a row of another customer pointing at
+        the order (written before 18.0.3.2.2) must not refuse the order's
+        payment because its own slot is gone.
+        """
+        bookings = self.env['appointment.booking'].sudo()
         for tx in self:
             bookings |= tx.appointment_booking_id.sudo()
-            if 'sale_order_ids' in tx._fields and tx.sale_order_ids:
-                bookings |= Booking.search([('sale_order_id', 'in', tx.sale_order_ids.ids)])
+            if 'sale_order_ids' in tx._fields:
+                for order in tx.sale_order_ids:
+                    bookings |= order._get_own_bookings()
         return bookings.filtered(lambda b: b.state in ('draft', 'pending_payment'))
 
     @api.model_create_multi
@@ -61,17 +66,15 @@ class PaymentTransaction(models.Model):
         # Let parent (sale module, base payment) do their work first.
         super()._post_process()
 
-        Booking = self.env['appointment.booking'].sudo()
-
-        # Handle payment failures (webhook-triggered)
+        # Handle payment failures (webhook-triggered). Only an order's own
+        # booking: the failure mail goes to the guest's address and links to
+        # the order with its access token.
         for tx in self.filtered(lambda t: t.state in ('error', 'cancel')):
             booking = tx.appointment_booking_id
             if not booking and hasattr(tx, 'sale_order_ids'):
                 for so in tx.sale_order_ids:
-                    booking = Booking.search([
-                        ('sale_order_id', '=', so.id),
-                        ('payment_status', '=', 'pending'),
-                    ], limit=1)
+                    booking = so._get_own_bookings().filtered(
+                        lambda b: b.payment_status == 'pending')[:1]
                     if booking:
                         break
             if (booking and booking.state in ('draft', 'pending_payment')
@@ -104,14 +107,12 @@ class PaymentTransaction(models.Model):
                     # By state, not payment_status: once the sale module has
                     # reconciled the invoice the status is already 'paid', and
                     # searching 'pending' silently skipped the confirmation.
-                    bookings = Booking.search([
-                        ('sale_order_id', '=', so.id),
-                        ('state', 'in', ('draft', 'pending_payment')),
-                    ])
-                    # Only bookings whose own lines this payment pays: paying
-                    # for something else in a shared cart must neither hold
-                    # nor confirm (nor flag) a booking.
-                    bookings = bookings.filtered(lambda b: b._is_paid_by(tx))
+                    # Only the order's own bookings, and only those whose own
+                    # lines this payment pays: paying for something else in a
+                    # shared cart must neither hold nor confirm (nor flag) a
+                    # booking.
+                    bookings = so._get_own_bookings().filtered(
+                        lambda b: b.state in ('draft', 'pending_payment') and b._is_paid_by(tx))
                     if not bookings:
                         continue
 

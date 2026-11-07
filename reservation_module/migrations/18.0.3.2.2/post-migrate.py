@@ -24,14 +24,45 @@
    pending。已確認／完成／取消的預約不重算，歷史紀錄不變
    （_recompute_open_payment_status）。
 
+5. 指向別人訂單的預約（最先做）：升級前 portal 可經 RPC 建立預約並帶任意
+   sale_order_id，員工也可能手動連過別的客戶的訂單。_check_sale_order_owner
+   只擋新的連結；這類舊列會讓該訂單付款失敗時把訂單的 access_token 寄到這筆
+   預約的訪客信箱，也會因這筆預約的時段被訂走而擋下訂單本人的付款。不是本預約
+   的訂單（_is_own_sale_order）就解除連結，在預約上留內部記事並寫 log
+   （_detach_foreign_sale_orders）。要在付款失敗標記（第 3 段）之前做，那段
+   以預約的 sale_order_id 找交易。
+
+6. 信件範本的翻譯：mail.template 的 body_html 是整欄翻譯（translate=True），
+   升級只會覆蓋英文；資料庫裡已存的其他語言版本（例如 zh_TW）仍用
+   object.sale_order_id 取付款連結與金額。改成 _get_payment_url／
+   _get_payment_amount；改完仍直接讀 sale_order_id 的語言版本（客製內容）就
+   刪掉，改回模組的翻譯或英文（_fix_payment_link_translations）。
+
 各段都只改「還不是目標狀態」的資料，重跑不會再變動。
 """
 
+import json
 import logging
+import re
 
 from odoo import SUPERUSER_ID, api
 
 _logger = logging.getLogger(__name__)
+
+# Stored body_html translations: read the payment link and amount from the
+# booking's own order (appointment.booking._get_payment_url /
+# _get_payment_amount), never from whatever order sale_order_id points at.
+# object.payment_amount (a field that no longer exists) is repaired as well.
+_PAYMENT_LINK_FIXES = (
+    (re.compile(r't-attf-href="\{\{\s*object\.sale_order_id\.get_portal_url\(\)\s*\}\}"'),
+     't-att-href="object._get_payment_url()"'),
+    (re.compile(r'"\s*object\.sale_order_id\.amount_total\s+if\s+object\.sale_order_id\s+else\s+0\s*"'),
+     '"object._get_payment_amount()"'),
+    (re.compile(r'"\s*object\.sale_order_id\.amount_total\s*"'), '"object._get_payment_amount()"'),
+    (re.compile(r't-if="\s*object\.sale_order_id\s*"'), 't-if="object._get_payment_url()"'),
+    (re.compile(r'"\s*object\.payment_amount\s*"'), '"object._get_payment_amount()"'),
+)
+_RAW_ORDER_ACCESS = re.compile(r'\bsale_order_id\b')
 
 _BOOKING_CHANNELS = """
     SELECT b.discuss_channel_id AS channel_id,
@@ -165,11 +196,68 @@ def _recompute_open_payment_status(env):
     return changed
 
 
+def _detach_foreign_sale_orders(env):
+    """Unlink every booking from an order that is not its own (any state)."""
+    bookings = env['appointment.booking'].with_context(active_test=False).search(
+        [('sale_order_id', '!=', False)])
+    foreign = bookings.filtered(lambda booking: not booking._is_own_sale_order(booking.sale_order_id))
+    detached = foreign._detach_foreign_sale_order()
+    _logger.info("reservation_module 18.0.3.2.2: %s booking(s) unlinked from a sales order "
+                 "that is not theirs", len(detached))
+    return detached.ids
+
+
+def _fix_template_body(value):
+    for pattern, replacement in _PAYMENT_LINK_FIXES:
+        value = pattern.sub(replacement, value)
+    return value
+
+
+def _fix_payment_link_translations(env):
+    """Rewrite the stored body_html translations of the module's templates."""
+    cr = env.cr
+    env['mail.template'].flush_model(['body_html'])
+    cr.execute("""
+        SELECT t.id, t.body_html, d.name
+          FROM mail_template t
+          JOIN ir_model_data d ON d.model = 'mail.template' AND d.res_id = t.id
+         WHERE d.module = 'reservation_module' AND t.body_html IS NOT NULL
+         ORDER BY t.id
+    """)
+    changed = []
+    for template_id, body, xmlid in cr.fetchall():
+        new_body = {}
+        for lang, value in body.items():
+            fixed = _fix_template_body(value) if isinstance(value, str) else value
+            if lang != 'en_US' and isinstance(fixed, str) and _RAW_ORDER_ACCESS.search(fixed):
+                _logger.warning(
+                    "reservation_module 18.0.3.2.2: %s translation of template %s still reads "
+                    "sale_order_id; it was removed (the module's translation or English applies)",
+                    lang, xmlid)
+                continue
+            new_body[lang] = fixed
+        if new_body != body:
+            cr.execute("UPDATE mail_template SET body_html = %s::jsonb WHERE id = %s",
+                       [json.dumps(new_body), template_id])
+            changed.append(template_id)
+    if changed:
+        env['mail.template'].invalidate_model(['body_html'])
+    _logger.info("reservation_module 18.0.3.2.2: payment links fixed in the stored translations "
+                 "of %s template(s)", len(changed))
+    return changed
+
+
 def migrate(cr, version):
     if not version:
         return
+    env = api.Environment(cr, SUPERUSER_ID, {})
+    # First: the payment-failure marking below finds transactions through the
+    # bookings' sale_order_id.
+    _detach_foreign_sale_orders(env)
+    _fix_payment_link_translations(env)
+    env.flush_all()
     _migrate_discuss_channels(cr)
     _mark_reported_payment_failures(cr)
-    env = api.Environment(cr, SUPERUSER_ID, {})
+    env.invalidate_all()
     _migrate_calendar_events(env)
     _recompute_open_payment_status(env)

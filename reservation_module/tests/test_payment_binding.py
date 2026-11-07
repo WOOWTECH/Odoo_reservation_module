@@ -20,8 +20,11 @@ import json
 from datetime import timedelta
 from unittest.mock import patch
 
+import polib
+
 from odoo import fields
 from odoo.exceptions import UserError, ValidationError
+from odoo.modules.module import get_module_path
 from odoo.tests.common import HttpCase, TransactionCase, tagged
 
 from .test_booking_rules import PaymentHoldCommon, RulesHttpCommon
@@ -174,6 +177,24 @@ class TestBookingOrderOwnershipRoutes(BindingCommon, RulesHttpCommon, HttpCase):
             self.assertNotIn(foreign.access_token, response.text, path)
         self.env.invalidate_all()
         self.assertNotEqual(foreign.state, 'cancel')
+
+    def test_order_page_lists_only_its_own_booking(self):
+        """The order's portal page links to the order's booking, never to a
+        row of another customer pointing at the order (final review)."""
+        appointment_type = self._paid_type(auto_confirm=False)
+        legacy = self._new_booking(appointment_type, partner=self._partner('Mallory'))
+        foreign = self._foreign_order()
+        self._plant_order(legacy, foreign)
+        own = self._new_booking(appointment_type, days=5)
+        order = own._create_sale_order()
+        self.env.flush_all()
+        response = self.url_open(foreign.get_portal_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(legacy.name, response.text)
+        self.assertNotIn('/my/ext-bookings/%d' % legacy.id, response.text)
+        response = self.url_open(order.get_portal_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('/my/ext-bookings/%d' % own.id, response.text)
 
 
 @tagged('post_install', '-at_install')
@@ -588,3 +609,230 @@ class TestPaymentFailureNotes(BindingCommon, TransactionCase):
         self.env.invalidate_all()
         self.assertEqual(booking.payment_failure_count, 3)
         self.assertFalse(booking.message_ids.filtered(lambda m: 'Payment failure #' in (m.body or '')))
+
+
+class LegacyLinkCommon(BindingCommon):
+    """A booking row written before the ownership check existed (the
+    pre-upgrade portal RPC create hole, or an old manual link) that points at
+    another customer's order (Bob's)."""
+
+    TEMPLATES = ('reservation_module.email_template_booking_created',
+                 'reservation_module.email_template_payment_failure')
+
+    def setUp(self):
+        super().setUp()
+        self.appointment_type = self._paid_type(auto_confirm=False)
+        self.victim_order = self._foreign_order()
+        self.assertTrue(self.victim_order.access_token)
+        self.legacy = self._new_booking(self.appointment_type, partner=self._partner('Mallory'))
+        self.legacy.write({'state': 'pending_payment', 'guest_email': 'mallory.inbox@example.com'})
+        self._plant_order(self.legacy, self.victim_order)
+        self.provider = self.env['payment.provider'].create({
+            'name': 'Legacy Dummy', 'code': 'none', 'state': 'test',
+            'payment_method_ids': [(6, 0, self.env.ref('payment.payment_method_unknown').ids)],
+        })
+
+    def _order_tx(self, reference, order=None):
+        order = order or self.victim_order
+        return self.env['payment.transaction'].sudo().create({
+            'provider_id': self.provider.id,
+            'payment_method_id': self.env.ref('payment.payment_method_unknown').id,
+            'reference': reference,
+            'amount': order.amount_total,
+            'currency_id': order.currency_id.id,
+            'partner_id': order.partner_id.id,
+            'sale_order_ids': [(6, 0, order.ids)],
+        })
+
+    def _post_process(self, tx):
+        Tx = type(self.env['payment.transaction'])
+        if hasattr(Tx, '_create_payment'):
+            with patch.object(Tx, '_create_payment', return_value=None):
+                tx._post_process()
+        else:
+            tx._post_process()
+        self.env.invalidate_all()
+
+    def _render(self, xmlid, booking, lang=None):
+        template = self.env.ref(xmlid)
+        return template._render_field('body_html', booking.ids, set_lang=lang)[booking.id]
+
+    def _own_link(self, order):
+        return '/my/orders/%d?access_token=%s' % (order.id, order.access_token)
+
+
+@tagged('post_install', '-at_install')
+class TestForeignOrderLegacyLinks(LegacyLinkCommon, TransactionCase):
+    """e10ecad8918d (final review): such a row is not the order's booking.
+    The order's failed payment does not mail its guest the order's token,
+    the order's own payment is not refused because of the row's slot, guest
+    mail templates never print the order's token, and the upgrade unlinks the
+    row."""
+
+    def test_failed_order_payment_does_not_mail_the_legacy_guest(self):
+        self.assertEqual(self.legacy.payment_status, 'pending')
+        tx = self._order_tx('LEGACY-ERROR')
+        tx._set_error('Card declined')
+        self._post_process(tx)
+        token = self.victim_order.access_token
+        self.assertFalse(self.env['mail.mail'].sudo().search([
+            ('model', '=', 'appointment.booking'), ('body_html', 'ilike', token)]))
+        self.assertFalse(self.env['mail.message'].sudo().search([
+            ('model', '=', 'appointment.booking'), ('body', 'ilike', token)]))
+        self.assertFalse(self.env['mail.mail'].sudo().search([('email_to', 'ilike', 'mallory.inbox')]))
+        self.assertEqual(self.legacy.payment_failure_count, 0)
+        self.assertFalse(tx.appointment_failure_notified)
+
+    def test_the_order_can_still_be_paid(self):
+        # The legacy row's slot was sold since: its own payment would be refused.
+        self._booking(self.appointment_type, self.legacy.start_datetime,
+                      staff_user_id=self.host.id, partner_id=self._partner('Carol').id)
+        with self.assertRaises(UserError):
+            self.legacy._ensure_payment_hold()
+        hold = self.legacy.payment_hold_until
+        tx = self._order_tx('LEGACY-PAY')
+        self.assertEqual(tx.sale_order_ids, self.victim_order)
+        tx._set_done()
+        self._post_process(tx)
+        self.assertEqual(self.legacy.state, 'pending_payment')
+        self.assertNotEqual(self.legacy.payment_transaction_id, tx)
+        self.assertEqual(self.legacy.payment_hold_until, hold)
+
+    def test_guest_mail_templates_never_print_a_foreign_order(self):
+        for xmlid in self.TEMPLATES:
+            body = self._render(xmlid, self.legacy)
+            self.assertNotIn(self.victim_order.access_token, body, xmlid)
+            self.assertNotIn('/my/orders/%d' % self.victim_order.id, body, xmlid)
+        own = self._new_booking(self.appointment_type, days=5)
+        order = own._create_sale_order()
+        for xmlid in self.TEMPLATES:
+            self.assertIn(self._own_link(order), self._render(xmlid, own), xmlid)
+
+    def _legacy_order_of(self, partner):
+        product = self.appointment_type.payment_product_ids
+        return self.env['sale.order'].create({
+            'partner_id': partner.id,
+            'order_line': [(0, 0, {'product_id': product.id, 'product_uom_qty': 1})],
+        })
+
+    def test_a_foreign_row_does_not_keep_the_owner_booking_unpaid(self):
+        bob = self.victim_order.partner_id
+        order = self._legacy_order_of(bob)
+        owner = self._new_booking(self.appointment_type, days=7, partner=bob)
+        self._plant_order(owner, order)
+        self._plant_order(self.legacy, order)
+        self._invoice_and_pay(order)
+        self.env.add_to_compute(owner._fields['payment_status'], owner)
+        self.assertEqual(owner.payment_status, 'paid')
+
+    def test_a_foreign_row_does_not_keep_the_owner_order_open(self):
+        bob = self.victim_order.partner_id
+        order = self._legacy_order_of(bob)
+        order.action_quotation_sent()
+        owner = self._new_booking(self.appointment_type, days=7, partner=bob)
+        self._plant_order(owner, order)
+        self._plant_order(self.legacy, order)
+        owner.action_cancel()
+        self.assertEqual(order.state, 'cancel')
+
+    def test_upgrade_unlinks_the_foreign_order(self):
+        mig = _load_migration_3_2_2()
+        alice = self._new_booking(self.appointment_type, days=6)
+        alice_order = self.env['sale.order'].create({'partner_id': alice.partner_id.id})
+        self._plant_order(alice, alice_order)  # an older link to the customer's own order
+        failed = self._order_tx('LEGACY-OLD-FAIL')
+        failed._set_error('declined')
+        # What the old Flow 2 wrote when the order was paid: the order's tx.
+        self.legacy.payment_transaction_id = failed
+        self.env.flush_all()
+        mig.migrate(self.env.cr, '18.0.3.2.1')
+        self.env.invalidate_all()
+        self.assertFalse(self.legacy.sale_order_id)
+        self.assertFalse(self.legacy.payment_transaction_id, "the order's payment is not the booking's")
+        self.assertEqual(alice.sale_order_id, alice_order)
+        notes = self.legacy.message_ids.filtered(lambda m: self.victim_order.name in (m.body or ''))
+        self.assertTrue(notes, 'the unlinking is noted on the booking')
+        self.assertTrue(all(m.subtype_id == self.env.ref('mail.mt_note') for m in notes))
+        self.assertNotEqual(self.victim_order.state, 'cancel')
+        self.assertFalse(failed.appointment_failure_notified, 'not a payment of a booking')
+        self.assertFalse(self._order_tx('LEGACY-AFTER')._get_held_bookings())
+        # Safe to re-run.
+        self.assertFalse(mig._detach_foreign_sale_orders(self.env))
+        self.assertEqual(alice.sale_order_id, alice_order)
+
+
+@tagged('post_install', '-at_install')
+class TestPaymentLinkTranslations(LegacyLinkCommon, TransactionCase):
+    """e10ecad8918d (final review): mail.template.body_html is translated as a
+    whole (translate=True), so an upgrade only replaces the English body. The
+    zh_TW body shipped in i18n and the translated bodies stored on existing
+    databases must not read the token from sale_order_id either."""
+
+    def setUp(self):
+        super().setUp()
+        for code in ('zh_TW', 'zh_CN'):
+            self.env['res.lang']._activate_lang(code)
+        self.own = self._new_booking(self.appointment_type, days=5)
+        self.own_order = self.own._create_sale_order()
+
+    def _shipped_bodies(self, filename):
+        """body_html entries of the two templates in an i18n file, read as the
+        translation import wizard does (without the .pot merge)."""
+        path = get_module_path('reservation_module') + '/i18n/' + filename
+        bodies = {}
+        for entry in polib.pofile(path):
+            for occurrence, _line in entry.occurrences:
+                for xmlid in self.TEMPLATES:
+                    if occurrence == 'model:mail.template,body_html:' + xmlid:
+                        bodies[xmlid] = entry
+        return bodies
+
+    def _store_translation(self, xmlid, lang, body):
+        """As if the translation had been loaded into this database."""
+        self.env.flush_all()
+        self.env.cr.execute(
+            "UPDATE mail_template SET body_html = body_html || jsonb_build_object(%s, %s::text)"
+            " WHERE id = %s", [lang, body, self.env.ref(xmlid).id])
+        self.env.invalidate_all()
+
+    def test_shipped_bodies_use_the_booking_own_order(self):
+        for filename in ('zh_TW.po', 'zh_CN.po', 'reservation_module.pot'):
+            bodies = self._shipped_bodies(filename)
+            self.assertEqual(set(bodies), set(self.TEMPLATES), filename)
+            for xmlid, entry in bodies.items():
+                self.assertNotIn('sale_order_id', entry.msgid, (filename, xmlid))
+                self.assertNotIn('sale_order_id', entry.msgstr, (filename, xmlid))
+        for xmlid, entry in self._shipped_bodies('zh_TW.po').items():
+            self._store_translation(xmlid, 'zh_TW', entry.msgstr)
+            self.assertIn('付款', self.env.ref(xmlid).with_context(lang='zh_TW').body_html, xmlid)
+            self.assertNotIn(self.victim_order.access_token, self._render(xmlid, self.legacy, 'zh_TW'),
+                             xmlid)
+            self.assertIn(self._own_link(self.own_order), self._render(xmlid, self.own, 'zh_TW'), xmlid)
+
+    def test_upgrade_rewrites_stored_translations(self):
+        mig = _load_migration_3_2_2()
+        xmlid = 'reservation_module.email_template_payment_failure'
+        template = self.env.ref(xmlid)
+        stale = (
+            '<div><p>應付金額 <t t-out="object.sale_order_id.amount_total if object.sale_order_id else 0"/></p>'
+            '<t t-if="object.sale_order_id"><a t-attf-href="{{ object.sale_order_id.get_portal_url() }}">'
+            '重試付款</a></t><t t-else=""><a t-att-href="object.get_portal_url()">查看預約</a></t></div>')
+        custom = ('<div><a t-attf-href="/my/orders/{{ object.sale_order_id.id }}'
+                  '?access_token={{ object.sale_order_id.access_token }}">自訂付款連結</a></div>')
+        self._store_translation(xmlid, 'zh_TW', stale)
+        self._store_translation(xmlid, 'zh_CN', custom)
+        self.assertIn(self.victim_order.access_token, self._render(xmlid, self.legacy, 'zh_TW'),
+                      'precondition: the stored body leaks the order token')
+
+        self.assertIn(template.id, mig._fix_payment_link_translations(self.env))
+        self.env.invalidate_all()
+        zh_tw = template.with_context(lang='zh_TW').body_html
+        self.assertNotIn('sale_order_id', zh_tw)
+        self.assertIn('重試付款', zh_tw, 'the stored wording is kept')
+        zh_cn = template.with_context(lang='zh_CN').body_html
+        self.assertNotIn('自訂付款連結', zh_cn, 'a body still reading the token is dropped')
+        self.assertEqual(zh_cn, template.with_context(lang='en_US').body_html)
+        for lang in ('zh_TW', 'zh_CN'):
+            self.assertNotIn(self.victim_order.access_token, self._render(xmlid, self.legacy, lang), lang)
+        self.assertIn(self._own_link(self.own_order), self._render(xmlid, self.own, 'zh_TW'))
+        self.assertFalse(mig._fix_payment_link_translations(self.env), 'safe to re-run')

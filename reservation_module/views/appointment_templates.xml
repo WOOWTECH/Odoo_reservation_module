@@ -822,9 +822,9 @@
               inherit_id="sale.sale_order_portal_content"
               name="Booking Link on SO Portal">
         <xpath expr="//div[@id='introduction']" position="after">
-            <t t-set="linked_booking"
-               t-value="request.env['appointment.booking'].sudo().search(
-                   [('sale_order_id', '=', sale_order.id)], limit=1)"/>
+            <!-- Only the order's own booking: a row of another customer
+                 pointing at this order (written before 18.0.3.2.2) is not it. -->
+            <t t-set="linked_booking" t-value="sale_order._get_own_bookings()[:1]"/>
             <t t-if="linked_booking">
                 <div class="alert alert-info d-flex align-items-center mb-3">
                     <i class="fa fa-calendar fa-lg me-3"/>

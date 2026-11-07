@@ -5,6 +5,8 @@ from odoo.fields import Command
 from odoo.exceptions import AccessError, UserError, ValidationError
 from .. import tz_utils
 from .booking_identity import normalize_booking_email
+from .sale_order import BOOKING_LINE_EDIT_CTX
+from odoo.tools import float_compare
 from datetime import timedelta, datetime
 import logging
 import pytz
@@ -134,12 +136,26 @@ class AppointmentBooking(models.Model):
     )
 
     # Sales Order Integration
+    # Only an order of this booking may be linked: one holding the lines the
+    # booking added (_create_sale_order) or, for older/hand-made links, an
+    # order of the same customer (_check_sale_order_owner).
     sale_order_id = fields.Many2one(
         'sale.order',
         string='Sales Order',
         ondelete='set null',
         copy=False,
     )
+    # The order lines this booking added (section + payment products). In
+    # cart mode the order is the visitor's website cart, which may also hold
+    # other products and other bookings: payment is judged on these lines.
+    payment_line_ids = fields.One2many(
+        'sale.order.line', 'appointment_booking_id',
+        string='Booking Order Lines', readonly=True, copy=False)
+    # Number of product lines the booking added; 0 for bookings made before
+    # the lines were bound (judged on their whole order, see
+    # _legacy_order_paid).
+    payment_line_count = fields.Integer(
+        'Booking Product Lines', readonly=True, copy=False)
 
     # Payment
     payment_status = fields.Selection([
@@ -331,25 +347,212 @@ class AppointmentBooking(models.Model):
 
     @api.depends(
         'appointment_type_id.require_payment',
+        'appointment_type_id.payment_per_person',
+        'appointment_type_id.payment_product_ids',
         'state',
+        'guest_count',
+        'payment_line_count',
         'sale_order_id',
         'sale_order_id.state',
+        'sale_order_id.currency_id',
+        'sale_order_id.booking_ids',
+        'sale_order_id.invoice_ids.state',
         'sale_order_id.invoice_ids.payment_state',
+        'sale_order_id.order_line.product_uom_qty',
+        'sale_order_id.order_line.invoice_lines.quantity',
+        'sale_order_id.order_line.invoice_lines.move_id.state',
+        'payment_line_ids.order_id',
+        'payment_line_ids.product_uom_qty',
+        'payment_line_ids.price_total',
+        'payment_line_ids.appointment_booking_qty',
+        'payment_line_ids.invoice_lines.quantity',
+        'payment_line_ids.invoice_lines.move_id.state',
+        'payment_line_ids.invoice_lines.move_id.payment_state',
+        'payment_transaction_id.state',
+        'payment_transaction_id.amount',
     )
     def _compute_payment_status(self):
+        """Paid only by money that covers this booking's own order lines.
+
+        The order may be a shared website cart (other products, other
+        bookings): a paid invoice for something else in it, or a cart whose
+        booking lines were lowered or removed before checkout, must not make
+        the booking paid. Paid means either
+          * every line the booking added is still on its order with at least
+            the booked quantity, and that quantity is on posted, paid
+            customer invoices (credit notes deducted); or
+          * a done transaction made for this booking (its own pay page) whose
+            amount covers those lines.
+        """
         for booking in self:
-            if not booking.appointment_type_id.require_payment or (booking.state == 'cancelled' and not booking.sale_order_id):
+            order = booking.sale_order_id
+            if not booking.appointment_type_id.require_payment or (booking.state == 'cancelled' and not order):
                 booking.payment_status = 'not_required'
-            elif not booking.sale_order_id:
-                booking.payment_status = 'pending'
-            elif booking.sale_order_id.state == 'cancel':
+            elif order and order.state == 'cancel':
                 booking.payment_status = 'refunded'
-            elif any(inv.payment_state in ('paid', 'in_payment')
-                     for inv in booking.sale_order_id.invoice_ids):
+            elif booking._is_paid_by_transaction() or (order and booking._is_paid_by_invoices()):
                 booking.payment_status = 'paid'
             else:
                 # SO signed but not yet paid → still pending
                 booking.payment_status = 'pending'
+
+    # ------------------------------------------------------------------
+    # The booking's own order and lines
+    # ------------------------------------------------------------------
+
+    def _get_payment_qty(self):
+        """Quantity of each payment product the booking has to pay for."""
+        self.ensure_one()
+        return self.guest_count if self.appointment_type_id.payment_per_person else 1
+
+    def _order_partner_matches(self, order):
+        self.ensure_one()
+        partner = self.sudo().partner_id
+        return bool(partner and order.partner_id
+                    and order.partner_id.commercial_partner_id == partner.commercial_partner_id)
+
+    def _is_own_sale_order(self, order):
+        """Whether ``order`` is this booking's order: it holds lines this
+        booking added, or (links made before lines were bound, or by hand)
+        it is an order of the booking's customer."""
+        self.ensure_one()
+        order = order.sudo()
+        if not order:
+            return False
+        if order.order_line.filtered(lambda line: line.appointment_booking_id.id == self.id):
+            return True
+        return self._order_partner_matches(order)
+
+    def _get_own_sale_order(self):
+        """The linked order (sudo) if it is this booking's own, else empty."""
+        self.ensure_one()
+        order = self.sudo().sale_order_id
+        if order and self._is_own_sale_order(order):
+            return order
+        return self.env['sale.order'].sudo()
+
+    def _get_payment_lines(self):
+        """Product lines this booking added that are still on its order."""
+        self.ensure_one()
+        booking = self.sudo()
+        return booking.payment_line_ids.filtered(
+            lambda line: line.order_id == booking.sale_order_id and not line.display_type)
+
+    def _payment_lines_intact(self):
+        """All the lines the booking added are there, none lowered."""
+        self.ensure_one()
+        lines = self._get_payment_lines()
+        if not lines or len(lines) < self.sudo().payment_line_count:
+            return False
+        return all(
+            float_compare(line.product_uom_qty, line.appointment_booking_qty,
+                          precision_rounding=line.product_uom.rounding or 0.01) >= 0
+            for line in lines)
+
+    def _get_payment_amount(self):
+        """What this booking costs, from its own order lines (server-side)."""
+        self.ensure_one()
+        booking = self.sudo()
+        order = booking._get_own_sale_order()
+        if not order:
+            return 0.0
+        if booking.payment_line_count or booking.payment_line_ids:
+            return sum(booking._get_payment_lines().mapped('price_total'))
+        return order.amount_total  # legacy booking: its order is the price
+
+    def _get_payment_currency(self):
+        self.ensure_one()
+        return self.sudo()._get_own_sale_order().currency_id or self.currency_id
+
+    def _get_payment_url(self):
+        """Portal link to pay this booking's order, or False.
+
+        Never for an order that is not the booking's own: the link carries
+        the order's access token.
+        """
+        self.ensure_one()
+        order = self._get_own_sale_order()
+        if not order or order.state == 'cancel':
+            return False
+        order._portal_ensure_token()
+        return f'/my/orders/{order.id}?access_token={order.access_token}'
+
+    def _is_paid_by_invoices(self):
+        self.ensure_one()
+        booking = self.sudo()
+        order = booking.sale_order_id
+        if not booking.payment_line_count and not booking.payment_line_ids:
+            return booking._legacy_order_paid(order)
+        if not booking._payment_lines_intact():
+            return False
+        for line in booking._get_payment_lines():
+            paid_qty = 0.0
+            for invoice_line in line.invoice_lines:
+                move = invoice_line.move_id
+                if move.state != 'posted':
+                    continue
+                qty = invoice_line.product_uom_id._compute_quantity(
+                    invoice_line.quantity, line.product_uom, round=False)
+                if move.move_type == 'out_invoice' and move.payment_state in ('paid', 'in_payment'):
+                    paid_qty += qty
+                elif move.move_type == 'out_refund':
+                    paid_qty -= qty
+            if float_compare(paid_qty, line.appointment_booking_qty,
+                             precision_rounding=line.product_uom.rounding or 0.01) < 0:
+                return False
+        return True
+
+    def _legacy_order_paid(self, order):
+        """Bookings made before their order lines were bound to them.
+
+        Their lines cannot be told apart from the rest of the order, so the
+        whole order must be invoiced and paid, and still hold the booked
+        quantity of every payment product for all its bookings.
+        """
+        self.ensure_one()
+        order = order.sudo()
+        if not order or not self._is_own_sale_order(order):
+            return False
+        invoices = order.invoice_ids.filtered(
+            lambda move: move.state == 'posted' and move.move_type == 'out_invoice')
+        if not invoices or any(move.payment_state not in ('paid', 'in_payment') for move in invoices):
+            return False
+        for line in order.order_line.filtered(lambda l: not l.display_type and l.product_uom_qty > 0):
+            if float_compare(line.qty_invoiced_posted, line.product_uom_qty,
+                             precision_rounding=line.product_uom.rounding or 0.01) < 0:
+                return False
+        bookings = order.booking_ids.filtered(lambda b: b.state != 'cancelled') | self
+        for product in self.appointment_type_id.payment_product_ids:
+            needed = sum(b._get_payment_qty() for b in bookings
+                         if product in b.appointment_type_id.payment_product_ids)
+            have = sum(order.order_line.filtered(lambda l: l.product_id == product).mapped('product_uom_qty'))
+            if float_compare(have, needed, precision_digits=2) < 0:
+                return False
+        return bool(self.appointment_type_id.payment_product_ids)
+
+    def _is_paid_by_transaction(self):
+        """A done transaction of this booking's own pay page covering it."""
+        self.ensure_one()
+        booking = self.sudo()
+        tx = booking.payment_transaction_id
+        if not tx or tx.state != 'done' or tx.appointment_booking_id != booking:
+            return False
+        if 'sale_order_ids' in tx._fields and tx.sale_order_ids:
+            return False  # an order payment: judged through the invoices
+        if (booking.payment_line_count or booking.payment_line_ids) and not booking._payment_lines_intact():
+            return False
+        amount = booking._get_payment_amount()
+        currency = booking._get_payment_currency()
+        return bool(amount > 0 and tx.currency_id == currency
+                    and currency.compare_amounts(tx.amount, amount) >= 0)
+
+    @api.constrains('sale_order_id')
+    def _check_sale_order_owner(self):
+        for booking in self:
+            if booking.sale_order_id and not booking._is_own_sale_order(booking.sale_order_id):
+                raise ValidationError(_(
+                    'Booking %(booking)s can only be linked to its own sales order '
+                    '(an order of the same customer).', booking=booking.sudo().name))
 
     @api.depends('sale_order_id')
     def _compute_sale_order_count(self):
@@ -761,14 +964,8 @@ class AppointmentBooking(models.Model):
                 if booking.calendar_event_id:
                     booking.calendar_event_id.sudo().unlink()
 
-                # Cancel linked sale order (if no paid invoice)
-                if booking.sale_order_id and booking.sale_order_id.state in ('draft', 'sent', 'sale'):
-                    has_paid_invoice = any(
-                        inv.payment_state in ('paid', 'in_payment')
-                        for inv in booking.sale_order_id.invoice_ids
-                    )
-                    if not has_paid_invoice:
-                        booking.sale_order_id.sudo()._action_cancel()
+                # Release the booking's own order (if no paid invoice)
+                booking._release_sale_order()
 
                 # Archive Discuss channel
                 # 會議室只有成員可讀寫；取消通知與封存是系統動作。
@@ -787,6 +984,52 @@ class AppointmentBooking(models.Model):
                 booking._send_cancellation_email()
 
         return True
+
+    @staticmethod
+    def _is_order_extra_line(line):
+        """Lines that only exist because of the others (rewards, delivery)."""
+        return bool(('is_reward_line' in line._fields and line.is_reward_line)
+                    or ('is_delivery' in line._fields and line.is_delivery))
+
+    def _release_sale_order(self):
+        """On cancellation: give up what this booking added to its order.
+
+        Only the booking's own order is touched, and nothing is done once an
+        invoice of it is paid. An order holding only this booking is
+        cancelled as before. In a shared cart (other products or bookings)
+        only this booking's lines are removed while the order is still a
+        quotation; a confirmed shared order is left to staff.
+        """
+        self.ensure_one()
+        booking = self.sudo()
+        order = booking._get_own_sale_order()
+        if not order or order.state not in ('draft', 'sent', 'sale'):
+            return
+        if any(inv.payment_state in ('paid', 'in_payment') for inv in order.invoice_ids):
+            return
+        own_lines = order.order_line.filtered(lambda line: line.appointment_booking_id == booking)
+        other_lines = order.order_line.filtered(
+            lambda line: line.appointment_booking_id != booking and not line.display_type
+            and not self._is_order_extra_line(line))
+        if not own_lines and not booking.payment_line_count:
+            # Booking made before its lines were bound: its lines are the
+            # order's lines of its payment products.
+            other_bookings = order.booking_ids.filtered(
+                lambda b: b != booking and b.state != 'cancelled')
+            other_lines = other_lines.filtered(
+                lambda line: line.product_id not in booking.appointment_type_id.payment_product_ids)
+            if other_bookings:
+                other_lines |= order.order_line[:1]
+        if not other_lines:
+            order._action_cancel()
+        elif own_lines and order.state in ('draft', 'sent'):
+            own_lines.with_context(**{BOOKING_LINE_EDIT_CTX: True}).unlink()
+            booking.sale_order_id = False
+        else:
+            booking.message_post(
+                body=_('Order %s also holds other items and was kept; '
+                       'adjust or refund it by hand if needed.', order.name),
+                message_type='notification', subtype_xmlid='mail.mt_note')
 
     def action_draft(self):
         """Reset to draft (only from cancelled state)"""
@@ -1096,17 +1339,32 @@ class AppointmentBooking(models.Model):
         if self.sudo().guest_email and self._claim_payment_failure_mail():
             mailed = self._send_guest_mail('reservation_module.email_template_payment_failure')
 
-        # Send admin alert via internal note on booking chatter
+        # Send admin alert via internal note on booking chatter. Anyone holding
+        # the booking link can start (and fail) transactions: only the first
+        # ``payment_failure_note_limit`` failures of a booking get a note,
+        # then one last note says that further failures are only counted.
+        note_limit = self._get_int_param('reservation_module.payment_failure_note_limit', 5)
+        count = self.sudo().payment_failure_count
+        if note_limit > 0 and count > note_limit:
+            if count == note_limit + 1:
+                self.message_post(
+                    body=_('Payment failure #%(count)s for booking %(booking)s. Further payment '
+                           'failures of this booking are only counted, not noted here.',
+                           count=count, booking=self.name),
+                    message_type='notification',
+                    subtype_xmlid='mail.mt_note',
+                )
+            return True
         admin_msg = _(
             'Payment failure #%(count)s for booking %(booking)s.\n'
             'Customer: %(name)s (%(email)s)\n'
             'Amount: %(amount)s %(currency)s',
-            count=self.payment_failure_count,
+            count=count,
             booking=self.name,
             name=self.guest_name,
             email=self.guest_email,
-            amount=self.sale_order_id.amount_total if self.sale_order_id else 0,
-            currency=self.currency_id.name if self.currency_id else '',
+            amount=self._get_payment_amount(),
+            currency=self._get_payment_currency().name or '',
         )
         if error_message:
             admin_msg += _('\nError: %s', error_message)
@@ -1311,7 +1569,8 @@ class AppointmentBooking(models.Model):
         """
         self.ensure_one()
         if self.sale_order_id:
-            return self.sale_order_id
+            # Never hand out (or pay through) an order that is not this booking's.
+            return self._get_own_sale_order() or False
 
         apt = self.appointment_type_id
         if not apt.require_payment or not apt.payment_product_ids:
@@ -1319,7 +1578,12 @@ class AppointmentBooking(models.Model):
         if not self.partner_id:
             return False
 
-        qty = self.guest_count if apt.payment_per_person else 1
+        qty = self._get_payment_qty()
+        # Every line is bound to the booking (appointment_booking_id): payment
+        # is judged on these lines only, and customers cannot lower or drop
+        # them from the cart (sale.order.line write/unlink).
+        Line = self.env['sale.order.line'].sudo().with_context(**{BOOKING_LINE_EDIT_CTX: True})
+        bound_qty = {'appointment_booking_id': self.id, 'appointment_booking_qty': qty}
 
         # ---- Cart mode: append to visitor's cart if website_sale is installed ----
         # website.sale_get_order is provided by website_sale; feature-detect so
@@ -1336,18 +1600,29 @@ class AppointmentBooking(models.Model):
             if sale_order.partner_id.id != self.partner_id.id:
                 sale_order.sudo().partner_id = self.partner_id.id
             # Section header — helps identify each booking's lines in cart
-            self.env['sale.order.line'].sudo().create({
+            Line.create({
                 'order_id': sale_order.id,
                 'display_type': 'line_section',
                 'name': f'{apt.name} — {self.name}',
                 'sequence': 999,
+                'appointment_booking_id': self.id,
             })
-            # Add each product via _cart_update so promo/loyalty rules run
+            # Add each product via _cart_update so promo/loyalty rules run.
+            # line_id=False: always a line of its own, never merged into the
+            # same product already in the cart (another booking's, or the
+            # visitor's own purchase).
+            line_count = 0
+            cart = sale_order.sudo().with_context(**{BOOKING_LINE_EDIT_CTX: True})
             for product in apt.payment_product_ids:
-                sale_order.sudo()._cart_update(
+                result = cart._cart_update(
                     product_id=product.id,
                     add_qty=qty,
+                    line_id=False,
                 )
+                line = Line.browse((result or {}).get('line_id')).exists()
+                if line:
+                    line.write(bound_qty)
+                    line_count += 1
             sale_order.sudo()._portal_ensure_token()
         else:
             # ---- Fallback: create a fresh SO opened directly via SO portal ----
@@ -1355,25 +1630,29 @@ class AppointmentBooking(models.Model):
                 (0, 0, {
                     'display_type': 'line_section',
                     'name': apt.name,
+                    'appointment_booking_id': self.id,
                 }),
             ]
             for product in apt.payment_product_ids:
-                order_lines.append((0, 0, {
+                order_lines.append((0, 0, dict(bound_qty, **{
                     'product_id': product.id,
                     'name': product.name,
                     'product_uom_qty': qty,
                     'price_unit': product.list_price,
-                }))
-            sale_order = self.env['sale.order'].sudo().create({
+                })))
+            sale_order = self.env['sale.order'].sudo().with_context(**{BOOKING_LINE_EDIT_CTX: True}).create({
                 'partner_id': self.partner_id.id,
                 'company_id': self.company_id.id or self.env.company.id,
                 'origin': self.name,
                 'order_line': order_lines,
             })
+            # Hand back a record without the line-edit context.
+            sale_order = self.env['sale.order'].sudo().browse(sale_order.id)
             sale_order.action_quotation_sent()
             sale_order._portal_ensure_token()
+            line_count = len(apt.payment_product_ids)
 
-        self.sale_order_id = sale_order
+        self.write({'sale_order_id': sale_order.id, 'payment_line_count': line_count})
         if self.state == 'draft':
             self.state = 'pending_payment'
         # The slot stays reserved for the payment window (opened once).

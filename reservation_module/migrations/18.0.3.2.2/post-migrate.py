@@ -17,7 +17,14 @@
 3. 付款失敗：升級前已回報過的失敗交易標成已回報，預約的付款失敗信計數從
    失敗次數起算（_mark_reported_payment_failures），付款返回頁重開不會再寄信。
 
-三段都只改「還不是目標狀態」的資料，重跑不會再變動。
+4. 付款狀態：payment_status 改成只看「這筆預約自己加進訂單的那幾行」是否已開票
+   並付清（_compute_payment_status）。升級前就建立的預約沒有綁定的訂單行，
+   改用整張訂單判斷（_legacy_order_paid）；還在等付款（draft／pending_payment）
+   的預約重算一次，舊規則下被同一購物車其他品項的已付發票標成 paid 的會回到
+   pending。已確認／完成／取消的預約不重算，歷史紀錄不變
+   （_recompute_open_payment_status）。
+
+各段都只改「還不是目標狀態」的資料，重跑不會再變動。
 """
 
 import logging
@@ -144,6 +151,20 @@ def _mark_reported_payment_failures(cr):
     return marked
 
 
+def _recompute_open_payment_status(env):
+    bookings = env['appointment.booking'].with_context(active_test=False).search([
+        ('state', 'in', ('draft', 'pending_payment')),
+        ('sale_order_id', '!=', False),
+    ])
+    before = {booking.id: booking.payment_status for booking in bookings}
+    env.add_to_compute(bookings._fields['payment_status'], bookings)
+    bookings.flush_recordset(['payment_status'])
+    changed = [booking.id for booking in bookings if booking.payment_status != before[booking.id]]
+    _logger.info("reservation_module 18.0.3.2.2: payment status recomputed for %s open booking(s), "
+                 "%s changed", len(bookings), len(changed))
+    return changed
+
+
 def migrate(cr, version):
     if not version:
         return
@@ -151,3 +172,4 @@ def migrate(cr, version):
     _mark_reported_payment_failures(cr)
     env = api.Environment(cr, SUPERUSER_ID, {})
     _migrate_calendar_events(env)
+    _recompute_open_payment_status(env)

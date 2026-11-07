@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from odoo import http, fields, _
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.http import request, content_disposition
 from odoo.tools import consteq
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
+from odoo.addons.payment.controllers.portal import PaymentPortal
 from .. import tz_utils
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
@@ -1417,9 +1418,9 @@ class AppointmentController(http.Controller):
             })
             booking.partner_id = partner
 
-        # Get payment context
-        amount = booking.sale_order_id.amount_total if booking.sale_order_id else 0
-        currency = booking.currency_id
+        # Get payment context: the booking's own lines, never the whole cart
+        amount = booking._get_payment_amount()
+        currency = booking._get_payment_currency()
         company = request.env.company
 
         # Get compatible payment providers and methods
@@ -1482,19 +1483,17 @@ class AppointmentController(http.Controller):
                 't': self._get_translations(),
             })
 
-        # Redirect to SO portal payment page (Odoo standard e-commerce flow)
-        if booking.sale_order_id:
-            so = booking.sale_order_id
-            return request.redirect(
-                f'/my/orders/{so.id}?access_token={so.access_token}'
-            )
+        # Redirect to SO portal payment page (Odoo standard e-commerce flow).
+        # Only the booking's own order: the link carries its access token.
+        payment_url = booking._get_payment_url()
+        if payment_url:
+            return request.redirect(payment_url)
 
-        # No SO yet — try to create one now
-        sale_order = booking._create_sale_order()
-        if sale_order:
-            return request.redirect(
-                f'/my/orders/{sale_order.id}?access_token={sale_order.access_token}'
-            )
+        # No SO yet — try to create one now (never next to a foreign one)
+        if not booking.sale_order_id and booking._create_sale_order():
+            payment_url = booking._get_payment_url()
+            if payment_url:
+                return request.redirect(payment_url)
 
         # Truly broken configuration — show error
         return request.render('reservation_module.appointment_payment_page', {
@@ -1524,22 +1523,39 @@ class AppointmentController(http.Controller):
         except UserError as error:
             return {'error': error.args[0] if error.args else str(error)}
 
-        # Create transaction using Odoo payment flow — only pass known safe kwargs
-        tx_kwargs = {}
-        for key in ('provider_id', 'payment_method_id', 'token_id', 'flow', 'tokenization_requested', 'landing_route'):
-            if key in kwargs:
-                tx_kwargs[key] = kwargs[key]
+        # The amount, currency, partner and landing page are the server's:
+        # the booking's own order lines, whatever the client sends.
+        amount = booking._get_payment_amount()
+        currency = booking._get_payment_currency()
+        if not amount or amount <= 0 or not currency:
+            return {'error': _('There is nothing to pay for this booking.')}
 
-        tx_sudo = request.env['payment.transaction'].sudo()._create_transaction(
-            amount=booking.sale_order_id.amount_total if booking.sale_order_id else 0,
-            currency_id=booking.currency_id.id,
-            partner_id=partner.id,
-            reference_prefix=f'APPT-{booking.id}',
-            **tx_kwargs,
-        )
+        def _int(value):
+            try:
+                return int(value) if value not in (None, '', False) else None
+            except (TypeError, ValueError):
+                return None
+
+        try:
+            tx_sudo = PaymentPortal._create_transaction(
+                self,
+                provider_id=_int(kwargs.get('provider_id')),
+                payment_method_id=_int(kwargs.get('payment_method_id')),
+                token_id=_int(kwargs.get('token_id')),
+                amount=amount,
+                currency_id=currency.id,
+                partner_id=partner.id,
+                flow=kwargs.get('flow'),
+                tokenization_requested=bool(kwargs.get('tokenization_requested')),
+                landing_route=(f'/appointment/payment/validate?booking_id={booking.id}'
+                               f'&token={booking.access_token}'),
+                reference_prefix=f'APPT-{booking.id}',
+                custom_create_values={'appointment_booking_id': booking.id},
+            )
+        except (UserError, ValidationError, AccessError) as error:
+            return {'error': error.args[0] if error.args else str(error)}
 
         # Link transaction to booking
-        tx_sudo.appointment_booking_id = booking.id
         booking.payment_transaction_id = tx_sudo.id
 
         # Render the payment processing template

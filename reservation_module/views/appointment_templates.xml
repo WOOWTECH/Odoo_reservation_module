@@ -454,7 +454,8 @@
                             <div class="card shadow">
                                 <div class="card-body py-5">
                                     <!-- Pending Payment State -->
-                                    <t t-if="booking.state == 'pending_payment' and booking.sale_order_id">
+                                    <t t-set="payment_url" t-value="booking._get_payment_url()"/>
+                                    <t t-if="booking.state == 'pending_payment' and payment_url">
                                         <i class="fa fa-clock-o text-warning fa-5x mb-4"/>
                                         <h2 t-esc="t.get('pending_payment', 'Pending Payment')"/>
                                         <p class="text-muted" t-esc="t.get('pending_payment_msg', 'Your booking is waiting for payment confirmation.')"/>
@@ -470,15 +471,15 @@
                                             </p>
                                             <p><strong><t t-esc="t.get('amount_due', 'Amount Due:')"/></strong>
                                                <span class="fs-4 fw-bold text-primary">
-                                                   <t t-esc="'%.2f' % booking.sale_order_id.amount_total"/>
-                                                   <t t-esc="booking.currency_id.symbol"/>
+                                                   <t t-esc="'%.2f' % booking._get_payment_amount()"/>
+                                                   <t t-esc="booking._get_payment_currency().symbol"/>
                                                </span>
                                                <small class="text-muted" t-esc="t.get('incl_tax', '(incl. tax)')"/>
                                             </p>
                                         </div>
 
                                         <div class="my-4">
-                                            <a t-attf-href="/my/orders/#{booking.sale_order_id.id}?access_token=#{booking.sale_order_id.access_token}"
+                                            <a t-att-href="payment_url"
                                                class="btn btn-secondary btn-lg w-100">
                                                 <i class="fa fa-credit-card me-2"/>
                                                 <t t-esc="t.get('go_to_payment', 'Go to Payment')"/>
@@ -495,7 +496,7 @@
                                     </t>
 
                                     <!-- Confirmed / Pending (no SO) State -->
-                                    <t t-if="booking.state != 'pending_payment' or not booking.sale_order_id">
+                                    <t t-if="booking.state != 'pending_payment' or not payment_url">
                                         <i class="fa fa-check-circle text-success fa-5x mb-4"/>
                                         <h2 t-esc="t['booking_confirmed']"/>
                                         <p class="text-muted" t-esc="t['booking_reference']"/>
@@ -615,7 +616,8 @@
                                     </t>
 
                                     <!-- Pending payment: link to SO portal -->
-                                    <t t-if="booking.payment_status == 'pending' and booking.sale_order_id">
+                                    <t t-set="payment_url" t-value="booking._get_payment_url()"/>
+                                    <t t-if="booking.payment_status == 'pending' and payment_url">
                                         <hr/>
                                         <div class="alert alert-warning">
                                             <i class="fa fa-clock-o me-2"/>
@@ -623,18 +625,18 @@
                                             <div class="mt-2">
                                                 <strong><t t-esc="t.get('amount_due', 'Amount Due:')"/></strong>
                                                 <span class="fs-5 fw-bold text-primary ms-1">
-                                                    <t t-esc="'%.2f' % booking.sale_order_id.amount_total"/>
-                                                    <t t-esc="booking.currency_id.symbol"/>
+                                                    <t t-esc="'%.2f' % booking._get_payment_amount()"/>
+                                                    <t t-esc="booking._get_payment_currency().symbol"/>
                                                 </span>
                                                 <small class="text-muted" t-esc="t.get('incl_tax', '(incl. tax)')"/>
                                             </div>
                                         </div>
-                                        <a t-attf-href="/my/orders/#{booking.sale_order_id.id}?access_token=#{booking.sale_order_id.access_token}"
+                                        <a t-att-href="payment_url"
                                            class="btn btn-secondary">
                                             <i class="fa fa-credit-card me-2"/>
                                             <t t-esc="t.get('go_to_payment', 'Go to Payment')"/>
-                                            — <t t-esc="'%.2f' % booking.sale_order_id.amount_total"/>
-                                            <t t-esc="booking.currency_id.symbol"/>
+                                            — <t t-esc="'%.2f' % booking._get_payment_amount()"/>
+                                            <t t-esc="booking._get_payment_currency().symbol"/>
                                         </a>
                                     </t>
 
@@ -760,8 +762,8 @@
                                     <div class="text-center py-4 bg-light rounded mb-4">
                                         <h5 class="text-muted mb-2" t-esc="t['amount_due']"/>
                                         <h1 class="text-primary mb-0">
-                                            <t t-esc="'%.2f' % (booking.sale_order_id.amount_total if booking.sale_order_id else 0)"/>
-                                            <small><t t-esc="booking.currency_id.symbol"/></small>
+                                            <t t-esc="'%.2f' % booking._get_payment_amount()"/>
+                                            <small><t t-esc="booking._get_payment_currency().symbol"/></small>
                                         </h1>
                                     </div>
 

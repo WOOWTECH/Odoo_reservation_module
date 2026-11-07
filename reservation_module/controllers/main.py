@@ -707,7 +707,7 @@ class AppointmentController(http.Controller):
                         for b in ctx['staff_bookings']
                     )
                     resource_overlap = sum(
-                        1 for b in ctx['resource_bookings']
+                        b.guest_count for b in ctx['resource_bookings']
                         if b.start_datetime < slot_end_utc and b.end_datetime > current_utc
                     ) if resource_id else 0
 
@@ -765,7 +765,7 @@ class AppointmentController(http.Controller):
                 for b in ctx['staff_bookings']
             )
             resource_overlap = sum(
-                1 for b in ctx['resource_bookings']
+                b.guest_count for b in ctx['resource_bookings']
                 if b.start_datetime < slot_end and b.end_datetime > slot_start
             ) if resource_id else 0
 
@@ -1166,7 +1166,7 @@ class AppointmentController(http.Controller):
             if conflict.get('staff_conflict'):
                 return self._render_booking_form_error(
                     appointment_type, data, _('This staff member is no longer available for the selected time. Please choose another time.'))
-            if conflict.get('resource_conflict'):
+            if conflict.get('resource_conflict') or (resource_id and conflict['resource_remaining'] < guest_count):
                 return self._render_booking_form_error(
                     appointment_type, data, _('This location is no longer available for the selected time. Please choose another time.'))
 

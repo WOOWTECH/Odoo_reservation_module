@@ -263,13 +263,14 @@ class AppointmentBooking(models.Model):
 
     @api.depends(
         'appointment_type_id.require_payment',
+        'state',
         'sale_order_id',
         'sale_order_id.state',
         'sale_order_id.invoice_ids.payment_state',
     )
     def _compute_payment_status(self):
         for booking in self:
-            if not booking.appointment_type_id.require_payment:
+            if not booking.appointment_type_id.require_payment or (booking.state == 'cancelled' and not booking.sale_order_id):
                 booking.payment_status = 'not_required'
             elif not booking.sale_order_id:
                 booking.payment_status = 'pending'
@@ -331,6 +332,8 @@ class AppointmentBooking(models.Model):
             if guard_keys:
                 self.env['appointment.booking.conflict.guard'].sudo()._acquire_keys(guard_keys)
 
+        # SQL must see state/guest changes still pending in the ORM cache.
+        self.flush_model(['state', 'start_datetime', 'end_datetime', 'staff_user_id', 'resource_id', 'guest_count'])
         base_where = "state IN ('confirmed', 'done') AND start_datetime < %s AND end_datetime > %s"
         base_params = [end_dt, start_dt]
         if exclude_booking_id:
@@ -407,7 +410,7 @@ class AppointmentBooking(models.Model):
             )
             if conflict['staff_conflict']:
                 raise UserError(_('Staff member is already booked for this time slot.'))
-            if conflict['resource_conflict']:
+            if conflict['resource_conflict'] or (booking.resource_id and conflict['resource_remaining'] < booking.guest_count):
                 raise UserError(_('Location is fully booked for this time slot.'))
 
             # Create Discuss channel (soft-coupled: only if cs_portal_discuss installed)

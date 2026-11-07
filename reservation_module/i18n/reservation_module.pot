@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 18.0-20260119\n"
+"Project-Id-Version: Odoo Server 18.0-20260810\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-20 23:44+0000\n"
-"PO-Revision-Date: 2026-04-20 23:44+0000\n"
+"POT-Creation-Date: 2026-11-07 20:58+0000\n"
+"PO-Revision-Date: 2026-11-07 20:58+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -21,6 +21,122 @@ msgstr ""
 msgid ""
 "\n"
 "Error: %s"
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"\n"
+"The customer was not e-mailed about this failure (payment failure mails for this booking are limited)."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/wizard/appointment_closing_day_wizard.py:0
+msgid "%d closing day(s) added."
+msgstr ""
+
+#. module: reservation_module
+#: model:mail.template,body_html:reservation_module.email_template_booking_reminder
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;\">\n"
+"    <!-- Header -->\n"
+"    <div style=\"background-color: #17a2b8; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;\">\n"
+"        <h2 style=\"color: #ffffff; margin: 0; font-size: 22px;\">⏰ Appointment Reminder</h2>\n"
+"    </div>\n"
+"\n"
+"    <!-- Body -->\n"
+"    <div style=\"background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;\">\n"
+"        <p style=\"font-size: 15px; margin-top: 0;\">\n"
+"            Dear <t t-out=\"object.guest_name\"/>,\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px;\">\n"
+"            This is a friendly reminder about your upcoming appointment:\n"
+"        </p>\n"
+"\n"
+"        <!-- Booking details card -->\n"
+"        <table style=\"width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;\">\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;\">\n"
+"                    📋 Booking Reference\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    🏷️ Appointment Type\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.appointment_type_id.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    🗓️ Date &amp; Time\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <!-- tz_name &#24517;&#22635;&#65306;&#37109;&#20214;&#30001; cron / OdooBot &#28210;&#26579;&#65292;&#35442;&#20351;&#29992;&#32773;&#36890;&#24120;&#27794;&#26377;&#26178;&#21312;&#65292;\n"
+"                         &#30465;&#30053;&#26178; QWeb &#26371;&#30452;&#25509;&#36664;&#20986; UTC&#65292;&#25910;&#20214;&#32773;&#30475;&#21040;&#30340;&#26178;&#38291;&#26371;&#23569; 8 &#23567;&#26178;&#12290; -->\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <t t-if=\"object.staff_user_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        👤 Staff\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.staff_user_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"            <t t-if=\"object.resource_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        📍 Location / Resource\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.resource_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"        </table>\n"
+"\n"
+"        <!-- Meeting URL button -->\n"
+"        <t t-if=\"object.meeting_url\">\n"
+"            <div style=\"text-align: center; margin: 24px 0; padding: 20px; background-color: #f0faf0; border: 1px solid #c3e6c3; border-radius: 8px;\">\n"
+"                <p style=\"margin: 0 0 12px 0; font-size: 14px; color: #555;\">\n"
+"                    🎥 Join your online meeting using the link below:\n"
+"                </p>\n"
+"                <a t-att-href=\"object.meeting_url\" style=\"display: inline-block; background-color: #28a745; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
+"                    Join Meeting\n"
+"                </a>\n"
+"                <p style=\"margin: 12px 0 0 0; font-size: 12px; color: #888;\">\n"
+"                    <t t-out=\"object.meeting_url\"/>\n"
+"                </p>\n"
+"            </div>\n"
+"        </t>\n"
+"\n"
+"        <!-- View booking link -->\n"
+"        <div style=\"text-align: center; margin: 20px 0;\">\n"
+"            <a t-att-href=\"object.get_portal_url()\" style=\"display: inline-block; background-color: #17a2b8; color: #ffffff; padding: 10px 28px; text-decoration: none; border-radius: 6px; font-size: 14px;\">\n"
+"                View Booking Details\n"
+"            </a>\n"
+"        </div>\n"
+"\n"
+"        <p style=\"font-size: 14px; color: #555; margin-bottom: 0;\">\n"
+"            We look forward to seeing you!\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px; color: #555; margin-top: 8px;\">\n"
+"            Best regards,<br/>\n"
+"            <strong><t t-out=\"object.company_id.name\"/></strong>\n"
+"        </p>\n"
+"    </div>\n"
+"</div>\n"
+"            "
 msgstr ""
 
 #. module: reservation_module
@@ -64,7 +180,9 @@ msgid ""
 "                    🗓️ Date &amp; Time\n"
 "                </td>\n"
 "                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
-"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                    <!-- tz_name &#24517;&#22635;&#65306;&#37109;&#20214;&#30001; cron / OdooBot &#28210;&#26579;&#65292;&#35442;&#20351;&#29992;&#32773;&#36890;&#24120;&#27794;&#26377;&#26178;&#21312;&#65292;\n"
+"                         &#30465;&#30053;&#26178; QWeb &#26371;&#30452;&#25509;&#36664;&#20986; UTC&#65292;&#25910;&#20214;&#32773;&#30475;&#21040;&#30340;&#26178;&#38291;&#26371;&#23569; 8 &#23567;&#26178;&#12290; -->\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/>\n"
 "                </td>\n"
 "            </tr>\n"
 "            <t t-if=\"object.staff_user_id\">\n"
@@ -147,7 +265,9 @@ msgid ""
 "                    Date &amp; Time\n"
 "                </td>\n"
 "                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
-"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                    <!-- tz_name &#24517;&#22635;&#65306;&#37109;&#20214;&#30001; cron / OdooBot &#28210;&#26579;&#65292;&#35442;&#20351;&#29992;&#32773;&#36890;&#24120;&#27794;&#26377;&#26178;&#21312;&#65292;\n"
+"                         &#30465;&#30053;&#26178; QWeb &#26371;&#30452;&#25509;&#36664;&#20986; UTC&#65292;&#25910;&#20214;&#32773;&#30475;&#21040;&#30340;&#26178;&#38291;&#26371;&#23569; 8 &#23567;&#26178;&#12290; -->\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/>\n"
 "                </td>\n"
 "            </tr>\n"
 "            <t t-if=\"object.staff_user_id\">\n"
@@ -263,7 +383,9 @@ msgid ""
 "                    Date &amp; Time\n"
 "                </td>\n"
 "                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
-"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                    <!-- tz_name &#24517;&#22635;&#65306;&#37109;&#20214;&#30001; cron / OdooBot &#28210;&#26579;&#65292;&#35442;&#20351;&#29992;&#32773;&#36890;&#24120;&#27794;&#26377;&#26178;&#21312;&#65292;\n"
+"                         &#30465;&#30053;&#26178; QWeb &#26371;&#30452;&#25509;&#36664;&#20986; UTC&#65292;&#25910;&#20214;&#32773;&#30475;&#21040;&#30340;&#26178;&#38291;&#26371;&#23569; 8 &#23567;&#26178;&#12290; -->\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/>\n"
 "                </td>\n"
 "            </tr>\n"
 "            <t t-if=\"object.staff_user_id\">\n"
@@ -346,7 +468,9 @@ msgid ""
 "                    🗓️ Date &amp; Time\n"
 "                </td>\n"
 "                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
-"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                    <!-- tz_name &#24517;&#22635;&#65306;&#37109;&#20214;&#30001; cron / OdooBot &#28210;&#26579;&#65292;&#35442;&#20351;&#29992;&#32773;&#36890;&#24120;&#27794;&#26377;&#26178;&#21312;&#65292;\n"
+"                         &#30465;&#30053;&#26178; QWeb &#26371;&#30452;&#25509;&#36664;&#20986; UTC&#65292;&#25910;&#20214;&#32773;&#30475;&#21040;&#30340;&#26178;&#38291;&#26371;&#23569; 8 &#23567;&#26178;&#12290; -->\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/>\n"
 "                </td>\n"
 "            </tr>\n"
 "            <t t-if=\"object.staff_user_id\">\n"
@@ -388,14 +512,14 @@ msgid ""
 "                <p style=\"margin: 0 0 12px 0; font-size: 14px; color: #856404;\">\n"
 "                    Your booking requires payment before it can be confirmed. Please complete your payment to secure your reservation.\n"
 "                </p>\n"
-"                <t t-if=\"object.payment_amount\">\n"
+"                <t t-if=\"object._get_payment_url()\">\n"
 "                    <p style=\"margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #856404;\">\n"
-"                        Amount Due: <t t-out=\"object.payment_amount\" t-options=\"{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: object.currency_id}\"/>\n"
+"                        Amount Due: <t t-out=\"object._get_payment_amount()\" t-options=\"{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: object.currency_id}\"/>\n"
 "                    </p>\n"
 "                </t>\n"
-"                <t t-if=\"object.sale_order_id\">\n"
+"                <t t-if=\"object._get_payment_url()\">\n"
 "                    <div style=\"text-align: center;\">\n"
-"                        <a t-attf-href=\"{{ object.sale_order_id.get_portal_url() }}\" style=\"display: inline-block; background-color: #ffc107; color: #212529; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
+"                        <a t-att-href=\"object._get_payment_url()\" style=\"display: inline-block; background-color: #ffc107; color: #212529; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
 "                            Go to Payment\n"
 "                        </a>\n"
 "                    </div>\n"
@@ -459,14 +583,14 @@ msgid ""
 "                    Amount Due\n"
 "                </td>\n"
 "                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
-"                    <t t-out=\"object.payment_amount\" t-options=\"{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: object.currency_id}\"/>\n"
+"                    <t t-out=\"object._get_payment_amount()\" t-options=\"{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: object.currency_id}\"/>\n"
 "                </td>\n"
 "            </tr>\n"
 "        </table>\n"
 "        <div style=\"text-align: center; margin: 24px 0;\">\n"
 "            <p style=\"font-size: 14px; color: #555;\">Please try again using the link below:</p>\n"
-"            <t t-if=\"object.sale_order_id\">\n"
-"                <a t-attf-href=\"{{ object.sale_order_id.get_portal_url() }}\" style=\"display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
+"            <t t-if=\"object._get_payment_url()\">\n"
+"                <a t-att-href=\"object._get_payment_url()\" style=\"display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
 "                    Retry Payment\n"
 "                </a>\n"
 "            </t>\n"
@@ -489,45 +613,13 @@ msgid ""
 msgstr ""
 
 #. module: reservation_module
-#: model:mail.template,body_html:reservation_module.email_template_booking_reminder
-msgid ""
-"<div style=\"margin: 0px; padding: 0px;\">\n"
-"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"        Dear <t t-out=\"object.guest_name\"/>,\n"
-"        <br/><br/>\n"
-"        This is a friendly reminder about your upcoming appointment:\n"
-"        <br/><br/>\n"
-"        <strong>Appointment Type:</strong> <t t-out=\"object.appointment_type_id.name\"/><br/>\n"
-"        <strong>Date &amp; Time:</strong> <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> - <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/><br/>\n"
-"        <t t-if=\"object.resource_id\">\n"
-"            <strong>Resource:</strong> <t t-out=\"object.resource_id.name\"/><br/>\n"
-"        </t>\n"
-"        <t t-if=\"object.staff_user_id\">\n"
-"            <strong>Staff:</strong> <t t-out=\"object.staff_user_id.name\"/><br/>\n"
-"        </t>\n"
-"        <br/>\n"
-"        <strong>Booking Reference:</strong> <t t-out=\"object.name\"/><br/>\n"
-"        <br/>\n"
-"        You can view your booking here:<br/>\n"
-"        <a t-att-href=\"object.get_portal_url()\">View Booking</a>\n"
-"        <br/><br/>\n"
-"        We look forward to seeing you!\n"
-"        <br/><br/>\n"
-"        Best regards,<br/>\n"
-"        <t t-out=\"object.company_id.name\"/>\n"
-"    </p>\n"
-"</div>\n"
-"            "
-msgstr ""
-
-#. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "<i class=\"fa fa-calendar\"/> Bookings"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "<i class=\"fa fa-download me-1\"/> Export My Data"
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<i class=\"fa fa-credit-card me-1\"/>前往付款"
 msgstr ""
 
 #. module: reservation_module
@@ -538,23 +630,63 @@ msgid ""
 msgstr ""
 
 #. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<i class=\"fa fa-location-arrow me-1\"/>取得路線"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<i class=\"fa fa-map-marker me-1\"/>地點"
+msgstr ""
+
+#. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "<i class=\"fa fa-share-alt\"/> Share"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_request
-msgid "<i class=\"fa fa-trash me-1\"/> Confirm Data Deletion"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "<i class=\"fa fa-trash me-1\"/> Delete My Data"
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<i class=\"fa fa-times me-1\"/>取消預約"
 msgstr ""
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "<i class=\"fa fa-users text-muted\"/> Capacity:"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<small class=\"text-end\">狀態：</small>"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<small class=\"text-muted text-uppercase\">結束</small>"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<small class=\"text-muted text-uppercase\">開始</small>"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<small class=\"text-muted\">付款</small>"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<small class=\"text-muted\">線上會議</small>"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<small class=\"wt-reservation-calendar-label d-block w-100\">加入日曆</small>"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<small class=\"wt-reservation-calendar-label\">加入日曆：</small>"
 msgstr ""
 
 #. module: reservation_module
@@ -573,21 +705,19 @@ msgid "<span class=\"badge bg-warning-light text-warning\">Unpublished</span>"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
-msgid ""
-"<span class=\"badge text-bg-success\">\n"
-"                                                <i class=\"fa fa-check me-1\"/>Paid\n"
-"                                            </span>"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
-msgid "<span class=\"d-block d-md-none\">#</span>"
-msgstr ""
-
-#. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.sale_order_portal_booking_link
 msgid "<span class=\"ms-2\">|</span>"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_activity
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_kanban
+msgid "<span class=\"text-muted\"> · </span>"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<span class=\"text-success\"><i class=\"fa fa-check-circle me-1\"/>已付款</span>"
 msgstr ""
 
 #. module: reservation_module
@@ -606,34 +736,38 @@ msgid "<span>before start</span>"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "<strong>Access:</strong> View all your booking data via the"
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<strong>人數：</strong>"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<strong>服務人員：</strong>"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "<strong>服務項目：</strong>"
 msgstr ""
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.sale_order_portal_booking_link
-msgid "<strong>Booking:</strong>"
+msgid "<strong>預約:</strong>"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "<strong>Deletion:</strong> Request deletion of your data via"
+#: model:ir.model.constraint,message:reservation_module.constraint_appointment_booking_conflict_guard_appointment_booking_conflict_guard_key_unique
+msgid "A booking conflict guard key must be unique."
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid ""
-"<strong>Export:</strong> Download your data in machine-readable format via"
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__payment_hold_until
+msgid "A booking waiting for payment keeps its slot until this time."
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "<strong>Rectification:</strong> Contact us to correct inaccurate data"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
-msgid "Absolutely! Our kitchen can accommodate:"
+#: model:ir.model.constraint,message:reservation_module.constraint_appointment_closing_day_unique_closing_day
+msgid "A closing day already exists for this date."
 msgstr ""
 
 #. module: reservation_module
@@ -644,71 +778,67 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_needaction
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_needaction
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_needaction
 msgid "Action Needed"
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__active
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__active
 msgid "Active"
 msgstr ""
 
 #. module: reservation_module
 #. odoo-python
-#: code:addons/reservation_module/controllers/main.py:1095
+#: code:addons/reservation_module/controllers/main.py:0
 msgid "Active Bookings"
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_ids
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_ids
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_ids
 msgid "Activities"
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_exception_decoration
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_exception_decoration
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_state
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_state
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_state
 msgid "Activity State"
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_type_icon
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_type_icon
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_type_icon
 msgid "Activity Type Icon"
 msgstr ""
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_type.py:0
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_closing_day_wizard_form
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Add Closing Days"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_video_call
-msgid "After booking, our team will send you a meeting link."
-msgstr ""
-
-#. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/controllers/main.py:0
-msgid "All"
+#: model:ir.model,name:reservation_module.model_appointment_closing_day_wizard
+msgid "Add Closing Days Wizard"
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.actions.act_window,name:reservation_module.appointment_booking_action
 #: model:ir.ui.menu,name:reservation_module.appointment_menu_bookings
 msgid "All Bookings"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
-msgid "Allergy-specific menus"
 msgstr ""
 
 #. module: reservation_module
@@ -722,13 +852,8 @@ msgid "Allow Customer to Choose Staff"
 msgstr ""
 
 #. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_amount
-msgid "Amount to be paid for the booking"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_occasion
-msgid "Anniversaries — romantic table setup with candles"
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__amenities
+msgid "Amenities"
 msgstr ""
 
 #. module: reservation_module
@@ -738,25 +863,38 @@ msgid "Answer"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Any notes you provide"
-msgstr ""
-
-#. module: reservation_module
 #: model:ir.model,name:reservation_module.model_appointment_availability
 msgid "Appointment Availability"
 msgstr ""
 
 #. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/models/appointment_booking.py:0
 #: model:ir.model,name:reservation_module.model_appointment_booking
 msgid "Appointment Booking"
 msgstr ""
 
 #. module: reservation_module
+#: model:ir.model,name:reservation_module.model_appointment_booking_conflict_guard
+msgid "Appointment Booking Conflict Guard"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_calendar_event__is_appointment_booking
+msgid "Appointment Booking Event"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_appointment_closing_day
+msgid "Appointment Closing Day"
+msgstr ""
+
+#. module: reservation_module
 #: model:ir.model,name:reservation_module.model_appointment_question
 msgid "Appointment FAQ"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_calendar_event__appointment_guest_partner_id
+msgid "Appointment Guest"
 msgstr ""
 
 #. module: reservation_module
@@ -768,6 +906,8 @@ msgstr ""
 #: model:ir.model,name:reservation_module.model_appointment_type
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__appointment_type_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__appointment_type_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__appointment_type_id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__appointment_type_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__appointment_type_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__appointment_type_id
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
@@ -778,7 +918,8 @@ msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_resource_resource__appointment_type_ids
-#: model:ir.ui.menu,name:reservation_module.appointment_menu_appointments
+#: model:ir.ui.menu,name:reservation_module.appointment_menu_settings
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_activity
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_list
 msgid "Appointment Types"
 msgstr ""
@@ -786,11 +927,6 @@ msgstr ""
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
 msgid "Appointment calendar"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Appointment date, time, and preferences"
 msgstr ""
 
 #. module: reservation_module
@@ -856,6 +992,11 @@ msgid "Archived"
 msgstr ""
 
 #. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__area
+msgid "Area (m²)"
+msgstr ""
+
+#. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__assign_location
 msgid "Assign a location to bookings"
 msgstr ""
@@ -866,8 +1007,16 @@ msgid "Assign staff members to bookings"
 msgstr ""
 
 #. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_type.py:0
+msgid ""
+"At least one payment product must be selected when payment is required."
+msgstr ""
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_attachment_count
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_attachment_count
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_attachment_count
 msgid "Attachment Count"
 msgstr ""
 
@@ -924,45 +1073,111 @@ msgid "Available Count"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_experience
-msgid "Be ready to share your screen if needed"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_occasion
-msgid "Birthdays — complimentary dessert and decoration"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_consultation
-msgid "Book a one-on-one consultation with an expert."
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_tennis
-msgid "Book our professional tennis court."
-msgstr ""
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__booked_count
 msgid "Booked Count"
 msgstr ""
 
 #. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+#: code:addons/reservation_module/models/sale_order.py:0
 #: model:ir.model.fields,field_description:reservation_module.field_payment_transaction__appointment_booking_id
+#: model:ir.model.fields,field_description:reservation_module.field_sale_order_line__appointment_booking_id
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Booking"
 msgstr ""
 
 #. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"Booking %(booking)s can only be linked to its own sales order (an order of "
+"the same customer)."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/payment_transaction.py:0
+msgid ""
+"Booking %(booking)s in order %(order)s has already been paid, so the order "
+"cannot be paid again. Please contact support."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"Booking %(booking)s was cancelled but it had been paid by %(payments)s. "
+"Cancelling this booking did not issue a refund, and its order was kept: "
+"check any previous refunds before returning money to the customer."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"Booking %(booking)s was paid by %(tx)s but its lines could not be taken out "
+"of order %(order)s: do not pay that order again, and remove the lines by "
+"hand."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid "Booking %s can no longer be paid."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid "Booking %s has already been paid."
+msgstr ""
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__booking_count
 #: model:ir.model.fields,field_description:reservation_module.field_resource_resource__booking_count
+#: model:ir.model.fields,field_description:reservation_module.field_sale_order__booking_count
 msgid "Booking Count"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__start_date_local
+msgid "Booking Date"
 msgstr ""
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Booking Details"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_payment_transaction__appointment_failure_notified
+msgid "Booking Failure Handled"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Booking Form"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_line_ids
+msgid "Booking Order Lines"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_transaction_ids
+msgid "Booking Payment Transactions"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_line_count
+msgid "Booking Product Lines"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_sale_order_line__appointment_booking_qty
+msgid "Booking Quantity"
 msgstr ""
 
 #. module: reservation_module
@@ -976,18 +1191,52 @@ msgid "Booking Settings"
 msgstr ""
 
 #. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__client_ip_hash
+msgid "Booking Source"
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid "Booking: %s"
+msgstr ""
+
+#. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_type.py:0
 #: code:addons/reservation_module/models/resource_resource.py:0
+#: code:addons/reservation_module/models/sale_order.py:0
 #: model:ir.actions.act_window,name:reservation_module.appointment_booking_action_calendar
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__booking_ids
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__booking_ids
+#: model:ir.model.fields,field_description:reservation_module.field_sale_order__booking_ids
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_activity
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_calendar
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_graph
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_list
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_pivot
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 #: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
 #: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_list_view
+#: model_terms:ir.ui.view,arch_db:reservation_module.sale_order_view_form_booking
 msgid "Bookings"
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid "Bookings can only be created through the booking form."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "Bookings must be made at least %s hours in advance."
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+msgid "Bookings whose date, in the appointment type's timezone, is today."
 msgstr ""
 
 #. module: reservation_module
@@ -996,38 +1245,23 @@ msgid "Bookings will appear here when customers make appointments."
 msgstr ""
 
 #. module: reservation_module
-#: model:appointment.type,name:reservation_module.appointment_type_meeting
-msgid "Business Meeting"
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__location
+msgid "Building, floor, address, etc."
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_occasion
-msgid "Business dinners — presentation-ready private room"
+#: model:ir.model,name:reservation_module.model_calendar_attendee
+msgid "Calendar Attendee Information"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
-msgid "Business strategy and planning"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_book_page
-msgid "By booking, you agree to our"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.ui.menu,name:reservation_module.appointment_menu_calendar
-msgid "Calendar"
-msgstr ""
-
-#. module: reservation_module
-#: model:appointment.question,name:reservation_module.question_table_occasion
-msgid "Can I request a special occasion setup?"
+#: model:ir.model,name:reservation_module.model_calendar_event
+msgid "Calendar Event"
 msgstr ""
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_request
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_closing_day_wizard_form
 msgid "Cancel"
 msgstr ""
 
@@ -1062,6 +1296,15 @@ msgstr ""
 
 #. module: reservation_module
 #. odoo-python
+#: code:addons/reservation_module/migrations/18.0.3.2.2/post-migrate.py:0
+#: code:addons/reservation_module/models/appointment_booking.py:0
+#: code:addons/reservation_module/tests/test_payment_money_gates.py:0
+#: model:mail.activity.type,summary:reservation_module.mail_activity_type_refund_due
+msgid "Cancelled booking was paid: refund it"
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
 msgid "Cannot book a time slot in the past."
 msgstr ""
@@ -1091,18 +1334,28 @@ msgid "Charge per person instead of per booking"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_tennis
-msgid "Clay court surface"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_meeting
-msgid "Client consultations"
-msgstr ""
-
-#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_slot__state__closed
 msgid "Closed"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__closing_day_ids
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Closing Days"
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/wizard/appointment_closing_day_wizard.py:0
+msgid "Closing Days Added"
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_closing_day.py:0
+msgid "Closing day date cannot be in the past."
 msgstr ""
 
 #. module: reservation_module
@@ -1144,8 +1397,8 @@ msgid "Confirmed"
 msgstr ""
 
 #. module: reservation_module
+#: model:ir.model,name:reservation_module.model_res_partner
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__partner_id
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
 msgid "Contact"
 msgstr ""
 
@@ -1182,6 +1435,9 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__create_uid
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__create_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking_conflict_guard__create_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__create_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__create_uid
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__create_uid
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__create_uid
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__create_uid
@@ -1191,10 +1447,22 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__create_date
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__create_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking_conflict_guard__create_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__create_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__create_date
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__create_date
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__create_date
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__create_date
 msgid "Created on"
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"Credit notes already issued for it add up to %(credited)s. Issuing a credit "
+"note does not prove the customer received a refund: check the payment and "
+"bank records before refunding or closing this task."
 msgstr ""
 
 #. module: reservation_module
@@ -1209,33 +1477,9 @@ msgid "Custom Video Link (optional)"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_confirmed
-msgid "Data Deletion Complete"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Data Deletion Request"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Data Export"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Data Retention"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Data We Collect"
-msgstr ""
-
-#. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__date
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Date"
 msgstr ""
@@ -1252,13 +1496,9 @@ msgid "December"
 msgstr ""
 
 #. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/controllers/main.py:0
-msgid "Deleted User"
-msgstr ""
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__description
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__description
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
 msgid "Description"
 msgstr ""
 
@@ -1273,8 +1513,16 @@ msgid "Display"
 msgstr ""
 
 #. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_display_amount
+msgid "Display Amount"
+msgstr ""
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__display_name
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__display_name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking_conflict_guard__display_name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__display_name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__display_name
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__display_name
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__display_name
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__display_name
@@ -1282,8 +1530,8 @@ msgid "Display Name"
 msgstr ""
 
 #. module: reservation_module
-#: model:appointment.question,name:reservation_module.question_table_dietary
-msgid "Do you accommodate dietary restrictions?"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__display_tz
+msgid "Display Timezone"
 msgstr ""
 
 #. module: reservation_module
@@ -1311,12 +1559,6 @@ msgstr ""
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Email Notifications"
-msgstr ""
-
-#. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/models/appointment_booking.py:0
-msgid "Email: %s"
 msgstr ""
 
 #. module: reservation_module
@@ -1349,21 +1591,6 @@ msgid "End time must be between 0 and 24."
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_tennis
-msgid "Equipment rental available"
-msgstr ""
-
-#. module: reservation_module
-#: model:appointment.type,name:reservation_module.appointment_type_consultation
-msgid "Expert Consultation"
-msgstr ""
-
-#. module: reservation_module
-#: model:product.template,name:reservation_module.product_expert_consultation_product_template
-msgid "Expert Consultation Service"
-msgstr ""
-
-#. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "FAQ"
 msgstr ""
@@ -1380,26 +1607,29 @@ msgid "February"
 msgstr ""
 
 #. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__floor
+msgid "Floor"
+msgstr ""
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_follower_ids
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_follower_ids
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_follower_ids
 msgid "Followers"
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_partner_ids
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_partner_ids
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_partner_ids
 msgid "Followers (Partners)"
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__activity_type_icon
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__activity_type_icon
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "For privacy-related inquiries, please contact us through our website."
 msgstr ""
 
 #. module: reservation_module
@@ -1419,23 +1649,29 @@ msgid "From"
 msgstr ""
 
 #. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__date_from
+msgid "From Date"
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/wizard/appointment_closing_day_wizard.py:0
+msgid "From Date must be before or equal to To Date."
+msgstr ""
+
+#. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_slot__state__full
 msgid "Fully Booked"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_experience
-msgid "Gather any relevant documents or data"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
-msgid "Gluten-free dishes"
-msgstr ""
-
-#. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Group By"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking_conflict_guard__guard_key
+msgid "Guard Key"
 msgstr ""
 
 #. module: reservation_module
@@ -1464,25 +1700,22 @@ msgid "Guest notes..."
 msgstr ""
 
 #. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/models/appointment_booking.py:0
-msgid "Guest: %s"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
-msgid "Halal preparations"
+#: model:ir.model,name:reservation_module.model_ir_http
+msgid "HTTP Routing"
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__has_message
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__has_message
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__has_message
 msgid "Has Message"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "How We Use Your Data"
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__single_guest_booking
+msgid ""
+"Hide the number of guests on the booking form; every booking is for one "
+"guest"
 msgstr ""
 
 #. module: reservation_module
@@ -1491,13 +1724,11 @@ msgid "How many days in advance bookings can be made"
 msgstr ""
 
 #. module: reservation_module
-#: model:appointment.question,name:reservation_module.question_consultation_experience
-msgid "How should I prepare for my consultation?"
-msgstr ""
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking_conflict_guard__id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__id
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__id
@@ -1508,6 +1739,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_exception_icon
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_exception_icon
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__icon
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_exception_icon
 #: model:ir.model.fields,field_description:reservation_module.field_resource_resource__icon
 msgid "Icon"
 msgstr ""
@@ -1515,6 +1747,7 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__activity_exception_icon
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__activity_exception_icon
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__activity_exception_icon
 msgid "Icon to indicate an exception activity."
 msgstr ""
 
@@ -1528,6 +1761,7 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_needaction
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__message_needaction
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr ""
 
@@ -1536,7 +1770,16 @@ msgstr ""
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_has_sms_error
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__message_has_error
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__message_has_sms_error
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__message_has_error
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__active
+msgid ""
+"If the active field is set to False, it will allow you to hide the resource "
+"record without removing it."
 msgstr ""
 
 #. module: reservation_module
@@ -1551,8 +1794,9 @@ msgid "Image URL"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_table
-msgid "Indoor and outdoor seating available"
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__internal_note
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
+msgid "Internal Note"
 msgstr ""
 
 #. module: reservation_module
@@ -1562,8 +1806,18 @@ msgid "Internal Notes"
 msgstr ""
 
 #. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
+msgid "Internal notes (not visible to customers)..."
+msgstr ""
+
+#. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Internal notes (not visible to guests)..."
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__internal_note
+msgid "Internal notes, not visible to customers"
 msgstr ""
 
 #. module: reservation_module
@@ -1573,8 +1827,15 @@ msgid "Introduction Page"
 msgstr ""
 
 #. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/res_partner.py:0
+msgid "Invalid meeting id: %s"
+msgstr ""
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_is_follower
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_is_follower
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_is_follower
 msgid "Is Follower"
 msgstr ""
 
@@ -1597,8 +1858,16 @@ msgid "June"
 msgstr ""
 
 #. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_failure_mailed_at
+msgid "Last Payment Failure Mail"
+msgstr ""
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__write_uid
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__write_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking_conflict_guard__write_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__write_uid
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__write_uid
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__write_uid
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__write_uid
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__write_uid
@@ -1608,6 +1877,9 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__write_date
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__write_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking_conflict_guard__write_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__write_date
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__write_date
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_question__write_date
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__write_date
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__write_date
@@ -1645,11 +1917,19 @@ msgid "Let your customers book appointments online."
 msgstr ""
 
 #. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__start_date_local
+msgid ""
+"Local (appointment type timezone) date of the booking. Stored so backend "
+"\"Today\"/\"This Week\" filters stay timezone-correct."
+msgstr ""
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__resource_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__resource_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_slot__resource_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__assign_location
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__location_id
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__location
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Location"
@@ -1763,12 +2043,14 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_has_error
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_has_error
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_has_error
 msgid "Message Delivery error"
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_ids
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_ids
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_ids
 msgid "Messages"
 msgstr ""
 
@@ -1794,16 +2076,17 @@ msgid "Monday"
 msgstr ""
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__my_activity_date_deadline
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__my_activity_date_deadline
-msgid "My Activity Deadline"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+msgid ""
+"Monday to Sunday of the current week, by the booking's date in the "
+"appointment type's timezone."
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_home_booking
-#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_home_menu_booking
-msgid "My Bookings"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__my_activity_date_deadline
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__my_activity_date_deadline
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__my_activity_date_deadline
+msgid "My Activity Deadline"
 msgstr ""
 
 #. module: reservation_module
@@ -1812,42 +2095,69 @@ msgid "Name"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Name, email address, and phone number"
+#. odoo-javascript
+#: code:addons/reservation_module/static/src/views/booking_calendar_controller.xml:0
+msgid "New"
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_calendar_event_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_calendar_event_id
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_calendar_event_id
 msgid "Next Activity Calendar Event"
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_date_deadline
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_date_deadline
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_date_deadline
 msgid "Next Activity Deadline"
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_summary
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_summary
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_summary
 msgid "Next Activity Summary"
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_type_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_type_id
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_type_id
 msgid "Next Activity Type"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_tennis
-msgid "Night lighting available"
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "No availability on the selected day."
 msgstr ""
 
 #. module: reservation_module
 #: model_terms:ir.actions.act_window,help:reservation_module.appointment_booking_action
 msgid "No bookings yet"
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid ""
+"No location has room for your party at the selected time. Please choose "
+"another time."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid ""
+"No staff member is available for the selected time. Please choose another "
+"time."
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__guest_email_normalized
+msgid "Normalized Guest Email"
 msgstr ""
 
 #. module: reservation_module
@@ -1862,12 +2172,6 @@ msgid "Notes"
 msgstr ""
 
 #. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/models/appointment_booking.py:0
-msgid "Notes: %s"
-msgstr ""
-
-#. module: reservation_module
 #. odoo-javascript
 #: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "November"
@@ -1876,6 +2180,7 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_needaction_counter
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_needaction_counter
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_needaction_counter
 msgid "Number of Actions"
 msgstr ""
 
@@ -1887,6 +2192,7 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_has_error_counter
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_has_error_counter
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_has_error_counter
 msgid "Number of errors"
 msgstr ""
 
@@ -1905,12 +2211,14 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_needaction_counter
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__message_needaction_counter
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__message_has_error_counter
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__message_has_error_counter
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr ""
 
@@ -1921,13 +2229,25 @@ msgid "October"
 msgstr ""
 
 #. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__single_guest_booking
+msgid "One Guest per Booking"
+msgstr ""
+
+#. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_type__location_type__online
 msgid "Online Meeting"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
-msgid "Open Meeting Room"
+#. odoo-python
+#: code:addons/reservation_module/models/calendar_event.py:0
+msgid "Only the appointment booking can change its calendar event markers."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/sale_order.py:0
+msgid "Only the booking itself can bind order lines to it."
 msgstr ""
 
 #. module: reservation_module
@@ -1936,13 +2256,37 @@ msgid "Options"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
-msgid "Our expert consultations cover a wide range of topics including:"
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"Order %s also holds other items and was kept; adjust or refund it by hand if"
+" needed."
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__payment_status__paid
 msgid "Paid"
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid "Paid booking needs confirmation"
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"Paid on its own payment page (%(tx)s). Its order lines are on order "
+"%(order)s, which was confirmed, so they cannot be paid a second time from "
+"the cart."
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_confirm_failed
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+msgid "Paid, Not Confirmed"
 msgstr ""
 
 #. module: reservation_module
@@ -1957,9 +2301,17 @@ msgid "Payment"
 msgstr ""
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_amount
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_amount
-msgid "Payment Amount"
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"Payment %(tx)s was received but the booking could not be confirmed "
+"automatically: %(reason)s. Confirm it manually, move it, or refund the "
+"customer."
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_failure_mail_count
+msgid "Payment Failure Mails Sent"
 msgstr ""
 
 #. module: reservation_module
@@ -1968,8 +2320,8 @@ msgid "Payment Failures"
 msgstr ""
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_product_id
-msgid "Payment Product"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_product_ids
+msgid "Payment Products"
 msgstr ""
 
 #. module: reservation_module
@@ -1984,9 +2336,8 @@ msgid "Payment Transaction"
 msgstr ""
 
 #. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/models/appointment_type.py:0
-msgid "Payment amount must be set when payment is required."
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_hold_started_at
+msgid "Payment Window Opened"
 msgstr ""
 
 #. module: reservation_module
@@ -2010,8 +2361,11 @@ msgid ""
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Payment information (processed securely by our payment provider)"
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"Payment failure #%(count)s for booking %(booking)s. Further payment failures"
+" of this booking are only counted, not noted here."
 msgstr ""
 
 #. module: reservation_module
@@ -2021,8 +2375,12 @@ msgid "Payment is required before confirming this booking."
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_consultation
-msgid "Payment is required to confirm your booking."
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"Payment is required before confirming this booking. Its sales order "
+"%(order)s is not an order of this booking or of its customer, so the "
+"payments on it do not count."
 msgstr ""
 
 #. module: reservation_module
@@ -2033,18 +2391,25 @@ msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__payment_status__pending
+#: model:ir.model.fields.selection,name:reservation_module.selection__appointment_booking__state__pending_payment
 msgid "Pending"
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+msgid "Pending Payment"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_pending_hold_granted
+msgid "Pending Payment Hold Granted"
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__payment_per_person
 msgid "Per Person Pricing"
-msgstr ""
-
-#. module: reservation_module
-#. odoo-python
-#: code:addons/reservation_module/models/appointment_booking.py:0
-msgid "Phone: %s"
 msgstr ""
 
 #. module: reservation_module
@@ -2055,13 +2420,6 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__location_id
 msgid "Physical location for the appointment"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
-msgid ""
-"Please describe your specific needs when booking so we can match you with "
-"the right expert."
 msgstr ""
 
 #. module: reservation_module
@@ -2085,70 +2443,33 @@ msgstr ""
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
+msgid "Please enter an email address or a phone number."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
 msgid "Please fill in all required fields."
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_occasion
-msgid "Please mention your occasion in the booking notes."
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
-msgid ""
-"Please note any dietary needs in the booking notes so we can prepare "
-"accordingly."
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_experience
-msgid "Prepare a list of specific questions or topics"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_book_page
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Privacy Policy"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_table
-msgid "Private room options"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Process and manage your appointment bookings"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
-msgid "Process optimization"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Process payments when required"
-msgstr ""
-
-#. module: reservation_module
-#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_product_id
-msgid "Product used for payment"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_meeting
-msgid "Project discussions"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
-msgid "Project management guidance"
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_product_ids
+msgid "Products used for payment. Each product creates one SO line."
 msgstr ""
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Provide a description for your customers..."
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
+msgid "Public description of this resource..."
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__description
+msgid "Public description visible to customers"
 msgstr ""
 
 #. module: reservation_module
@@ -2168,15 +2489,22 @@ msgid "Questions"
 msgstr ""
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__rating_ids
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__rating_ids
-msgid "Ratings"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__reason
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_closing_day_list
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+msgid "Reason"
 msgstr ""
 
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
 msgid "Reference"
+msgstr ""
+
+#. module: reservation_module
+#: model:mail.activity.type,name:reservation_module.mail_activity_type_refund_due
+msgid "Refund Due"
 msgstr ""
 
 #. module: reservation_module
@@ -2210,8 +2538,18 @@ msgid "Reports"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_request
-msgid "Request Data Deletion"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__require_guest_email
+msgid "Require Guest Email"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__require_guest_name
+msgid "Require Guest Name"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_type__require_guest_phone
+msgid "Require Guest Phone"
 msgstr ""
 
 #. module: reservation_module
@@ -2227,11 +2565,6 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__calendar_event_id
 msgid "Reservation Event"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_table
-msgid "Reserve a table at our restaurant."
 msgstr ""
 
 #. module: reservation_module
@@ -2266,28 +2599,49 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__activity_user_id
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__activity_user_id
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__activity_user_id
 msgid "Responsible User"
 msgstr ""
 
 #. module: reservation_module
-#: model:appointment.type,name:reservation_module.appointment_type_table
-msgid "Restaurant Reservation"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking_conflict_guard__revision
+msgid "Revision"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_confirmed
-msgid "Return to Appointments"
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__room_number
+msgid "Room Number"
 msgstr ""
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__message_has_sms_error
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__message_has_sms_error
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr ""
 
 #. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+#: model:ir.model,name:reservation_module.model_sale_order
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__sale_order_id
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 msgid "Sales Order"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__sale_order_count
+msgid "Sales Order Count"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model,name:reservation_module.model_sale_order_line
+msgid "Sales Order Line"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__is_one_local_day
+msgid "Same Local Day"
 msgstr ""
 
 #. module: reservation_module
@@ -2299,16 +2653,6 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__5
 msgid "Saturday"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_meeting
-msgid "Schedule a business meeting with our team, suitable for:"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_video_call
-msgid "Schedule a video consultation from anywhere in the world."
 msgstr ""
 
 #. module: reservation_module
@@ -2332,8 +2676,9 @@ msgid "Search Bookings"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Send booking confirmations, reminders, and updates"
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "Selected time is outside available hours."
 msgstr ""
 
 #. module: reservation_module
@@ -2361,7 +2706,6 @@ msgstr ""
 #. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_type.py:0
-#: model:ir.ui.menu,name:reservation_module.appointment_menu_settings
 msgid "Settings"
 msgstr ""
 
@@ -2376,6 +2720,11 @@ msgid "Show Image"
 msgstr ""
 
 #. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__area
+msgid "Size of the space in square meters"
+msgstr ""
+
+#. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_schedule_page
 msgid "Skip to calendar"
 msgstr ""
@@ -2386,14 +2735,27 @@ msgid "Slot"
 msgstr ""
 
 #. module: reservation_module
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__payment_hold_until
+msgid "Slot Held Until"
+msgstr ""
+
+#. module: reservation_module
 #. odoo-python
 #: code:addons/reservation_module/models/appointment_type.py:0
 msgid "Slot duration must be greater than 0."
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_table
-msgid "Special occasion arrangements"
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_type.py:0
+msgid ""
+"Slot interval (%(interval)s h) cannot exceed slot duration (%(duration)s h)."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_type.py:0
+msgid "Slot interval must be greater than 0."
 msgstr ""
 
 #. module: reservation_module
@@ -2469,6 +2831,7 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__activity_state
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__activity_state
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__activity_state
 msgid ""
 "Status based on activities\n"
 "Overdue: Due date is already passed\n"
@@ -2477,8 +2840,8 @@ msgid ""
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:appointment.type,description:reservation_module.appointment_type_meeting
-msgid "Strategic planning"
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__payment_display_amount
+msgid "Sum of selected product prices (for display only)"
 msgstr ""
 
 #. module: reservation_module
@@ -2498,13 +2861,84 @@ msgid "Technical"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_topic
-msgid "Technical architecture reviews"
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_type.py:0
+msgid ""
+"The booking form must require at least the guest email or the guest phone."
 msgstr ""
 
 #. module: reservation_module
-#: model:appointment.type,name:reservation_module.appointment_type_tennis
-msgid "Tennis Court Booking"
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"The guest e-mail was not sent: too many bookings for this address today."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"The order payment and invoice references above are for the whole order "
+"%(order)s, not the amount owed to this booking. Other bookings or products "
+"may share that money. Check the whole order, previous refunds and bank "
+"records before deciding the amount to return; do not refund each booking the"
+" full order balance."
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__payment_confirm_failed
+msgid ""
+"The payment was received but the booking could not be confirmed "
+"automatically. Confirm it manually or refund the customer."
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__require_guest_email
+msgid "The public booking form requires the guest email"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__require_guest_name
+msgid "The public booking form requires the guest name"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_type__require_guest_phone
+msgid "The public booking form requires the guest phone number"
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/sale_order.py:0
+msgid ""
+"The quantity of booking %(booking)s cannot be lowered here. Cancel the "
+"booking and book again to change it."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "The selected location is not available for this appointment."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "The selected staff member is not available for this appointment."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"The time slot of booking %s is no longer available. Please choose another "
+"time."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "There is nothing to pay for this booking."
 msgstr ""
 
 #. module: reservation_module
@@ -2525,10 +2959,27 @@ msgid "This booking has been reopened."
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
 msgid ""
-"This is an online meeting. Open the meeting room below to chat and start a "
-"video call:"
+"This booking was made before its order lines were tied to it, so what was "
+"paid for it cannot be told apart from the other items and bookings of order "
+"%(order)s: check the order before refunding, so that nothing is refunded "
+"twice."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/sale_order.py:0
+msgid ""
+"This cart holds booking %(bookings)s: its items cannot be changed, moved or "
+"removed here. To take them out of the cart, cancel the booking."
+msgstr ""
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/controllers/main.py:0
+msgid "This date is closed: %s"
 msgstr ""
 
 #. module: reservation_module
@@ -2545,13 +2996,6 @@ msgstr ""
 msgid ""
 "This staff member is no longer available for the selected time. Please "
 "choose another time."
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_request
-msgid ""
-"This will cancel all your active bookings and anonymize your personal data.\n"
-"                                        This action cannot be undone."
 msgstr ""
 
 #. module: reservation_module
@@ -2586,18 +3030,29 @@ msgid "Timezone"
 msgstr ""
 
 #. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__display_tz
+msgid "Timezone used to render this booking to the customer."
+msgstr ""
+
+#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_availability__hour_to
 msgid "To"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_consultation_experience
-msgid "To get the most out of your session:"
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__date_to
+msgid "To Date"
 msgstr ""
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 msgid "Today"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+msgid ""
+"Today onwards, by the booking's date in the appointment type's timezone."
 msgstr ""
 
 #. module: reservation_module
@@ -2622,6 +3077,11 @@ msgid "Total capacity across all resources"
 msgstr ""
 
 #. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_appointment_booking__is_one_local_day
+msgid "True when start and end fall on the same calendar day in display_tz."
+msgstr ""
+
+#. module: reservation_module
 #. odoo-javascript
 #: code:addons/reservation_module/static/src/js/appointment_booking.js:0
 msgid "Tue"
@@ -2635,12 +3095,8 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__activity_exception_decoration
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__activity_exception_decoration
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__activity_exception_decoration
 msgid "Type of the exception activity on record."
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Under applicable data protection regulations, you have the right to:"
 msgstr ""
 
 #. module: reservation_module
@@ -2664,16 +3120,6 @@ msgid "User"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_dietary
-msgid "Vegetarian and vegan options"
-msgstr ""
-
-#. module: reservation_module
-#: model:appointment.type,name:reservation_module.appointment_type_video_call
-msgid "Video Consultation"
-msgstr ""
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__video_link
 msgid "Video Link"
 msgstr ""
@@ -2684,25 +3130,9 @@ msgid "Video conference link"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.sale_order_portal_booking_link
-msgid "View Booking Details"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_home_booking
-msgid "View and manage your appointments"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid ""
-"We retain booking data for the period required by applicable laws.\n"
-"                               Cancelled bookings are kept for record-keeping purposes but can be anonymized on request."
-msgstr ""
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__website_message_ids
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__website_message_ids
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__website_message_ids
 msgid "Website Messages"
 msgstr ""
 
@@ -2714,6 +3144,7 @@ msgstr ""
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_appointment_booking__website_message_ids
 #: model:ir.model.fields,help:reservation_module.field_appointment_type__website_message_ids
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__website_message_ids
 msgid "Website communication history"
 msgstr ""
 
@@ -2724,54 +3155,6 @@ msgid "Wed"
 msgstr ""
 
 #. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-msgid "Error loading available times. Please try again."
-msgstr ""
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-msgid "Loading available times..."
-msgstr ""
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-msgid "Next month"
-msgstr ""
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-msgid "No available times for this date."
-msgstr ""
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-msgid "Previous month"
-msgstr ""
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-msgid "available"
-msgstr ""
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-msgid "selected"
-msgstr ""
-
-#. module: reservation_module
-#. odoo-javascript
-#: code:addons/reservation_module/static/src/js/appointment_booking.js:0
-msgid "unavailable"
-msgstr ""
-
-#. module: reservation_module
 #: model:ir.model.fields.selection,name:reservation_module.selection__appointment_availability__dayofweek__2
 msgid "Wednesday"
 msgstr ""
@@ -2779,26 +3162,6 @@ msgstr ""
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "Weekly Schedule"
-msgstr ""
-
-#. module: reservation_module
-#: model:appointment.question,name:reservation_module.question_consultation_topic
-msgid "What topics can I discuss during a consultation?"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "When you make an appointment booking, we collect:"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:appointment.question,answer:reservation_module.question_table_occasion
-msgid "Yes! We offer special arrangements for:"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Your Rights"
 msgstr ""
 
 #. module: reservation_module
@@ -2817,20 +3180,8 @@ msgid "Your appointment has been confirmed - {{ object.name }}"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_confirmed
-msgid ""
-"Your booking data has been anonymized and all active bookings have been "
-"cancelled."
-msgstr ""
-
-#. module: reservation_module
 #: model:mail.template,subject:reservation_module.email_template_booking_created
 msgid "Your booking has been received - {{ object.name }}"
-msgstr ""
-
-#. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "Your personal data is used to:"
 msgstr ""
 
 #. module: reservation_module
@@ -2846,8 +3197,39 @@ msgid "duration"
 msgstr ""
 
 #. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__floor
+msgid "e.g. 1F, B1, 3rd Floor"
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__room_number
+msgid "e.g. A101, Suite 5"
+msgstr ""
+
+#. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
 msgid "e.g. Meeting, Table Booking"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_closing_day_wizard_form
+msgid "e.g. National Holiday, Maintenance..."
+msgstr ""
+
+#. module: reservation_module
+#: model:ir.model.fields,help:reservation_module.field_resource_resource__amenities
+msgid "e.g. Projector, Whiteboard, WiFi, TV"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_list
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_page
+msgid "h"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_kanban
+msgid "h)"
 msgstr ""
 
 #. module: reservation_module
@@ -2856,11 +3238,159 @@ msgid "locations"
 msgstr ""
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
-msgid "portal"
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_list
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_page
+msgid "min"
 msgstr ""
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_kanban
 msgid "staff members"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "備註"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "加入 Apple 行事曆"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "加入 Google 行事曆"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "加入 Google 行事曆（另開新視窗）"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "加入 Outlook 行事曆"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "加入會議"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "已取消"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "已完成"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "已確認"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "待付款"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_home_booking
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_home_menu_booking
+msgid "我的預約"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "服務說明"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "服務項目"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_home_booking
+msgid "查看與管理您的預約"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.sale_order_portal_booking_link
+msgid "查看預約詳情"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "歷史紀錄"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "溝通紀錄"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "狀態"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "目前還沒有預約紀錄。"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "立即預約"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "線上會議"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "草稿"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "這是一場線上會議。請在預約時間使用以下連結加入："
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "這是一場線上會議。請點擊下方按鈕開啟會議室進行視訊通話："
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "開啟會議室"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "預約時間"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
+msgid "預約編號"
+msgstr ""
+
+#. module: reservation_module
+#: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_booking_detail
+msgid "預約資訊"
 msgstr ""

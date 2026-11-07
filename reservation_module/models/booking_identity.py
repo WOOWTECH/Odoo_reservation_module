@@ -67,3 +67,21 @@ def resolve_single_active_assignment(is_assigned, selected_id, active_ids):
             return None, 'not_available'
         return only_id, None
     return selected_id or None, None
+
+
+def normalize_booking_email(value):
+    """Mailbox key for rate limits: lowercase, ``+tag`` dropped from the local part.
+
+    ``Victim@Example.com`` and ``victim+1@example.com`` reach the same inbox,
+    so they must share one counter. Returns ``False`` for empty input.
+    """
+    if not isinstance(value, str):
+        return False
+    email = unicodedata.normalize('NFKC', value).strip().lower()
+    if not email:
+        return False
+    local, sep, domain = email.rpartition('@')
+    if not sep:
+        return email
+    local = local.split('+', 1)[0]
+    return '%s@%s' % (local, domain)

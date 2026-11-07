@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import TransactionCase, tagged
 from odoo.exceptions import UserError, ValidationError
 from datetime import datetime, timedelta
 from odoo import fields
 
 
+@tagged('post_install', '-at_install')
 class TestAppointmentBooking(TransactionCase):
     """Test suite for appointment booking core logic."""
 
@@ -326,3 +327,14 @@ class TestAppointmentBooking(TransactionCase):
             end_datetime=now + timedelta(days=1, hours=2),
         )
         self.assertAlmostEqual(booking.duration, 2.0, places=1)
+
+    def test_group_cannot_exceed_remaining_capacity(self):
+        start = fields.Datetime.now() + timedelta(days=3)
+        first = self._create_booking(resource_id=self.resource.id,
+            start_datetime=start, end_datetime=start + timedelta(hours=1))
+        first.action_confirm()
+        group = self._create_booking(resource_id=self.resource.id, guest_count=2,
+            start_datetime=start, end_datetime=start + timedelta(hours=1))
+        with self.assertRaises(UserError), self.env.cr.savepoint():
+            group.action_confirm()
+        self.assertEqual(group.state, 'draft')

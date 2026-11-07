@@ -460,7 +460,7 @@ Each booking record contains:
 - **Duration**: Calculated automatically
 - **Guest Info**: Name, email, phone, guest count
 - **Resource/Staff**: Assigned resource or staff member
-- **Payment Status**: Not Required / Pending / Paid / Refunded
+- **Payment Status**: Not Required / Pending / Paid / Refunded. *Refunded* only means the order was cancelled while no money was held for it. Cancelling a booking that was paid does not refund it: the order is kept, the status stays *Paid*, and a to-do ("Cancelled booking was paid: refund it") is assigned to an appointment manager, who refunds the payment (refund on the payment transaction or a credit note) and cancels the order
 - **Answers Tab**: Customer responses to custom questions
 - **Notes Tab**: Customer notes and internal staff notes
 - **Chatter**: Full message history and activity tracking

@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
 
 from odoo import http, fields, _
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.http import request, content_disposition
 from odoo.tools import consteq
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
+from odoo.addons.payment.controllers.portal import PaymentPortal
 from .. import tz_utils
+from ..client_address import SOURCE_UNKNOWN, address_group, client_address
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
 import calendar
+import hashlib
+import hmac
 import logging
 import re
 import secrets
@@ -16,11 +20,16 @@ import time
 
 from odoo.addons.phone_validation.tools import phone_validation
 from ..models.booking_identity import (
+    normalize_booking_email,
     normalize_booking_phone,
     resolve_single_active_assignment,
 )
 
 _logger = logging.getLogger(__name__)
+
+
+class _BookingRejected(Exception):
+    """Abort the booking savepoint and re-render the form with this message."""
 
 
 class AppointmentController(http.Controller):
@@ -428,6 +437,29 @@ class AppointmentController(http.Controller):
             appointment_type.assign_staff, None, active_staff_ids)
         return resolved_staff_id
 
+    def _roster_display_records(self, appointment_type, resource_id, staff_id):
+        """Resource / staff records the booking form may show by name.
+
+        The ids come from the query string or the posted form. Only active
+        members of this appointment type's roster (with the matching
+        ``assign_*`` enabled) are resolved; anything else is dropped, so the
+        page never prints the name of an arbitrary res.users or
+        resource.resource. ``_resolve_booking_selection`` still validates
+        the final submission.
+        """
+        resource = None
+        rid = self._safe_int(resource_id)
+        if (rid and appointment_type.assign_location
+                and rid in appointment_type.resource_ids.filtered('active').ids):
+            resource = request.env['resource.resource'].sudo().browse(rid)
+
+        staff = None
+        sid = self._safe_int(staff_id)
+        if (sid and appointment_type.assign_staff
+                and sid in appointment_type.staff_user_ids.filtered('active').ids):
+            staff = request.env['res.users'].sudo().browse(sid)
+        return resource, staff
+
     def _resolve_booking_selection(self, appointment_type, resource_id, staff_id):
         """Validate roster IDs and pin an assigned one-member roster server-side.
 
@@ -456,11 +488,28 @@ class AppointmentController(http.Controller):
         """Compatibility wrapper for resume validation, which only needs errors."""
         return self._resolve_booking_selection(appointment_type, resource_id, staff_id)[2]
 
+    @staticmethod
+    def _get_public_appointment_type(appointment_type_id):
+        """The appointment type a public route may use, or an empty recordset.
+
+        Only an existing, active and published type. ``browse().exists()``
+        alone also returns archived records, which used to keep an archived
+        (but still "published") type bookable by URL.
+        """
+        AppointmentType = request.env['appointment.type'].sudo()
+        try:
+            type_id = int(appointment_type_id or 0)
+        except (TypeError, ValueError):
+            return AppointmentType
+        appointment_type = AppointmentType.browse(type_id).exists() if type_id > 0 else AppointmentType
+        if not appointment_type or not appointment_type.active or not appointment_type.is_published:
+            return AppointmentType
+        return appointment_type
+
     def _booking_intent_redirect_url(self, intent):
         """Revalidate an authenticated callback; never submit a booking here."""
-        appointment_type = request.env['appointment.type'].sudo().browse(
-            intent.get('appointment_type_id', 0))
-        if not appointment_type.exists() or not appointment_type.active or not appointment_type.is_published:
+        appointment_type = self._get_public_appointment_type(intent.get('appointment_type_id', 0))
+        if not appointment_type:
             return '/appointment'
         try:
             start_dt = datetime.strptime(intent['start_datetime'], '%Y-%m-%d %H:%M:%S')
@@ -506,8 +555,8 @@ class AppointmentController(http.Controller):
     @http.route('/appointment/<int:appointment_type_id>', type='http', auth='public', website=True)
     def appointment_type(self, appointment_type_id, **kwargs):
         """Display appointment type details and start booking process"""
-        appointment_type = request.env['appointment.type'].sudo().browse(appointment_type_id)
-        if not appointment_type.exists() or not appointment_type.is_published:
+        appointment_type = self._get_public_appointment_type(appointment_type_id)
+        if not appointment_type:
             return request.redirect('/appointment')
 
         return request.render('reservation_module.appointment_type_page', {
@@ -518,8 +567,8 @@ class AppointmentController(http.Controller):
     @http.route('/appointment/<int:appointment_type_id>/schedule', type='http', auth='public', website=True)
     def appointment_schedule(self, appointment_type_id, resource_id=None, staff_id=None, **kwargs):
         """Display available time slots"""
-        appointment_type = request.env['appointment.type'].sudo().browse(appointment_type_id)
-        if not appointment_type.exists() or not appointment_type.is_published:
+        appointment_type = self._get_public_appointment_type(appointment_type_id)
+        if not appointment_type:
             return request.redirect('/appointment')
 
         # Determine which panels to show
@@ -541,8 +590,10 @@ class AppointmentController(http.Controller):
         # Calculate date range (in the appointment type's timezone, not UTC)
         start_date = self._today_local(appointment_type)
         end_date = start_date + timedelta(days=appointment_type.max_booking_days)
-        selected_staff_id = self._default_unique_active_staff_id(
-            appointment_type, self._safe_int(staff_id))
+        # Only roster members may be preselected (and so sent to /slots).
+        selected_resource, selected_staff = self._roster_display_records(
+            appointment_type, resource_id,
+            self._default_unique_active_staff_id(appointment_type, self._safe_int(staff_id)))
 
         return request.render('reservation_module.appointment_schedule_page', {
             'appointment_type': appointment_type,
@@ -552,8 +603,8 @@ class AppointmentController(http.Controller):
             'show_location_panel': show_location_panel,
             'start_date': start_date,
             'end_date': end_date,
-            'selected_resource_id': self._safe_int(resource_id),
-            'selected_staff_id': selected_staff_id,
+            'selected_resource_id': selected_resource.id if selected_resource else None,
+            'selected_staff_id': selected_staff.id if selected_staff else None,
             'timezone': appointment_type.timezone or 'UTC',
             't': self._get_translations(),
         })
@@ -561,19 +612,24 @@ class AppointmentController(http.Controller):
     @http.route('/appointment/<int:appointment_type_id>/slots', type='json', auth='public')
     def get_slots(self, appointment_type_id, date, resource_id=None, staff_id=None, **kwargs):
         """Get available slots for a specific date (AJAX endpoint)"""
-        appointment_type = request.env['appointment.type'].sudo().browse(appointment_type_id)
-        if not appointment_type.exists():
+        appointment_type = self._get_public_appointment_type(appointment_type_id)
+        if not appointment_type:
             return {'error': 'Appointment type not found'}
 
         try:
             selected_date = datetime.strptime(date, '%Y-%m-%d').date()
-        except ValueError:
+        except (TypeError, ValueError):
             return {'error': 'Invalid date format'}
 
-        # A one-member assigned roster is not a customer choice, but it must
-        # still be present here so cross-service staff conflicts hide its slots.
-        staff_id = self._default_unique_active_staff_id(
-            appointment_type, self._safe_int(staff_id))
+        # Same roster rule as the booking itself: only active members of this
+        # type's roster; anything else (another type's staff, any res.users /
+        # resource id, a missing id) gets the same answer and never reaches
+        # the busy/capacity queries. A one-member assigned roster is pinned
+        # so cross-service conflicts still hide its slots.
+        resource_id, staff_id, selection_error = self._resolve_booking_selection(
+            appointment_type, self._safe_int(resource_id), self._safe_int(staff_id))
+        if selection_error:
+            return {'error': 'The selected staff member or location is not available.'}
 
         # Check closing days — block slots on closed dates
         closing = request.env['appointment.closing.day'].sudo().search([
@@ -632,19 +688,20 @@ class AppointmentController(http.Controller):
         # aligns with a UTC day, and an availability window may legitimately
         # spill over midnight, so a strict [day_start_utc, day_end_utc) filter
         # would drop bookings that actually overlap the generated slots.
-        day_conflict_domain = [
-            ('state', 'in', ['confirmed', 'done']),
+        # Occupying = confirmed/done, plus bookings inside their payment hold
+        # (same rule as _check_booking_conflict).
+        Booking = request.env['appointment.booking'].sudo()
+        day_conflict_domain = Booking._occupying_domain() + [
             ('start_datetime', '<', day_end_utc + timedelta(days=1)),
             ('end_datetime', '>', day_start_utc - timedelta(days=1)),
         ]
-        Booking = request.env['appointment.booking'].sudo()
         staff_bookings = Booking.search(day_conflict_domain + [('staff_user_id', '=', int(staff_id))]) if staff_id else Booking
         resource_bookings = Booking.search(day_conflict_domain + [('resource_id', '=', int(resource_id))]) if resource_id else Booking
 
         capacity = 1
         if resource_id:
             resource = request.env['resource.resource'].sudo().browse(int(resource_id))
-            capacity = resource.capacity or 1
+            capacity = resource._get_booking_capacity()
 
         return {
             'tz': tz,
@@ -662,10 +719,23 @@ class AppointmentController(http.Controller):
 
         Wire format: 'start'/'end' are naive **UTC** strings (what gets stored),
         'start_time'/'end_time' are the **local** strings shown to the visitor.
+
+        The grid is walked in local wall time, so slots keep landing on the
+        same clock times across a daylight-saving change. A slot lasts
+        ``slot_duration`` of *real* time, though: that is what a booking
+        stores (start + duration), so the end is computed on the UTC side and
+        converted back for display. Wall clock arithmetic would make a slot
+        that straddles the change one hour too long or too short and would
+        offer slots the booking form then refuses. The windows are the ones
+        the booking form validates against (``_get_availability_windows``,
+        which skips a window whose start or end falls in a DST gap), so every
+        slot offered here is accepted there.
         """
         ctx = self._get_availability_and_bookings(appointment_type, selected_date, resource_id, staff_id)
+        windows = appointment_type._get_availability_windows(
+            selected_date, resource_id=resource_id, staff_id=staff_id)
 
-        if not ctx['availabilities']:
+        if not windows:
             return {'slots': []}
 
         slots = []
@@ -673,29 +743,31 @@ class AppointmentController(http.Controller):
         slot_interval = timedelta(hours=appointment_type.slot_interval or appointment_type.slot_duration)
         tz = ctx['tz']
         day_start_local = ctx['day_start_local']
-        # Guards against two wall-clock slots collapsing onto the same UTC
-        # instant. Skipping the DST gap below already prevents that, but the
-        # wire format is keyed on 'start', so a duplicate would be a silently
-        # unbookable entry — cheap to rule out here.
+        # Two availability rows may produce the same slot (overlapping
+        # windows); the wire format is keyed on 'start', so a duplicate would
+        # be a silently unbookable entry.
         seen_utc_starts = set()
 
-        for avail in ctx['availabilities']:
+        for _window_start_utc, window_end_utc, avail in windows:
             # Walk the window in local wall time so slots keep landing on the
             # same clock times even across a DST transition...
             current_local = self._hour_to_local_dt(day_start_local, avail.hour_from)
             end_local = self._hour_to_local_dt(day_start_local, avail.hour_to)
 
-            while current_local + slot_duration <= end_local:
-                slot_end_local = current_local + slot_duration
+            while current_local < end_local:
                 # ...and compare in UTC, the basis of every stored datetime.
                 try:
                     current_utc = self._local_to_utc(tz, current_local)
-                    slot_end_utc = self._local_to_utc(tz, slot_end_local)
                 except tz_utils.NonExistentLocalTime:
                     # DST spring-forward: this wall clock never happens, so
                     # there is no moment to book. Drop the slot.
                     current_local += slot_interval
                     continue
+                slot_end_utc = current_utc + slot_duration
+                if slot_end_utc > window_end_utc:
+                    # Later starts only end later (wall time and UTC move
+                    # forward together), so nothing else fits in this window.
+                    break
 
                 if current_utc in seen_utc_starts:
                     current_local += slot_interval
@@ -707,7 +779,7 @@ class AppointmentController(http.Controller):
                         for b in ctx['staff_bookings']
                     )
                     resource_overlap = sum(
-                        1 for b in ctx['resource_bookings']
+                        b.guest_count for b in ctx['resource_bookings']
                         if b.start_datetime < slot_end_utc and b.end_datetime > current_utc
                     ) if resource_id else 0
 
@@ -717,7 +789,7 @@ class AppointmentController(http.Controller):
                             'start': current_utc.strftime('%Y-%m-%d %H:%M:%S'),
                             'end': slot_end_utc.strftime('%Y-%m-%d %H:%M:%S'),
                             'start_time': current_local.strftime('%H:%M'),
-                            'end_time': slot_end_local.strftime('%H:%M'),
+                            'end_time': self._utc_to_local(tz, slot_end_utc).strftime('%H:%M'),
                             'available': ctx['capacity'] - resource_overlap if resource_id else 1,
                         })
 
@@ -765,7 +837,7 @@ class AppointmentController(http.Controller):
                 for b in ctx['staff_bookings']
             )
             resource_overlap = sum(
-                1 for b in ctx['resource_bookings']
+                b.guest_count for b in ctx['resource_bookings']
                 if b.start_datetime < slot_end and b.end_datetime > slot_start
             ) if resource_id else 0
 
@@ -784,12 +856,17 @@ class AppointmentController(http.Controller):
     @http.route('/appointment/<int:appointment_type_id>/event_dates', type='json', auth='public')
     def get_event_dates(self, appointment_type_id, year, month, **kwargs):
         """Get dates with events for a given month (special event mode)"""
-        appointment_type = request.env['appointment.type'].sudo().browse(appointment_type_id)
-        if not appointment_type.exists():
+        appointment_type = self._get_public_appointment_type(appointment_type_id)
+        if not appointment_type:
             return {'dates': []}
 
-        year = int(year)
-        month = int(month)
+        try:
+            year = int(year)
+            month = int(month)
+        except (TypeError, ValueError):
+            return {'dates': []}
+        if not (1 <= month <= 12 and 1900 <= year <= 9999):
+            return {'dates': []}
         _, num_days = calendar.monthrange(year, month)
 
         # Get all availability dayofweek values for this appointment type
@@ -820,8 +897,8 @@ class AppointmentController(http.Controller):
     @http.route('/appointment/<int:appointment_type_id>/book', type='http', auth='public', website=True, methods=['GET', 'POST'])
     def appointment_book(self, appointment_type_id, start_datetime=None, end_datetime=None, resource_id=None, staff_id=None, **kwargs):
         """Display booking form and handle submission"""
-        appointment_type = request.env['appointment.type'].sudo().browse(appointment_type_id)
-        if not appointment_type.exists() or not appointment_type.is_published:
+        appointment_type = self._get_public_appointment_type(appointment_type_id)
+        if not appointment_type:
             return request.redirect('/appointment')
 
         if request.httprequest.method == 'POST':
@@ -853,25 +930,23 @@ class AppointmentController(http.Controller):
         except ValueError:
             return request.redirect(f'/appointment/{appointment_type_id}/schedule')
 
-        # For event mode, use explicit end_datetime; for scheduled, compute from slot_duration
-        if not appointment_type.is_scheduled and end_datetime:
-            try:
-                end_dt = datetime.strptime(end_datetime, '%Y-%m-%d %H:%M:%S')
-            except ValueError:
-                end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
+        resource, staff = self._roster_display_records(
+            appointment_type,
+            resource_id,
+            self._default_unique_active_staff_id(
+                appointment_type, self._safe_int(staff_id)),
+        )
+
+        # Event mode books one whole availability window: the end comes from
+        # the window, never from the URL. Scheduled: fixed slot_duration.
+        if not appointment_type.is_scheduled:
+            end_dt = self._resolve_event_end(
+                appointment_type, start_dt, end_datetime,
+                resource.id if resource else None, staff.id if staff else None)
+            if not end_dt:
+                return request.redirect(f'/appointment/{appointment_type_id}/schedule')
         else:
             end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
-
-        resource = None
-        rid = self._safe_int(resource_id)
-        if rid:
-            resource = request.env['resource.resource'].sudo().browse(rid)
-
-        staff = None
-        sid = self._default_unique_active_staff_id(
-            appointment_type, self._safe_int(staff_id))
-        if sid:
-            staff = request.env['res.users'].sudo().browse(sid)
 
         # Pre-fill form for logged-in portal users
         portal_partner = None
@@ -919,15 +994,8 @@ class AppointmentController(http.Controller):
         if not end_dt and start_dt:
             end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
 
-        resource = None
-        rid = self._safe_int(data.get('resource_id'))
-        if rid:
-            resource = request.env['resource.resource'].sudo().browse(rid)
-
-        staff = None
-        sid = self._safe_int(data.get('staff_id'))
-        if sid:
-            staff = request.env['res.users'].sudo().browse(sid)
+        resource, staff = self._roster_display_records(
+            appointment_type, data.get('resource_id'), data.get('staff_id'))
 
         return request.render('reservation_module.appointment_book_page', {
             'appointment_type': appointment_type,
@@ -946,6 +1014,100 @@ class AppointmentController(http.Controller):
             'notes': data.get('notes', ''),
             't': self._get_translations(),
         })
+
+    def _resolve_event_end(self, appointment_type, start_dt, end_value, resource_id=None, staff_id=None):
+        """Event mode: the end of the availability window starting at ``start_dt``.
+
+        A submitted ``end_value`` must be exactly that window end (for
+        ``hour_to = 24`` the next local midnight); without one, the window
+        must be unambiguous. Returns None when (start, end) is not a window,
+        so a request can neither cut a window into short pieces nor stretch a
+        booking past it.
+        """
+        end_dt = None
+        if end_value:
+            try:
+                end_dt = datetime.strptime(end_value, '%Y-%m-%d %H:%M:%S')
+            except (TypeError, ValueError):
+                return None
+        local_date = self._utc_to_local(self._get_tz(appointment_type), start_dt).date()
+        window_ends = {
+            window_end
+            for window_start, window_end, _avail in appointment_type._get_availability_windows(
+                local_date, resource_id=resource_id, staff_id=staff_id)
+            if window_start == start_dt
+        }
+        if end_dt:
+            return end_dt if end_dt in window_ends else None
+        return window_ends.pop() if len(window_ends) == 1 else None
+
+    def _booking_client_key(self):
+        """Keyed hash of the visitor's public address, or False if unknown.
+
+        The address is the client behind the proxies in front of Odoo, not
+        ``remote_addr`` (a tunnel or proxy address, the same for every
+        visitor); see ``client_address`` for the rules. IPv6 visitors are
+        keyed by their /64. No raw address is stored. False means no public
+        address could be determined: the per-address limit is then not applied
+        (never one shared key for all such visitors).
+        """
+        address = client_address(getattr(request.httprequest, 'environ', None) or {})
+        if address is None:
+            _logger.info(
+                "Booking form: no public client address in the request (check the "
+                "proxy headers CF-Connecting-IP / X-Forwarded-For); the per-address "
+                "booking limit is not applied to it")
+            return False
+        secret = request.env['ir.config_parameter'].sudo().get_param('database.secret') or ''
+        return hmac.new(secret.encode(), ('booking-client:' + address_group(address)).encode(),
+                        hashlib.sha256).hexdigest()[:40]
+
+    def _booking_rate_limit_error(self, appointment_type, email, guest_phone, client_key):
+        """Hourly limits on the public booking form; returns an error or None.
+
+        The contact limit is keyed on what the visitor typed, so it is backed
+        by limits the visitor cannot pick: the client address, the logged-in
+        partner, and a cap per appointment type for the whole site. 0 in a
+        ``reservation_module.booking_rate_limit_*`` parameter disables that cap.
+        """
+        Booking = request.env['appointment.booking'].sudo()
+        one_hour_ago = fields.Datetime.now() - timedelta(hours=1)
+        too_many = _('Too many booking attempts. Please try again later.')
+
+        # M1: max 5 bookings per mailbox / normalized phone per hour
+        email_key = normalize_booking_email(email)
+        contact_domain = []
+        if email_key and guest_phone:
+            contact_domain = ['|', ('guest_email_normalized', '=', email_key), ('guest_phone', '=', guest_phone)]
+        elif email_key:
+            contact_domain = [('guest_email_normalized', '=', email_key)]
+        elif guest_phone:
+            contact_domain = [('guest_phone', '=', guest_phone)]
+        if contact_domain and Booking.search_count(
+                [('create_date', '>=', one_hour_ago)] + contact_domain) >= 5:
+            return too_many
+
+        if not request.env.user._is_public() and Booking.search_count([
+                ('create_date', '>=', one_hour_ago),
+                ('partner_id', '=', request.env.user.partner_id.id)]) >= 5:
+            return too_many
+
+        # Per client address. Not applied without a known public address
+        # (client_key False / SOURCE_UNKNOWN): visitors of unknown origin
+        # must not share one key.
+        per_client = Booking._get_int_param('reservation_module.booking_rate_limit_per_ip', 20)
+        if client_key and client_key != SOURCE_UNKNOWN and per_client > 0 and Booking.search_count([
+                ('create_date', '>=', one_hour_ago),
+                ('client_ip_hash', '=', client_key)]) >= per_client:
+            return too_many
+
+        per_type = Booking._get_int_param('reservation_module.booking_rate_limit_per_type', 100)
+        if per_type > 0 and Booking.search_count([
+                ('create_date', '>=', one_hour_ago),
+                ('appointment_type_id', '=', appointment_type.id),
+                ('client_ip_hash', '!=', False)]) >= per_type:
+            return too_many
+        return None
 
     def _process_booking(self, appointment_type, data):
         """Process the booking form submission"""
@@ -1003,11 +1165,19 @@ class AppointmentController(http.Controller):
                 guest_count = 1
         # Enforce upper bound from resource capacity or appointment type default
         max_guests = appointment_type.max_guests_per_booking if hasattr(appointment_type, 'max_guests_per_booking') and appointment_type.max_guests_per_booking else 100
-        rid = self._safe_int(data.get('resource_id'))
-        if rid:
-            resource = request.env['resource.resource'].sudo().browse(rid)
-            if resource.exists() and resource.capacity:
-                max_guests = resource.capacity
+        # Only a resource on this type's roster may set the limit; any other
+        # id would let the error message disclose an arbitrary resource's
+        # capacity. _resolve_booking_selection rejects such ids later anyway.
+        # Same capacity rule as the conflict check (0 / empty counts as 1);
+        # without a chosen location, the largest roster location is the limit.
+        resource, _staff = self._roster_display_records(
+            appointment_type, data.get('resource_id'), None)
+        if resource:
+            max_guests = resource._get_booking_capacity()
+        elif appointment_type.assign_location:
+            roster = appointment_type.resource_ids.filtered('active')
+            if roster:
+                max_guests = max(r._get_booking_capacity() for r in roster)
         if guest_count > max_guests:
             return self._render_booking_form_error(
                 appointment_type, data, _('Maximum %d guests allowed.', max_guests))
@@ -1019,21 +1189,27 @@ class AppointmentController(http.Controller):
         except ValueError:
             return request.redirect(f'/appointment/{appointment_type.id}/schedule')
 
-        # For event mode, use explicit end_datetime; for scheduled, compute from slot_duration
-        if not appointment_type.is_scheduled and data.get('end_datetime'):
-            try:
-                end_dt = datetime.strptime(data['end_datetime'], '%Y-%m-%d %H:%M:%S')
-            except ValueError:
-                end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
-        else:
+        # Roster IDs are resolved first: the availability check below must use
+        # the windows of the member actually booked.
+        resource_id, staff_id, selection_error = self._resolve_booking_selection(
+            appointment_type, self._safe_int(data.get('resource_id')),
+            self._safe_int(data.get('staff_id')))
+        if selection_error:
+            return self._render_booking_form_error(appointment_type, data, selection_error)
+
+        # Scheduled: fixed slot_duration. Event mode: exactly one availability
+        # window (the end is the window's, a forged one is refused below).
+        if appointment_type.is_scheduled:
             end_dt = start_dt + timedelta(hours=appointment_type.slot_duration)
+        else:
+            end_dt = self._resolve_event_end(
+                appointment_type, start_dt, data.get('end_datetime'), resource_id, staff_id)
 
         # start_dt / end_dt are UTC; closing days, availability windows and
         # max_booking_days are all expressed in local (appointment type) time,
         # so every check below runs on the local projection.
         tz = self._get_tz(appointment_type)
         start_local = self._utc_to_local(tz, start_dt)
-        end_local = self._utc_to_local(tz, end_dt)
 
         # H6: Validate closing days server-side
         closing = request.env['appointment.closing.day'].sudo().search([
@@ -1051,26 +1227,15 @@ class AppointmentController(http.Controller):
             return self._render_booking_form_error(
                 appointment_type, data, _('Cannot book beyond %d days in advance.', appointment_type.max_booking_days))
 
-        # L7: Validate selected time falls within an availability window
-        day_of_week = str(start_local.weekday())
-        avail_domain = [
-            ('appointment_type_id', '=', appointment_type.id),
-            ('dayofweek', '=', day_of_week),
-        ]
-        availabilities = request.env['appointment.availability'].sudo().search(avail_domain)
-        if not availabilities:
+        # L7: Validate selected time falls within an availability window of
+        # the selected staff member / location (rows limited to another member
+        # do not count), the same filter the slot list uses.
+        if not appointment_type._get_availability_windows(
+                start_local.date(), resource_id=resource_id, staff_id=staff_id):
             return self._render_booking_form_error(
                 appointment_type, data, _('No availability on the selected day.'))
-
-        # hour_from / hour_to are local wall-clock hours -> compare against the
-        # local projection, never against the UTC value.
-        slot_hour = start_local.hour + start_local.minute / 60.0
-        slot_end_hour = (end_local.hour + end_local.minute / 60.0) if end_local.date() == start_local.date() else 24.0
-        in_window = any(
-            avail.hour_from <= slot_hour and slot_end_hour <= avail.hour_to
-            for avail in availabilities
-        )
-        if not in_window:
+        if not end_dt or not appointment_type._interval_in_availability(
+                start_dt, end_dt, resource_id=resource_id, staff_id=staff_id):
             return self._render_booking_form_error(
                 appointment_type, data, _('Selected time is outside available hours.'))
 
@@ -1090,49 +1255,13 @@ class AppointmentController(http.Controller):
                     appointment_type, data,
                     _('Bookings must be made at least %s hours in advance.') % int(min_hours))
 
-        # Safe int() casts for resource_id and staff_id (H3)
-        resource_id = None
-        if data.get('resource_id'):
-            try:
-                resource_id = int(data['resource_id'])
-            except (ValueError, TypeError):
-                resource_id = None
-
-        staff_id = None
-        if data.get('staff_id'):
-            try:
-                staff_id = int(data['staff_id'])
-            except (ValueError, TypeError):
-                staff_id = None
-
-        resource_id, staff_id, selection_error = self._resolve_booking_selection(
-            appointment_type, resource_id, staff_id)
-        if selection_error:
-            return self._render_booking_form_error(appointment_type, data, selection_error)
-
         Booking = request.env['appointment.booking'].sudo()
 
-        # M1: Basic rate limiting — max 5 bookings per normalized phone/email per hour
-        one_hour_ago = fields.Datetime.now() - timedelta(hours=1)
-        if email and guest_phone:
-            rate_domain = [
-                '&', ('create_date', '>=', one_hour_ago),
-                '|', ('guest_email', '=', email), ('guest_phone', '=', guest_phone),
-            ]
-        elif email:
-            rate_domain = [
-                ('create_date', '>=', one_hour_ago),
-                ('guest_email', '=', email),
-            ]
-        else:
-            rate_domain = [
-                ('create_date', '>=', one_hour_ago),
-                ('guest_phone', '=', guest_phone),
-            ]
-        recent_count = Booking.search_count(rate_domain)
-        if recent_count >= 5:
-            return self._render_booking_form_error(
-                appointment_type, data, _('Too many booking attempts. Please try again later.'))
+        # M1: rate limits (contact, client address, partner, appointment type)
+        client_key = self._booking_client_key()
+        rate_error = self._booking_rate_limit_error(appointment_type, email, guest_phone, client_key)
+        if rate_error:
+            return self._render_booking_form_error(appointment_type, data, rate_error)
 
         # Build booking values (start/end are naive UTC — Odoo storage contract)
         booking_vals = {
@@ -1143,7 +1272,15 @@ class AppointmentController(http.Controller):
             'start_datetime': start_dt,
             'end_datetime': end_dt,
             'notes': (data.get('notes') or '')[:2000],  # L3: limit notes length
+            # Marks a public-form booking (mail cap, per-type cap) even when
+            # the client address is unknown; SOURCE_UNKNOWN is never a limit key.
+            'client_ip_hash': client_key or SOURCE_UNKNOWN,
         }
+        if appointment_type.require_payment:
+            # Hold the slot for the payment window from the first moment, in
+            # the same savepoint as the guarded conflict check.
+            # The window opens once; it is never renewed (_start_payment_hold).
+            booking_vals.update(Booking._new_payment_hold_vals())
 
         if resource_id:
             booking_vals['resource_id'] = resource_id
@@ -1152,49 +1289,74 @@ class AppointmentController(http.Controller):
 
         # Payment status is computed automatically from SO state
 
-        # The guard mutation, aggregate conflict check, contact mutation, and
-        # booking creation share one savepoint. A rejected/serialized booking
-        # therefore cannot leave an anonymous contact or a profile phone update.
-        with request.env.cr.savepoint():
-            conflict = Booking._check_booking_conflict(
-                start_dt=start_dt,
-                end_dt=end_dt,
-                staff_user_id=staff_id or False,
-                resource_id=resource_id or False,
-                lock=True,
-            )
-            if conflict.get('staff_conflict'):
-                return self._render_booking_form_error(
-                    appointment_type, data, _('This staff member is no longer available for the selected time. Please choose another time.'))
-            if conflict.get('resource_conflict'):
-                return self._render_booking_form_error(
-                    appointment_type, data, _('This location is no longer available for the selected time. Please choose another time.'))
+        # The guard mutation, aggregate conflict check, contact mutation,
+        # booking creation and staff/location auto-assignment share one
+        # savepoint. A rejected/serialized booking therefore cannot leave an
+        # anonymous contact, a profile phone update or an unassigned booking.
+        auto_staff = (appointment_type.staff_user_ids.filtered('active')
+                      if appointment_type.assign_staff and not staff_id else request.env['res.users'])
+        auto_resources = (appointment_type.resource_ids.filtered('active')
+                          if appointment_type.assign_location and not resource_id
+                          else request.env['resource.resource'])
+        try:
+            with request.env.cr.savepoint():
+                # Lock every dimension this request may take, in one sorted
+                # pass, before any aggregate (auto-assign may pick any member).
+                guard_keys = [f'staff:{sid}' for sid in ([staff_id] if staff_id else auto_staff.ids)]
+                guard_keys += [f'resource:{rid}' for rid in ([resource_id] if resource_id else auto_resources.ids)]
+                if guard_keys:
+                    request.env['appointment.booking.conflict.guard'].sudo()._acquire_keys(guard_keys)
+                conflict = Booking._check_booking_capacity(
+                    start_dt=start_dt,
+                    end_dt=end_dt,
+                    staff_user_id=staff_id or False,
+                    resource_id=resource_id or False,
+                    guest_count=guest_count,
+                    lock=True,
+                )
+                if conflict.get('staff_conflict'):
+                    raise _BookingRejected(_('This staff member is no longer available for the selected time. Please choose another time.'))
+                if conflict.get('resource_full'):
+                    raise _BookingRejected(_('This location is no longer available for the selected time. Please choose another time.'))
 
-            # M4: authenticated identity is server-owned; guest writes happen
-            # only after the guarded conflict check succeeds.
-            if not request.env.user._is_public():
-                partner = request.env.user.partner_id
-                booking_vals['guest_email'] = partner.email or email
-                if guest_phone and partner.phone != guest_phone:
-                    partner.sudo().write({'phone': guest_phone})
-            else:
-                # Public form input is not proof of account ownership. Always
-                # create a distinct guest contact; never search/merge by input.
-                booking_vals['guest_email'] = email
-                vals = {'name': guest_name or guest_phone or email}
-                if guest_phone:
-                    vals['phone'] = guest_phone
-                if email:
-                    vals['email'] = email
-                partner = request.env['res.partner'].sudo().create(vals)
-            booking_vals['partner_id'] = partner.id
-            booking = Booking.create(booking_vals)
+                # M4: authenticated identity is server-owned; guest writes happen
+                # only after the guarded conflict check succeeds.
+                if not request.env.user._is_public():
+                    partner = request.env.user.partner_id
+                    booking_vals['guest_email'] = partner.email or email
+                    if guest_phone and partner.phone != guest_phone:
+                        partner.sudo().write({'phone': guest_phone})
+                else:
+                    # Public form input is not proof of account ownership. Always
+                    # create a distinct guest contact; never search/merge by input.
+                    booking_vals['guest_email'] = email
+                    vals = {'name': guest_name or guest_phone or email}
+                    if guest_phone:
+                        vals['phone'] = guest_phone
+                    if email:
+                        vals['email'] = email
+                    partner = request.env['res.partner'].sudo().create(vals)
+                booking_vals['partner_id'] = partner.id
+                booking = Booking.create(booking_vals)
 
-        # Auto-assign staff/location if not customer-chosen
-        if appointment_type.assign_staff and not booking.staff_user_id:
-            booking._auto_assign_staff()
-        if appointment_type.assign_location and not booking.resource_id:
-            booking._auto_assign_location()
+                # Auto-assign staff/location if not customer-chosen: only a
+                # scheduled, free member with room for the whole party. When
+                # the roster has nobody left, the booking is refused instead
+                # of being created unassigned.
+                if auto_staff and not booking.staff_user_id and not booking._auto_assign_staff():
+                    raise _BookingRejected(_('No staff member is available for the selected time. Please choose another time.'))
+                if auto_resources and not booking.resource_id and not booking._auto_assign_location():
+                    raise _BookingRejected(_('No location has room for your party at the selected time. Please choose another time.'))
+                # A payable booking and its order are one unit. If the cart
+                # rejects the payment product, roll back the booking (and the
+                # guest contact) before any booking email is queued.
+                sale_order = False
+                if appointment_type.require_payment:
+                    sale_order = self._try_create_sale_order(booking)
+                    if not sale_order:
+                        raise _BookingRejected(_('Payment configuration error. Please contact support.'))
+        except _BookingRejected as rejection:
+            return self._render_booking_form_error(appointment_type, data, str(rejection))
 
         # Auto confirm if enabled and no payment required
         if appointment_type.auto_confirm and not appointment_type.require_payment:
@@ -1213,18 +1375,11 @@ class AppointmentController(http.Controller):
             #  - cart mode → /shop/cart so the visitor can add coupons,
             #    combine multiple bookings, then checkout normally
             #  - fresh SO → /my/orders/<id> as before (Odoo standard SO portal)
-            sale_order = booking._create_sale_order()
-            if sale_order:
-                if hasattr(request.website, 'sale_get_order'):
-                    # Cart mode active (website_sale installed)
-                    return request.redirect('/shop/cart')
-                return request.redirect(
-                    f'/my/orders/{sale_order.id}?access_token={sale_order.access_token}'
-                )
-            # SO creation failed — show error on booking form
-            return self._render_booking_form_error(
-                appointment_type, data,
-                _('Payment configuration error. Please contact support.')
+            if hasattr(request.website, 'sale_get_order'):
+                # Cart mode active (website_sale installed)
+                return request.redirect('/shop/cart')
+            return request.redirect(
+                f'/my/orders/{sale_order.id}?access_token={sale_order.access_token}'
             )
 
         return request.redirect(f'/appointment/booking/{booking.id}/confirm?token={booking.access_token}')
@@ -1291,9 +1446,9 @@ class AppointmentController(http.Controller):
             })
             booking.partner_id = partner
 
-        # Get payment context
-        amount = booking.sale_order_id.amount_total if booking.sale_order_id else 0
-        currency = booking.currency_id
+        # Get payment context: the booking's own lines, never the whole cart
+        amount = booking._get_payment_amount()
+        currency = booking._get_payment_currency()
         company = request.env.company
 
         # Get compatible payment providers and methods
@@ -1326,6 +1481,9 @@ class AppointmentController(http.Controller):
             'payment_methods_sudo': payment_methods_sudo,
             'tokens_sudo': tokens_sudo,
             'reference_prefix': f'APPT-{booking.id}',
+            # payment.form reads this for every method that can be tokenized:
+            # without it the page fails to render as soon as a provider offers one.
+            'show_tokenize_input_mapping': PaymentPortal._compute_show_tokenize_input_mapping(providers_sudo),
             'transaction_route': f'/appointment/payment/transaction/{booking.id}',
             'landing_route': f'/appointment/payment/validate?booking_id={booking.id}&token={access_token}',
             'access_token': access_token,
@@ -1345,19 +1503,28 @@ class AppointmentController(http.Controller):
         if booking.payment_status == 'paid':
             return request.redirect(f'/appointment/booking/{booking_id}/confirm?token={token}')
 
-        # Redirect to SO portal payment page (Odoo standard e-commerce flow)
-        if booking.sale_order_id:
-            so = booking.sale_order_id
-            return request.redirect(
-                f'/my/orders/{so.id}?access_token={so.access_token}'
-            )
+        # The hold may have expired and the slot been sold: never send the
+        # visitor to pay for a slot that can no longer be confirmed.
+        try:
+            booking._ensure_payment_hold()
+        except UserError as error:
+            return request.render('reservation_module.appointment_payment_page', {
+                'booking': booking,
+                'error': error.args[0] if error.args else str(error),
+                't': self._get_translations(),
+            })
 
-        # No SO yet — try to create one now
-        sale_order = booking._create_sale_order()
-        if sale_order:
-            return request.redirect(
-                f'/my/orders/{sale_order.id}?access_token={sale_order.access_token}'
-            )
+        # Redirect to SO portal payment page (Odoo standard e-commerce flow).
+        # Only the booking's own order: the link carries its access token.
+        payment_url = booking._get_payment_url()
+        if payment_url:
+            return request.redirect(payment_url)
+
+        # No SO yet — try to create one now (never next to a foreign one)
+        if not booking.sale_order_id and self._try_create_sale_order(booking):
+            payment_url = booking._get_payment_url()
+            if payment_url:
+                return request.redirect(payment_url)
 
         # Truly broken configuration — show error
         return request.render('reservation_module.appointment_payment_page', {
@@ -1365,6 +1532,25 @@ class AppointmentController(http.Controller):
             'error': _('Payment configuration error. Please contact support.'),
             't': self._get_translations(),
         })
+
+    @staticmethod
+    def _try_create_sale_order(booking):
+        """The booking's order, created now; False when it cannot be made.
+
+        The website cart refuses a payment product that is not for sale on the
+        website (unpublished, archived: "The given product does not exist
+        therefore it cannot be added to cart"). That is a payment
+        configuration error: the visitor gets the payment configuration error
+        page, not a bare 400. The savepoint takes back what was added before
+        the refusal (the section line the cart got for the booking).
+        """
+        try:
+            with request.env.cr.savepoint():
+                return booking._create_sale_order()
+        except UserError as error:
+            _logger.warning("Booking %s: its order could not be created: %s", booking.sudo().name,
+                            error.args[0] if error.args else error)
+            return False
 
     @http.route('/appointment/payment/transaction/<int:booking_id>', type='json', auth='public')
     def appointment_payment_transaction(self, booking_id, access_token=None, **kwargs):
@@ -1382,22 +1568,47 @@ class AppointmentController(http.Controller):
         if not partner:
             return {'error': 'Partner not found'}
 
-        # Create transaction using Odoo payment flow — only pass known safe kwargs
-        tx_kwargs = {}
-        for key in ('provider_id', 'payment_method_id', 'token_id', 'flow', 'tokenization_requested', 'landing_route'):
-            if key in kwargs:
-                tx_kwargs[key] = kwargs[key]
+        # A cancelled or finished booking takes no payment, and a booking that
+        # is paid takes no second one (the lines stay in the cart otherwise).
+        try:
+            booking._check_open_for_payment()
+            booking._ensure_payment_hold()
+        except UserError as error:
+            return {'error': error.args[0] if error.args else str(error)}
 
-        tx_sudo = request.env['payment.transaction'].sudo()._create_transaction(
-            amount=booking.sale_order_id.amount_total if booking.sale_order_id else 0,
-            currency_id=booking.currency_id.id,
-            partner_id=partner.id,
-            reference_prefix=f'APPT-{booking.id}',
-            **tx_kwargs,
-        )
+        # The amount, currency, partner and landing page are the server's:
+        # the booking's own order lines, whatever the client sends.
+        amount = booking._get_payment_amount()
+        currency = booking._get_payment_currency()
+        if not amount or amount <= 0 or not currency:
+            return {'error': _('There is nothing to pay for this booking.')}
+
+        def _int(value):
+            try:
+                return int(value) if value not in (None, '', False) else None
+            except (TypeError, ValueError):
+                return None
+
+        try:
+            tx_sudo = PaymentPortal._create_transaction(
+                self,
+                provider_id=_int(kwargs.get('provider_id')),
+                payment_method_id=_int(kwargs.get('payment_method_id')),
+                token_id=_int(kwargs.get('token_id')),
+                amount=amount,
+                currency_id=currency.id,
+                partner_id=partner.id,
+                flow=kwargs.get('flow'),
+                tokenization_requested=bool(kwargs.get('tokenization_requested')),
+                landing_route=(f'/appointment/payment/validate?booking_id={booking.id}'
+                               f'&token={booking.access_token}'),
+                reference_prefix=f'APPT-{booking.id}',
+                custom_create_values={'appointment_booking_id': booking.id},
+            )
+        except (UserError, ValidationError, AccessError) as error:
+            return {'error': error.args[0] if error.args else str(error)}
 
         # Link transaction to booking
-        tx_sudo.appointment_booking_id = booking.id
         booking.payment_transaction_id = tx_sudo.id
 
         # Render the payment processing template
@@ -1426,11 +1637,17 @@ class AppointmentController(http.Controller):
         elif tx_sudo and tx_sudo.state in ('pending', 'authorized'):
             # Payment pending (e.g., wire transfer)
             return request.redirect(f'/appointment/booking/{booking.id}/confirm?token={token}&pending=1')
-        else:
-            # Payment failed or cancelled — track failure and notify
-            error_detail = tx_sudo.state_message if tx_sudo else ''
-            booking._handle_payment_failure(error_message=error_detail)
-            return self._render_payment_page(booking, error=_('Payment was not completed. Please try again.'))
+        if booking.state not in ('draft', 'pending_payment') or not booking.appointment_type_id.require_payment:
+            # Nothing to pay (any more): show the booking, report nothing.
+            return request.redirect(f'/appointment/booking/{booking.id}?token={token}')
+        if tx_sudo and tx_sudo.state in ('error', 'cancel'):
+            # A real failed transaction: handled once per transaction, however
+            # often this page is loaded (the webhook may have handled it already).
+            booking._handle_payment_failure(
+                error_message=tx_sudo.state_message or '', transaction=tx_sudo)
+        # No transaction, or one not processed yet: not a failure, only offer
+        # the payment again.
+        return self._render_payment_page(booking, error=_('Payment was not completed. Please try again.'))
 
 
 class AppointmentPortal(CustomerPortal):

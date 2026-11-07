@@ -22,7 +22,9 @@ msgstr ""
 msgid ""
 "\n"
 "Error: %s"
-msgstr "\n错误：%s"
+msgstr ""
+"\n"
+"错误：%s"
 
 #. module: reservation_module
 #: model:mail.template,body_html:reservation_module.email_template_booking_done
@@ -65,7 +67,9 @@ msgid ""
 "                    🗓️ Date &amp; Time\n"
 "                </td>\n"
 "                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
-"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                    <!-- tz_name &#24517;&#22635;&#65306;&#37109;&#20214;&#30001; cron / OdooBot &#28210;&#26579;&#65292;&#35442;&#20351;&#29992;&#32773;&#36890;&#24120;&#27794;&#26377;&#26178;&#21312;&#65292;\n"
+"                         &#30465;&#30053;&#26178; QWeb &#26371;&#30452;&#25509;&#36664;&#20986; UTC&#65292;&#25910;&#20214;&#32773;&#30475;&#21040;&#30340;&#26178;&#38291;&#26371;&#23569; 8 &#23567;&#26178;&#12290; -->\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/>\n"
 "                </td>\n"
 "            </tr>\n"
 "            <t t-if=\"object.staff_user_id\">\n"
@@ -148,7 +152,9 @@ msgid ""
 "                    Date &amp; Time\n"
 "                </td>\n"
 "                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
-"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                    <!-- tz_name &#24517;&#22635;&#65306;&#37109;&#20214;&#30001; cron / OdooBot &#28210;&#26579;&#65292;&#35442;&#20351;&#29992;&#32773;&#36890;&#24120;&#27794;&#26377;&#26178;&#21312;&#65292;\n"
+"                         &#30465;&#30053;&#26178; QWeb &#26371;&#30452;&#25509;&#36664;&#20986; UTC&#65292;&#25910;&#20214;&#32773;&#30475;&#21040;&#30340;&#26178;&#38291;&#26371;&#23569; 8 &#23567;&#26178;&#12290; -->\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/>\n"
 "                </td>\n"
 "            </tr>\n"
 "            <t t-if=\"object.staff_user_id\">\n"
@@ -264,7 +270,9 @@ msgid ""
 "                    Date &amp; Time\n"
 "                </td>\n"
 "                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
-"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                    <!-- tz_name &#24517;&#22635;&#65306;&#37109;&#20214;&#30001; cron / OdooBot &#28210;&#26579;&#65292;&#35442;&#20351;&#29992;&#32773;&#36890;&#24120;&#27794;&#26377;&#26178;&#21312;&#65292;\n"
+"                         &#30465;&#30053;&#26178; QWeb &#26371;&#30452;&#25509;&#36664;&#20986; UTC&#65292;&#25910;&#20214;&#32773;&#30475;&#21040;&#30340;&#26178;&#38291;&#26371;&#23569; 8 &#23567;&#26178;&#12290; -->\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/>\n"
 "                </td>\n"
 "            </tr>\n"
 "            <t t-if=\"object.staff_user_id\">\n"
@@ -347,7 +355,9 @@ msgid ""
 "                    🗓️ Date &amp; Time\n"
 "                </td>\n"
 "                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
-"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/>\n"
+"                    <!-- tz_name &#24517;&#22635;&#65306;&#37109;&#20214;&#30001; cron / OdooBot &#28210;&#26579;&#65292;&#35442;&#20351;&#29992;&#32773;&#36890;&#24120;&#27794;&#26377;&#26178;&#21312;&#65292;\n"
+"                         &#30465;&#30053;&#26178; QWeb &#26371;&#30452;&#25509;&#36664;&#20986; UTC&#65292;&#25910;&#20214;&#32773;&#30475;&#21040;&#30340;&#26178;&#38291;&#26371;&#23569; 8 &#23567;&#26178;&#12290; -->\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/>\n"
 "                </td>\n"
 "            </tr>\n"
 "            <t t-if=\"object.staff_user_id\">\n"
@@ -389,14 +399,14 @@ msgid ""
 "                <p style=\"margin: 0 0 12px 0; font-size: 14px; color: #856404;\">\n"
 "                    Your booking requires payment before it can be confirmed. Please complete your payment to secure your reservation.\n"
 "                </p>\n"
-"                <t t-if=\"object.payment_amount\">\n"
+"                <t t-if=\"object._get_payment_url()\">\n"
 "                    <p style=\"margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #856404;\">\n"
-"                        Amount Due: <t t-out=\"object.payment_amount\" t-options=\"{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: object.currency_id}\"/>\n"
+"                        Amount Due: <t t-out=\"object._get_payment_amount()\" t-options=\"{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: object.currency_id}\"/>\n"
 "                    </p>\n"
 "                </t>\n"
-"                <t t-if=\"object.sale_order_id\">\n"
+"                <t t-if=\"object._get_payment_url()\">\n"
 "                    <div style=\"text-align: center;\">\n"
-"                        <a t-attf-href=\"{{ object.sale_order_id.get_portal_url() }}\" style=\"display: inline-block; background-color: #ffc107; color: #212529; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
+"                        <a t-att-href=\"object._get_payment_url()\" style=\"display: inline-block; background-color: #ffc107; color: #212529; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
 "                            Go to Payment\n"
 "                        </a>\n"
 "                    </div>\n"
@@ -466,8 +476,8 @@ msgid ""
 "        </table>\n"
 "        <div style=\"text-align: center; margin: 24px 0;\">\n"
 "            <p style=\"font-size: 14px; color: #555;\">Please try again using the link below:</p>\n"
-"            <t t-if=\"object.sale_order_id\">\n"
-"                <a t-attf-href=\"{{ object.sale_order_id.get_portal_url() }}\" style=\"display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
+"            <t t-if=\"object._get_payment_url()\">\n"
+"                <a t-att-href=\"object._get_payment_url()\" style=\"display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
 "                    Retry Payment\n"
 "                </a>\n"
 "            </t>\n"
@@ -492,31 +502,101 @@ msgstr ""
 #. module: reservation_module
 #: model:mail.template,body_html:reservation_module.email_template_booking_reminder
 msgid ""
-"<div style=\"margin: 0px; padding: 0px;\">\n"
-"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"        Dear <t t-out=\"object.guest_name\"/>,\n"
-"        <br/><br/>\n"
-"        This is a friendly reminder about your upcoming appointment:\n"
-"        <br/><br/>\n"
-"        <strong>Appointment Type:</strong> <t t-out=\"object.appointment_type_id.name\"/><br/>\n"
-"        <strong>Date &amp; Time:</strong> <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/> - <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;}\"/><br/>\n"
-"        <t t-if=\"object.resource_id\">\n"
-"            <strong>Resource:</strong> <t t-out=\"object.resource_id.name\"/><br/>\n"
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif; color: #333333;\">\n"
+"    <!-- Header -->\n"
+"    <div style=\"background-color: #17a2b8; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;\">\n"
+"        <h2 style=\"color: #ffffff; margin: 0; font-size: 22px;\">⏰ Appointment Reminder</h2>\n"
+"    </div>\n"
+"\n"
+"    <!-- Body -->\n"
+"    <div style=\"background-color: #ffffff; border: 1px solid #e0e0e0; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;\">\n"
+"        <p style=\"font-size: 15px; margin-top: 0;\">\n"
+"            Dear <t t-out=\"object.guest_name\"/>,\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px;\">\n"
+"            This is a friendly reminder about your upcoming appointment:\n"
+"        </p>\n"
+"\n"
+"        <!-- Booking details card -->\n"
+"        <table style=\"width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;\">\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; width: 40%; color: #666;\">\n"
+"                    📋 Booking Reference\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; font-weight: bold;\">\n"
+"                    <t t-out=\"object.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    🏷️ Appointment Type\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <t t-out=\"object.appointment_type_id.name\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <tr>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                    🗓️ Date &amp; Time\n"
+"                </td>\n"
+"                <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                    <!-- tz_name &#24517;&#22635;&#65306;&#37109;&#20214;&#30001; cron / OdooBot &#28210;&#26579;&#65292;&#35442;&#20351;&#29992;&#32773;&#36890;&#24120;&#27794;&#26377;&#26178;&#21312;&#65292;\n"
+"                         &#30465;&#30053;&#26178; QWeb &#26371;&#30452;&#25509;&#36664;&#20986; UTC&#65292;&#25910;&#20214;&#32773;&#30475;&#21040;&#30340;&#26178;&#38291;&#26371;&#23569; 8 &#23567;&#26178;&#12290; -->\n"
+"                    <t t-out=\"object.start_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/> — <t t-out=\"object.end_datetime\" t-options=\"{&quot;widget&quot;: &quot;datetime&quot;, &quot;tz_name&quot;: object.display_tz}\"/>\n"
+"                </td>\n"
+"            </tr>\n"
+"            <t t-if=\"object.staff_user_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        👤 Staff\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.staff_user_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"            <t t-if=\"object.resource_id\">\n"
+"                <tr>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; color: #666;\">\n"
+"                        📍 Location / Resource\n"
+"                    </td>\n"
+"                    <td style=\"padding: 10px 12px; background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;\">\n"
+"                        <t t-out=\"object.resource_id.name\"/>\n"
+"                    </td>\n"
+"                </tr>\n"
+"            </t>\n"
+"        </table>\n"
+"\n"
+"        <!-- Meeting URL button -->\n"
+"        <t t-if=\"object.meeting_url\">\n"
+"            <div style=\"text-align: center; margin: 24px 0; padding: 20px; background-color: #f0faf0; border: 1px solid #c3e6c3; border-radius: 8px;\">\n"
+"                <p style=\"margin: 0 0 12px 0; font-size: 14px; color: #555;\">\n"
+"                    🎥 Join your online meeting using the link below:\n"
+"                </p>\n"
+"                <a t-att-href=\"object.meeting_url\" style=\"display: inline-block; background-color: #28a745; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;\">\n"
+"                    Join Meeting\n"
+"                </a>\n"
+"                <p style=\"margin: 12px 0 0 0; font-size: 12px; color: #888;\">\n"
+"                    <t t-out=\"object.meeting_url\"/>\n"
+"                </p>\n"
+"            </div>\n"
 "        </t>\n"
-"        <t t-if=\"object.staff_user_id\">\n"
-"            <strong>Staff:</strong> <t t-out=\"object.staff_user_id.name\"/><br/>\n"
-"        </t>\n"
-"        <br/>\n"
-"        <strong>Booking Reference:</strong> <t t-out=\"object.name\"/><br/>\n"
-"        <br/>\n"
-"        You can view your booking here:<br/>\n"
-"        <a t-att-href=\"object.get_portal_url()\">View Booking</a>\n"
-"        <br/><br/>\n"
-"        We look forward to seeing you!\n"
-"        <br/><br/>\n"
-"        Best regards,<br/>\n"
-"        <t t-out=\"object.company_id.name\"/>\n"
-"    </p>\n"
+"\n"
+"        <!-- View booking link -->\n"
+"        <div style=\"text-align: center; margin: 20px 0;\">\n"
+"            <a t-att-href=\"object.get_portal_url()\" style=\"display: inline-block; background-color: #17a2b8; color: #ffffff; padding: 10px 28px; text-decoration: none; border-radius: 6px; font-size: 14px;\">\n"
+"                View Booking Details\n"
+"            </a>\n"
+"        </div>\n"
+"\n"
+"        <p style=\"font-size: 14px; color: #555; margin-bottom: 0;\">\n"
+"            We look forward to seeing you!\n"
+"        </p>\n"
+"        <p style=\"font-size: 14px; color: #555; margin-top: 8px;\">\n"
+"            Best regards,<br/>\n"
+"            <strong><t t-out=\"object.company_id.name\"/></strong>\n"
+"        </p>\n"
+"    </div>\n"
 "</div>\n"
 "            "
 msgstr ""
@@ -579,7 +659,10 @@ msgid ""
 "<span class=\"badge text-bg-success\">\n"
 "                                                <i class=\"fa fa-check me-1\"/>Paid\n"
 "                                            </span>"
-msgstr "<span class=\"badge text-bg-success\">\n                                                <i class=\"fa fa-check me-1\"/>已付款\n                                            </span>"
+msgstr ""
+"<span class=\"badge text-bg-success\">\n"
+"                                                <i class=\"fa fa-check me-1\"/>已付款\n"
+"                                            </span>"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.portal_my_bookings
@@ -794,7 +877,9 @@ msgstr "预约日期、时间和偏好"
 msgid ""
 "Appointment scheduled for %(date)s at %(time)s.\n"
 "Use the call button above to start your video meeting."
-msgstr "预约已安排在 %(date)s %(time)s。\n请使用上方的通话按钮开始视频会议。"
+msgstr ""
+"预约已安排在 %(date)s %(time)s。\n"
+"请使用上方的通话按钮开始视频会议。"
 
 #. module: reservation_module
 #: model:mail.template,name:reservation_module.email_template_booking_cancelled
@@ -1023,6 +1108,7 @@ msgstr "我可以要求特殊场合布置吗？"
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_form
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_deletion_request
+#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_closing_day_wizard_form
 msgid "Cancel"
 msgstr "取消"
 
@@ -1166,6 +1252,7 @@ msgstr "预约前显示给访客的内容..."
 
 #. module: reservation_module
 #: model_terms:ir.actions.act_window,help:reservation_module.resource_resource_action
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_action
 msgid "Create a new resource"
 msgstr "创建新资源"
 
@@ -1232,6 +1319,7 @@ msgstr "我们收集的数据"
 #. odoo-python
 #: code:addons/reservation_module/controllers/main.py:0
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__date
 msgid "Date"
 msgstr "日期"
 
@@ -1254,6 +1342,7 @@ msgstr "已删除的用户"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__description
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__description
 msgid "Description"
 msgstr "描述"
 
@@ -1647,6 +1736,7 @@ msgstr "让您的客户在线预约。"
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__location_id
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_booking_view_search
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_type_view_form
+#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__location
 msgid "Location"
 msgstr "场地"
 
@@ -2002,7 +2092,10 @@ msgid ""
 "Payment failure #%(count)s for booking %(booking)s.\n"
 "Customer: %(name)s (%(email)s)\n"
 "Amount: %(amount)s %(currency)s"
-msgstr "预约 %(booking)s 第 %(count)s 次付款失败。\n客户：%(name)s (%(email)s)\n金额：%(amount)s %(currency)s"
+msgstr ""
+"预约 %(booking)s 第 %(count)s 次付款失败。\n"
+"客户：%(name)s (%(email)s)\n"
+"金额：%(amount)s %(currency)s"
 
 #. module: reservation_module
 #: model_terms:ir.ui.view,arch_db:reservation_module.appointment_privacy_policy
@@ -2250,6 +2343,7 @@ msgstr "资源"
 
 #. module: reservation_module
 #: model_terms:ir.actions.act_window,help:reservation_module.resource_resource_action
+#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_action
 msgid "Resources are bookable items like rooms, tables, courts, or equipment."
 msgstr "资源是可预约的项目，如房间、餐桌、球场或设备。"
 
@@ -2469,7 +2563,11 @@ msgid ""
 "Overdue: Due date is already passed\n"
 "Today: Activity date is today\n"
 "Planned: Future activities."
-msgstr "基于活动的状态\n逾期：截止日期已过\n今天：活动日期为今天\n计划中：未来的活动。"
+msgstr ""
+"基于活动的状态\n"
+"逾期：截止日期已过\n"
+"今天：活动日期为今天\n"
+"计划中：未来的活动。"
 
 #. module: reservation_module
 #: model_terms:appointment.type,description:reservation_module.appointment_type_meeting
@@ -2547,7 +2645,9 @@ msgstr "该员工在所选时间已不可用，请选择其他时间。"
 msgid ""
 "This will cancel all your active bookings and anonymize your personal data.\n"
 "                                        This action cannot be undone."
-msgstr "这将取消您所有有效的预约并匿名化您的个人数据。\n                                        此操作无法撤销。"
+msgstr ""
+"这将取消您所有有效的预约并匿名化您的个人数据。\n"
+"                                        此操作无法撤销。"
 
 #. module: reservation_module
 #. odoo-javascript
@@ -2693,7 +2793,9 @@ msgstr "查看和管理您的预约"
 msgid ""
 "We retain booking data for the period required by applicable laws.\n"
 "                               Cancelled bookings are kept for record-keeping purposes but can be anonymized on request."
-msgstr "我们会在适用法律要求的期限内保留预约数据。\n                               已取消的预约会保留作为记录用途，但可应要求进行匿名化处理。"
+msgstr ""
+"我们会在适用法律要求的期限内保留预约数据。\n"
+"                               已取消的预约会保留作为记录用途，但可应要求进行匿名化处理。"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_booking__website_message_ids
@@ -2871,12 +2973,8 @@ msgid "Add Closing Days Wizard"
 msgstr "添加休息日向导"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__date
-msgid "Date"
-msgstr "日期"
-
-#. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day__name
+#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__reason
 msgid "Reason"
 msgstr "原因"
 
@@ -2889,11 +2987,6 @@ msgstr "起始日期"
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__date_to
 msgid "To Date"
 msgstr "结束日期"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_appointment_closing_day_wizard__reason
-msgid "Reason"
-msgstr "原因"
 
 #. module: reservation_module
 #: model:ir.model.fields,field_description:reservation_module.field_appointment_type__closing_day_ids
@@ -2925,11 +3018,6 @@ msgid "Closing day date cannot be in the past."
 msgstr "休息日日期不能是过去的日期。"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.appointment_closing_day_wizard_form
-msgid "Cancel"
-msgstr "取消"
-
-#. module: reservation_module
 #: model:ir.ui.view,arch_db:reservation_module.appointment_closing_day_wizard_form
 msgid "e.g. National Holiday, Maintenance..."
 msgstr "例如：国定假日、维护..."
@@ -2953,16 +3041,6 @@ msgstr "所选日期无可用时段。"
 #: code:addons/reservation_module/controllers/main.py:0
 msgid "Selected time is outside available hours."
 msgstr "所选时间不在营业时间内。"
-
-#. module: reservation_module
-#: code:addons/reservation_module/controllers/main.py:0
-msgid "Maximum %d guests allowed."
-msgstr "最多允许 %d 位客人。"
-
-#. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__location
-msgid "Location"
-msgstr "位置"
 
 #. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_resource_resource__location
@@ -3010,11 +3088,6 @@ msgid "e.g. Projector, Whiteboard, WiFi, TV"
 msgstr "例如：投影仪、白板、WiFi、电视"
 
 #. module: reservation_module
-#: model:ir.model.fields,field_description:reservation_module.field_resource_resource__description
-msgid "Description"
-msgstr "描述"
-
-#. module: reservation_module
 #: model:ir.model.fields,help:reservation_module.field_resource_resource__description
 msgid "Public description visible to customers"
 msgstr "对外公开的场地说明"
@@ -3040,22 +3113,64 @@ msgid "Internal notes (not visible to customers)..."
 msgstr "内部备注（客户不可见）..."
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_form_view
-msgid "Resource Name"
-msgstr "场地名称"
+#: model:mail.activity.type,name:reservation_module.mail_activity_type_refund_due
+msgid "Refund Due"
+msgstr "待退款"
 
 #. module: reservation_module
-#: model:ir.actions.act_window,name:reservation_module.resource_resource_action
-#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_list_view
-msgid "Resources"
-msgstr "场地"
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+#: model:mail.activity.type,summary:reservation_module.mail_activity_type_refund_due
+msgid "Cancelled booking was paid: refund it"
+msgstr "已取消的预约已付款：请退款"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_action
-msgid "Create a new resource"
-msgstr "创建新场地"
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"Booking %(booking)s was cancelled but it had been paid by %(payments)s. "
+"Cancelling this booking did not issue a refund, and its order was kept: "
+"check any previous refunds before returning money to the customer."
+msgstr ""
+"预约 %(booking)s 已取消，但曾通过 %(payments)s 付款。取消预约不会自动退款，订单仍保留；退还款项前请先核对先前的退款。"
 
 #. module: reservation_module
-#: model_terms:ir.ui.view,arch_db:reservation_module.resource_resource_action
-msgid "Resources are bookable items like rooms, tables, courts, or equipment."
-msgstr "场地是可预约的项目，例如房间、桌位、场地或设备。"
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"Credit notes already issued for it add up to %(credited)s. Issuing a credit "
+"note does not prove the customer received a refund: check the payment and "
+"bank records before refunding or closing this task."
+msgstr "此预约已开具的折让单合计 %(credited)s：只需退折让单没有涵盖的部分。"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"This booking was made before its order lines were tied to it, so what was "
+"paid for it cannot be told apart from the other items and bookings of order "
+"%(order)s: check the order before refunding, so that nothing is refunded "
+"twice."
+msgstr ""
+"这笔预约创建时，订单行尚未绑定到预约，所以它所付的款项无法与订单 %(order)s 上的其他商品和预约区分：退款前请先核对订单，避免重复退款。"
+
+#. module: reservation_module
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"Payment is required before confirming this booking. Its sales order "
+"%(order)s is not an order of this booking or of its customer, so the "
+"payments on it do not count."
+msgstr "确认此预约前需要付款。它所连的销售订单 %(order)s 不是这笔预约或其客户的订单，该订单上的付款不计入。"
+
+#. odoo-python
+#: code:addons/reservation_module/models/appointment_booking.py:0
+msgid ""
+"The order payment and invoice references above are for the whole order "
+"%(order)s, not the amount owed to this booking. Other bookings or products "
+"may share that money. Check the whole order, previous refunds and bank "
+"records before deciding the amount to return; do not refund each booking the"
+" full order balance."
+msgstr ""
+"上述订单付款与发票编号属于整张订单 "
+"%(order)s，并非这笔预约应退的金额。其他预约或商品可能共用这笔款项。决定退款金额前，请核对整张订单、先前退款及银行记录；不要对每笔预约各退整张订单的余额。"

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Booking calendar events carry the guest as attendee. Core privacy
+        ('private') only masks calendar.event field values in reads: the
+        calendar.attendee rows (guest name, email, phone), the res.partner
+        meeting_ids relation and domain searches stay open to every employee.
+        These global rules confine booking events and their attendee rows to
+        the organizer (assigned staff), the booking's guest and appointment
+        managers. Global rules (not group rules) so that another module's
+        permissive employee rule cannot OR them away. Events not created by a
+        booking are untouched.
+
+        Participation is read from user_id and appointment_guest_partner_id,
+        never from partner_ids / attendee partner_id: any employee can add
+        their own partner to partner_ids from the res.partner side
+        (meeting_ids writes the relation table without checking the event),
+        and a self-made attendee row would otherwise pass its own create rule.
+        Both marker fields are set only by the booking (see calendar_event.py).
+
+        noupdate="0": the rules follow the module code on every upgrade.
+    -->
+    <data noupdate="0">
+        <record id="calendar_event_rule_appointment_booking" model="ir.rule">
+            <field name="name">Appointment booking events: participants and appointment managers</field>
+            <field name="model_id" ref="calendar.model_calendar_event"/>
+            <field name="domain_force">[(1, '=', 1)] if user.has_group('reservation_module.group_appointment_manager') else ['|', '|', ('is_appointment_booking', '=', False), ('user_id', '=', user.id), ('appointment_guest_partner_id', '=', user.partner_id.id)]</field>
+        </record>
+
+        <record id="calendar_attendee_rule_appointment_booking" model="ir.rule">
+            <field name="name">Appointment booking attendees: participants and appointment managers</field>
+            <field name="model_id" ref="calendar.model_calendar_attendee"/>
+            <field name="domain_force">[(1, '=', 1)] if user.has_group('reservation_module.group_appointment_manager') else ['|', '|', ('event_id.is_appointment_booking', '=', False), ('event_id.user_id', '=', user.id), ('event_id.appointment_guest_partner_id', '=', user.partner_id.id)]</field>
+        </record>
+    </data>
+</odoo>

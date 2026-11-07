@@ -17,6 +17,19 @@
             <field name="company_id" eval="False"/>
         </record>
 
+        <!-- The to-do that asks a manager to refund a cancelled booking that
+             was paid. One is open per booking at most, whatever language the
+             cancelling request was in (appointment.booking
+             _get_open_refund_activities looks it up by this type). -->
+        <record id="mail_activity_type_refund_due" model="mail.activity.type">
+            <field name="name">Refund Due</field>
+            <field name="summary">Cancelled booking was paid: refund it</field>
+            <field name="res_model">appointment.booking</field>
+            <field name="icon">fa-money</field>
+            <field name="decoration_type">warning</field>
+            <field name="delay_count">0</field>
+        </record>
+
     </data>
 
     <!-- Email templates. noupdate="0" so an upgrade actually re-applies them:
@@ -231,14 +244,14 @@
                 <p style="margin: 0 0 12px 0; font-size: 14px; color: #856404;">
                     Your booking requires payment before it can be confirmed. Please complete your payment to secure your reservation.
                 </p>
-                <t t-if="object.sale_order_id">
+                <t t-if="object._get_payment_url()">
                     <p style="margin: 0 0 12px 0; font-size: 16px; font-weight: bold; color: #856404;">
-                        Amount Due: <t t-out="object.sale_order_id.amount_total" t-options='{"widget": "monetary", "display_currency": object.currency_id}'/>
+                        Amount Due: <t t-out="object._get_payment_amount()" t-options='{"widget": "monetary", "display_currency": object.currency_id}'/>
                     </p>
                 </t>
-                <t t-if="object.sale_order_id">
+                <t t-if="object._get_payment_url()">
                     <div style="text-align: center;">
-                        <a t-attf-href="{{ object.sale_order_id.get_portal_url() }}"
+                        <a t-att-href="object._get_payment_url()"
                            style="display: inline-block; background-color: #ffc107; color: #212529; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;">
                             Go to Payment
                         </a>
@@ -611,14 +624,14 @@
                     Amount Due
                 </td>
                 <td style="padding: 10px 12px; border-bottom: 1px solid #e9ecef; font-weight: bold;">
-                    <t t-out="object.sale_order_id.amount_total if object.sale_order_id else 0" t-options='{"widget": "monetary", "display_currency": object.currency_id}'/>
+                    <t t-out="object._get_payment_amount()" t-options='{"widget": "monetary", "display_currency": object.currency_id}'/>
                 </td>
             </tr>
         </table>
         <div style="text-align: center; margin: 24px 0;">
             <p style="font-size: 14px; color: #555;">Please try again using the link below:</p>
-            <t t-if="object.sale_order_id">
-                <a t-attf-href="{{ object.sale_order_id.get_portal_url() }}"
+            <t t-if="object._get_payment_url()">
+                <a t-att-href="object._get_payment_url()"
                    style="display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;">
                     Retry Payment
                 </a>

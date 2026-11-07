@@ -174,9 +174,10 @@
                                 <h6><small class="text-muted">付款</small></h6>
                                 <span class="text-success"><i class="fa fa-check-circle me-1"/>已付款</span>
                             </div>
-                            <div t-if="booking.payment_status == 'pending' and booking.sale_order_id" class="d-flex flex-column gap-2">
+                            <t t-set="payment_url" t-value="booking.payment_status == 'pending' and booking._get_payment_url()"/>
+                            <div t-if="payment_url" class="d-flex flex-column gap-2">
                                 <h6><small class="text-muted">付款</small></h6>
-                                <a t-attf-href="/my/orders/#{booking.sale_order_id.id}?access_token=#{booking.sale_order_id.access_token}" class="btn btn-primary btn-sm w-100 wt-reservation-action">
+                                <a t-att-href="payment_url" class="btn btn-primary btn-sm w-100 wt-reservation-action">
                                     <i class="fa fa-credit-card me-1"/>前往付款
                                 </a>
                             </div>

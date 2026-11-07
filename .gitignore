@@ -95,3 +95,11 @@ progress.md
 findings.md
 odoo_server_info.md
 user_prompt.md
+# Browser session / auth state (Playwright storageState etc.) — never commit
+odoo-auth.json
+*-auth.json
+auth.json
+storageState*.json
+*.storage-state.json
+playwright/.auth/
+.auth/

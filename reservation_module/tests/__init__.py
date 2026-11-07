@@ -4,3 +4,13 @@ from . import test_booking_conflict_guard
 from . import test_timezone
 from . import test_timezone_pure
 from . import test_booking_form_settings
+from . import test_security_acl
+from . import test_booking_rules
+from . import test_payment_binding
+from . import test_legacy_order_links
+from . import test_payment_integrity
+from . import test_client_address
+from . import test_booking_client_key
+from . import test_timezone_dst
+from . import test_guest_mail_content
+from . import test_payment_money_gates

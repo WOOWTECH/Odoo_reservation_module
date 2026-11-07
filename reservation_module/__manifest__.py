@@ -15,7 +15,7 @@
         - FAQ / Q&A for appointment types
         - Email notifications and reminders
     """,
-    "version": "18.0.3.2.0",
+    "version": "18.0.3.2.2",
     "category": "Services/Appointment",
     "author": "WoowTech",
     "website": "https://aiot.woowtech.io/",
@@ -35,6 +35,7 @@
         # Security
         "security/appointment_security.xml",
         "security/ir.model.access.csv",
+        "security/appointment_calendar_security.xml",
         # Data
         "data/appointment_data.xml",
         # Wizard

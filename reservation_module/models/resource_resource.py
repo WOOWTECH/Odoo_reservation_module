@@ -59,6 +59,16 @@ class ResourceResource(models.Model):
             resource.booking_count = len(bookings)
             resource.upcoming_booking_count = len(bookings.filtered(lambda b: b.start_datetime > now))
 
+    def _get_booking_capacity(self):
+        """Guests this resource takes at once; 0 / empty / negative mean 1.
+
+        One rule for the conflict check, the slot list and the booking
+        form's guest limit (the form used to fall back to 100 guests for a
+        capacity of 0 while the conflict check counted it as 1).
+        """
+        self.ensure_one()
+        return self.capacity if self.capacity and self.capacity > 0 else 1
+
     def action_view_bookings(self):
         """Open bookings for this resource"""
         self.ensure_one()

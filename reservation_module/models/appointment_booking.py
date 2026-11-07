@@ -494,8 +494,8 @@ class AppointmentBooking(models.Model):
                         booking._get_reconciled_cash_amount(), required) >= 0:
                     return True
             return booking._is_paid_by_transaction() or any(
-                booking._tx_covers_booking(tx) for tx in relevant
-                if tx.state in ('authorized', 'done'))
+                booking._tx_covers_booking(tx, settled_only=True) for tx in relevant
+                if tx.state == 'done')
         return bool(booking._is_paid_by_transaction()
                     or (booking.sale_order_id and booking._is_paid_by_invoices()))
 
@@ -764,7 +764,7 @@ class AppointmentBooking(models.Model):
             return False  # an order payment: judged through the invoices
         return booking._tx_covers_booking(tx)
 
-    def _tx_covers_booking(self, tx):
+    def _tx_covers_booking(self, tx, settled_only=False):
         """Whether the payment ``tx`` pays for this booking's own lines.
 
         * the booking's pay page (tx.appointment_booking_id, no order): its
@@ -778,6 +778,8 @@ class AppointmentBooking(models.Model):
         self.ensure_one()
         booking = self.sudo()
         tx = tx.sudo()
+        if settled_only and tx.state != 'done':
+            return False
         # A partial refund can leave money held without covering the price.
         if not tx or tx.operation in ('refund', 'validation') or booking._tx_net_amount(tx) <= 0:
             return False
@@ -810,7 +812,8 @@ class AppointmentBooking(models.Model):
             booking._tx_net_amount(t) for t in (order.transaction_ids | tx)
             if t.sale_order_ids == order and t.currency_id == currency
             and t.operation != 'validation' and booking._tx_net_amount(t) > 0
-            and (t == tx or t.state in ('authorized', 'done')))
+            and (t.state == 'done' if settled_only
+                 else t == tx or t.state in ('authorized', 'done')))
         return order.amount_total > 0 and currency.compare_amounts(paid, order.amount_total) >= 0
 
     def _is_paid_by(self, tx):
@@ -819,7 +822,7 @@ class AppointmentBooking(models.Model):
         from an order that is not its own must not let a payment (any
         payment) go on to confirm it or hold its slot."""
         self.ensure_one()
-        return self._is_fully_paid() or self._tx_covers_booking(tx)
+        return self._is_fully_paid() or self._tx_covers_booking(tx, settled_only=True)
 
     # ------------------------------------------------------------------
     # Money received for the booking

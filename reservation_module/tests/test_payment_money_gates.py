@@ -311,6 +311,36 @@ class TestCreditNoteNetting(MoneyCommon, TransactionCase):
         self.booking.action_confirm()
         self.assertEqual(self.booking.state, 'confirmed')
 
+    def test_authorization_after_full_refund_does_not_confirm_booking(self):
+        original = self._order_tx(self.order, 'REFUNDED-BEFORE-AUTH')
+        original._set_done()
+        original._create_child_transaction(original.amount, is_refund=True)._set_done()
+        replacement = self._order_tx(self.order, 'AUTH-NOT-CAPTURED')
+        replacement.provider_id.support_manual_capture = 'full_only'
+        replacement._set_authorized()
+        self.env.invalidate_all()
+
+        self.assertFalse(self.booking._is_fully_paid())
+        with self.assertRaisesRegex(UserError, 'Payment is required'):
+            self.booking.action_confirm()
+        self.assertNotEqual(self.booking.state, 'confirmed')
+
+    def test_partial_capture_plus_authorization_does_not_replace_refund(self):
+        original = self._order_tx(self.order, 'REFUNDED-BEFORE-SPLIT')
+        original._set_done()
+        original._create_child_transaction(original.amount, is_refund=True)._set_done()
+        half = self.order.amount_total / 2
+        authorized = self._order_tx(self.order, 'AUTH-HALF', amount=half)
+        captured = self._order_tx(self.order, 'CAPTURED-HALF', amount=half)
+        authorized.provider_id.support_manual_capture = 'full_only'
+        authorized._set_authorized()
+        captured._set_done()
+        self.env.invalidate_all()
+
+        self.assertFalse(self.booking._is_fully_paid())
+        with self.assertRaisesRegex(UserError, 'Payment is required'):
+            self.booking.action_confirm()
+
     def test_replacement_bank_statement_after_provider_refund_allows_confirmation(self):
         tx, invoice = self._invoice_paid_by_provider()
         old_payment = invoice._get_reconciled_payments()

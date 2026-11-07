@@ -196,6 +196,17 @@ class AppointmentBooking(models.Model):
     payment_hold_until = fields.Datetime(
         'Slot Held Until', copy=False, readonly=True,
         help='A booking waiting for payment keeps its slot until this time.')
+    # The payment window opens once per booking and is never renewed by
+    # viewing the pay page or starting another transaction; otherwise the
+    # token holder could keep the slot blocked without ever paying.
+    payment_hold_started_at = fields.Datetime(
+        'Payment Window Opened', copy=False, readonly=True,
+        groups=BOOKING_STAFF_GROUP)
+    # The longer hold for a started, unsettled payment (wire transfer) is
+    # granted at most once per booking.
+    payment_pending_hold_granted = fields.Boolean(
+        'Pending Payment Hold Granted', copy=False, readonly=True,
+        groups=BOOKING_STAFF_GROUP)
     # Paid, but the automatic confirmation failed (slot taken, payment not
     # reconciled, ...): staff must confirm by hand or refund.
     payment_confirm_failed = fields.Boolean(
@@ -473,6 +484,30 @@ class AppointmentBooking(models.Model):
             return False
         return fields.Datetime.now() + timedelta(minutes=minutes)
 
+    @api.model
+    def _new_payment_hold_vals(self):
+        """Values that open the payment window of a new booking."""
+        return {
+            'payment_hold_started_at': fields.Datetime.now(),
+            'payment_hold_until': self._payment_hold_deadline(),
+        }
+
+    def _start_payment_hold(self):
+        """Open the payment window, once per booking.
+
+        A window that was already opened is never moved forward, whether it
+        is still running or has expired: reloading the pay page or starting
+        another transaction must not keep the slot blocked indefinitely.
+        """
+        for booking in self.sudo():
+            if booking.state not in HOLDING_STATES or booking.payment_hold_started_at:
+                continue
+            vals = self._new_payment_hold_vals()
+            if booking.payment_hold_until and (
+                    not vals['payment_hold_until'] or booking.payment_hold_until > vals['payment_hold_until']):
+                vals.pop('payment_hold_until')
+            booking.write(vals)
+
     def _extend_payment_hold(self, until):
         """Hold the slot at least until ``until`` (never shortens a hold)."""
         for booking in self.sudo():
@@ -482,11 +517,13 @@ class AppointmentBooking(models.Model):
                 booking.payment_hold_until = until
 
     def _ensure_payment_hold(self):
-        """Before money moves: the slot must still be free, then renew the hold.
+        """Before money moves: the slot must still be free.
 
         A hold expires after the payment window; the slot may have been sold
         meanwhile. Raises UserError then, so no payment is taken for a slot
-        that cannot be confirmed.
+        that cannot be confirmed. A free slot can still be paid for after the
+        window, but the window itself is opened only once
+        (_start_payment_hold) and never renewed here.
         """
         Booking = self.env['appointment.booking'].sudo()
         for booking in self.sudo():
@@ -504,16 +541,39 @@ class AppointmentBooking(models.Model):
                 raise UserError(_(
                     'The time slot of booking %s is no longer available. '
                     'Please choose another time.', booking.name))
-            booking._extend_payment_hold(booking._payment_hold_deadline())
+            # Legacy bookings (created before the hold existed) get their one
+            # window now; any other booking keeps its original deadline.
+            booking._start_payment_hold()
         return True
 
     def _hold_for_pending_payment(self):
-        """A payment was started but is not settled (e.g. wire transfer)."""
+        """A payment was started but is not settled (e.g. wire transfer).
+
+        The longer hold is granted once per booking, only while the slot is
+        still free, and never past the appointment's end: starting one wire
+        transfer after another must not keep the slot blocked.
+        """
         hours = self._get_int_param('reservation_module.payment_pending_hold_hours', 48)
-        for booking in self:
-            if hours > 0:
-                booking._extend_payment_hold(
-                    min(fields.Datetime.now() + timedelta(hours=hours), booking.end_datetime))
+        if hours <= 0:
+            return
+        Booking = self.env['appointment.booking'].sudo()
+        for booking in self.sudo():
+            if booking.state not in HOLDING_STATES or booking.payment_pending_hold_granted:
+                continue
+            conflict = Booking._check_booking_capacity(
+                booking.start_datetime, booking.end_datetime,
+                staff_user_id=booking.staff_user_id.id or False,
+                resource_id=booking.resource_id.id or False,
+                guest_count=booking.guest_count,
+                exclude_booking_id=booking.id,
+                lock=True,
+            )
+            if conflict['staff_conflict'] or conflict['resource_full']:
+                # Sold meanwhile: no hold; a later confirmation is flagged.
+                continue
+            booking.payment_pending_hold_granted = True
+            booking._extend_payment_hold(
+                min(fields.Datetime.now() + timedelta(hours=hours), booking.end_datetime))
 
     def _confirm_after_payment(self, tx):
         """Auto-confirm paid bookings; a failure is recorded, never swallowed.
@@ -871,7 +931,15 @@ class AppointmentBooking(models.Model):
         # attendee create a private event, and the confirming user (backend
         # creator, payment callback) is often neither. Access to the booking
         # itself was already checked by the caller.
-        event = self.env['calendar.event'].sudo().create(event_vals)
+        Event = self.env['calendar.event'].sudo()
+        if self._guest_mail_over_cap():
+            # Core sends the invitation (with the .ics) from create(), before
+            # calendar_event_id is set, so the attendee hook cannot see the
+            # booking yet: decide here. The guest gets no mail at all.
+            _logger.warning("Booking %s: calendar invitation suppressed (per-address limit)",
+                            self.name)
+            Event = Event.with_context(no_mail_to_attendees=True)
+        event = Event.create(event_vals)
         self.calendar_event_id = event
         return event
 
@@ -919,21 +987,29 @@ class AppointmentBooking(models.Model):
         address) in 24 hours send mail; backend bookings are not limited.
         """
         self.ensure_one()
+        return bool(self.sudo().guest_email) and not self._guest_mail_over_cap()
+
+    def _guest_mail_over_cap(self):
+        """True for a public-form booking past its inbox's daily mail cap.
+
+        Applies to every mail the booking makes reach the guest: the module's
+        templates (_send_guest_mail) and the calendar invitation, date-change
+        and reminder mails of its event (calendar.attendee).
+        """
+        self.ensure_one()
         booking = self.sudo()
-        if not booking.guest_email:
+        if not booking.client_ip_hash or not booking.guest_email_normalized:
             return False
-        if not booking.client_ip_hash:
-            return True
         limit = self._get_int_param('reservation_module.guest_mail_daily_limit', 10)
         if limit <= 0:
-            return True
+            return False
         rank = self.env['appointment.booking'].sudo().search_count([
             ('guest_email_normalized', '=', booking.guest_email_normalized),
             ('client_ip_hash', '!=', False),
-            ('create_date', '>=', fields.Datetime.now() - timedelta(days=1)),
+            ('create_date', '>=', (booking.create_date or fields.Datetime.now()) - timedelta(days=1)),
             ('id', '<=', booking.id),
         ])
-        return rank <= limit
+        return rank > limit
 
     def _send_guest_mail(self, template_xmlid):
         self.ensure_one()
@@ -1237,8 +1313,8 @@ class AppointmentBooking(models.Model):
         self.sale_order_id = sale_order
         if self.state == 'draft':
             self.state = 'pending_payment'
-        # The slot stays reserved for the payment window.
-        self._extend_payment_hold(self._payment_hold_deadline())
+        # The slot stays reserved for the payment window (opened once).
+        self._start_payment_hold()
         return sale_order
 
     # ------------------------------------------------------------------

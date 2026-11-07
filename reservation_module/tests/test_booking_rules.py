@@ -25,6 +25,14 @@ from odoo.tests.common import HttpCase, TransactionCase, tagged
 from .test_timezone import TAIPEI, TimezoneCommon
 
 
+def _keep_queued_mails(case):
+    """Calendar mails are sent at once (and auto-deleted) in a testing thread:
+    keep them queued so the test can count them."""
+    patcher = patch.object(type(case.env['mail.mail']), 'send_after_commit', lambda self: None)
+    patcher.start()
+    case.addCleanup(patcher.stop)
+
+
 class RulesCommon(TimezoneCommon):
 
     def _wall(self, days, hour, minute=0):
@@ -410,12 +418,73 @@ class TestBookingRateLimits(RulesHttpCommon, HttpCase):
         suppressed = bookings.sorted('id')[-1]
         self.assertTrue(any('not sent' in (message.body or '') for message in suppressed.message_ids))
 
+    def _mails_to(self, pattern):
+        return self.env['mail.mail'].sudo().search([
+            '|', ('email_to', 'ilike', pattern), ('recipient_ids.email', 'ilike', pattern)])
+
+    def test_calendar_invitations_respect_the_mailbox_cap(self):
+        # Every mail any model sends to the visitor-typed address counts:
+        # core's calendar invitation (.ics) is sent from calendar.event.
+        self.ICP.set_param('reservation_module.guest_mail_daily_limit', '1')
+        _keep_queued_mails(self)
+        emails = ['victim+0@example.org', 'victim+1@example.org', 'victim+2@example.org']
+        for index, email in enumerate(emails):
+            self._post(self.appointment_type, self._hour(index), guest_email=email)
+        bookings = self._bookings(self.appointment_type).sorted('id')
+        self.assertEqual(len(bookings), 3)
+        self.assertTrue(all(booking.state == 'confirmed' and booking.calendar_event_id
+                            for booking in bookings))
+        first = bookings[0]
+        mails = self._mails_to('victim')
+        self.assertTrue(mails.filtered(lambda mail: mail.model == 'calendar.event'),
+                        'the first booking still gets its invitation')
+        allowed = {('appointment.booking', first.id), ('calendar.event', first.calendar_event_id.id)}
+        self.assertEqual({(mail.model, mail.res_id) for mail in mails} - allowed, set(),
+                         'bookings past the cap send no mail of any kind to the guest')
+
     def test_backend_bookings_are_not_mail_capped(self):
         self.ICP.set_param('reservation_module.guest_mail_daily_limit', '1')
         for index in range(2):
             booking = self._booking(self.appointment_type, self._hour(index), state='draft',
                                     guest_email='desk@example.com')
             self.assertTrue(booking._guest_mail_allowed())
+
+
+@tagged('post_install', '-at_install')
+class TestCalendarMailCap(RulesCommon, TransactionCase):
+    """The per-inbox cap also holds for core calendar mails sent later."""
+
+    def setUp(self):
+        super().setUp()
+        self.env['ir.config_parameter'].sudo().set_param(
+            'reservation_module.guest_mail_daily_limit', '1')
+        self.appointment_type = self._setup_appointment_type()
+        _keep_queued_mails(self)
+
+    def _public_booking(self, hour, email):
+        partner = self.env['res.partner'].create({'name': 'Cap Guest', 'email': email})
+        booking = self._booking(self.appointment_type, self._wall(3, hour), state='draft',
+                                guest_email=email, partner_id=partner.id, client_ip_hash='cap-test')
+        booking.action_confirm()
+        return booking
+
+    def _event_mails(self, booking):
+        return self.env['mail.mail'].sudo().search([
+            ('model', '=', 'calendar.event'), ('res_id', '=', booking.calendar_event_id.id)])
+
+    def test_reschedule_mail_follows_the_cap(self):
+        allowed = self._public_booking(9, 'cap.victim@example.org')
+        capped = self._public_booking(11, 'cap.victim+1@example.org')
+        self.assertTrue(self._event_mails(allowed), 'invitation of the first booking')
+        self.assertFalse(self._event_mails(capped), 'no invitation past the cap')
+        before = len(self._event_mails(allowed))
+        for booking in (allowed, capped):
+            booking.write({'start_datetime': booking.start_datetime + timedelta(hours=1),
+                           'end_datetime': booking.end_datetime + timedelta(hours=1)})
+        self.assertGreater(len(self._event_mails(allowed)), before, 'date-change mail is sent')
+        self.assertFalse(self._event_mails(capped), 'no date-change mail past the cap')
+        capped.calendar_event_id.action_sendmail()
+        self.assertFalse(self._event_mails(capped))
 
 
 # ---------------------------------------------------------------------------
@@ -460,6 +529,18 @@ class TestPaymentHoldRoutes(PaymentHoldCommon, RulesHttpCommon, HttpCase):
         day = datetime.now(TAIPEI).date() + timedelta(days=3)
         starts = [slot['start'] for slot in self._slots(self.appointment_type, day)['slots']]
         self.assertNotIn(self._fmt(self.start), starts, 'a held slot is not offered')
+
+    def test_pay_page_reloads_do_not_move_the_deadline(self):
+        self._post(self.appointment_type, self.start, guest_email='first@example.com')
+        first = self._bookings(self.appointment_type, guest_email='first@example.com')
+        now = fields.Datetime.now()
+        first.write({'payment_hold_started_at': now - timedelta(minutes=25),
+                     'payment_hold_until': now + timedelta(minutes=5)})
+        deadline = first.payment_hold_until
+        for _index in range(2):
+            self.url_open('/appointment/booking/%d/pay?token=%s' % (first.id, first.access_token))
+        self.env.invalidate_all()
+        self.assertEqual(first.payment_hold_until, deadline)
 
     def test_expired_hold_releases_the_slot(self):
         self._post(self.appointment_type, self.start, guest_email='first@example.com')
@@ -521,10 +602,66 @@ class TestPaymentHoldModel(PaymentHoldCommon, TransactionCase):
         with self.assertRaises(UserError), self.env.cr.savepoint():
             self._tx('RULES-TAKEN')
 
-    def test_payment_renews_an_expired_hold_when_free(self):
-        self.booking.payment_hold_until = fields.Datetime.now() - timedelta(minutes=1)
-        self._tx('RULES-RENEW')
-        self.assertGreater(self.booking.payment_hold_until, fields.Datetime.now())
+    def _late_in_the_window(self):
+        """As if 25 of the 30 minutes of the payment window had passed."""
+        now = fields.Datetime.now()
+        self.booking.write({'payment_hold_started_at': now - timedelta(minutes=25),
+                            'payment_hold_until': now + timedelta(minutes=5)})
+        return self.booking.payment_hold_until
+
+    def test_expired_hold_is_payable_but_not_renewed(self):
+        expired = fields.Datetime.now() - timedelta(minutes=1)
+        self.booking.payment_hold_until = expired
+        self._tx('RULES-RENEW')  # the slot is free: paying is allowed
+        self.assertEqual(self.booking.payment_hold_until, expired)
+
+    def test_new_transactions_do_not_move_the_deadline(self):
+        deadline = self._late_in_the_window()
+        for index in range(3):
+            self._tx('RULES-AGAIN-%d' % index)
+            self.booking._ensure_payment_hold()
+        self.assertEqual(self.booking.payment_hold_until, deadline)
+
+    def test_legacy_booking_gets_one_window(self):
+        legacy = self._booking(self.appointment_type, self._wall(4, 10), state='pending_payment',
+                               staff_user_id=self.host.id)
+        self.assertFalse(legacy.payment_hold_until)
+        legacy._ensure_payment_hold()
+        self.assertTrue(legacy.payment_hold_started_at)
+        self.assertGreater(legacy.payment_hold_until, fields.Datetime.now())
+        legacy.payment_hold_until = fields.Datetime.now() - timedelta(minutes=1)
+        legacy._ensure_payment_hold()
+        self.assertLess(legacy.payment_hold_until, fields.Datetime.now())
+
+    def test_repeated_pending_transfers_hold_once(self):
+        first = self._tx('RULES-WIRE-1')
+        first._set_pending()
+        self._post_process(first)
+        self.assertTrue(self.booking.payment_pending_hold_granted)
+        self.assertGreater(self.booking.payment_hold_until, fields.Datetime.now() + timedelta(hours=2))
+        # Later: the long hold is nearly over; another wire transfer is started.
+        nearly_over = fields.Datetime.now() + timedelta(minutes=5)
+        self.booking.payment_hold_until = nearly_over
+        second = self._tx('RULES-WIRE-2')
+        second._set_pending()
+        self._post_process(second)
+        self.assertEqual(self.booking.payment_hold_until, nearly_over)
+
+    def test_pending_hold_never_passes_the_appointment(self):
+        self.env['ir.config_parameter'].sudo().set_param(
+            'reservation_module.payment_pending_hold_hours', '10000')
+        tx = self._tx('RULES-WIRE-LONG')
+        tx._set_pending()
+        self._post_process(tx)
+        self.assertEqual(self.booking.payment_hold_until, self.booking.end_datetime)
+
+    def test_no_pending_hold_on_a_sold_slot(self):
+        tx = self._tx('RULES-WIRE-SOLD')
+        self._take_slot()
+        tx._set_pending()
+        self._post_process(tx)
+        self.assertFalse(self.booking.payment_pending_hold_granted)
+        self.assertLess(self.booking.payment_hold_until, fields.Datetime.now())
 
     def test_pending_transfer_keeps_the_slot_longer(self):
         tx = self._tx('RULES-PENDING')

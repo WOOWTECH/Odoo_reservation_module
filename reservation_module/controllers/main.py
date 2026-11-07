@@ -1250,7 +1250,8 @@ class AppointmentController(http.Controller):
         if appointment_type.require_payment:
             # Hold the slot for the payment window from the first moment, in
             # the same savepoint as the guarded conflict check.
-            booking_vals['payment_hold_until'] = Booking._payment_hold_deadline()
+            # The window opens once; it is never renewed (_start_payment_hold).
+            booking_vals.update(Booking._new_payment_hold_vals())
 
         if resource_id:
             booking_vals['resource_id'] = resource_id

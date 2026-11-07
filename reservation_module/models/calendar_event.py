@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError
 
 from .appointment_booking import BOOKING_MANAGER_GROUP
+
+_logger = logging.getLogger(__name__)
 
 # Set only by the booking (under sudo) and keyed on by the record rules in
 # security/appointment_calendar_security.xml; see _check_booking_markers.
@@ -71,3 +75,46 @@ class CalendarEvent(models.Model):
                 and self.env.user.has_group(BOOKING_MANAGER_GROUP)):
             return False
         return hidden
+
+
+class CalendarAttendee(models.Model):
+    _inherit = 'calendar.attendee'
+
+    def _appointment_guest_mail_blocked(self):
+        """Guest rows of booking events whose booking is past the mail cap.
+
+        The public booking form takes any address; the per-inbox cap
+        (appointment.booking._guest_mail_over_cap) must also hold for the
+        mails core sends to the event's attendees: invitation on a new
+        attendee, date change, e-mail reminders, "send by mail".
+        """
+        attendees = self.sudo()
+        events = attendees.event_id.filtered('is_appointment_booking')
+        if not events:
+            return self.browse()
+        bookings = self.env['appointment.booking'].sudo().search(
+            [('calendar_event_id', 'in', events.ids)])
+        booking_by_event = {booking.calendar_event_id.id: booking for booking in bookings}
+        blocked = self.browse()
+        for attendee in attendees:
+            event = attendee.event_id
+            if not event.is_appointment_booking or not attendee.partner_id:
+                continue
+            if attendee.partner_id != event.appointment_guest_partner_id:
+                continue
+            booking = booking_by_event.get(event.id)
+            if booking and booking._guest_mail_over_cap():
+                blocked |= self.browse(attendee.id)
+        return blocked
+
+    def _send_mail_to_attendees(self, mail_template, force_send=False):
+        blocked = self._appointment_guest_mail_blocked()
+        if blocked:
+            _logger.warning("Calendar mail to booking guests suppressed (per-address limit): attendees %s",
+                            blocked.ids)
+            remaining = self - blocked
+            if not remaining:
+                return False
+            return super(CalendarAttendee, remaining)._send_mail_to_attendees(
+                mail_template, force_send=force_send)
+        return super()._send_mail_to_attendees(mail_template, force_send=force_send)

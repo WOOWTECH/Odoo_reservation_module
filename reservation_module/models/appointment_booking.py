@@ -137,8 +137,10 @@ class AppointmentBooking(models.Model):
 
     # Sales Order Integration
     # Only an order of this booking may be linked: one holding the lines the
-    # booking added (_create_sale_order) or, for older/hand-made links, an
-    # order of the same customer (_check_sale_order_owner).
+    # booking added (_create_sale_order), an order of the same customer, or
+    # the shared guest cart of an anonymous visitor that older versions left
+    # behind (_is_own_sale_order, enforced by _check_sale_order_owner). A row
+    # that points elsewhere is never deleted by an upgrade, only reported.
     sale_order_id = fields.Many2one(
         'sale.order',
         string='Sales Order',
@@ -411,17 +413,126 @@ class AppointmentBooking(models.Model):
         return bool(partner and order.partner_id
                     and order.partner_id.commercial_partner_id == partner.commercial_partner_id)
 
+    @api.model
+    def _is_guest_contact(self, partner):
+        """Whether ``partner`` is a guest contact: a live contact that nobody
+        can log in as.
+
+        These are the contacts the anonymous booking form and the guest
+        checkout of the website create (a name, an e-mail, a phone, no
+        account). A partner is a guest contact when
+
+        * it is active (an archived contact is a retired identity: the portal
+          "delete my account" flow archives the partner of the account it
+          removes), and
+        * no res.users record belongs to it or to anyone of its commercial
+          family (every contact with the same commercial partner).
+
+        The users are looked up with sudo, archived users included and
+        whatever their company: a user that cannot log in any more is still
+        somebody's account, and the company filters of the caller must not
+        hide it. So the contacts of the website's public users, of OdooBot,
+        of internal users and of portal users are never guests, whether
+        their user is archived or not.
+        """
+        partner = partner.sudo()
+        if not partner or not partner.active:
+            return False
+        root = partner.commercial_partner_id or partner
+        users = self.env['res.users'].sudo().with_context(active_test=False)
+        return not users.search_count(
+            [('partner_id.commercial_partner_id', '=', root.id)], limit=1)
+
+    def _has_cart_section(self, order):
+        """Whether ``order`` holds the section line the website cart made for
+        this booking (``<type name> — <booking reference>``, every version
+        up to 18.0.3.2.1 added one per booking). Only the booking code (and
+        staff) adds section lines: customers cannot."""
+        self.ensure_one()
+        suffix = ' — %s' % self.sudo().name
+        return any(line.display_type == 'line_section' and (line.name or '').endswith(suffix)
+                   for line in order.sudo().order_line)
+
+    def _is_legacy_guest_cart(self, order):
+        """Ground 3 of ``_is_own_sale_order``."""
+        self.ensure_one()
+        partner = self.sudo().partner_id
+        if not partner or not self._is_guest_contact(partner):
+            return False
+        order = order.sudo()
+        if order.partner_id and self._is_guest_contact(order.partner_id):
+            return True
+        return self._has_cart_section(order)
+
     def _is_own_sale_order(self, order):
-        """Whether ``order`` is this booking's order: it holds lines this
-        booking added, or (links made before lines were bound, or by hand)
-        it is an order of the booking's customer."""
+        """Whether ``order`` is this booking's order.
+
+        Any one of three grounds is enough:
+
+        1. *Bound line*: the order holds a line this booking added
+           (``appointment_booking_id``); only the booking code sets it.
+        2. *Same customer*: the order's contact and the booking's contact
+           have the same commercial partner (bookings of logged-in customers,
+           orders made for the booking's customer by staff).
+        3. *Guest cart* (rows written before the lines were bound): the
+           booking's contact is a guest contact (``_is_guest_contact``) and
+           the order is the visitor's cart, which is the case when either
+           the order's contact is a guest contact too, or the order holds
+           the section line the cart made for this very booking
+           (``_has_cart_section``).
+
+        Why ground 3. Until 18.0.3.2.2 the website made a new guest contact
+        for every anonymous booking and, in cart mode, re-pointed the
+        visitor's shared cart to the contact of the *latest* booking. The
+        earlier bookings of that cart are the visitor's own, yet they have
+        neither a bound line nor the cart's contact. Judging them foreign
+        would stop the cart's payment from holding or confirming them. A
+        visitor who logs in before paying moves the cart to the account's
+        contact; the section line still shows whose bookings it holds.
+
+        Why it does not reopen e10ecad8918d. The attacker was a portal user
+        and the booking carried the attacker's own contact (the portal record
+        rule forced it): a contact with a user, which is never a guest
+        contact, whatever the order looks like. A guest's booking never takes
+        an order of a registered customer unless the cart's own section for
+        that booking is in it, and customers cannot create section lines. An
+        anonymous visitor chooses no order at all: the booking form takes no
+        order id.
+
+        Edge cases, in the order they were considered:
+
+        * *Archived user*: still a user, so its contact is not a guest.
+        * *Deleted user, partner kept*: the portal "delete my account" flow
+          archives the partner first, so the contact stays out. A user
+          deleted by an administrator who leaves the contact active turns it
+          into a guest contact; that is the administrator's decision.
+        * *Guest later invited or merged*: the test is made when it is asked,
+          not remembered. A guest that gets an account stops being one, and
+          its older bookings then rest on grounds 1 and 2. A merge that moves
+          the booking and its order to the same contact gives ground 2.
+        * *Employees*: an employee's contact without a login is a guest
+          contact; the attack needs a login. Employees with a login are users.
+        * *Multi-company*: users are looked up without company filter, and
+          the bookings' and orders' companies are not compared (the public
+          user of a website may belong to another company than the website).
+        * *Website public contact, OdooBot*: they belong to users, so an
+          anonymous cart still held by the public contact, or a system order,
+          is never matched through the order's contact.
+        * *Contacts of a company*: when a contact of a company has a user,
+          neither the company nor its other contacts are guests.
+
+        ``_check_sale_order_owner`` asks the same question, so a link that
+        passes here can also be written, and the reverse.
+        """
         self.ensure_one()
         order = order.sudo()
         if not order:
             return False
         if order.order_line.filtered(lambda line: line.appointment_booking_id.id == self.id):
             return True
-        return self._order_partner_matches(order)
+        if self._order_partner_matches(order):
+            return True
+        return self._is_legacy_guest_cart(order)
 
     def _get_own_sale_order(self):
         """The linked order (sudo) if it is this booking's own, else empty."""
@@ -606,46 +717,15 @@ class AppointmentBooking(models.Model):
 
     @api.constrains('sale_order_id')
     def _check_sale_order_owner(self):
+        """A new link must be one ``_is_own_sale_order`` accepts: the check
+        and the code that uses the order for payments, mails and cancelling
+        are the same question. Rows written before it existed are not
+        re-checked unless their link is written again."""
         for booking in self:
             if booking.sale_order_id and not booking._is_own_sale_order(booking.sale_order_id):
                 raise ValidationError(_(
                     'Booking %(booking)s can only be linked to its own sales order '
                     '(an order of the same customer).', booking=booking.sudo().name))
-
-    def _detach_foreign_sale_order(self):
-        """Unlink an order that is not the booking's own (upgrade cleanup).
-
-        _check_sale_order_owner only stops new links. A row written before it
-        (the pre-18.0.3.2.2 portal RPC create hole, an old manual link) may
-        still point at another customer's order; the code already treats such
-        an order as foreign, this removes the link itself. The booking's
-        payment transaction goes too when it was that order's payment, not
-        one of the booking's own pay page. Returns the bookings unlinked.
-        """
-        detached = self.browse()
-        for booking in self.sudo():
-            order = booking.sale_order_id
-            if not order or booking._is_own_sale_order(order):
-                continue
-            vals = {'sale_order_id': False}
-            tx = booking.payment_transaction_id
-            if (tx and tx.appointment_booking_id != booking
-                    and 'sale_order_ids' in tx._fields and order in tx.sale_order_ids):
-                vals['payment_transaction_id'] = False
-            _logger.warning(
-                "Booking %s (id %s) pointed at sales order %s (id %s), which is not its own; "
-                "the link was removed.", booking.name, booking.id, order.name, order.id)
-            status = dict(self._fields['payment_status'].selection).get(
-                booking.payment_status, booking.payment_status)
-            booking.message_post(
-                body=_('Sales order %(order)s was unlinked from this booking: it is not an order '
-                       'of this booking or of its customer. Its payments no longer apply to this '
-                       'booking (payment status before: %(status)s).',
-                       order=order.name, status=status),
-                message_type='notification', subtype_xmlid='mail.mt_note')
-            booking.write(vals)
-            detached |= booking
-        return detached
 
     @api.depends('sale_order_id')
     def _compute_sale_order_count(self):

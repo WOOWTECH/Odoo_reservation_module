@@ -45,7 +45,9 @@ class SaleOrder(models.Model):
         hole, an old manual link). Such a row is not this order's booking:
         the order's payments must neither hold, fail nor confirm it, and its
         guest must never get this order's link (appointment.booking
-        _is_own_sale_order).
+        _is_own_sale_order). The bookings an anonymous visitor made into one
+        shared cart are all this order's own, whichever guest contact each of
+        them carries.
         """
         self.ensure_one()
         order = self.sudo()

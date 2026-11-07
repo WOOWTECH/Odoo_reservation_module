@@ -3,7 +3,8 @@
 
   * sale_order_id is bound to the booking: never an order of another
     customer; cancelling / paying never touches or reveals a foreign order
-    (e10ecad8918d)
+    (e10ecad8918d). The attacker is a portal user (a contact with a login);
+    guest contacts of anonymous visitors are not (test_legacy_order_links)
   * the lines a booking adds are bound to it; customers cannot lower or
     remove them from the (shared) website cart; payment_status looks only at
     those lines being invoiced and paid, or at a booking transaction that
@@ -44,10 +45,21 @@ class BindingCommon(PaymentHoldCommon):
             vals['is_published'] = True
         return self.env['product.product'].create(vals)
 
+    def _portal_partner(self, name):
+        """The contact of a portal user: a registered customer, somebody who
+        can log in (so never a guest contact)."""
+        login = 'binding_%s' % name.lower().replace(' ', '_')
+        user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': name, 'login': login, 'email': '%s@example.com' % login,
+            'groups_id': [(6, 0, self.env.ref('base.group_portal').ids)],
+        })
+        return user.partner_id
+
     def _foreign_order(self):
-        """An order of another customer, with a portal token."""
+        """An order of another, registered customer (Bob, a portal user),
+        with a portal token."""
         order = self.env['sale.order'].create({
-            'partner_id': self._partner('Bob').id,
+            'partner_id': self._portal_partner('Bob').id,
             'order_line': [(0, 0, {'product_id': self._product('Bob Stuff', 999.0).id,
                                    'product_uom_qty': 1})],
         })
@@ -130,7 +142,8 @@ class TestBookingOrderOwnership(BindingCommon, TransactionCase):
             self.booking.write({'sale_order_id': self.foreign.id})
         with self.assertRaises(ValidationError), self.env.cr.savepoint():
             self._booking(self.appointment_type, self._wall(5, 10), state='draft',
-                          partner_id=self._partner('Mallory').id, sale_order_id=self.foreign.id)
+                          partner_id=self._portal_partner('Mallory').id,
+                          sale_order_id=self.foreign.id)
 
     def test_order_of_the_same_customer_can_be_linked(self):
         order = self.env['sale.order'].create({'partner_id': self.booking.partner_id.id})
@@ -182,7 +195,7 @@ class TestBookingOrderOwnershipRoutes(BindingCommon, RulesHttpCommon, HttpCase):
         """The order's portal page links to the order's booking, never to a
         row of another customer pointing at the order (final review)."""
         appointment_type = self._paid_type(auto_confirm=False)
-        legacy = self._new_booking(appointment_type, partner=self._partner('Mallory'))
+        legacy = self._new_booking(appointment_type, partner=self._portal_partner('Mallory'))
         foreign = self._foreign_order()
         self._plant_order(legacy, foreign)
         own = self._new_booking(appointment_type, days=5)
@@ -348,10 +361,18 @@ class TestBookingLinesPayment(BindingCommon, TransactionCase):
         self.env.cr.execute("UPDATE appointment_booking SET payment_status = 'paid' WHERE id = %s",
                             [self.booking.id])  # what the old rule stored
         self.env.invalidate_all()
-        changed = _load_migration_3_2_2()._recompute_open_payment_status(self.env)
+        mig = _load_migration_3_2_2()
+        changed = mig._recompute_open_payment_status(self.env)
         self.assertIn(self.booking.id, changed)
         self.env.invalidate_all()
         self.assertEqual(self.booking.payment_status, 'pending')
+        notes = self.booking.message_ids.filtered(
+            lambda m: 'payment status check 18.0.3.2.2' in (m.body or ''))
+        self.assertEqual(len(notes), 1, 'the lowered status is noted on the booking')
+        self.assertEqual(notes.subtype_id, self.env.ref('mail.mt_note'))
+        self.assertEqual(mig._recompute_open_payment_status(self.env), [], 'safe to re-run')
+        self.assertEqual(len(self.booking.message_ids.filtered(
+            lambda m: 'payment status check 18.0.3.2.2' in (m.body or ''))), 1)
 
 
 @tagged('post_install', '-at_install')
@@ -611,22 +632,15 @@ class TestPaymentFailureNotes(BindingCommon, TransactionCase):
         self.assertFalse(booking.message_ids.filtered(lambda m: 'Payment failure #' in (m.body or '')))
 
 
-class LegacyLinkCommon(BindingCommon):
-    """A booking row written before the ownership check existed (the
-    pre-upgrade portal RPC create hole, or an old manual link) that points at
-    another customer's order (Bob's)."""
+class OrderPaymentCommon(BindingCommon):
+    """Payment transactions of an order, post-processed as the provider
+    would (the dummy provider has no journal, so no accounting payment)."""
 
     TEMPLATES = ('reservation_module.email_template_booking_created',
                  'reservation_module.email_template_payment_failure')
 
     def setUp(self):
         super().setUp()
-        self.appointment_type = self._paid_type(auto_confirm=False)
-        self.victim_order = self._foreign_order()
-        self.assertTrue(self.victim_order.access_token)
-        self.legacy = self._new_booking(self.appointment_type, partner=self._partner('Mallory'))
-        self.legacy.write({'state': 'pending_payment', 'guest_email': 'mallory.inbox@example.com'})
-        self._plant_order(self.legacy, self.victim_order)
         self.provider = self.env['payment.provider'].create({
             'name': 'Legacy Dummy', 'code': 'none', 'state': 'test',
             'payment_method_ids': [(6, 0, self.env.ref('payment.payment_method_unknown').ids)],
@@ -661,13 +675,29 @@ class LegacyLinkCommon(BindingCommon):
         return '/my/orders/%d?access_token=%s' % (order.id, order.access_token)
 
 
+class LegacyLinkCommon(OrderPaymentCommon):
+    """A booking row written before the ownership check existed (the
+    pre-upgrade portal RPC create hole, or an old manual link) that points at
+    another customer's order (Bob's, a registered customer). Mallory, whose
+    row it is, is a portal user: the RPC hole needed a login."""
+
+    def setUp(self):
+        super().setUp()
+        self.appointment_type = self._paid_type(auto_confirm=False)
+        self.victim_order = self._foreign_order()
+        self.assertTrue(self.victim_order.access_token)
+        self.legacy = self._new_booking(self.appointment_type, partner=self._portal_partner('Mallory'))
+        self.legacy.write({'state': 'pending_payment', 'guest_email': 'mallory.inbox@example.com'})
+        self._plant_order(self.legacy, self.victim_order)
+
+
 @tagged('post_install', '-at_install')
 class TestForeignOrderLegacyLinks(LegacyLinkCommon, TransactionCase):
     """e10ecad8918d (final review): such a row is not the order's booking.
     The order's failed payment does not mail its guest the order's token,
     the order's own payment is not refused because of the row's slot, guest
-    mail templates never print the order's token, and the upgrade unlinks the
-    row."""
+    mail templates never print the order's token, and the upgrade reports the
+    row without changing it (test_legacy_order_links has the whole upgrade)."""
 
     def test_failed_order_payment_does_not_mail_the_legacy_guest(self):
         self.assertEqual(self.legacy.payment_status, 'pending')
@@ -735,7 +765,7 @@ class TestForeignOrderLegacyLinks(LegacyLinkCommon, TransactionCase):
         owner.action_cancel()
         self.assertEqual(order.state, 'cancel')
 
-    def test_upgrade_unlinks_the_foreign_order(self):
+    def test_upgrade_reports_the_foreign_order_and_changes_nothing(self):
         mig = _load_migration_3_2_2()
         alice = self._new_booking(self.appointment_type, days=6)
         alice_order = self.env['sale.order'].create({'partner_id': alice.partner_id.id})
@@ -747,18 +777,20 @@ class TestForeignOrderLegacyLinks(LegacyLinkCommon, TransactionCase):
         self.env.flush_all()
         mig.migrate(self.env.cr, '18.0.3.2.1')
         self.env.invalidate_all()
-        self.assertFalse(self.legacy.sale_order_id)
-        self.assertFalse(self.legacy.payment_transaction_id, "the order's payment is not the booking's")
+        self.assertEqual(self.legacy.sale_order_id, self.victim_order, 'the link is kept')
+        self.assertEqual(self.legacy.payment_transaction_id, failed, 'the transaction is kept')
         self.assertEqual(alice.sale_order_id, alice_order)
         notes = self.legacy.message_ids.filtered(lambda m: self.victim_order.name in (m.body or ''))
-        self.assertTrue(notes, 'the unlinking is noted on the booking')
+        self.assertEqual(len(notes), 1, 'the row is noted once')
         self.assertTrue(all(m.subtype_id == self.env.ref('mail.mt_note') for m in notes))
         self.assertNotEqual(self.victim_order.state, 'cancel')
-        self.assertFalse(failed.appointment_failure_notified, 'not a payment of a booking')
+        # Runtime still treats the order as somebody else's.
+        self.assertFalse(self.legacy._get_payment_url())
         self.assertFalse(self._order_tx('LEGACY-AFTER')._get_held_bookings())
-        # Safe to re-run.
-        self.assertFalse(mig._detach_foreign_sale_orders(self.env))
+        # Safe to re-run: nothing is reported twice.
+        self.assertFalse(mig._flag_foreign_sale_orders(self.env))
         self.assertEqual(alice.sale_order_id, alice_order)
+        self.assertEqual(self.legacy.sale_order_id, self.victim_order)
 
 
 @tagged('post_install', '-at_install')

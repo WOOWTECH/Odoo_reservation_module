@@ -287,6 +287,36 @@ class TestDstSlotLists(DstCommon, TransactionCase):
                 self.assertEqual(self._slots(appointment_type, case), [])
                 self.assertEqual(appointment_type._get_availability_windows(day), [])
 
+    def test_a_booking_in_the_repeated_hour_does_not_hide_its_neighbours(self):
+        # The hour that happens twice has no slot of its own (it is the standard
+        # time one that is offered). A staff booking placed in the first of the
+        # two hours touches the slot before it and the one after it, it does
+        # not overlap them: both stay on offer, so the whole grid is listed.
+        for case, booking_start in (('berlin_autumn', '2026-10-25 00:00:00'),
+                                    ('new_york_autumn', '2026-11-01 05:00:00')):
+            staff = self._user('DST Staff', 'dst_staff_slots_%s' % case)
+            appointment_type = self._typed(case, [(0, 6)], scheduled=True, assign_staff=True,
+                                           staff_user_ids=[(6, 0, staff.ids)])
+            self._booking(appointment_type, utc(booking_start), staff_user_id=staff.id)
+            day = CHANGE_DAYS[case][1]
+            with self.subTest(case=case), self._frozen(case), MockRequest(self.env):
+                slots = AppointmentController()._get_scheduled_slots(appointment_type, day, None, staff.id)['slots']
+                self.assertEqual([slot['start'] for slot in slots],
+                                 [row[0] for row in HOURLY_SLOTS[case]])
+
+    def test_a_booking_inside_a_slot_removes_exactly_that_slot_on_the_change_day(self):
+        for case, booking_start, removed in (('berlin_spring', '2026-03-29 01:00:00', '2026-03-29 01:00:00'),
+                                             ('new_york_autumn', '2026-11-01 07:00:00', '2026-11-01 07:00:00')):
+            staff = self._user('DST Staff', 'dst_staff_busy_%s' % case)
+            appointment_type = self._typed(case, [(0, 6)], scheduled=True, assign_staff=True,
+                                           staff_user_ids=[(6, 0, staff.ids)])
+            self._booking(appointment_type, utc(booking_start), staff_user_id=staff.id)
+            day = CHANGE_DAYS[case][1]
+            with self.subTest(case=case), self._frozen(case), MockRequest(self.env):
+                slots = AppointmentController()._get_scheduled_slots(appointment_type, day, None, staff.id)['slots']
+                self.assertEqual([slot['start'] for slot in slots],
+                                 [row[0] for row in HOURLY_SLOTS[case] if row[0] != removed])
+
     def test_event_slots_are_the_windows_the_booking_form_accepts(self):
         hours = [(1, 4), (10, 12), (20, 24), (2.5, 4)]
         for case in CHANGE_DAYS:

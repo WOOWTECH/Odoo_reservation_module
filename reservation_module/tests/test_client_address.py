@@ -168,7 +168,8 @@ class TestBehindPrivateHops(BaseCase):
         self.assertEqual(resolve(environ), CLIENT)
 
     def test_ipv6_loopback_and_unique_local_peers_are_hops(self):
-        for peer in ('::1', 'fd00::5', 'fe80::1'):
+        # (a dual-stack server reports an IPv4 peer as ::ffff:a.b.c.d)
+        for peer in ('::1', 'fd00::5', 'fe80::1', '::ffff:127.0.0.1', '::ffff:10.42.3.17', '::ffff:100.64.0.7'):
             self.assertEqual(resolve(make_environ(peer=peer, cf=CLIENT)), CLIENT, peer)
 
     def test_unknown_peer_counts_as_a_hop(self):

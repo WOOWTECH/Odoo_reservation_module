@@ -12,3 +12,4 @@ from . import test_payment_integrity
 from . import test_client_address
 from . import test_booking_client_key
 from . import test_timezone_dst
+from . import test_guest_mail_content

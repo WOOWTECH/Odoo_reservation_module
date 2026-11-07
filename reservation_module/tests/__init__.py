@@ -8,3 +8,4 @@ from . import test_security_acl
 from . import test_booking_rules
 from . import test_payment_binding
 from . import test_legacy_order_links
+from . import test_payment_integrity

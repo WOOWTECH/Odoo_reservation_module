@@ -5,6 +5,7 @@ import logging
 import psycopg2
 
 from odoo import api, fields, models, _
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -38,9 +39,34 @@ class PaymentTransaction(models.Model):
                     bookings |= order._get_own_bookings()
         return bookings.filtered(lambda b: b.state in ('draft', 'pending_payment'))
 
+    def _check_bookings_payable(self):
+        """Refuse a payment that would pay a booking a second time.
+
+        * the booking's own pay page: the booking must still be open for
+          payment (not cancelled or finished) and not paid yet;
+        * a payment of an order: none of the bookings whose lines are in the
+          order may be paid already (a paid booking's lines normally leave the
+          cart, see appointment.booking _settle_order_after_own_payment; if
+          they could not, the cart must not charge them again).
+        """
+        for tx in self:
+            if tx.appointment_booking_id:
+                tx.appointment_booking_id.sudo()._check_open_for_payment()
+            if 'sale_order_ids' not in tx._fields:
+                continue
+            for order in tx.sale_order_ids:
+                for booking in order._get_own_bookings():
+                    if (booking.sale_order_id == order and booking._get_payment_lines()
+                            and booking._is_covered_by_payment()):
+                        raise UserError(_(
+                            'Booking %(booking)s in order %(order)s has already been paid, so the order '
+                            'cannot be paid again. Please contact support.',
+                            booking=booking.name, order=order.name))
+
     @api.model_create_multi
     def create(self, vals_list):
-        """Refuse to take a payment for a booking whose slot is gone.
+        """Refuse to take a payment for a booking whose slot is gone, or that
+        is paid already.
 
         Covers every core payment route (/shop/payment/transaction,
         /my/orders/<id>/transaction, ...): the booking's slot is re-checked
@@ -50,6 +76,7 @@ class PaymentTransaction(models.Model):
         for tx in txs:
             if tx.operation in ('refund', 'validation'):
                 continue
+            tx._check_bookings_payable()
             tx._get_held_bookings()._ensure_payment_hold()
         return txs
 
@@ -100,6 +127,13 @@ class PaymentTransaction(models.Model):
                     'payment_transaction_id': tx.id,
                 })
                 booking._confirm_after_payment(tx)
+                if booking.state == 'cancelled':
+                    # Paid after the booking was cancelled (a payment started
+                    # earlier, e.g. a transfer): staff must refund it.
+                    booking._flag_paid_cancellation(tx)
+                else:
+                    # Its lines must not be payable a second time from the cart.
+                    booking._settle_order_after_own_payment(tx)
 
             # Flow 2: Sales order linked booking
             if hasattr(tx, 'sale_order_ids'):

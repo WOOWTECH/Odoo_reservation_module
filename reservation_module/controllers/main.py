@@ -1453,6 +1453,9 @@ class AppointmentController(http.Controller):
             'payment_methods_sudo': payment_methods_sudo,
             'tokens_sudo': tokens_sudo,
             'reference_prefix': f'APPT-{booking.id}',
+            # payment.form reads this for every method that can be tokenized:
+            # without it the page fails to render as soon as a provider offers one.
+            'show_tokenize_input_mapping': PaymentPortal._compute_show_tokenize_input_mapping(providers_sudo),
             'transaction_route': f'/appointment/payment/transaction/{booking.id}',
             'landing_route': f'/appointment/payment/validate?booking_id={booking.id}&token={access_token}',
             'access_token': access_token,
@@ -1518,7 +1521,10 @@ class AppointmentController(http.Controller):
         if not partner:
             return {'error': 'Partner not found'}
 
+        # A cancelled or finished booking takes no payment, and a booking that
+        # is paid takes no second one (the lines stay in the cart otherwise).
         try:
+            booking._check_open_for_payment()
             booking._ensure_payment_hold()
         except UserError as error:
             return {'error': error.args[0] if error.args else str(error)}

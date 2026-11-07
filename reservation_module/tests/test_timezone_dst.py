@@ -3,17 +3,17 @@
 
 Finding 5d593007668b (event mode books exactly one availability window)
 required a daylight-saving contrast test, but the other tests only use
-Asia/Taipei, which has no DST. These use the 2026 changes of two zones:
+Asia/Taipei, which has no DST. These use the 2026 changes of three zones:
 
   Europe/Berlin     2026-03-29  02:00 CET  -> 03:00 CEST  (02:xx never happens)
                     2026-10-25  03:00 CEST -> 02:00 CET   (02:xx happens twice)
   America/New_York  2026-03-08  02:00 EST  -> 03:00 EDT   (02:xx never happens)
                     2026-11-01  02:00 EDT  -> 01:00 EST   (01:xx happens twice)
-  Asia/Beirut       2026-03-29  00:00 EET  -> 01:00 EEST  (a zone that changes at midnight:
+  America/Havana    2026-03-08  00:00 CST  -> 01:00 CDT   (a zone that changes at midnight:
                                                           00:xx never happens, and a window
                                                           ending at 24:00 the day before ends
                                                           at a wall time that does not exist)
-                    2026-10-25  00:00 EEST -> 23:00 EET   (23:xx of the 24th happens twice)
+                    2026-11-01  01:00 CDT  -> 00:00 CST   (00:xx happens twice)
 
 Rules pinned here (tz_utils.py has the arithmetic):
 
@@ -57,13 +57,15 @@ CHANGE_DAYS = {
     'new_york_spring': ('America/New_York', date(2026, 3, 8), '2026-03-03 12:00:00'),
     'new_york_autumn': ('America/New_York', date(2026, 11, 1), '2026-10-27 12:00:00'),
 }
-# Zones whose clocks change at midnight: only the invariants are checked on
-# these (what the slot lists offer is what the booking form takes).
+# Zones whose clocks change at midnight (Cuba's rule has not changed since
+# 2013; Lebanon's changes often, which would make the test depend on the tz
+# database version). The invariants are checked on these days, and a few
+# windows are worked out by hand in WINDOW_UTC.
 MIDNIGHT_CHANGE_DAYS = {
-    'beirut_spring_eve': ('Asia/Beirut', date(2026, 3, 28), '2026-03-25 12:00:00'),
-    'beirut_spring': ('Asia/Beirut', date(2026, 3, 29), '2026-03-25 12:00:00'),
-    'beirut_autumn_eve': ('Asia/Beirut', date(2026, 10, 24), '2026-10-20 12:00:00'),
-    'beirut_autumn': ('Asia/Beirut', date(2026, 10, 25), '2026-10-20 12:00:00'),
+    'havana_spring_eve': ('America/Havana', date(2026, 3, 7), '2026-03-04 12:00:00'),
+    'havana_spring': ('America/Havana', date(2026, 3, 8), '2026-03-04 12:00:00'),
+    'havana_autumn_eve': ('America/Havana', date(2026, 10, 31), '2026-10-27 12:00:00'),
+    'havana_autumn': ('America/Havana', date(2026, 11, 1), '2026-10-27 12:00:00'),
 }
 CHANGE_DAYS_ALL = dict(CHANGE_DAYS, **MIDNIGHT_CHANGE_DAYS)
 
@@ -130,15 +132,16 @@ WINDOW_UTC = {
     # the evening window of the day before (ending at 24:00) and the night
     # window of the day (starting at 00:00) are skipped like any other window
     # with an edge that never happens.
-    ('beirut_spring_eve', (0, 6)): ('2026-03-27 22:00:00', '2026-03-28 04:00:00'),
-    ('beirut_spring_eve', (20, 24)): None,
-    ('beirut_spring_eve', (0, 24)): None,
-    ('beirut_spring', (0, 6)): None,
-    ('beirut_spring', (1, 4)): ('2026-03-28 22:00:00', '2026-03-29 01:00:00'),
-    ('beirut_spring', (20, 24)): ('2026-03-29 17:00:00', '2026-03-29 21:00:00'),
-    ('beirut_autumn_eve', (20, 24)): ('2026-10-24 17:00:00', '2026-10-24 22:00:00'),   # 5 real hours
-    ('beirut_autumn_eve', (0, 24)): ('2026-10-23 21:00:00', '2026-10-24 22:00:00'),    # 25 hours
-    ('beirut_autumn', (0, 24)): ('2026-10-24 22:00:00', '2026-10-25 22:00:00'),
+    ('havana_spring_eve', (0, 6)): ('2026-03-07 05:00:00', '2026-03-07 11:00:00'),
+    ('havana_spring_eve', (20, 24)): None,
+    ('havana_spring_eve', (0, 24)): None,
+    ('havana_spring', (0, 6)): None,
+    ('havana_spring', (1, 4)): ('2026-03-08 05:00:00', '2026-03-08 08:00:00'),
+    ('havana_spring', (20, 24)): ('2026-03-09 00:00:00', '2026-03-09 04:00:00'),
+    # 24:00 of the 31st is 00:00 of the day with the repeated hour: standard time
+    ('havana_autumn_eve', (20, 24)): ('2026-11-01 00:00:00', '2026-11-01 05:00:00'),   # 5 real hours
+    ('havana_autumn_eve', (0, 24)): ('2026-10-31 04:00:00', '2026-11-01 05:00:00'),    # 25 hours
+    ('havana_autumn', (0, 24)): ('2026-11-01 05:00:00', '2026-11-02 05:00:00'),
 }
 
 

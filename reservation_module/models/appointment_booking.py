@@ -1696,6 +1696,10 @@ class AppointmentBooking(models.Model):
         """
         self.ensure_one()
         if transaction:
+            # Pending ORM writes of the flag go to the database first: a flush
+            # after the claim would overwrite it, and one between the UPDATE
+            # and fetchone() would replace the RETURNING result.
+            transaction.flush_recordset(['appointment_failure_notified'])
             # Atomic claim: concurrent reports of one transaction serialize on
             # its row and only the first one gets it.
             self.env.cr.execute(
@@ -1703,8 +1707,11 @@ class AppointmentBooking(models.Model):
                 "WHERE id = %s AND appointment_failure_notified IS NOT TRUE RETURNING id",
                 [transaction.id],
             )
+            # Read the result before anything else can run a statement:
+            # invalidate_recordset() flushes pending writes.
+            claimed = self.env.cr.fetchone()
             transaction.invalidate_recordset(['appointment_failure_notified'])
-            if not self.env.cr.fetchone():
+            if not claimed:
                 return False
         # Atomic increment to avoid lost updates under concurrent requests
         self.env.cr.execute(

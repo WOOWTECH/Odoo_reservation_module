@@ -484,6 +484,44 @@ class TestPayPageSettlement(IntegrityCommon, TransactionCase):
 
 
 @tagged('post_install', '-at_install')
+class TestPaymentFailureClaim(IntegrityCommon, TransactionCase):
+    """GAP 11 item 6: invalidate_recordset() flushes. Run between the
+    UPDATE ... RETURNING and cr.fetchone() it replaced the result."""
+
+    def setUp(self):
+        super().setUp()
+        self.booking = self._new_booking(self._paid_type())
+        self.booking.state = 'pending_payment'
+        self.tx = self._own_tx(self.booking, 'INT-FAIL-1', amount=10.0)
+        self.tx._set_error('declined')
+
+    def test_the_claim_survives_a_flush_after_it(self):
+        """What a flush of any pending write does: it runs a statement that
+        returns nothing."""
+        Tx = type(self.env['payment.transaction'])
+        invalidate = Tx.invalidate_recordset
+
+        def noisy(records, fnames=None, flush=True):
+            records.env.cr.execute('SELECT 1 WHERE FALSE')
+            return invalidate(records, fnames, flush)
+        with patch.object(Tx, 'invalidate_recordset', noisy):
+            self.assertTrue(self.booking._handle_payment_failure(transaction=self.tx))
+        self.env.invalidate_all()
+        self.assertTrue(self.tx.appointment_failure_notified)
+        self.assertEqual(self.booking.payment_failure_count, 1)
+        self.assertFalse(self.booking._handle_payment_failure(transaction=self.tx), 'only once')
+
+    def test_pending_orm_writes_do_not_break_the_claim(self):
+        """A flag written through the ORM and not flushed yet: the claim sees
+        it (the transaction is already handled) instead of failing."""
+        self.tx.appointment_failure_notified = True
+        self.assertFalse(self.booking._handle_payment_failure(transaction=self.tx))
+        self.env.invalidate_all()
+        self.assertEqual(self.booking.payment_failure_count, 0)
+
+
+
+@tagged('post_install', '-at_install')
 class TestCartModeIntegrity(IntegrityHttpCommon, HttpCase):
     """The real website cart."""
 

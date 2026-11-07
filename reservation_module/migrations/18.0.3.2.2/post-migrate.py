@@ -59,7 +59,6 @@ import re
 from markupsafe import Markup
 
 from odoo import SUPERUSER_ID, api, fields
-from odoo.exceptions import AccessError, UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -363,7 +362,7 @@ def _flag_foreign_sale_orders(env):
                                  '(see the note on the booking). / 此預約連到的銷售訂單 %s 不是'
                                  '這筆預約或其客戶的訂單（見預約上的記事）。' % (order.name, order.name))
                     todos += 1
-                except (AccessError, UserError, ValidationError):
+                except Exception:  # a to-do is a courtesy: it must never stop the upgrade
                     _logger.warning("reservation_module 18.0.3.2.2: no to-do could be scheduled "
                                     "for booking %s", booking.name, exc_info=True)
         reported.append(booking.id)

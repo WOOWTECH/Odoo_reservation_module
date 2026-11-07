@@ -21,6 +21,8 @@ transaction and (once recomputed) their paid status.
     order) is reported once, and stays closed at runtime
 """
 
+from unittest.mock import patch
+
 from odoo.exceptions import ValidationError
 from odoo.tests.common import HttpCase, TransactionCase, tagged
 
@@ -586,6 +588,15 @@ class TestForeignRowsUpgrade(LegacyCartTools, LegacyLinkCommon, TransactionCase)
         self.assertEqual(len(self._notes(self.legacy)), 1)
         self.assertEqual(len(self._todos(self.legacy)), 1)
         self.assertFalse(_load_migration_3_2_2()._flag_foreign_sale_orders(self.env))
+
+    def test_a_to_do_that_cannot_be_scheduled_does_not_stop_the_upgrade(self):
+        Booking = type(self.env['appointment.booking'])
+        with patch.object(Booking, 'activity_schedule', side_effect=RuntimeError('no activity type')):
+            self._upgrade()
+        for row in self.rows:
+            self.assertEqual(len(self._notes(row)), 1, row.name)
+            self.assertFalse(self._todos(row), row.name)
+            self.assertEqual(row.sale_order_id, self.victim_order)
 
     def test_a_finished_or_cancelled_row_is_noted_without_a_todo(self):
         past = self._booking(self.appointment_type, self._wall(-6, 10), state='done',

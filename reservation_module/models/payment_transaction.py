@@ -138,6 +138,12 @@ class PaymentTransaction(models.Model):
             # Flow 2: Sales order linked booking
             if hasattr(tx, 'sale_order_ids'):
                 for so in tx.sale_order_ids:
+                    # A booking cancelled while this payment was on its way
+                    # (a transfer): its lines are still in the order, so the
+                    # money is in and nobody has given it back.
+                    for booking in so._get_own_bookings().filtered(
+                            lambda b: b.state == 'cancelled' and b._order_holds_booking_lines(so)):
+                        booking._flag_paid_cancellation(tx)
                     # By state, not payment_status: once the sale module has
                     # reconciled the invoice the status is already 'paid', and
                     # searching 'pending' silently skipped the confirmation.

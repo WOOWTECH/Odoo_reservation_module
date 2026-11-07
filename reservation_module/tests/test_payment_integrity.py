@@ -318,6 +318,19 @@ class TestPaidBookingCancellation(IntegrityCommon, TransactionCase):
         self._post_process(tx)
         self._assert_flagged(self.booking, tx.reference)
 
+    def test_late_order_payment_on_a_cancelled_booking_is_flagged(self):
+        """The same for a payment of the booking's order (a transfer started
+        on the cart or the quotation) that completes after the cancellation."""
+        tx = self._order_tx(self.order, 'INT-LATE-2')
+        tx._set_pending()
+        self._post_process(tx)
+        self.booking.action_cancel()
+        self.assertEqual(self.order.state, 'cancel')
+        self.assertEqual(self.booking.payment_status, 'refunded')
+        tx._set_done()
+        self._post_process(tx)
+        self._assert_flagged(self.booking, tx.reference)
+
 
 @tagged('post_install', '-at_install')
 class TestPaidBookingCancellationRoute(IntegrityHttpCommon, HttpCase):

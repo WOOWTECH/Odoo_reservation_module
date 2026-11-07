@@ -10,6 +10,9 @@
     covers them (f94e04013795, 7f0060bd8934)
   * the booking's own pay page charges the amount of its lines, computed on
     the server
+  * a shared-cart payment that does not pay the booking's own lines neither
+    holds, confirms nor flags the booking; booking lines cannot be removed
+    through the linked_line_id cascade
   * failed payments cannot flood the booking's chatter (bab08eb294c9)
 """
 
@@ -260,6 +263,39 @@ class TestBookingLinesPayment(BindingCommon, TransactionCase):
         self.line.write({'product_uom_qty': 2})
         self.assertEqual(self.booking.payment_status, 'pending')
 
+    def test_booking_line_cannot_be_hung_under_another_line(self):
+        """A booking line made the linked child of another line would be
+        deleted with it by the database cascade, past every ORM check."""
+        other = self.env['sale.order.line'].create({
+            'order_id': self.order.id, 'product_id': self._product('Sticker', 1.0).id,
+            'product_uom_qty': 1})
+        as_visitor = self.line.with_user(self.portal_user).sudo()
+        for vals in ({'linked_line_id': other.id}, {'combo_item_id': False, 'product_uom_qty': 3}):
+            with self.assertRaises(UserError), self.env.cr.savepoint():
+                as_visitor.write(vals)
+        self.assertFalse(self.line.linked_line_id)
+        # Lines linked that way earlier (by staff, or before this check):
+        # their parent cannot be removed by the customer either.
+        self.line.with_context(**EDIT).write({'linked_line_id': other.id})
+        with self.assertRaises(UserError), self.env.cr.savepoint():
+            other.with_user(self.portal_user).sudo().unlink()
+        self.assertTrue(self.line.exists())
+
+    def test_customers_cannot_bind_existing_lines(self):
+        other = self.env['sale.order.line'].create({
+            'order_id': self.order.id, 'product_id': self._product('Pen', 2.0).id,
+            'product_uom_qty': 1})
+        as_visitor = other.with_user(self.portal_user).sudo()
+        for vals in ({'appointment_booking_id': self.booking.id}, {'appointment_booking_qty': 1}):
+            with self.assertRaises(UserError), self.env.cr.savepoint():
+                as_visitor.write(vals)
+        self.assertFalse(other.appointment_booking_id)
+
+    def test_zero_booked_quantity_is_not_paid(self):
+        self.line.with_context(**EDIT).write({'appointment_booking_qty': 0})
+        self.env.invalidate_all()
+        self.assertEqual(self.booking.payment_status, 'pending')
+
     def test_customers_cannot_bind_lines(self):
         line = self.env['sale.order.line'].with_user(self.portal_user).sudo().create({
             'order_id': self.order.id, 'product_id': self._product('Free', 1.0).id,
@@ -335,6 +371,22 @@ class TestCartModeBinding(BindingCommon, RulesHttpCommon, HttpCase):
         self.env.invalidate_all()
         self.assertTrue(line.exists())
 
+    def test_booking_line_cannot_be_removed_through_a_linked_line(self):
+        booking = self._book(3, 'cart.cascade@example.com', 3)
+        line = booking.payment_line_ids.filtered(lambda l: not l.display_type)
+        cheap = self._json('/shop/cart/update_json', {
+            'product_id': self._product('Cheap', 1.0).id, 'add_qty': 1})['result']['line_id']
+        result = self._json('/shop/cart/update_json', {
+            'product_id': line.product_id.id, 'line_id': line.id, 'set_qty': 3,
+            'linked_line_id': cheap})
+        self.assertIn('error', result, 'a booking line was hung under another line')
+        self._json('/shop/cart/update_json', {
+            'product_id': self.env['sale.order.line'].sudo().browse(cheap).product_id.id,
+            'line_id': cheap, 'set_qty': 0})
+        self.env.invalidate_all()
+        self.assertTrue(line.exists())
+        self.assertEqual(line.product_uom_qty, 3)
+
     def test_bookings_in_one_cart_keep_their_own_lines(self):
         first = self._book(3, 'cart.first@example.com', 1)
         second = self._book(4, 'cart.second@example.com', 2)
@@ -393,6 +445,96 @@ class TestCartModeBinding(BindingCommon, RulesHttpCommon, HttpCase):
 
 
 @tagged('post_install', '-at_install')
+class TestSharedCartPayment(BindingCommon, TransactionCase):
+    """f94e04013795 / 7f0060bd8934: a payment of the shared cart that does not
+    pay the booking's own lines neither holds the slot until the appointment
+    nor confirms the booking or raises a "paid, not confirmed" alert."""
+
+    def _shared_cart(self, auto_confirm, days):
+        appointment_type = self._paid_type(auto_confirm=auto_confirm, payment_per_person=True)
+        booking = self._new_booking(appointment_type, days=days, guest_count=3)
+        order = booking._create_sale_order()
+        self.env['sale.order.line'].create({
+            'order_id': order.id, 'product_id': self._product('Sticker', 1.0).id,
+            'product_uom_qty': 1})
+        self.assertEqual(booking.state, 'pending_payment')
+        return booking, order
+
+    def _order_tx(self, order, amount, reference):
+        provider = self.env['payment.provider'].create({
+            'name': 'Cart Dummy', 'code': 'none', 'state': 'test',
+            'payment_method_ids': [(6, 0, self.env.ref('payment.payment_method_unknown').ids)],
+        })
+        return self.env['payment.transaction'].sudo().create({
+            'provider_id': provider.id,
+            'payment_method_id': self.env.ref('payment.payment_method_unknown').id,
+            'reference': reference, 'amount': amount,
+            'currency_id': order.currency_id.id, 'partner_id': order.partner_id.id,
+            'sale_order_ids': [(6, 0, order.ids)],
+        })
+
+    def _post_process(self, tx):
+        Tx = type(self.env['payment.transaction'])
+        if hasattr(Tx, '_create_payment'):
+            with patch.object(Tx, '_create_payment', return_value=None):
+                tx._post_process()
+        else:
+            tx._post_process()
+        self.env.invalidate_all()
+
+    def _assert_untouched(self, booking, hold, tx):
+        self.assertEqual(booking.state, 'pending_payment')
+        self.assertEqual(booking.payment_status, 'pending')
+        self.assertEqual(booking.payment_hold_until, hold, 'the hold was not extended')
+        self.assertFalse(booking.payment_confirm_failed)
+        self.assertFalse(booking.activity_ids, 'no "paid booking needs confirmation" activity')
+        self.assertNotEqual(booking.payment_transaction_id, tx)
+
+    def _pay_cart_without_the_booking_lines(self, auto_confirm):
+        booking, order = self._shared_cart(auto_confirm, days=3)
+        # What the linked_line_id cascade did: the booking lines are gone.
+        booking.payment_line_ids.with_context(**EDIT).unlink()
+        self.env.invalidate_all()
+        hold = booking.payment_hold_until
+        tx = self._order_tx(order, order.amount_total, 'CART-OTHER')
+        tx._set_done()
+        self._post_process(tx)
+        self._assert_untouched(booking, hold, tx)
+
+    def test_paying_the_cart_without_the_booking_lines(self):
+        self._pay_cart_without_the_booking_lines(auto_confirm=False)
+
+    def test_paying_the_cart_without_the_booking_lines_auto_confirm(self):
+        self._pay_cart_without_the_booking_lines(auto_confirm=True)
+
+    def _pay_part_of_the_cart(self, auto_confirm):
+        booking, order = self._shared_cart(auto_confirm, days=5)
+        hold = booking.payment_hold_until
+        wire = self._order_tx(order, 1.0, 'CART-PART-WIRE')
+        wire._set_pending()
+        self._post_process(wire)
+        self.assertFalse(booking.payment_pending_hold_granted)
+        tx = self._order_tx(order, 1.0, 'CART-PART')
+        tx._set_done()
+        self._post_process(tx)
+        self._assert_untouched(booking, hold, tx)
+
+    def test_paying_part_of_the_cart(self):
+        self._pay_part_of_the_cart(auto_confirm=False)
+
+    def test_paying_part_of_the_cart_auto_confirm(self):
+        self._pay_part_of_the_cart(auto_confirm=True)
+
+    def test_paying_the_whole_cart_keeps_the_slot(self):
+        booking, order = self._shared_cart(False, days=7)
+        tx = self._order_tx(order, order.amount_total, 'CART-ALL')
+        tx._set_done()
+        self._post_process(tx)
+        self.assertEqual(booking.payment_transaction_id, tx)
+        self.assertEqual(booking.payment_hold_until, booking.end_datetime)
+
+
+@tagged('post_install', '-at_install')
 class TestPaymentFailureNotes(BindingCommon, TransactionCase):
     """bab08eb294c9: failed payments of one booking cannot flood its chatter
     or the guest's inbox."""
@@ -423,3 +565,26 @@ class TestPaymentFailureNotes(BindingCommon, TransactionCase):
             ('model', '=', 'appointment.booking'), ('res_id', '=', booking.id),
             ('subject', 'ilike', 'Payment failed')])
         self.assertLessEqual(len(mails), 1)
+
+    def test_note_limit_zero_means_no_notes(self):
+        self.env['ir.config_parameter'].sudo().set_param(
+            'reservation_module.payment_failure_note_limit', '0')
+        booking = self._new_booking(self._paid_type())
+        booking.write({'state': 'pending_payment'})
+        provider = self.env['payment.provider'].create({
+            'name': 'No Notes Dummy', 'code': 'none', 'state': 'test',
+            'payment_method_ids': [(6, 0, self.env.ref('payment.payment_method_unknown').ids)],
+        })
+        for index in range(3):
+            tx = self.env['payment.transaction'].sudo().create({
+                'provider_id': provider.id,
+                'payment_method_id': self.env.ref('payment.payment_method_unknown').id,
+                'reference': 'NO-NOTES-%d' % index, 'amount': 100.0,
+                'currency_id': self.env.company.currency_id.id,
+                'partner_id': booking.partner_id.id, 'appointment_booking_id': booking.id,
+            })
+            tx._set_error('declined')
+            tx._post_process()
+        self.env.invalidate_all()
+        self.assertEqual(booking.payment_failure_count, 3)
+        self.assertFalse(booking.message_ids.filtered(lambda m: 'Payment failure #' in (m.body or '')))

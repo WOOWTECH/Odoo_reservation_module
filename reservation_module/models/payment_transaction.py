@@ -82,10 +82,12 @@ class PaymentTransaction(models.Model):
                 )
 
         # Payment started but not settled yet (e.g. wire transfer): keep the
-        # slot longer than the short payment window.
-        self.filtered(
-            lambda t: t.state in ('pending', 'authorized')
-        )._get_held_bookings()._hold_for_pending_payment()
+        # slot longer than the short payment window, but only for bookings
+        # whose own lines this payment pays (not for a cheap other item of a
+        # shared cart).
+        for tx in self.filtered(lambda t: t.state in ('pending', 'authorized')):
+            tx._get_held_bookings().filtered(
+                lambda b: b._tx_covers_booking(tx))._hold_for_pending_payment()
 
         for tx in self.filtered(lambda t: t.state == 'done'):
             # Flow 1: Direct booking transaction (backward compat)
@@ -106,6 +108,10 @@ class PaymentTransaction(models.Model):
                         ('sale_order_id', '=', so.id),
                         ('state', 'in', ('draft', 'pending_payment')),
                     ])
+                    # Only bookings whose own lines this payment pays: paying
+                    # for something else in a shared cart must neither hold
+                    # nor confirm (nor flag) a booking.
+                    bookings = bookings.filtered(lambda b: b._is_paid_by(tx))
                     if not bookings:
                         continue
 

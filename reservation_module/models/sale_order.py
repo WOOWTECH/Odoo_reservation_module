@@ -12,6 +12,12 @@ _logger = logging.getLogger(__name__)
 # the sale order lines of a booking (see appointment.booking).
 BOOKING_LINE_EDIT_CTX = 'reservation_booking_line_edit'
 
+# Fields that bind a line to a booking: set only by the booking code (or staff).
+BOOKING_BINDING_FIELDS = frozenset({'appointment_booking_id', 'appointment_booking_qty'})
+# Fields customers may not change on a line of a booking.
+BOOKING_LINE_LOCKED_FIELDS = BOOKING_BINDING_FIELDS | {
+    'order_id', 'product_id', 'product_uom', 'display_type', 'linked_line_id', 'combo_item_id'}
+
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
@@ -89,22 +95,36 @@ class SaleOrderLine(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
-        booking_lines = self.filtered('appointment_booking_id')
-        if booking_lines and not self._booking_line_edit_allowed():
-            locked = {'appointment_booking_id', 'appointment_booking_qty', 'order_id',
-                      'product_id', 'product_uom', 'display_type'}
-            if locked & set(vals):
-                raise UserError(_(
-                    'This line belongs to a booking. Cancel the booking to remove it from the order.'))
-            if 'product_uom_qty' in vals:
-                for line in booking_lines.filtered(lambda l: not l.display_type):
-                    if float_compare(vals['product_uom_qty'] or 0.0, line.appointment_booking_qty,
-                                     precision_rounding=line.product_uom.rounding or 0.01) < 0:
-                        raise UserError(_(
-                            'The quantity of booking %(booking)s cannot be lowered here. '
-                            'Cancel the booking and book again to change it.',
-                            booking=line.appointment_booking_id.sudo().name))
+        if not self._booking_line_edit_allowed():
+            # Only the booking code binds a line to a booking.
+            if BOOKING_BINDING_FIELDS & set(vals):
+                raise UserError(_('Only the booking itself can bind order lines to it.'))
+            booking_lines = self.filtered('appointment_booking_id')
+            if booking_lines:
+                # linked_line_id / combo_item_id: a booking line hung under
+                # another line is deleted with it by the database cascade,
+                # which no ORM hook sees.
+                if BOOKING_LINE_LOCKED_FIELDS & set(vals):
+                    raise UserError(_(
+                        'This line belongs to a booking. Cancel the booking to remove it from the order.'))
+                if 'product_uom_qty' in vals:
+                    for line in booking_lines.filtered(lambda l: not l.display_type):
+                        if float_compare(vals['product_uom_qty'] or 0.0, line.appointment_booking_qty,
+                                         precision_rounding=line.product_uom.rounding or 0.01) < 0:
+                            raise UserError(_(
+                                'The quantity of booking %(booking)s cannot be lowered here. '
+                                'Cancel the booking and book again to change it.',
+                                booking=line.appointment_booking_id.sudo().name))
         return super().write(vals)
+
+    def _with_linked_descendants(self):
+        """These lines and every line the database deletes with them
+        (linked_line_id is ondelete='cascade')."""
+        lines = todo = self.sudo()
+        while todo:
+            todo = todo.linked_line_ids - lines
+            lines |= todo
+        return lines
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_booking_line(self):
@@ -112,7 +132,7 @@ class SaleOrderLine(models.Model):
             return
         # The cart page drops lines of archived products by itself: let it, the
         # booking simply stays unpaid then.
-        if self.filtered(lambda l: l.appointment_booking_id
-                         and (l.display_type or l.product_id.active)):
+        if self._with_linked_descendants().filtered(
+                lambda l: l.appointment_booking_id and (l.display_type or l.product_id.active)):
             raise UserError(_(
                 'This line belongs to a booking. Cancel the booking to remove it from the order.'))

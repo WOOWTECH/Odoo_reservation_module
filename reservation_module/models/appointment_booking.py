@@ -444,8 +444,11 @@ class AppointmentBooking(models.Model):
         lines = self._get_payment_lines()
         if not lines or len(lines) < self.sudo().payment_line_count:
             return False
+        # A booked quantity of 0 would make any line (and no invoice at all)
+        # count as covered; the booking code always stores guests or 1.
         return all(
-            float_compare(line.product_uom_qty, line.appointment_booking_qty,
+            line.appointment_booking_qty > 0
+            and float_compare(line.product_uom_qty, line.appointment_booking_qty,
                           precision_rounding=line.product_uom.rounding or 0.01) >= 0
             for line in lines)
 
@@ -521,6 +524,13 @@ class AppointmentBooking(models.Model):
             if float_compare(line.qty_invoiced_posted, line.product_uom_qty,
                              precision_rounding=line.product_uom.rounding or 0.01) < 0:
                 return False
+        return self._legacy_order_holds_booking(order)
+
+    def _legacy_order_holds_booking(self, order):
+        """A legacy booking's order still holds the booked quantity of every
+        payment product, for all the open bookings on it."""
+        self.ensure_one()
+        order = order.sudo()
         bookings = order.booking_ids.filtered(lambda b: b.state != 'cancelled') | self
         for product in self.appointment_type_id.payment_product_ids:
             needed = sum(b._get_payment_qty() for b in bookings
@@ -539,12 +549,59 @@ class AppointmentBooking(models.Model):
             return False
         if 'sale_order_ids' in tx._fields and tx.sale_order_ids:
             return False  # an order payment: judged through the invoices
-        if (booking.payment_line_count or booking.payment_line_ids) and not booking._payment_lines_intact():
+        return booking._tx_covers_booking(tx)
+
+    def _tx_covers_booking(self, tx):
+        """Whether the payment ``tx`` pays for this booking's own lines.
+
+        * the booking's pay page (tx.appointment_booking_id, no order): its
+          amount covers the booking's lines;
+        * an order payment (website cart checkout, /my/orders): it pays this
+          booking's own order, the booking's lines are all still on that order
+          with the booked quantity, and the order's payments add up to its
+          whole total; a payment for something else in a shared cart (or a
+          down payment) does not cover the booking.
+        """
+        self.ensure_one()
+        booking = self.sudo()
+        tx = tx.sudo()
+        if not tx or tx.operation in ('refund', 'validation'):
             return False
-        amount = booking._get_payment_amount()
-        currency = booking._get_payment_currency()
-        return bool(amount > 0 and tx.currency_id == currency
-                    and currency.compare_amounts(tx.amount, amount) >= 0)
+        orders = tx.sale_order_ids if 'sale_order_ids' in tx._fields else self.env['sale.order']
+        if not booking.appointment_type_id.require_payment:
+            return tx.appointment_booking_id == booking and not orders
+        bound = booking.payment_line_count or booking.payment_line_ids
+        if bound and not booking._payment_lines_intact():
+            return False
+        if not orders:
+            if tx.appointment_booking_id != booking:
+                return False
+            amount = booking._get_payment_amount()
+            currency = booking._get_payment_currency()
+            return bool(amount > 0 and tx.currency_id == currency
+                        and currency.compare_amounts(tx.amount, amount) >= 0)
+        order = booking._get_own_sale_order()
+        if not order or order not in orders or order.state == 'cancel':
+            return False
+        if not bound and not booking._legacy_order_holds_booking(order):
+            return False
+        currency = order.currency_id
+        if any(o.currency_id != currency for o in orders) or tx.currency_id != currency:
+            return False
+        if len(orders) > 1:
+            # One payment for several orders: it must cover all of them.
+            return currency.compare_amounts(tx.amount, sum(orders.mapped('amount_total'))) >= 0
+        paid = sum(
+            t.amount for t in (order.transaction_ids | tx)
+            if t.sale_order_ids == order and t.currency_id == currency
+            and t.operation != 'validation'
+            and (t == tx or t.state in ('authorized', 'done')))
+        return order.amount_total > 0 and currency.compare_amounts(paid, order.amount_total) >= 0
+
+    def _is_paid_by(self, tx):
+        """Paid for (payment_status), or ``tx`` itself pays this booking."""
+        self.ensure_one()
+        return self.sudo().payment_status == 'paid' or self._tx_covers_booking(tx)
 
     @api.constrains('sale_order_id')
     def _check_sale_order_owner(self):
@@ -790,11 +847,20 @@ class AppointmentBooking(models.Model):
     def _confirm_after_payment(self, tx):
         """Auto-confirm paid bookings; a failure is recorded, never swallowed.
 
+        Only a payment that pays this booking's own lines counts
+        (_is_paid_by): paying for something else in a shared cart neither
+        keeps the slot until the appointment nor raises a "paid but not
+        confirmed" alert; such a booking keeps its normal payment hold.
+
         Only business errors are caught: a SerializationFailure from the
         conflict guard must reach Odoo's retry loop.
         """
         for booking in self.sudo():
             if booking.state not in HOLDING_STATES:
+                continue
+            if not booking._is_paid_by(tx):
+                _logger.info("Booking %s: payment tx %s does not cover its order lines; not confirmed",
+                             booking.name, tx.reference if tx else '-')
                 continue
             if not booking.appointment_type_id.auto_confirm:
                 # Paid; staff confirms by hand. Keep the slot meanwhile.
@@ -1345,7 +1411,9 @@ class AppointmentBooking(models.Model):
         # then one last note says that further failures are only counted.
         note_limit = self._get_int_param('reservation_module.payment_failure_note_limit', 5)
         count = self.sudo().payment_failure_count
-        if note_limit > 0 and count > note_limit:
+        if note_limit <= 0:
+            return True  # 0 = no failure notes at all
+        if count > note_limit:
             if count == note_limit + 1:
                 self.message_post(
                     body=_('Payment failure #%(count)s for booking %(booking)s. Further payment '

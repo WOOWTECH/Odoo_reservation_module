@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 from unittest.mock import patch
 
 from odoo import fields
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, ValidationError
 from odoo.modules.module import get_module_path
 from odoo.tests.common import HttpCase, TransactionCase, tagged
 
@@ -564,6 +564,169 @@ class TestBookingCalendarLinkForgery(AclCommon, TransactionCase):
             [('id', '=', self.event.id)]), self.event)
         self.assertFalse(self.env['calendar.event'].with_user(self.portal_user).search(
             [('id', '=', self.event.id)]))
+
+    # 第 4 輪（最終審查）：id 用字串或浮點數送（"63"、63.0）時，PostgreSQL 一樣
+    # 轉成 event 63，舊的檢查卻只看 int，直接放行。
+
+    def _linked(self, partner, event):
+        """Whether the relation row exists, read past the ORM cache."""
+        self.env.flush_all()
+        self.env.cr.execute(
+            "SELECT 1 FROM calendar_event_res_partner_rel"
+            " WHERE calendar_event_id = %s AND res_partner_id = %s", [event.id, partner.id])
+        return bool(self.env.cr.fetchone())
+
+    def test_text_and_float_ids_cannot_link_on_write(self):
+        own = self.env['res.partner'].with_user(self.partner_manager).browse(
+            self.partner_manager.partner_id.id)
+        eid = self.event.id
+        for value in ([(4, str(eid))], [(4, float(eid))], [(4, ' %d ' % eid)], [(4.0, str(eid))],
+                      [(6, 0, [str(eid)])], [(6, 0, [float(eid)])], [str(eid)], (float(eid),)):
+            with self.assertRaises(AccessError, msg=repr(value)):
+                own.write({'meeting_ids': value})
+            self.assertFalse(self._linked(self.partner_manager.partner_id, self.event), repr(value))
+        self._assert_invisible(self.partner_manager)
+
+    def test_text_and_float_ids_cannot_link_on_create(self):
+        Partner = self.env['res.partner'].with_user(self.partner_manager)
+        eid = self.event.id
+        for value in ([(4, str(eid))], [(4, float(eid))], [(6, 0, [str(eid)])],
+                      [(6, 0, [float(eid)])], [(3, str(eid))], [(3, float(eid))]):
+            with self.assertRaises(AccessError, msg=repr(value)):
+                Partner.create({'name': 'Sock puppet', 'meeting_ids': value})
+        self.env.invalidate_all()
+        self.assertNotIn('Sock puppet', self.event.sudo().partner_ids.mapped('name'))
+
+    def test_text_and_float_ids_cannot_unlink_the_guest(self):
+        contact = self.env['res.partner'].create({'name': 'Walk-in Guest'})
+        start = self.booking.start_datetime + timedelta(hours=3)
+        booking = self._booking(partner_id=contact.id, start_datetime=start,
+                                end_datetime=start + timedelta(hours=1))
+        booking.action_confirm()
+        event = booking.calendar_event_id
+        self.assertTrue(self._linked(contact, event))
+        guest = self.env['res.partner'].with_user(self.partner_manager).browse(contact.id)
+        for value in ([(3, str(event.id))], [(3, float(event.id))], [(3, ' %d' % event.id)],
+                      [(6, 0, [str(self.event.id)])], [(6, 0, [float(self.event.id)])]):
+            with self.assertRaises(AccessError, msg=repr(value)):
+                guest.write({'meeting_ids': value})
+            self.assertTrue(self._linked(contact, event), repr(value))
+
+    def test_meeting_ids_that_are_not_ids_are_refused(self):
+        own = self.env['res.partner'].with_user(self.partner_manager).browse(
+            self.partner_manager.partner_id.id)
+        eid = self.event.id
+        for value in ([(4, 'abc')], [(4, '%d.0' % eid)], [(4, eid + 0.5)], [(4, None)],
+                      [(4, True)], [(3, 'x')], [(6, 0, [str(eid), 'y'])], ['1e3']):
+            with self.assertRaises(ValidationError, msg=repr(value)):
+                own.write({'meeting_ids': value})
+        with self.assertRaises(ValidationError):
+            self.env['res.partner'].with_user(self.partner_manager).create(
+                {'name': 'Sock puppet', 'meeting_ids': [(4, '%dx' % eid)]})
+        self.assertFalse(self._linked(self.partner_manager.partner_id, self.event))
+
+    def test_text_ids_still_work_where_linking_is_allowed(self):
+        lunch = self.env['calendar.event'].create({
+            'name': 'Team lunch',
+            'start': self.booking.start_datetime,
+            'stop': self.booking.end_datetime,
+        })
+        partner = self.partner_manager.partner_id
+        own = self.env['res.partner'].with_user(self.partner_manager).browse(partner.id)
+        own.write({'meeting_ids': [(4, str(lunch.id))]})
+        self.assertTrue(self._linked(partner, lunch))
+        own.write({'meeting_ids': [(3, float(lunch.id))]})
+        self.assertFalse(self._linked(partner, lunch))
+        own.write({'meeting_ids': [str(lunch.id)]})
+        self.assertTrue(self._linked(partner, lunch))
+        # The organizer may still invite from the partner side, in any id form.
+        self.staff.groups_id = [(4, self.env.ref('base.group_partner_manager').id)]
+        colleague = self.env['res.partner'].create({'name': 'Invited contact'})
+        self.env['res.partner'].with_user(self.staff).browse(colleague.id).write(
+            {'meeting_ids': [(4, '%d' % self.event.id)]})
+        self.assertTrue(self._linked(colleague, self.event))
+
+
+@tagged('post_install', '-at_install')
+class TestBookingVideocallRoom(AclCommon, HttpCase):
+    """7069da4039f2（最終審查）：沒裝 portal Discuss、也沒設 video_link 的線上預約，
+    第一次開 /calendar/join_videocall 時 core 用 event 的 partner_ids 建會議室；
+    預約 event 的會議室只放主辦員工與訪客，partner_ids 被塞人也進不去。"""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls._setup_acl_fixtures()
+        cls.outsider = cls._user('acl_video_outsider', ['base.group_user', 'base.group_partner_manager'])
+
+    def _confirmed_online_booking(self):
+        booking = self._booking()
+        Booking = type(self.env['appointment.booking'])
+        with patch.object(Booking, '_portal_discuss_installed', return_value=False):
+            booking.action_confirm()
+        event = booking.sudo().calendar_event_id
+        self.assertFalse(booking.discuss_channel_id)
+        self.assertTrue(event.access_token)
+        self.assertIn('/calendar/join_videocall/%s' % event.access_token, event.videocall_location or '')
+        return event
+
+    def _join(self, event):
+        self.env.flush_all()
+        response = self.url_open('/calendar/join_videocall/%s' % event.access_token,
+                                 allow_redirects=False)
+        self.assertIn(response.status_code, (301, 302, 303))
+        self.env.invalidate_all()
+        channel = event.sudo().videocall_channel_id
+        self.assertTrue(channel)
+        self.assertIn('/chat/%d/' % channel.id, response.headers.get('Location', ''))
+        return channel
+
+    def test_room_is_for_the_organizer_and_the_guest(self):
+        event = self._confirmed_online_booking()
+        # What the text-id bypass left behind: a raw relation row for an outsider.
+        self.env.cr.execute(
+            "INSERT INTO calendar_event_res_partner_rel (calendar_event_id, res_partner_id)"
+            " VALUES (%s, %s)", [event.id, self.outsider.partner_id.id])
+        self.env.invalidate_all()
+        self.assertIn(self.outsider.partner_id, event.partner_ids)
+        channel = self._join(event)
+        self.assertEqual(channel.channel_member_ids.partner_id,
+                         self.staff.partner_id | self.portal_user.partner_id)
+        Channel = self.env['discuss.channel'].with_user(self.outsider)
+        self.assertFalse(Channel.search([('id', '=', channel.id)]))
+        with self.assertRaises(AccessError):
+            channel.with_user(self.outsider).check_access('read')
+        self.assertEqual(
+            self.env['discuss.channel'].with_user(self.portal_user).search([('id', '=', channel.id)]),
+            channel)
+
+    def test_room_without_staff_is_the_guest_only(self):
+        booking = self._booking(staff_user_id=False)
+        Booking = type(self.env['appointment.booking'])
+        with patch.object(Booking, '_portal_discuss_installed', return_value=False):
+            booking.with_user(self.public_user).sudo().action_confirm()
+        event = booking.sudo().calendar_event_id
+        self.assertFalse(event.user_id)
+        self.env.cr.execute(
+            "INSERT INTO calendar_event_res_partner_rel (calendar_event_id, res_partner_id)"
+            " VALUES (%s, %s)", [event.id, self.outsider.partner_id.id])
+        self.env.invalidate_all()
+        channel = self._join(event)
+        self.assertEqual(channel.channel_member_ids.partner_id, self.portal_user.partner_id)
+
+    def test_other_events_keep_the_attendee_room(self):
+        attendees = self.outsider.partner_id | self.employee.partner_id
+        token = 'acltestnonbooking0001'
+        event = self.env['calendar.event'].create({
+            'name': 'Team call',
+            'start': fields.Datetime.now() + timedelta(days=1),
+            'stop': fields.Datetime.now() + timedelta(days=1, hours=1),
+            'partner_ids': [(6, 0, attendees.ids)],
+            'access_token': token,
+            'videocall_location': '/calendar/join_videocall/%s' % token,
+        })
+        channel = self._join(event)
+        self.assertEqual(channel.channel_member_ids.partner_id & attendees, attendees)
 
 
 @tagged('post_install', '-at_install')

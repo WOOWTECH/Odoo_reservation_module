@@ -87,7 +87,7 @@
 - **Bookings are created through the booking form only** — portal/public users cannot create bookings over RPC; the website flows are unchanged.
 - **Staff-only fields** — internal notes, payment failure count, reminder flag and access token are readable by appointment users only.
 - **Roster-only names on the booking form** — staff_id / resource_id from the URL are shown only when they belong to the appointment type's active roster.
-
+- **Video room of a booking event** — without a portal Discuss module and without a video link on the type, the Discuss room Odoo creates on the first "join video call" of a booking event holds only the organizer (assigned staff) and the booking's guest, whoever else is listed as an attendee. Linking or unlinking a booking event from a contact's Meetings is checked whatever form the event id is sent in (`63`, `"63"`, `63.0`); values that are not ids are refused.
 ### Booking Rules (since 18.0.3.2.2)
 
 - **Whole-party capacity** — a booking needs room for its whole party: seats already taken plus the requested guest count must fit the location's capacity, on the form, on confirmation and when a location is auto-assigned (a capacity of 0 counts as 1). Without a chosen location, the form limit is the largest location of the roster.

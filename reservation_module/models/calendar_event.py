@@ -76,6 +76,28 @@ class CalendarEvent(models.Model):
             return False
         return hidden
 
+    def _get_booking_videocall_partners(self):
+        """The two parties of a booking event: its organizer (the assigned
+        staff, if any) and the booking's guest."""
+        self.ensure_one()
+        event = self.sudo()
+        return event.user_id.partner_id | event.appointment_guest_partner_id
+
+    def _create_videocall_channel_id(self, name, partner_ids):
+        """Booking events: the Discuss call room is for the organizer and the
+        guest only.
+
+        Core builds the room from the attendees (partner_ids) on the first
+        /calendar/join_videocall. Attendees can be added from the res.partner
+        side (meeting_ids) without any check on the event, and room members
+        read its chat and join its call, so partner_ids must not decide who
+        gets in. Other people who hold the meeting link still join through
+        the room's invitation, as before.
+        """
+        if len(self) == 1 and self.sudo().is_appointment_booking:
+            partner_ids = self._get_booking_videocall_partners().ids
+        return super()._create_videocall_channel_id(name, partner_ids)
+
 
 class CalendarAttendee(models.Model):
     _inherit = 'calendar.attendee'

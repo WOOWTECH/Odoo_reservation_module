@@ -23,12 +23,16 @@ from odoo.tests.common import HttpCase, TransactionCase, tagged
 from .test_timezone import TimezoneCommon
 
 
-def _load_migration_3_2_2():
-    path = get_module_path('reservation_module') + '/migrations/18.0.3.2.2/post-migrate.py'
+def _load_migration_3_2_2(script='post-migrate.py'):
+    path = get_module_path('reservation_module') + '/migrations/18.0.3.2.2/' + script
     spec = importlib.util.spec_from_file_location('reservation_module_mig_3_2_2', path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def pre_rule_xmlids():
+    return _load_migration_3_2_2('pre-migrate.py').RULE_XMLIDS
 
 
 class AclCommon:
@@ -423,6 +427,146 @@ class TestBookingCalendarPrivacy(AclCommon, TransactionCase):
 
 
 @tagged('post_install', '-at_install')
+class TestBookingCalendarLinkForgery(AclCommon, TransactionCase):
+    """7069da4039f2（第 3 輪）：員工不能從 res.partner 那一側把自己掛進預約 event。
+
+    Odoo 18 的 Many2many LINK／UNLINK／SET／CLEAR 直接寫關聯表，不檢查
+    calendar.event 的權限；預設每個內部使用者都有 base.group_partner_manager。
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls._setup_acl_fixtures()
+        cls.appointment_type.location_type = 'physical'
+        cls.partner_manager = cls._user(
+            'acl_partner_mgr', ['base.group_user', 'base.group_partner_manager'])
+
+    def setUp(self):
+        super().setUp()
+        booking = self._booking()
+        booking.action_confirm()
+        self.booking = booking
+        self.event = booking.calendar_event_id
+
+    def _assert_invisible(self, user):
+        self.env.invalidate_all()
+        Event = self.env['calendar.event'].with_user(user)
+        self.assertFalse(Event.search([('id', '=', self.event.id)]), user.login)
+        self.assertEqual(Event.search_count([('start', '=', self.booking.start_datetime)]), 0)
+        with self.assertRaises(AccessError):
+            self.event.with_user(user).read(['name', 'start', 'privacy'])
+        self.env.invalidate_all()
+        self.assertEqual(self.env['calendar.attendee'].with_user(user).search_read(
+            [('event_id', '=', self.event.id)], ['common_name', 'email']), [], user.login)
+        self.env.invalidate_all()
+        with self.assertRaises(AccessError):
+            self.event.with_user(user).write({'name': 'hijacked'})
+
+    def test_partner_side_link_is_rejected(self):
+        own = self.env['res.partner'].with_user(self.partner_manager).browse(
+            self.partner_manager.partner_id.id)
+        for value in ([(4, self.event.id)], [(6, 0, [self.event.id])], [self.event.id]):
+            with self.assertRaises(AccessError):
+                own.write({'meeting_ids': value})
+        self.assertNotIn(self.partner_manager.partner_id, self.event.sudo().partner_ids)
+        with self.assertRaises(AccessError):
+            self.env['res.users'].with_user(self.partner_manager).browse(
+                self.partner_manager.id).write({'meeting_ids': [(4, self.event.id)]})
+        with self.assertRaises(AccessError):
+            self.env['res.partner'].with_user(self.partner_manager).create({
+                'name': 'Sock puppet', 'meeting_ids': [(4, self.event.id)]})
+        self._assert_invisible(self.partner_manager)
+
+    def test_partner_side_unlink_of_guest_is_rejected(self):
+        # Anonymous bookings use a plain contact (no user), which any
+        # partner manager may edit.
+        contact = self.env['res.partner'].create({'name': 'Walk-in Guest'})
+        start = self.booking.start_datetime + timedelta(hours=3)
+        booking = self._booking(partner_id=contact.id, start_datetime=start,
+                                end_datetime=start + timedelta(hours=1))
+        booking.action_confirm()
+        event = booking.calendar_event_id
+        guest = self.env['res.partner'].with_user(self.partner_manager).browse(contact.id)
+        for value in ([(3, event.id)], [(5, 0, 0)], [(6, 0, [])], False):
+            with self.assertRaises(AccessError):
+                guest.write({'meeting_ids': value})
+        self.assertIn(contact, event.sudo().partner_ids)
+        # Other relation edits on the same contact still work.
+        guest.write({'meeting_ids': [(6, 0, event.ids)], 'comment': 'regular'})
+        self.assertIn('regular', guest.comment)
+
+    def test_partner_side_link_of_plain_contact_is_rejected(self):
+        contact = self.env['res.partner'].create({'name': 'Colleague contact'})
+        with self.assertRaises(AccessError):
+            self.env['res.partner'].with_user(self.partner_manager).browse(contact.id).write(
+                {'meeting_ids': [(4, self.event.id)]})
+        self.assertNotIn(contact, self.event.sudo().partner_ids)
+
+    def test_linked_partner_still_sees_nothing(self):
+        """就算 partner_ids 被別的管道塞進去，規則也不認 partner_ids。"""
+        self.event.sudo().partner_ids = [(4, self.partner_manager.partner_id.id)]
+        self.env.flush_all()
+        self._assert_invisible(self.partner_manager)
+
+    def test_self_made_attendee_row_is_rejected(self):
+        with self.assertRaises(AccessError):
+            self.env['calendar.attendee'].with_user(self.partner_manager).create({
+                'event_id': self.event.id,
+                'partner_id': self.partner_manager.partner_id.id,
+            })
+
+    def test_markers_cannot_be_changed_outside_the_booking(self):
+        event = self.event.with_user(self.staff)
+        self.assertTrue(event.read(['name']))
+        for vals in ({'is_appointment_booking': False},
+                     {'appointment_guest_partner_id': self.staff.partner_id.id}):
+            with self.assertRaises(AccessError):
+                event.write(vals)
+        self.assertTrue(self.event.is_appointment_booking)
+        self.assertEqual(self.event.appointment_guest_partner_id, self.portal_user.partner_id)
+        with self.assertRaises(AccessError):
+            self.env['calendar.event'].with_user(self.partner_manager).create({
+                'name': 'Fake booking',
+                'start': self.booking.start_datetime,
+                'stop': self.booking.end_datetime,
+                'is_appointment_booking': True,
+                'appointment_guest_partner_id': self.partner_manager.partner_id.id,
+            })
+
+    def test_organizer_can_still_invite_from_partner_side(self):
+        self.staff.groups_id = [(4, self.env.ref('base.group_partner_manager').id)]
+        colleague = self.env['res.partner'].create({'name': 'Invited contact'})
+        self.env['res.partner'].with_user(self.staff).browse(colleague.id).write(
+            {'meeting_ids': [(4, self.event.id)]})
+        self.assertIn(colleague, self.event.partner_ids)
+
+    def test_other_events_keep_core_partner_side_linking(self):
+        event = self.env['calendar.event'].create({
+            'name': 'Team lunch',
+            'start': self.booking.start_datetime,
+            'stop': self.booking.end_datetime,
+        })
+        own = self.env['res.partner'].with_user(self.partner_manager).browse(
+            self.partner_manager.partner_id.id)
+        own.write({'meeting_ids': [(4, event.id)]})
+        own.write({'meeting_ids': [(6, 0, [event.id])]})
+        self.assertIn(self.partner_manager.partner_id, event.partner_ids)
+
+    def test_guest_change_moves_event_access(self):
+        self.booking.partner_id = self.other_portal.partner_id
+        event = self.event.sudo()
+        self.assertEqual(event.appointment_guest_partner_id, self.other_portal.partner_id)
+        self.assertIn(self.other_portal.partner_id, event.partner_ids)
+        self.assertNotIn(self.portal_user.partner_id, event.partner_ids)
+        self.env.invalidate_all()
+        self.assertEqual(self.env['calendar.event'].with_user(self.other_portal).search(
+            [('id', '=', self.event.id)]), self.event)
+        self.assertFalse(self.env['calendar.event'].with_user(self.portal_user).search(
+            [('id', '=', self.event.id)]))
+
+
+@tagged('post_install', '-at_install')
 class TestMigration3_2_2(AclCommon, TransactionCase):
     """既有資料的收緊與可重跑。"""
 
@@ -462,6 +606,25 @@ class TestMigration3_2_2(AclCommon, TransactionCase):
 
         self.assertEqual(self.mig._migrate_discuss_channels(self.env.cr), (0, 0))
 
+    def test_pre_migrate_releases_noupdate_calendar_rules(self):
+        pre = _load_migration_3_2_2('pre-migrate.py')
+        imd = self.env['ir.model.data'].search([
+            ('module', '=', 'reservation_module'), ('model', '=', 'ir.rule'),
+            ('name', 'in', list(pre.RULE_XMLIDS))])
+        self.assertEqual(len(imd), 2)
+        imd.write({'noupdate': True})
+        self.env.flush_all()
+        self.assertEqual(pre.release_calendar_rules(self.env.cr), 2)
+        self.env.invalidate_all()
+        self.assertFalse(any(imd.mapped('noupdate')))
+        self.assertEqual(pre.release_calendar_rules(self.env.cr), 0)
+
+    def test_installed_rules_ignore_partner_ids(self):
+        for xmlid in pre_rule_xmlids():
+            rule = self.env.ref('reservation_module.' + xmlid)
+            self.assertNotIn('partner_ids', rule.domain_force, xmlid)
+            self.assertIn('appointment_guest_partner_id', rule.domain_force, xmlid)
+
     def test_legacy_event_made_private(self):
         # Bring any booking event already in the database to the target
         # state first, so the counts below only see this test's event.
@@ -482,6 +645,7 @@ class TestMigration3_2_2(AclCommon, TransactionCase):
         self.assertEqual(self.mig._migrate_calendar_events(self.env), 1)
         self.assertEqual(event.privacy, 'private')
         self.assertTrue(event.is_appointment_booking)
+        self.assertEqual(event.appointment_guest_partner_id, self.portal_user.partner_id)
         self.assertEqual(event.name, 'ACL Consult - %s' % booking.name)
         self.env.invalidate_all()
         self.assertFalse(self.env['calendar.event'].with_user(self.employee).search(

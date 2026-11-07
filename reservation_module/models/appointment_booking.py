@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import api, fields, models, _
+from odoo.fields import Command
 from odoo.exceptions import AccessError, UserError, ValidationError
 from .. import tz_utils
 from datetime import timedelta, datetime
@@ -382,13 +383,30 @@ class AppointmentBooking(models.Model):
         return result
 
     def write(self, vals):
-        """M6 fix: 修改預約時間（或改派員工）時同步更新關聯的 calendar event。"""
+        """M6 fix: 修改預約時間（或改派員工、改訪客）時同步更新關聯的 calendar event。"""
+        old_guests = {}
+        if 'partner_id' in vals and not self.env.context.get('_skip_calendar_sync'):
+            old_guests = {b.id: b.partner_id for b in self.sudo()}
         result = super().write(vals)
-        if ({'start_datetime', 'end_datetime', 'staff_user_id'} & set(vals)
+        if ({'start_datetime', 'end_datetime', 'staff_user_id', 'partner_id'} & set(vals)
                 and not self.env.context.get('_skip_calendar_sync')):
             for booking in self:
                 if booking.calendar_event_id:
                     event_vals = {}
+                    if 'partner_id' in vals:
+                        # The record rules key on appointment_guest_partner_id:
+                        # move the event (and its attendee row) to the new guest.
+                        event = booking.calendar_event_id.sudo()
+                        old_guest = old_guests.get(booking.id)
+                        if event.appointment_guest_partner_id != booking.partner_id:
+                            event_vals['appointment_guest_partner_id'] = booking.partner_id.id
+                        commands = []
+                        if old_guest and old_guest != booking.partner_id and old_guest in event.partner_ids:
+                            commands.append(Command.unlink(old_guest.id))
+                        if booking.partner_id and booking.partner_id not in event.partner_ids:
+                            commands.append(Command.link(booking.partner_id.id))
+                        if commands:
+                            event_vals['partner_ids'] = commands
                     if 'start_datetime' in vals:
                         event_vals['start'] = booking.start_datetime
                     if 'end_datetime' in vals:
@@ -622,7 +640,9 @@ class AppointmentBooking(models.Model):
         # calendar.event is readable by every employee. is_appointment_booking
         # puts the event and its attendee rows (the guest) under the rules in
         # security/appointment_calendar_security.xml: only the organizer, the
-        # attendees and appointment managers can see them. privacy='private'
+        # guest (appointment_guest_partner_id, not partner_ids, which anyone
+        # can join from the res.partner side) and appointment managers can
+        # see them. privacy='private'
         # is the second layer (core masks name/description as 'Busy'). The
         # title and description carry no guest name or contact details; those
         # stay on the booking (see _get_event_name/_get_event_description).
@@ -635,6 +655,7 @@ class AppointmentBooking(models.Model):
             'user_id': self._get_event_organizer().id,
             'privacy': 'private',
             'is_appointment_booking': True,
+            'appointment_guest_partner_id': self.partner_id.id,
         }
 
         # Online meeting: set videocall location only if no Discuss channel

@@ -7,9 +7,11 @@
    例如自行加入的其他 portal 客戶、公開使用者）。會議室底下若有子討論串，
    一併改成成員制：父頻道沒有 group_public_id 時，core 規則會把 'channel'
    型的子討論串開放給所有人。
-2. 行事曆 event：補 privacy='private' 與 is_appointment_booking=True（讓
-   security/appointment_calendar_security.xml 的規則只讓主辦人、參加者、
-   預約管理員看到 event 與參加者列），標題改成「預約類型 - 預約編號」
+2. 行事曆 event：補 privacy='private'、is_appointment_booking=True 與
+   appointment_guest_partner_id＝預約的訪客（讓
+   security/appointment_calendar_security.xml 的規則只讓主辦人（指派員工）、
+   該預約的訪客、預約管理員看到 event 與參加者列；不看 partner_ids，因為員工
+   能從 res.partner 那一側把自己加進去），標題改成「預約類型 - 預約編號」
    （不含訪客姓名，_get_event_name），description 改成不含訪客 email／
    電話／備註的精簡版（_get_event_description）。
 
@@ -88,6 +90,8 @@ def _migrate_calendar_events(env):
             vals['privacy'] = 'private'
         if not event.is_appointment_booking:
             vals['is_appointment_booking'] = True
+        if event.appointment_guest_partner_id != booking.partner_id:
+            vals['appointment_guest_partner_id'] = booking.partner_id.id
         name = booking._get_event_name()
         if event.name != name:
             vals['name'] = name

@@ -35,6 +35,7 @@
         # Security
         "security/appointment_security.xml",
         "security/ir.model.access.csv",
+        "security/appointment_calendar_security.xml",
         # Data
         "data/appointment_data.xml",
         # Wizard

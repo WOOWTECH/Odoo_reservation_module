@@ -1015,11 +1015,13 @@ class AppointmentController(http.Controller):
                 guest_count = 1
         # Enforce upper bound from resource capacity or appointment type default
         max_guests = appointment_type.max_guests_per_booking if hasattr(appointment_type, 'max_guests_per_booking') and appointment_type.max_guests_per_booking else 100
-        rid = self._safe_int(data.get('resource_id'))
-        if rid:
-            resource = request.env['resource.resource'].sudo().browse(rid)
-            if resource.exists() and resource.capacity:
-                max_guests = resource.capacity
+        # Only a resource on this type's roster may set the limit; any other
+        # id would let the error message disclose an arbitrary resource's
+        # capacity. _resolve_booking_selection rejects such ids later anyway.
+        resource, _staff = self._roster_display_records(
+            appointment_type, data.get('resource_id'), None)
+        if resource and resource.capacity:
+            max_guests = resource.capacity
         if guest_count > max_guests:
             return self._render_booking_form_error(
                 appointment_type, data, _('Maximum %d guests allowed.', max_guests))

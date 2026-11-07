@@ -382,9 +382,10 @@ class AppointmentBooking(models.Model):
         return result
 
     def write(self, vals):
-        """M6 fix: 修改預約時間時同步更新關聯的 calendar event。"""
+        """M6 fix: 修改預約時間（或改派員工）時同步更新關聯的 calendar event。"""
         result = super().write(vals)
-        if ('start_datetime' in vals or 'end_datetime' in vals) and not self.env.context.get('_skip_calendar_sync'):
+        if ({'start_datetime', 'end_datetime', 'staff_user_id'} & set(vals)
+                and not self.env.context.get('_skip_calendar_sync')):
             for booking in self:
                 if booking.calendar_event_id:
                     event_vals = {}
@@ -392,6 +393,10 @@ class AppointmentBooking(models.Model):
                         event_vals['start'] = booking.start_datetime
                     if 'end_datetime' in vals:
                         event_vals['stop'] = booking.end_datetime
+                    if 'staff_user_id' in vals and booking.staff_user_id:
+                        # The event is visible only to its organizer/attendees:
+                        # hand it to the newly assigned staff.
+                        event_vals['user_id'] = booking.staff_user_id.id
                     if event_vals:
                         # 預約的 event 是 private：非主辦人的員工（例如建立者）
                         # 通過預約本身的權限後，由系統同步時間。
@@ -613,28 +618,23 @@ class AppointmentBooking(models.Model):
         if self.calendar_event_id:
             return self.calendar_event_id
 
-        # privacy='private': calendar.event is readable by every employee, while
-        # bookings are restricted to their staff/creator (and managers). Core
-        # masks private events (name 'Busy', other fields empty) for anyone
-        # who is neither organizer nor attendee; calendar_event.py lets
-        # appointment managers through for booking events. Guest contact
-        # details stay on the booking only (see _get_event_description).
-        if self.staff_user_id:
-            organizer = self.staff_user_id
-        elif self.env.user._is_internal() and not self.env.user._is_superuser():
-            organizer = self.env.user
-        else:
-            # Anonymous / payment-callback confirmation: never make the shared
-            # public user (or OdooBot) the organizer.
-            organizer = self.env['res.users']
+        # Bookings are restricted to their staff/creator (and managers), while
+        # calendar.event is readable by every employee. is_appointment_booking
+        # puts the event and its attendee rows (the guest) under the rules in
+        # security/appointment_calendar_security.xml: only the organizer, the
+        # attendees and appointment managers can see them. privacy='private'
+        # is the second layer (core masks name/description as 'Busy'). The
+        # title and description carry no guest name or contact details; those
+        # stay on the booking (see _get_event_name/_get_event_description).
         event_vals = {
-            'name': f'{self.appointment_type_id.name} - {self.guest_name}',
+            'name': self._get_event_name(),
             'start': self.start_datetime,
             'stop': self.end_datetime,
             'description': self._get_event_description(),
             'partner_ids': [(4, self.partner_id.id)] if self.partner_id else [],
-            'user_id': organizer.id,
+            'user_id': self._get_event_organizer().id,
             'privacy': 'private',
+            'is_appointment_booking': True,
         }
 
         # Online meeting: set videocall location only if no Discuss channel
@@ -658,6 +658,26 @@ class AppointmentBooking(models.Model):
         event = self.env['calendar.event'].sudo().create(event_vals)
         self.calendar_event_id = event
         return event
+
+    def _get_event_organizer(self):
+        """Organizer of the booking's calendar event.
+
+        The assigned staff; without one, the confirming internal user.
+        Never the shared public user (anonymous / payment-callback
+        confirmation) or OdooBot.
+        """
+        self.ensure_one()
+        if self.staff_user_id:
+            return self.staff_user_id
+        user = self.env.user
+        if user._is_internal() and not user._is_superuser():
+            return user
+        return self.env['res.users']
+
+    def _get_event_name(self):
+        """Event title: appointment type and booking reference, no guest name."""
+        self.ensure_one()
+        return f'{self.appointment_type_id.name} - {self.name}'
 
     def _get_event_description(self):
         """Minimal event description: no guest contact details or notes.

@@ -4,7 +4,8 @@
   * portal／public 不能經 ORM（call_kw）直接建立預約
   * 員工內部欄位（internal_notes 等）portal 擁有者讀不到
   * 線上預約的 Discuss 會議室是成員制，其他 portal 使用者讀不到也加不進去
-  * 預約的 calendar.event 是 private：其他員工只看到 Busy，不含訪客聯絡資料
+  * 預約的 calendar.event 與參加者列只有主辦人、參加者、預約管理員看得到；
+    標題、描述不含訪客姓名與聯絡資料
   * 預約表單只顯示屬於該預約類型名單的員工／場地名稱
   * 18.0.3.2.2 migration 把既有會議室與 event 收緊，可重跑
 """
@@ -43,7 +44,7 @@ class AclCommon:
 
     @classmethod
     def _setup_acl_fixtures(cls):
-        cls.portal_user = cls._user('acl_portal_guest', ['base.group_portal'])
+        cls.portal_user = cls._user('acl_portal_guest', ['base.group_portal'], name='Alice Guest')
         cls.other_portal = cls._user('acl_portal_other', ['base.group_portal'])
         cls.employee = cls._user('acl_employee', ['base.group_user'])
         cls.staff = cls._user('acl_staff', ['reservation_module.group_appointment_user'])
@@ -265,21 +266,68 @@ class TestBookingCalendarPrivacy(AclCommon, TransactionCase):
         self.env.invalidate_all()
         return event.with_user(user).read(['name', 'description', 'partner_ids'])[0]
 
-    def test_event_private_and_masked_for_other_employees(self):
+    def test_event_hidden_from_other_employees(self):
         booking = self._booking()
         booking.action_confirm()
         event = booking.calendar_event_id
         self.assertEqual(event.privacy, 'private')
+        self.assertTrue(event.is_appointment_booking)
         for user in (self.employee, self.appt_user):
-            data = self._read_event(event, user)
-            self.assertEqual(data['name'], 'Busy', user.login)
-            self.assertFalse(data['description'], user.login)
-            self.assertFalse(data['partner_ids'], user.login)
+            self.env.invalidate_all()
+            Event = self.env['calendar.event'].with_user(user)
+            self.assertFalse(Event.search([('id', '=', event.id)]), user.login)
+            with self.assertRaises(AccessError):
+                event.with_user(user).read(['name', 'description', 'partner_ids'])
             self.env.invalidate_all()
             with self.assertRaises(AccessError):
                 event.with_user(user).write({'name': 'hijacked'})
             with self.assertRaises(AccessError):
                 event.with_user(user).unlink()
+
+    def test_no_search_oracle_on_guest_or_type(self):
+        """員工不能用名稱／參加者／時間搜尋推出某訪客何時有預約。"""
+        booking = self._booking()
+        booking.action_confirm()
+        guest = self.portal_user.partner_id
+        for user in (self.employee, self.appt_user):
+            self.env.invalidate_all()
+            Event = self.env['calendar.event'].with_user(user)
+            for domain in (
+                [('name', 'ilike', 'Alice')],
+                [('name', 'ilike', 'ACL Consult')],
+                [('name', 'ilike', booking.name)],
+                [('partner_ids', 'in', guest.ids)],
+                [('attendee_ids.common_name', 'ilike', 'Alice')],
+                [('start', '=', booking.start_datetime)],
+            ):
+                self.assertEqual(Event.search_count(domain), 0, (user.login, domain))
+            Partner = self.env['res.partner'].with_user(user)
+            self.assertFalse(Partner.browse(guest.id).meeting_ids, user.login)
+            self.assertEqual(Partner.browse(guest.id).meeting_count, 0, user.login)
+            self.assertFalse(Partner.search([
+                ('id', '=', guest.id), ('meeting_ids.start', '=', booking.start_datetime)]))
+
+    def test_attendee_rows_hidden_from_other_employees(self):
+        booking = self._booking()
+        booking.action_confirm()
+        event = booking.calendar_event_id
+        attendee = event.attendee_ids.filtered(lambda a: a.partner_id == self.portal_user.partner_id)
+        self.assertTrue(attendee)
+        for user in (self.employee, self.appt_user):
+            self.env.invalidate_all()
+            Attendee = self.env['calendar.attendee'].with_user(user)
+            self.assertEqual(Attendee.search_read(
+                [('event_id', '=', event.id)], ['common_name', 'email', 'phone']), [], user.login)
+            self.assertFalse(Attendee.search([('common_name', 'ilike', 'Alice')]), user.login)
+            with self.assertRaises(AccessError):
+                attendee.with_user(user).read(['common_name', 'email', 'phone'])
+            self.env.invalidate_all()
+            with self.assertRaises(AccessError):
+                attendee.with_user(user).write({'state': 'declined'})
+            with self.assertRaises(AccessError):
+                attendee.with_user(user).unlink()
+        self.env.invalidate_all()
+        self.assertEqual(attendee.state, 'needsAction')
 
     def test_organizer_and_manager_see_details(self):
         booking = self._booking()
@@ -287,8 +335,63 @@ class TestBookingCalendarPrivacy(AclCommon, TransactionCase):
         event = booking.calendar_event_id
         for user in (self.staff, self.manager):
             data = self._read_event(event, user)
-            self.assertIn('Alice Guest', data['name'], user.login)
+            self.assertEqual(data['name'], 'ACL Consult - %s' % booking.name, user.login)
             self.assertIn(booking.name, data['description'], user.login)
+            self.assertEqual(data['partner_ids'], self.portal_user.partner_id.ids, user.login)
+            self.env.invalidate_all()
+            rows = self.env['calendar.attendee'].with_user(user).search_read(
+                [('event_id', '=', event.id)], ['common_name', 'email'])
+            self.assertEqual([(r['common_name'], r['email']) for r in rows],
+                             [('Alice Guest', 'acl_portal_guest@example.com')], user.login)
+            self.assertEqual(self.env['calendar.event'].with_user(user).search_count(
+                [('partner_ids', 'in', self.portal_user.partner_id.ids)]), 1, user.login)
+
+    def test_attendee_guest_sees_own_event(self):
+        """訪客本身是內部使用者時，仍看得到自己的 event 與參加者列。"""
+        booking = self._booking(partner_id=self.employee.partner_id.id)
+        booking.action_confirm()
+        event = booking.calendar_event_id
+        self.env.invalidate_all()
+        self.assertEqual(
+            self.env['calendar.event'].with_user(self.employee).search([('id', '=', event.id)]), event)
+        self.assertTrue(self.env['calendar.attendee'].with_user(self.employee).search(
+            [('event_id', '=', event.id)]))
+
+    def test_title_has_no_guest_name(self):
+        booking = self._booking()
+        booking.action_confirm()
+        self.assertNotIn('Alice', booking.calendar_event_id.name)
+
+    def test_other_private_events_keep_core_behaviour(self):
+        """不是預約建立的 event 不受影響：其他員工照 core 看到 Busy 與參加者列。"""
+        other = self._user('acl_colleague', ['base.group_user'])
+        event = self.env['calendar.event'].with_user(other).create({
+            'name': 'Dentist',
+            'start': fields.Datetime.now() + timedelta(days=1),
+            'stop': fields.Datetime.now() + timedelta(days=1, hours=1),
+            'privacy': 'private',
+            'partner_ids': [(6, 0, [other.partner_id.id])],
+        })
+        self.env.invalidate_all()
+        data = self._read_event(event, self.employee)
+        self.assertEqual(data['name'], 'Busy')
+        self.env.invalidate_all()
+        self.assertTrue(self.env['calendar.attendee'].with_user(self.employee).search(
+            [('event_id', '=', event.id)]))
+
+    def test_staff_reassignment_moves_event_organizer(self):
+        other_staff = self._user('acl_staff_two', ['reservation_module.group_appointment_user'])
+        self.appointment_type.staff_user_ids = [(4, other_staff.id)]
+        booking = self._booking()
+        booking.action_confirm()
+        event = booking.calendar_event_id
+        booking.staff_user_id = other_staff
+        self.assertEqual(event.user_id, other_staff)
+        self.env.invalidate_all()
+        self.assertEqual(
+            self.env['calendar.event'].with_user(other_staff).search([('id', '=', event.id)]), event)
+        self.assertFalse(
+            self.env['calendar.event'].with_user(self.staff).search([('id', '=', event.id)]))
 
     def test_description_has_no_guest_contact_details(self):
         booking = self._booking()
@@ -360,6 +463,9 @@ class TestMigration3_2_2(AclCommon, TransactionCase):
         self.assertEqual(self.mig._migrate_discuss_channels(self.env.cr), (0, 0))
 
     def test_legacy_event_made_private(self):
+        # Bring any booking event already in the database to the target
+        # state first, so the counts below only see this test's event.
+        self.mig._migrate_calendar_events(self.env)
         booking = self._booking()
         event = self.env['calendar.event'].sudo().create({
             'name': 'ACL Consult - Alice Guest',
@@ -371,8 +477,15 @@ class TestMigration3_2_2(AclCommon, TransactionCase):
         booking.calendar_event_id = event
         self.env.flush_all()
 
+        self.assertTrue(self.env['calendar.event'].with_user(self.employee).search(
+            [('name', 'ilike', 'Alice')]))
         self.assertEqual(self.mig._migrate_calendar_events(self.env), 1)
         self.assertEqual(event.privacy, 'private')
+        self.assertTrue(event.is_appointment_booking)
+        self.assertEqual(event.name, 'ACL Consult - %s' % booking.name)
+        self.env.invalidate_all()
+        self.assertFalse(self.env['calendar.event'].with_user(self.employee).search(
+            [('id', '=', event.id)]))
         self.assertNotIn('alice.guest@example.com', event.description or '')
         self.assertIn(booking.name, event.description or '')
         self.assertEqual(self.mig._migrate_calendar_events(self.env), 0)
@@ -428,6 +541,36 @@ class TestBookFormRosterNames(TimezoneCommon, HttpCase):
         self.assertEqual(page.status_code, 200)
         self.assertIn('Rosterstaff Visibleperson', page.text)
         self.assertIn('Rosterroom Visibleplace', page.text)
+
+    def _csrf(self):
+        page = self._get(self.roster_staff.id, self.roster_room.id)
+        match = re.search(r'name="csrf_token"[^>]*value="([^"]+)"', page.text) or re.search(
+            r'value="([^"]+)"[^>]*name="csrf_token"', page.text)
+        self.assertTrue(match)
+        return match.group(1)
+
+    def _post_guests(self, resource, guest_count):
+        return self.url_open(self.book_url, data={
+            'csrf_token': self._csrf(),
+            'start_datetime': self.start,
+            'staff_id': str(self.roster_staff.id),
+            'resource_id': str(resource.id),
+            'guest_name': 'Capacity Probe',
+            'guest_email': 'probe@example.com',
+            'guest_count': str(guest_count),
+        })
+
+    def test_guest_limit_ignores_off_roster_resource_capacity(self):
+        """名單外場地的容量不會出現在錯誤訊息裡。"""
+        self.other_room.capacity = 1
+        response = self._post_guests(self.other_room, 2)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('Maximum 1 guests allowed', response.text)
+
+    def test_guest_limit_uses_roster_resource_capacity(self):
+        response = self._post_guests(self.roster_room, 5)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Maximum 3 guests allowed', response.text)
 
     def test_error_render_drops_outsider_ids(self):
         page = self._get(self.roster_staff.id, self.roster_room.id)

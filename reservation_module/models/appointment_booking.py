@@ -189,6 +189,15 @@ class AppointmentBooking(models.Model):
     # Payment failure tracking
     payment_failure_count = fields.Integer(
         'Payment Failures', default=0, copy=False, groups=BOOKING_STAFF_GROUP)
+    # The "payment failed" mail goes to an address the visitor typed: one
+    # booking may send it at most once a day and a few times in total, however
+    # many failed transactions (or reloads of the return page) it gets.
+    payment_failure_mail_count = fields.Integer(
+        'Payment Failure Mails Sent', default=0, copy=False, readonly=True,
+        groups=BOOKING_STAFF_GROUP)
+    payment_failure_mailed_at = fields.Datetime(
+        'Last Payment Failure Mail', copy=False, readonly=True,
+        groups=BOOKING_STAFF_GROUP)
 
     # Slot hold for a payment-required booking: while it waits for the
     # payment (draft / pending_payment) it occupies its staff member and its
@@ -1051,9 +1060,30 @@ class AppointmentBooking(models.Model):
         self.ensure_one()
         self._send_guest_mail('reservation_module.email_template_booking_reminder')
 
-    def _handle_payment_failure(self, error_message=''):
-        """Track payment failure and send notifications to customer + admin."""
+    def _handle_payment_failure(self, error_message='', transaction=None):
+        """Track a payment failure: count it, note it for staff, tell the guest.
+
+        ``transaction`` is the failed payment.transaction. Each transaction is
+        handled once, whichever path reports it first (the return page or the
+        provider webhook); later reports of the same transaction do nothing.
+        The guest mail itself is throttled per booking
+        (_claim_payment_failure_mail); the counter and the internal note are
+        kept even when the mail is not sent.
+
+        Returns False when ``transaction`` was already handled, True otherwise.
+        """
         self.ensure_one()
+        if transaction:
+            # Atomic claim: concurrent reports of one transaction serialize on
+            # its row and only the first one gets it.
+            self.env.cr.execute(
+                "UPDATE payment_transaction SET appointment_failure_notified = TRUE "
+                "WHERE id = %s AND appointment_failure_notified IS NOT TRUE RETURNING id",
+                [transaction.id],
+            )
+            transaction.invalidate_recordset(['appointment_failure_notified'])
+            if not self.env.cr.fetchone():
+                return False
         # Atomic increment to avoid lost updates under concurrent requests
         self.env.cr.execute(
             "UPDATE appointment_booking SET payment_failure_count = payment_failure_count + 1 WHERE id = %s",
@@ -1062,7 +1092,9 @@ class AppointmentBooking(models.Model):
         self.invalidate_recordset(['payment_failure_count'])
 
         # Send failure notification to customer
-        self._send_guest_mail('reservation_module.email_template_payment_failure')
+        mailed = False
+        if self.sudo().guest_email and self._claim_payment_failure_mail():
+            mailed = self._send_guest_mail('reservation_module.email_template_payment_failure')
 
         # Send admin alert via internal note on booking chatter
         admin_msg = _(
@@ -1078,12 +1110,43 @@ class AppointmentBooking(models.Model):
         )
         if error_message:
             admin_msg += _('\nError: %s', error_message)
+        if self.sudo().guest_email and not mailed:
+            admin_msg += _('\nThe customer was not e-mailed about this failure '
+                           '(payment failure mails for this booking are limited).')
 
         self.message_post(
             body=admin_msg,
             message_type='notification',
             subtype_xmlid='mail.mt_note',
         )
+        return True
+
+    def _claim_payment_failure_mail(self):
+        """Reserve the right to send one "payment failed" mail now.
+
+        At most one per booking per 24 hours and
+        ``reservation_module.payment_failure_mail_limit`` (default 3) in total;
+        0 or less means no total limit. The check and the reservation are one
+        conditional UPDATE, so concurrent failures cannot both pass it.
+        """
+        self.ensure_one()
+        limit = self._get_int_param('reservation_module.payment_failure_mail_limit', 3)
+        now = fields.Datetime.now()
+        self.env.cr.execute(
+            """
+            UPDATE appointment_booking
+               SET payment_failure_mail_count = COALESCE(payment_failure_mail_count, 0) + 1,
+                   payment_failure_mailed_at = %(now)s
+             WHERE id = %(id)s
+               AND (payment_failure_mailed_at IS NULL OR payment_failure_mailed_at <= %(since)s)
+               AND (%(limit)s <= 0 OR COALESCE(payment_failure_mail_count, 0) < %(limit)s)
+         RETURNING id
+            """,
+            {'id': self.id, 'now': now, 'since': now - timedelta(days=1), 'limit': limit},
+        )
+        claimed = bool(self.env.cr.fetchone())
+        self.invalidate_recordset(['payment_failure_mail_count', 'payment_failure_mailed_at'])
+        return claimed
 
     @api.model
     def _cron_send_reminders(self):

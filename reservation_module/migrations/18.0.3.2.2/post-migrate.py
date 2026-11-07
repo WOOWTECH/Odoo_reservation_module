@@ -14,8 +14,10 @@
    能從 res.partner 那一側把自己加進去），標題改成「預約類型 - 預約編號」
    （不含訪客姓名，_get_event_name），description 改成不含訪客 email／
    電話／備註的精簡版（_get_event_description）。
+3. 付款失敗：升級前已回報過的失敗交易標成已回報，預約的付款失敗信計數從
+   失敗次數起算（_mark_reported_payment_failures），付款返回頁重開不會再寄信。
 
-兩段都只改「還不是目標狀態」的資料，重跑不會再變動。
+三段都只改「還不是目標狀態」的資料，重跑不會再變動。
 """
 
 import logging
@@ -110,9 +112,42 @@ def _same_text(html_value, text):
     return html2plaintext(html_value or '').split() == html2plaintext(text or '').split()
 
 
+def _mark_reported_payment_failures(cr):
+    """舊版已經回報過（也寄過信）的失敗交易。
+
+    18.0.3.2.2 起每筆失敗交易只回報一次（payment_transaction 的
+    appointment_failure_notified）。升級前失敗的交易舊版已回報過，可能還不止
+    一次：先標記，避免訪客再開一次付款返回頁就又收到一封信。舊版每次回報都寄
+    信給訪客，所以預約的「付款失敗信」計數從失敗次數起算。
+    """
+    tx_filter = "t.appointment_booking_id IS NOT NULL"
+    if _table_exists(cr, 'sale_order_transaction_rel'):
+        tx_filter += """
+            OR EXISTS (SELECT 1 FROM sale_order_transaction_rel r
+                         JOIN appointment_booking b ON b.sale_order_id = r.sale_order_id
+                        WHERE r.transaction_id = t.id)"""
+    cr.execute(f"""
+        UPDATE payment_transaction t
+           SET appointment_failure_notified = TRUE
+         WHERE t.state IN ('error', 'cancel')
+           AND t.appointment_failure_notified IS NOT TRUE
+           AND ({tx_filter})
+    """)
+    marked = cr.rowcount
+    cr.execute("""
+        UPDATE appointment_booking
+           SET payment_failure_mail_count = payment_failure_count
+         WHERE COALESCE(payment_failure_count, 0) > COALESCE(payment_failure_mail_count, 0)
+    """)
+    _logger.info('reservation_module 18.0.3.2.2: %s failed transactions marked as reported, '
+                 '%s bookings got their payment failure mail counter', marked, cr.rowcount)
+    return marked
+
+
 def migrate(cr, version):
     if not version:
         return
     _migrate_discuss_channels(cr)
+    _mark_reported_payment_failures(cr)
     env = api.Environment(cr, SUPERUSER_ID, {})
     _migrate_calendar_events(env)

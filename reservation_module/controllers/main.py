@@ -1568,11 +1568,17 @@ class AppointmentController(http.Controller):
         elif tx_sudo and tx_sudo.state in ('pending', 'authorized'):
             # Payment pending (e.g., wire transfer)
             return request.redirect(f'/appointment/booking/{booking.id}/confirm?token={token}&pending=1')
-        else:
-            # Payment failed or cancelled — track failure and notify
-            error_detail = tx_sudo.state_message if tx_sudo else ''
-            booking._handle_payment_failure(error_message=error_detail)
-            return self._render_payment_page(booking, error=_('Payment was not completed. Please try again.'))
+        if booking.state not in ('draft', 'pending_payment') or not booking.appointment_type_id.require_payment:
+            # Nothing to pay (any more): show the booking, report nothing.
+            return request.redirect(f'/appointment/booking/{booking.id}?token={token}')
+        if tx_sudo and tx_sudo.state in ('error', 'cancel'):
+            # A real failed transaction: handled once per transaction, however
+            # often this page is loaded (the webhook may have handled it already).
+            booking._handle_payment_failure(
+                error_message=tx_sudo.state_message or '', transaction=tx_sudo)
+        # No transaction, or one not processed yet: not a failure, only offer
+        # the payment again.
+        return self._render_payment_page(booking, error=_('Payment was not completed. Please try again.'))
 
 
 class AppointmentPortal(CustomerPortal):

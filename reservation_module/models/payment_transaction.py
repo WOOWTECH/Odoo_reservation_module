@@ -18,6 +18,10 @@ class PaymentTransaction(models.Model):
         ondelete='set null',
         help='Related booking record',
     )
+    # Set once the booking side has handled this transaction's failure, so the
+    # return page and the webhook together report one failed tx only once.
+    appointment_failure_notified = fields.Boolean(
+        'Booking Failure Handled', copy=False, readonly=True)
 
     def _get_held_bookings(self):
         """Payment-required bookings still waiting for this transaction."""
@@ -70,9 +74,11 @@ class PaymentTransaction(models.Model):
                     ], limit=1)
                     if booking:
                         break
-            if booking:
+            if (booking and booking.state in ('draft', 'pending_payment')
+                    and booking.appointment_type_id.require_payment):
                 booking._handle_payment_failure(
-                    error_message=tx.state_message or tx.state
+                    error_message=tx.state_message or tx.state,
+                    transaction=tx,
                 )
 
         # Payment started but not settled yet (e.g. wire transfer): keep the

@@ -10,6 +10,8 @@
   * rate limits not keyed only on what the visitor types; per-inbox mail cap
   * payment-required bookings hold their slot during the payment window;
     a failed confirmation after payment is flagged, not swallowed
+  * one booking sends the "payment failed" mail once per failed transaction,
+    at most once a day and a few times in total
 """
 
 import re
@@ -22,6 +24,7 @@ from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests.common import HttpCase, TransactionCase, tagged
 
+from .test_security_acl import _load_migration_3_2_2
 from .test_timezone import TAIPEI, TimezoneCommon
 
 
@@ -706,3 +709,105 @@ class TestPaymentHoldModel(PaymentHoldCommon, TransactionCase):
                           side_effect=psycopg2.errors.SerializationFailure('retry me')):
             with self.assertRaises(psycopg2.errors.SerializationFailure):
                 self._post_process(tx)
+
+
+@tagged('post_install', '-at_install')
+class TestPaymentFailureMails(PaymentHoldCommon, RulesHttpCommon, HttpCase):
+    """94f32de1e119: one booking cannot make the form mail a typed address
+    over and over (return page reloads, repeated failed transactions)."""
+
+    def setUp(self):
+        super().setUp()
+        self.appointment_type = self._paid_type()
+        self._post(self.appointment_type, self._wall(3, 10), guest_email='relay.victim@example.org')
+        self.booking = self._bookings(self.appointment_type, guest_email='relay.victim@example.org')
+        self.assertEqual(self.booking.state, 'pending_payment')
+        self.assertTrue(self.booking.client_ip_hash, 'a public-form booking')
+        self.provider = self.env['payment.provider'].create({
+            'name': 'Failure Dummy', 'code': 'none', 'state': 'test',
+            'payment_method_ids': [(6, 0, self.env.ref('payment.payment_method_unknown').ids)],
+        })
+
+    def _failed_tx(self, reference):
+        tx = self.env['payment.transaction'].sudo().create({
+            'provider_id': self.provider.id,
+            'payment_method_id': self.env.ref('payment.payment_method_unknown').id,
+            'reference': reference,
+            'amount': 100.0,
+            'currency_id': self.booking.currency_id.id or self.env.company.currency_id.id,
+            'partner_id': self.booking.partner_id.id,
+            'appointment_booking_id': self.booking.id,
+        })
+        self.booking.payment_transaction_id = tx
+        tx._set_error('Card declined')
+        return tx
+
+    def _validate(self, times=1):
+        self.env.flush_all()
+        for _index in range(times):
+            response = self.url_open('/appointment/payment/validate?booking_id=%d&token=%s'
+                                     % (self.booking.id, self.booking.access_token))
+            self.assertEqual(response.status_code, 200)
+        self.env.invalidate_all()
+        return response
+
+    def _failure_mails(self):
+        return self.env['mail.mail'].sudo().search([
+            ('model', '=', 'appointment.booking'), ('res_id', '=', self.booking.id),
+            ('subject', 'ilike', 'Payment failed')])
+
+    def _failure_notes(self):
+        return self.booking.message_ids.filtered(lambda m: 'Payment failure #' in (m.body or ''))
+
+    def test_return_page_without_a_transaction_is_not_a_failure(self):
+        self._validate(times=4)
+        self.assertFalse(self._failure_mails())
+        self.assertEqual(self.booking.payment_failure_count, 0)
+
+    def test_return_page_reloads_send_one_failure_mail(self):
+        tx = self._failed_tx('RULES-FAIL-RELOAD')
+        self._validate(times=5)
+        self.assertEqual(len(self._failure_mails()), 1)
+        self.assertEqual(self.booking.payment_failure_count, 1)
+        self.assertEqual(len(self._failure_notes()), 1)
+        # The webhook reporting the same transaction afterwards changes nothing.
+        tx._post_process()
+        self.env.invalidate_all()
+        self.assertEqual(len(self._failure_mails()), 1)
+        self.assertEqual(self.booking.payment_failure_count, 1)
+
+    def test_new_failed_transactions_mail_once_a_day_and_a_few_times_total(self):
+        for index in range(3):
+            self._failed_tx('RULES-FAIL-%d' % index)._post_process()
+        self.env.invalidate_all()
+        self.assertEqual(self.booking.payment_failure_count, 3, 'every failure is counted')
+        self.assertEqual(len(self._failure_notes()), 3, 'and noted for staff')
+        self.assertEqual(len(self._failure_mails()), 1, 'but mailed once a day')
+        for index in range(3):
+            self.booking.payment_failure_mailed_at = fields.Datetime.now() - timedelta(days=2)
+            self._failed_tx('RULES-FAIL-LATER-%d' % index)._post_process()
+        self.env.invalidate_all()
+        self.assertEqual(len(self._failure_mails()), 3, 'at most 3 in total')
+        self.assertEqual(self.booking.payment_failure_count, 6)
+
+    def test_settled_booking_reports_no_failure(self):
+        self._failed_tx('RULES-FAIL-SETTLED')
+        self.booking.state = 'cancelled'
+        response = self._validate(times=3)
+        self.assertIn('/appointment/booking/%d?token=' % self.booking.id, response.url)
+        self.assertFalse(self._failure_mails())
+        self.assertEqual(self.booking.payment_failure_count, 0)
+
+    def test_upgrade_marks_already_reported_failures(self):
+        tx = self._failed_tx('RULES-FAIL-LEGACY')
+        self.booking.payment_failure_count = 2  # reported twice by the old code
+        self.env.flush_all()
+        mig = _load_migration_3_2_2()
+        self.assertGreaterEqual(mig._mark_reported_payment_failures(self.env.cr), 1)
+        self.env.invalidate_all()
+        self.assertTrue(tx.appointment_failure_notified)
+        self.assertEqual(self.booking.payment_failure_mail_count, 2)
+        self._validate(times=2)
+        self.assertFalse(self._failure_mails(), 'already reported before the upgrade')
+        self.assertEqual(self.booking.payment_failure_count, 2)
+        self.assertEqual(mig._mark_reported_payment_failures(self.env.cr), 0)

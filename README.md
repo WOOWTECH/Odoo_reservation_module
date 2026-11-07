@@ -24,7 +24,7 @@
   <img src="https://img.shields.io/badge/Odoo-18.0-purple?logo=odoo" alt="Odoo 18"/>
   <img src="https://img.shields.io/badge/Python-3.10+-blue?logo=python" alt="Python 3.10+"/>
   <img src="https://img.shields.io/badge/License-LGPL--3-green" alt="License"/>
-  <img src="https://img.shields.io/badge/Version-18.0.3.2.2-orange" alt="Version"/>
+  <img src="https://img.shields.io/badge/Version-18.0.3.2.3-orange" alt="Version"/>
   <img src="https://img.shields.io/badge/PostgreSQL-13+-blue?logo=postgresql" alt="PostgreSQL"/>
 </p>
 
@@ -82,6 +82,7 @@
 
 ### Access & Privacy (since 18.0.3.2.2)
 
+- **Refunded payments need settled replacement funds (18.0.3.2.3)** — after a provider refund, a new transaction in `authorized` state may hold the slot but cannot satisfy the paid gate or allow staff confirmation. Only captured (`done`) transactions and reconciled bank payments count as replacement funds.
 - **Members-only meeting rooms** — the Discuss room of an online booking is a `group` conversation whose members are the assigned staff and the booking's customer; other portal users can neither read nor join it. Rooms are created when `woow_odoo_portal_discuss` (or the former `cs_portal_discuss`) is installed and stay listed in the customer's "My Discussions". The upgrade migrates existing rooms and removes members who do not belong to the booking.
 - **Booking calendar events are confined** — a booking's calendar event and its attendee rows (the guest's name, email and phone) are visible only to the organizer (the assigned staff member), the booking's guest contact (`appointment_guest_partner_id`, which matters when the guest is also a logged-in portal user) and appointment managers. Being listed as an attendee gives no access: a colleague invited to the event cannot open it, and other employees, including appointment users not assigned to the booking, do not see the event on the shared calendar (not even as "Busy"), cannot find it by searching on name, attendee or time, and do not see it under the guest contact's Meetings. Events not created by a booking keep standard Odoo behaviour. The event is also `private`, its title is `<appointment type> - <booking reference>` (no guest name), and its description carries only the booking reference, guest count and location; guest email, phone and notes stay on the booking. Reassigning the booking's staff moves the event organizer to the new staff. Without assigned staff the public user is no longer made the organizer. Existing events are migrated.
 - **Bookings are created through the booking form only** — portal/public users cannot create bookings over RPC; the website flows are unchanged.

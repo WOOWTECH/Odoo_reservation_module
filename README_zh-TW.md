@@ -24,7 +24,7 @@
   <img src="https://img.shields.io/badge/Odoo-18.0-purple?logo=odoo" alt="Odoo 18"/>
   <img src="https://img.shields.io/badge/Python-3.10+-blue?logo=python" alt="Python 3.10+"/>
   <img src="https://img.shields.io/badge/License-LGPL--3-green" alt="License"/>
-  <img src="https://img.shields.io/badge/Version-18.0.3.2.2-orange" alt="Version"/>
+  <img src="https://img.shields.io/badge/Version-18.0.3.2.3-orange" alt="Version"/>
   <img src="https://img.shields.io/badge/PostgreSQL-13+-blue?logo=postgresql" alt="PostgreSQL"/>
 </p>
 
@@ -91,6 +91,7 @@
 
 ### 預約規則（18.0.3.2.2 起）
 
+- **退款後須有實際入帳的替代款（18.0.3.2.3）** — 原付款退回後，新交易若只在 `authorized`（授權、未扣款）狀態，只能保留時段，不能算已付款或讓員工確認預約。替代款需為已完成交易或已對帳的銀行款。
 - **整團人數要放得下** — 已佔人數加上這次的人數不能超過場地容量；表單、確認與自動分配場地都照這條（容量 0 視為 1）。沒選場地時，表單上限是名單裡最大的場地。
 - **不再建立未指派的預約** — 自動分配員工或場地時，名單裡在那個時段都沒空（或沒排班）就直接拒絕，不會建出沒人、沒場地的預約。
 - **活動模式一次預約整個時段** — 活動型預約必須剛好是一個可預約時段（結束在 24:00 的時段，結束時間是隔天當地 00:00）；縮短、拉長或切段的區間都會被拒絕。

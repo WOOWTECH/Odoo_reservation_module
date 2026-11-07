@@ -719,10 +719,23 @@ class AppointmentController(http.Controller):
 
         Wire format: 'start'/'end' are naive **UTC** strings (what gets stored),
         'start_time'/'end_time' are the **local** strings shown to the visitor.
+
+        The grid is walked in local wall time, so slots keep landing on the
+        same clock times across a daylight-saving change. A slot lasts
+        ``slot_duration`` of *real* time, though: that is what a booking
+        stores (start + duration), so the end is computed on the UTC side and
+        converted back for display. Wall clock arithmetic would make a slot
+        that straddles the change one hour too long or too short and would
+        offer slots the booking form then refuses. The windows are the ones
+        the booking form validates against (``_get_availability_windows``,
+        which skips a window whose start or end falls in a DST gap), so every
+        slot offered here is accepted there.
         """
         ctx = self._get_availability_and_bookings(appointment_type, selected_date, resource_id, staff_id)
+        windows = appointment_type._get_availability_windows(
+            selected_date, resource_id=resource_id, staff_id=staff_id)
 
-        if not ctx['availabilities']:
+        if not windows:
             return {'slots': []}
 
         slots = []
@@ -730,29 +743,31 @@ class AppointmentController(http.Controller):
         slot_interval = timedelta(hours=appointment_type.slot_interval or appointment_type.slot_duration)
         tz = ctx['tz']
         day_start_local = ctx['day_start_local']
-        # Guards against two wall-clock slots collapsing onto the same UTC
-        # instant. Skipping the DST gap below already prevents that, but the
-        # wire format is keyed on 'start', so a duplicate would be a silently
-        # unbookable entry — cheap to rule out here.
+        # Two availability rows may produce the same slot (overlapping
+        # windows); the wire format is keyed on 'start', so a duplicate would
+        # be a silently unbookable entry.
         seen_utc_starts = set()
 
-        for avail in ctx['availabilities']:
+        for _window_start_utc, window_end_utc, avail in windows:
             # Walk the window in local wall time so slots keep landing on the
             # same clock times even across a DST transition...
             current_local = self._hour_to_local_dt(day_start_local, avail.hour_from)
             end_local = self._hour_to_local_dt(day_start_local, avail.hour_to)
 
-            while current_local + slot_duration <= end_local:
-                slot_end_local = current_local + slot_duration
+            while current_local < end_local:
                 # ...and compare in UTC, the basis of every stored datetime.
                 try:
                     current_utc = self._local_to_utc(tz, current_local)
-                    slot_end_utc = self._local_to_utc(tz, slot_end_local)
                 except tz_utils.NonExistentLocalTime:
                     # DST spring-forward: this wall clock never happens, so
                     # there is no moment to book. Drop the slot.
                     current_local += slot_interval
                     continue
+                slot_end_utc = current_utc + slot_duration
+                if slot_end_utc > window_end_utc:
+                    # Later starts only end later (wall time and UTC move
+                    # forward together), so nothing else fits in this window.
+                    break
 
                 if current_utc in seen_utc_starts:
                     current_local += slot_interval
@@ -774,7 +789,7 @@ class AppointmentController(http.Controller):
                             'start': current_utc.strftime('%Y-%m-%d %H:%M:%S'),
                             'end': slot_end_utc.strftime('%Y-%m-%d %H:%M:%S'),
                             'start_time': current_local.strftime('%H:%M'),
-                            'end_time': slot_end_local.strftime('%H:%M'),
+                            'end_time': self._utc_to_local(tz, slot_end_utc).strftime('%H:%M'),
                             'available': ctx['capacity'] - resource_overlap if resource_id else 1,
                         })
 
